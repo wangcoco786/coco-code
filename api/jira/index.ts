@@ -31,6 +31,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const targetUrl = `${JIRA_BASE_URL.replace(/\/$/, '')}/${jiraPath}${queryString}`
 
   try {
+    // Disable SSL verification for self-signed certs
+    process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
+    
     const fetchOptions: RequestInit = {
       method: req.method,
       headers: {

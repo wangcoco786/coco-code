@@ -1,0 +1,697 @@
+/* ─── ChangeTab ─── */
+
+/* ═══ ImpactDashboard ═══ */
+.impactDashboard {
+  margin-bottom: 20px;
+}
+
+.impactGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.statCard {
+  background: var(--card);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  text-align: center;
+  box-shadow: var(--shadow-sm);
+}
+
+.statValue {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.statLabel {
+  font-size: 12px;
+  color: var(--text2);
+  margin-top: 4px;
+}
+
+/* Impact level indicator */
+.impactHigh .statValue { color: var(--danger); }
+.impactMedium .statValue { color: var(--warning); }
+.impactLow .statValue { color: var(--success); }
+
+.impactLevelBadge {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 10px;
+  margin-top: 6px;
+}
+
+.impactLevelHigh {
+  background: var(--danger-light);
+  color: var(--danger);
+}
+
+.impactLevelMedium {
+  background: var(--warning-light);
+  color: #d48806;
+}
+
+.impactLevelLow {
+  background: var(--success-light);
+  color: var(--success);
+}
+
+/* Baseline vs Current comparison */
+.comparisonSection {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.comparisonCard {
+  flex: 1;
+  background: var(--card);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  box-shadow: var(--shadow-sm);
+}
+
+.comparisonTitle {
+  font-size: 12px;
+  color: var(--text2);
+  margin-bottom: 8px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.comparisonRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 0;
+  font-size: 13px;
+  color: var(--text);
+}
+
+.comparisonValue {
+  font-weight: 600;
+}
+
+.comparisonDiff {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+.diffPositive {
+  background: var(--danger-light);
+  color: var(--danger);
+}
+
+.diffNeutral {
+  background: var(--success-light);
+  color: var(--success);
+}
+
+/* ═══ ChangeDetectionSection ═══ */
+.changeDetection {
+  background: var(--card);
+  border-radius: var(--radius-md);
+  padding: 16px 20px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow-sm);
+}
+
+.sectionTitle {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+/* Change type tabs/pills */
+.changeTypeTabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.changeTypeTab {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  font-size: 13px;
+  border: 1.5px solid var(--border);
+  border-radius: 20px;
+  background: var(--card);
+  color: var(--text2);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.changeTypeTab:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: rgba(22, 119, 255, 0.04);
+  transform: translateY(-1px);
+}
+
+.changeTypeTab:active {
+  transform: scale(0.96);
+}
+
+.changeTypeTabActive {
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  transform: translateY(-1px);
+}
+
+/* Change type specific active colors */
+.changeTypeTabActive.typePriority {
+  background: #fff7e6;
+  border-color: #ffa940;
+  color: #d46b08;
+}
+
+.changeTypeTabActive.typeAddition {
+  background: var(--primary-light);
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.changeTypeTabActive.typeScope {
+  background: #f9f0ff;
+  border-color: #b37feb;
+  color: #722ed1;
+}
+
+.changeTypeTabActive.typeRegression {
+  background: var(--danger-light);
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+/* Count badge on tabs */
+.countBadge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 1px 7px;
+  border-radius: 10px;
+  background: var(--border);
+  color: var(--text2);
+}
+
+.changeTypeTabActive .countBadge {
+  background: rgba(0, 0, 0, 0.08);
+}
+
+/* Change item list */
+.changeList {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.changeItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  transition: all 0.15s ease;
+  border-radius: 6px;
+  cursor: default;
+}
+
+.changeItem:last-child {
+  border-bottom: none;
+}
+
+.changeItem:hover {
+  background: rgba(22, 119, 255, 0.04);
+}
+
+.changeItemInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.changeIssueId {
+  font-size: 11px;
+  color: var(--text2);
+  margin-bottom: 2px;
+}
+
+.changeIssueIdLink {
+  font-size: 11px;
+  color: var(--primary);
+  text-decoration: none;
+  cursor: pointer;
+}
+.changeIssueIdLink:hover {
+  text-decoration: underline;
+  color: var(--primary-hover);
+}
+
+.changeIssueTitle {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+  margin-bottom: 4px;
+  line-height: 1.4;
+}
+
+.changeDescription {
+  font-size: 12px;
+  color: var(--text2);
+  line-height: 1.4;
+}
+
+.changeItemBadges {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+/* ═══ P0 Alert Highlighting ═══ */
+.p0Alert {
+  border-left: 3px solid var(--danger);
+  background: var(--danger-light);
+}
+
+.p0Alert:hover {
+  background: #ffe7e6;
+}
+
+.p0AlertBadge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  background: var(--danger);
+  color: #fff;
+  white-space: nowrap;
+  animation: p0Pulse 2s ease-in-out infinite;
+}
+
+@keyframes p0Pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+/* ═══ Change Type Badges (colored pills) ═══ */
+.changeTypeBadge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 10px;
+  white-space: nowrap;
+}
+
+.badgePriorityChange {
+  background: #fff7e6;
+  color: #d46b08;
+}
+
+.badgeNewAddition {
+  background: var(--primary-light);
+  color: var(--primary);
+}
+
+.badgeScopeChange {
+  background: #f9f0ff;
+  color: #722ed1;
+}
+
+.badgeStatusRegression {
+  background: var(--danger-light);
+  color: var(--danger);
+}
+
+/* ═══ Severity Badges ═══ */
+.severityBadge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 10px;
+  white-space: nowrap;
+}
+
+.severityHigh {
+  background: var(--danger-light);
+  color: var(--danger);
+}
+
+.severityMedium {
+  background: var(--warning-light);
+  color: #d48806;
+}
+
+.severityLow {
+  background: var(--success-light);
+  color: var(--success);
+}
+
+/* ═══ ScopeCreepPanel ═══ */
+.scopeCreepPanel {
+  background: var(--card);
+  border-radius: var(--radius-md);
+  padding: 16px 20px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow-sm);
+}
+
+/* Warning banner (>20% scope increase) */
+.scopeCreepWarning {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--danger-light);
+  border: 1px solid var(--danger-border);
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+  margin-bottom: 14px;
+  font-size: 13px;
+  color: var(--danger);
+}
+
+.scopeCreepWarningIcon {
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.scopeCreepWarningText {
+  flex: 1;
+}
+
+.scopeCreepWarningText strong {
+  font-weight: 700;
+}
+
+/* Scope metrics display */
+.scopeMetrics {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+
+.scopeMetricCard {
+  flex: 1;
+  min-width: 100px;
+  background: var(--bg);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  text-align: center;
+}
+
+.scopeMetricValue {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.scopeMetricLabel {
+  font-size: 11px;
+  color: var(--text2);
+  margin-top: 2px;
+}
+
+/* Timeline list of added issues */
+.scopeTimeline {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.scopeTimelineItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+
+.scopeTimelineItem:last-child {
+  border-bottom: none;
+}
+
+.scopeTimelineDate {
+  font-size: 11px;
+  color: var(--text3);
+  flex-shrink: 0;
+  min-width: 80px;
+}
+
+.scopeTimelineId {
+  font-size: 11px;
+  color: var(--text2);
+  flex-shrink: 0;
+}
+
+.scopeTimelineTitle {
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--text);
+}
+
+.scopeTimelineSP {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text2);
+  flex-shrink: 0;
+}
+
+/* ═══ AISummaryPanel ═══ */
+.aiSummaryPanel {
+  background: var(--card);
+  border-radius: var(--radius-md);
+  padding: 16px 20px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow-sm);
+}
+
+.aiGenerateBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 24px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+  border: none;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #722ed1, #9254de);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.aiGenerateBtn:hover {
+  background: linear-gradient(135deg, #531dab, #722ed1);
+  box-shadow: 0 4px 14px rgba(114, 46, 209, 0.35);
+  transform: translateY(-2px);
+}
+
+.aiGenerateBtn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(114, 46, 209, 0.25);
+}
+
+.aiGenerateBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.aiGenerateBtnIcon {
+  font-size: 16px;
+}
+
+/* Loading state with animated dots */
+.aiLoading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 0;
+  font-size: 13px;
+  color: var(--text2);
+}
+
+.aiLoadingDots {
+  display: inline-flex;
+  gap: 4px;
+}
+
+.aiLoadingDots span {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #722ed1;
+  animation: dotBounce 1.4s ease-in-out infinite;
+}
+
+.aiLoadingDots span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.aiLoadingDots span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes dotBounce {
+  0%, 80%, 100% { opacity: 0.3; transform: scale(0.8); }
+  40% { opacity: 1; transform: scale(1); }
+}
+
+/* Summary display area */
+.aiSummaryContent {
+  margin-top: 14px;
+  padding: 14px 16px;
+  background: var(--bg);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--text);
+  white-space: pre-wrap;
+}
+
+.aiSummaryContent p {
+  margin-bottom: 8px;
+}
+
+.aiSummaryContent p:last-child {
+  margin-bottom: 0;
+}
+
+/* Cached indicator */
+.aiCachedIndicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--text3);
+  margin-top: 8px;
+}
+
+.aiCachedDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--success);
+}
+
+/* Error message with retry */
+.aiError {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+  padding: 10px 14px;
+  background: var(--danger-light);
+  border: 1px solid var(--danger-border);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  color: var(--danger);
+}
+
+.aiErrorText {
+  flex: 1;
+}
+
+.aiRetryBtn {
+  padding: 4px 12px;
+  font-size: 12px;
+  border: 1px solid var(--danger);
+  border-radius: var(--radius-sm);
+  background: var(--card);
+  color: var(--danger);
+  cursor: pointer;
+  transition: var(--transition);
+  white-space: nowrap;
+}
+
+.aiRetryBtn:hover {
+  background: var(--danger);
+  color: #fff;
+}
+
+/* ═══ Empty / No Changes State ═══ */
+.emptyState {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text2);
+}
+
+.emptyIcon {
+  font-size: 48px;
+  margin-bottom: 12px;
+}
+
+.emptyText {
+  font-size: 15px;
+}
+
+/* ═══ Info message (e.g., missing sprint start date) ═══ */
+.infoMessage {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--primary-light);
+  border: 1px solid var(--primary-border);
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  font-size: 13px;
+  color: var(--primary);
+}
+
+.infoMessageIcon {
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+/* ═══ Responsive ═══ */
+@media (max-width: 900px) {
+  .impactGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .impactGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .comparisonSection {
+    flex-direction: column;
+  }
+
+  .scopeMetrics {
+    gap: 8px;
+  }
+
+  .scopeMetricCard {
+    min-width: 70px;
+    padding: 8px 10px;
+  }
+
+  .changeTypeTabs {
+    gap: 6px;
+  }
+
+  .changeTypeTab {
+    padding: 5px 10px;
+    font-size: 12px;
+  }
+}

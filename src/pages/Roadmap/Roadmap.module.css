@@ -1,0 +1,553 @@
+/* ============================================================
+   Roadmap Page — Notion-inspired clean design
+   ============================================================ */
+
+.page {
+  padding: 0;
+}
+
+/* ─── Header ─── */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+/* ─── Toolbar ─── */
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.toolbarBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--card);
+  color: var(--text);
+  font-size: 13px;
+  cursor: pointer;
+  transition: var(--transition);
+  white-space: nowrap;
+}
+.toolbarBtn:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+.toolbarBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.toolbarBtn:disabled:hover {
+  border-color: var(--border);
+  color: var(--text);
+}
+
+.toolbarBtnPrimary {
+  composes: toolbarBtn;
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+}
+.toolbarBtnPrimary:hover {
+  background: var(--primary-hover);
+  color: #fff;
+  border-color: var(--primary-hover);
+}
+
+/* ─── Timeline Container ─── */
+.timelineContainer {
+  background: var(--card);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  margin-top: 16px;
+}
+
+.timelineScroll {
+  overflow-x: auto;
+  overflow-y: visible;
+  position: relative;
+  min-height: 200px;
+  padding-bottom: 24px;
+}
+
+/* Month headers row */
+.monthHeaderRow {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--card);
+}
+
+.monthHeader {
+  flex-shrink: 0;
+  padding: 10px 0;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text2);
+  border-right: 1px solid var(--border);
+  background: #fafafa;
+}
+
+/* Month grid columns (background lines) */
+.monthGridRow {
+  display: flex;
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.monthCol {
+  flex-shrink: 0;
+  border-right: 1px solid #f0f0f0;
+  height: 100%;
+}
+
+/* ─── Milestone rows area ─── */
+.milestonesArea {
+  position: relative;
+  padding: 16px 0 8px;
+  min-height: 60px;
+}
+
+.milestoneRow {
+  position: relative;
+  height: 32px;
+  margin-bottom: 6px;
+}
+
+.milestoneBar {
+  position: absolute;
+  top: 0;
+  height: 28px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #fff;
+  cursor: pointer;
+  transition: box-shadow 0.2s ease, transform 0.15s ease;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 24px;
+  z-index: 1;
+}
+.milestoneBar:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+.milestoneBarPlanned {
+  background: #91caff;
+}
+.milestoneBarInProgress {
+  background: var(--primary);
+}
+.milestoneBarCompleted {
+  background: var(--success);
+}
+.milestoneBarDelayed {
+  background: var(--warning);
+}
+.milestoneBarOverdue {
+  background: var(--danger);
+}
+
+.milestoneLabel {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ─── Key Node markers ─── */
+.nodesArea {
+  position: relative;
+  padding: 8px 0 16px;
+  min-height: 40px;
+  border-top: 1px dashed var(--border);
+}
+
+.nodeMarker {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  transform: translateX(-10px) rotate(45deg);
+  border-radius: 3px;
+  cursor: pointer;
+  transition: var(--transition);
+  z-index: 1;
+}
+.nodeMarker:hover {
+  transform: translateX(-10px) rotate(45deg) scale(1.3);
+  box-shadow: var(--shadow-md);
+}
+
+.nodeRelease {
+  background: var(--primary);
+}
+.nodeReview {
+  background: var(--success);
+}
+.nodeDeadline {
+  background: var(--danger);
+}
+.nodeCustom {
+  background: var(--warning);
+}
+
+.nodeTooltip {
+  position: absolute;
+  top: 26px;
+  left: 50%;
+  transform: translateX(-50%) rotate(-45deg);
+  background: var(--text);
+  color: #fff;
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  font-size: 11px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  z-index: 10;
+}
+.nodeMarker:hover .nodeTooltip {
+  opacity: 1;
+}
+
+/* ─── Today line ─── */
+.todayLine {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--danger);
+  z-index: 3;
+  pointer-events: none;
+}
+.todayLine::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -3px;
+  width: 8px;
+  height: 8px;
+  background: var(--danger);
+  border-radius: 50%;
+}
+
+.todayLabel {
+  position: absolute;
+  top: -18px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 10px;
+  color: var(--danger);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* ─── Empty State ─── */
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  color: var(--text2);
+}
+.emptyStateIcon {
+  font-size: 48px;
+  margin-bottom: 12px;
+}
+.emptyStateText {
+  font-size: 14px;
+}
+
+/* ─── Dialog (shared modal) ─── */
+.dialogOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.15s ease;
+}
+
+.dialogCard {
+  background: var(--card);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  width: 480px;
+  max-width: 90vw;
+  max-height: 85vh;
+  overflow-y: auto;
+  animation: slideUp 0.2s ease;
+}
+
+.dialogHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.dialogClose {
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  color: var(--text2);
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+}
+.dialogClose:hover {
+  background: #f0f0f0;
+}
+
+.dialogBody {
+  padding: 20px;
+}
+
+.dialogFooter {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 12px 20px;
+  border-top: 1px solid var(--border);
+}
+
+/* ─── Form ─── */
+.formGroup {
+  margin-bottom: 14px;
+}
+
+.formLabel {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+
+.formInput,
+.formSelect,
+.formTextarea {
+  width: 100%;
+  padding: 7px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  color: var(--text);
+  background: var(--card);
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+.formInput:focus,
+.formSelect:focus,
+.formTextarea:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px var(--primary-light);
+}
+
+.formTextarea {
+  min-height: 60px;
+  resize: vertical;
+}
+
+.formError {
+  font-size: 12px;
+  color: var(--danger);
+  margin-top: 3px;
+}
+
+/* ─── Buttons ─── */
+.btnPrimary {
+  padding: 7px 18px;
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 13px;
+  transition: var(--transition);
+}
+.btnPrimary:hover { background: var(--primary-hover); }
+.btnPrimary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.btnSecondary {
+  padding: 7px 18px;
+  background: var(--card);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 13px;
+  transition: var(--transition);
+}
+.btnSecondary:hover { border-color: var(--primary); color: var(--primary); }
+
+.btnDanger {
+  padding: 7px 18px;
+  background: var(--danger);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 13px;
+  transition: var(--transition);
+}
+.btnDanger:hover { background: #ff7875; }
+
+/* ─── Template Grid ─── */
+.templateGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.templateCard {
+  border: 2px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  cursor: pointer;
+  transition: var(--transition);
+  text-align: center;
+}
+.templateCard:hover {
+  border-color: var(--primary-border);
+  background: var(--primary-light);
+}
+
+.templateCardActive {
+  composes: templateCard;
+  border-color: var(--primary);
+  background: var(--primary-light);
+}
+
+.templateIcon {
+  font-size: 28px;
+  margin-bottom: 6px;
+}
+
+.templateName {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 2px;
+}
+
+.templateDesc {
+  font-size: 11px;
+  color: var(--text2);
+  line-height: 1.4;
+}
+
+.templatePreview {
+  margin-top: 12px;
+  padding: 10px 14px;
+  background: #fafafa;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  color: var(--text2);
+  line-height: 1.6;
+}
+
+/* ─── Confirm dialog ─── */
+.confirmDialog {
+  text-align: center;
+  padding: 20px;
+}
+.confirmDialog p {
+  font-size: 14px;
+  color: var(--text);
+  margin-bottom: 16px;
+}
+
+/* ─── Animations ─── */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── No project hint ─── */
+.noProject {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 20px;
+  color: var(--text2);
+  font-size: 15px;
+}
+.noProjectIcon {
+  font-size: 48px;
+  margin-bottom: 12px;
+}
+
+/* ─── Template badge ─── */
+.templateBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #722ed1;
+  background: #f9f0ff;
+  border: 1px solid #d3adf7;
+  border-radius: 16px;
+  white-space: nowrap;
+}
+
+/* ─── Danger toolbar button ─── */
+.toolbarBtnDanger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border: 1px solid var(--danger);
+  border-radius: var(--radius-sm);
+  background: var(--card);
+  color: var(--danger);
+  font-size: 13px;
+  cursor: pointer;
+  transition: var(--transition);
+  white-space: nowrap;
+}
+.toolbarBtnDanger:hover {
+  background: var(--danger);
+  color: #fff;
+}

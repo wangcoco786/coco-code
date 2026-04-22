@@ -1,0 +1,45 @@
+.sidebar {
+  width: var(--sidebar-w);
+  background: #001529;
+  padding: 8px 0 16px;
+  position: fixed;
+  top: var(--topbar-h);
+  bottom: 0;
+  left: 0;
+  overflow-y: auto;
+  z-index: 50;
+}
+
+.sidebar::-webkit-scrollbar { width: 4px; }
+.sidebar::-webkit-scrollbar-thumb { background: #ffffff30; border-radius: 2px; }
+
+.navItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 20px;
+  color: rgba(255, 255, 255, 0.65);
+  text-decoration: none;
+  transition: var(--transition);
+  font-size: 14px;
+}
+
+.navItem:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.navItem.active {
+  color: #fff;
+  background: var(--primary);
+}
+
+.icon { font-size: 16px; }
+.label { font-size: 14px; }
+
+/* 小屏折叠 */
+@media (max-width: 600px) {
+  .sidebar { width: var(--sidebar-w-collapsed); }
+  .label { display: none; }
+  .navItem { justify-content: center; padding: 12px; }
+}

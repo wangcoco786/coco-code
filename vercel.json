@@ -7,7 +7,7 @@
     }
   },
   "rewrites": [
-    { "source": "/api/jira/:path*", "destination": "/api/jira" },
+    { "source": "/api/jira/(.*)", "destination": "/api/jira" },
     { "source": "/api/wecom/:path*", "destination": "/api/wecom/$path*" },
     { "source": "/((?!api/).*)", "destination": "/index.html" }
   ],

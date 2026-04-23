@@ -55,6 +55,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const data = await jiraRes.json()
     return res.status(200).json(data)
   } catch (err) {
-    return res.status(502).json({ error: 'Failed to reach Jira', detail: err instanceof Error ? err.message : 'Unknown' })
+    const message = err instanceof Error ? err.message : 'Unknown'
+    const stack = err instanceof Error ? err.stack : ''
+    return res.status(502).json({ error: 'Failed to reach Jira', detail: message, stack, targetUrl })
   }
 }

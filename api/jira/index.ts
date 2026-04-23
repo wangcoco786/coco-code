@@ -1,16 +1,14 @@
+// Must be set before any fetch calls
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
+
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 
-/**
- * Jira Server API 代理（单入口）
- * 将 /api/jira?path=rest/api/2/project 转发至 Jira Server
- */
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  if (req.method === 'OPTIONS') {
-    res.setHeader('Access-Control-Allow-Origin', '*')
-    res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS')
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization')
-    return res.status(200).end()
-  }
+  res.setHeader('Access-Control-Allow-Origin', '*')
+  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS')
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+
+  if (req.method === 'OPTIONS') return res.status(200).end()
 
   const { JIRA_BASE_URL, JIRA_USERNAME, JIRA_PASSWORD, JIRA_PAT } = process.env
   if (!JIRA_BASE_URL) return res.status(500).json({ error: 'JIRA_BASE_URL not configured' })
@@ -20,22 +18,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     ? `Basic ${Buffer.from(`${JIRA_USERNAME}:${JIRA_PASSWORD ?? ''}`).toString('base64')}`
     : `Bearer ${JIRA_PAT}`
 
-  // 从 URL 中提取 /api/jira/ 后面的路径
+  // Extract Jira path from URL
   const fullUrl = req.url ?? ''
-  const jiraPath = fullUrl.replace(/^\/api\/jira\/?/, '').split('?')[0]
-  
-  // 保留原始查询参数（排除内部参数）
-  const url = new URL(fullUrl, `https://${req.headers.host}`)
-  const queryString = url.search || ''
-
-  const targetUrl = `${JIRA_BASE_URL.replace(/\/$/, '')}/${jiraPath}${queryString}`
+  const afterJira = fullUrl.replace(/^\/api\/jira\/?/, '')
+  const [jiraPath, qs] = afterJira.split('?')
+  const targetUrl = `${JIRA_BASE_URL.replace(/\/$/, '')}/${jiraPath}${qs ? '?' + qs : ''}`
 
   try {
-    // Disable SSL verification for self-signed certs
-    process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
-    
-    const fetchOptions: RequestInit = {
-      method: req.method,
+    const opts: RequestInit = {
+      method: req.method ?? 'GET',
       headers: {
         Authorization: authHeader,
         'Content-Type': 'application/json',
@@ -43,20 +34,22 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       },
     }
     if (['POST', 'PUT', 'PATCH'].includes(req.method ?? '') && req.body) {
-      fetchOptions.body = JSON.stringify(req.body)
+      opts.body = JSON.stringify(req.body)
     }
 
-    const jiraRes = await fetch(targetUrl, fetchOptions)
-    if (!jiraRes.ok) {
-      let body: unknown
-      try { body = await jiraRes.json() } catch { body = { error: `HTTP ${jiraRes.status}` } }
-      return res.status(jiraRes.status).json(body)
-    }
-    const data = await jiraRes.json()
+    const r = await fetch(targetUrl, opts)
+
+    const text = await r.text()
+    let data: unknown
+    try { data = JSON.parse(text) } catch { data = { raw: text.slice(0, 500) } }
+
+    if (!r.ok) return res.status(r.status).json(data)
     return res.status(200).json(data)
   } catch (err) {
-    const message = err instanceof Error ? err.message : 'Unknown'
-    const stack = err instanceof Error ? err.stack : ''
-    return res.status(502).json({ error: 'Failed to reach Jira', detail: message, stack, targetUrl })
+    return res.status(502).json({
+      error: 'Failed to reach Jira Server',
+      detail: err instanceof Error ? err.message : String(err),
+      target: targetUrl,
+    })
   }
 }

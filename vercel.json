@@ -1,6 +1,11 @@
 {
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
+  "functions": {
+    "api/**/*.ts": {
+      "maxDuration": 30
+    }
+  },
   "rewrites": [
     { "source": "/api/jira/:match*", "destination": "/api/jira" },
     { "source": "/:path((?!api/).*)", "destination": "/index.html" }

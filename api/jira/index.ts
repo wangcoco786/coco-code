@@ -1,55 +1,48 @@
-// Must be set before any fetch calls
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
-
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   res.setHeader('Access-Control-Allow-Origin', '*')
   res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS')
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization')
-
   if (req.method === 'OPTIONS') return res.status(200).end()
 
-  const { JIRA_BASE_URL, JIRA_USERNAME, JIRA_PASSWORD, JIRA_PAT } = process.env
-  if (!JIRA_BASE_URL) return res.status(500).json({ error: 'JIRA_BASE_URL not configured' })
-  if (!JIRA_USERNAME && !JIRA_PAT) return res.status(500).json({ error: 'Jira auth not configured' })
+  const JIRA_BASE_URL = process.env.JIRA_BASE_URL
+  const JIRA_USERNAME = process.env.JIRA_USERNAME
+  const JIRA_PASSWORD = process.env.JIRA_PASSWORD
 
-  const authHeader = JIRA_USERNAME
-    ? `Basic ${Buffer.from(`${JIRA_USERNAME}:${JIRA_PASSWORD ?? ''}`).toString('base64')}`
-    : `Bearer ${JIRA_PAT}`
+  if (!JIRA_BASE_URL) return res.status(500).json({ error: 'JIRA_BASE_URL not set' })
+  if (!JIRA_USERNAME) return res.status(500).json({ error: 'JIRA_USERNAME not set' })
 
-  // Extract Jira path from URL
-  const fullUrl = req.url ?? ''
+  const auth = Buffer.from(`${JIRA_USERNAME}:${JIRA_PASSWORD || ''}`).toString('base64')
+
+  const fullUrl = req.url || ''
   const afterJira = fullUrl.replace(/^\/api\/jira\/?/, '')
-  const [jiraPath, qs] = afterJira.split('?')
-  const targetUrl = `${JIRA_BASE_URL.replace(/\/$/, '')}/${jiraPath}${qs ? '?' + qs : ''}`
+  const qIdx = afterJira.indexOf('?')
+  const path = qIdx >= 0 ? afterJira.substring(0, qIdx) : afterJira
+  const query = qIdx >= 0 ? afterJira.substring(qIdx) : ''
+  const target = `${JIRA_BASE_URL}/${path}${query}`
 
   try {
-    const opts: RequestInit = {
-      method: req.method ?? 'GET',
+    const init: RequestInit = {
+      method: req.method || 'GET',
       headers: {
-        Authorization: authHeader,
+        'Authorization': `Basic ${auth}`,
         'Content-Type': 'application/json',
-        Accept: 'application/json',
+        'Accept': 'application/json',
       },
     }
-    if (['POST', 'PUT', 'PATCH'].includes(req.method ?? '') && req.body) {
-      opts.body = JSON.stringify(req.body)
+    if (req.method === 'POST' && req.body) {
+      init.body = JSON.stringify(req.body)
     }
 
-    const r = await fetch(targetUrl, opts)
+    const resp = await fetch(target, init)
+    const text = await resp.text()
 
-    const text = await r.text()
-    let data: unknown
-    try { data = JSON.parse(text) } catch { data = { raw: text.slice(0, 500) } }
-
-    if (!r.ok) return res.status(r.status).json(data)
-    return res.status(200).json(data)
-  } catch (err) {
-    return res.status(502).json({
-      error: 'Failed to reach Jira Server',
-      detail: err instanceof Error ? err.message : String(err),
-      target: targetUrl,
-    })
+    res.status(resp.status)
+    res.setHeader('Content-Type', 'application/json')
+    return res.send(text)
+  } catch (e: unknown) {
+    const msg = e instanceof Error ? e.message : String(e)
+    return res.status(502).json({ error: msg, target })
   }
 }

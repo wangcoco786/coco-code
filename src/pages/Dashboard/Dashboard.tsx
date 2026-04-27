@@ -81,8 +81,8 @@ export default function Dashboard() {
       {!currentProjectKey && (
         <div className={styles.emptyState}>
           <div className={styles.emptyIcon}>📊</div>
-          <div className={styles.emptyTitle}>请选择项目</div>
-          <div className={styles.emptyDesc}>在顶部导航栏选择一个 Jira 项目，即可查看数据</div>
+          <div className={styles.emptyTitle}>{t('common.selectProjectFirst')}</div>
+          <div className={styles.emptyDesc}>{t('common.selectProjectHint')}</div>
         </div>
       )}
 

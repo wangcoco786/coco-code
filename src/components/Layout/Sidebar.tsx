@@ -3,7 +3,7 @@ import { useApp } from '@/context/AppContext'
 import { useI18n } from '@/context/I18nContext'
 import styles from './Sidebar.module.css'
 
-export default function Sidebar() {
+export default function Sidebar({ expanded, onClose }: { expanded?: boolean; onClose?: () => void }) {
   const { currentUser } = useApp()
   const { t } = useI18n()
 
@@ -20,7 +20,7 @@ export default function Sidebar() {
   const visibleItems = NAV_ITEMS.filter(item => (item.roles as readonly string[]).includes(currentUser.role))
 
   return (
-    <nav className={styles.sidebar} aria-label="主导航">
+    <nav className={`${styles.sidebar} ${expanded ? styles.sidebarExpanded : ''}`} aria-label="主导航">
       {visibleItems.map((item) => (
         <NavLink
           key={item.path}
@@ -28,6 +28,7 @@ export default function Sidebar() {
           className={({ isActive }) =>
             `${styles.navItem} ${isActive ? styles.active : ''}`
           }
+          onClick={onClose}
         >
           <span className={styles.icon} aria-hidden="true">{item.icon}</span>
           <span className={styles.label}>{t(item.labelKey)}</span>

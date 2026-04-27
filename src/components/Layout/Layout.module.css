@@ -26,3 +26,17 @@
 @media (max-width: 600px) {
   .content { margin-left: var(--sidebar-w-collapsed); }
 }
+
+/* Mobile sidebar overlay */
+.sidebarOverlay {
+  display: none;
+}
+@media (max-width: 600px) {
+  .sidebarOverlay {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    z-index: 49;
+  }
+}

@@ -13,7 +13,7 @@ const USERS: CurrentUser[] = [
   { id: 'user-3', name: '王五', role: 'DEV' },
 ]
 
-export default function Topbar() {
+export default function Topbar({ onMenuToggle }: { onMenuToggle?: () => void }) {
   const {
     currentUser, currentProjectKey, notificationCount,
     setCurrentUser, setCurrentProjectKey,
@@ -27,6 +27,9 @@ export default function Topbar() {
   return (
     <header className={styles.topbar}>
       <div className={styles.left}>
+        {onMenuToggle && (
+          <button className={styles.menuBtn} onClick={onMenuToggle} aria-label="菜单">☰</button>
+        )}
         <div className={styles.logo}>🤖 AI-PM</div>
 
         {/* 项目选择器 */}

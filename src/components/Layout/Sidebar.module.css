@@ -39,7 +39,10 @@
 
 /* 小屏折叠 */
 @media (max-width: 600px) {
-  .sidebar { width: var(--sidebar-w-collapsed); }
+  .sidebar { width: var(--sidebar-w-collapsed); transform: translateX(-100%); transition: transform 0.25s ease; }
+  .sidebarExpanded { transform: translateX(0); width: var(--sidebar-w); }
+  .sidebarExpanded .label { display: block; }
   .label { display: none; }
   .navItem { justify-content: center; padding: 12px; }
+  .sidebarExpanded .navItem { justify-content: flex-start; padding: 10px 20px; }
 }

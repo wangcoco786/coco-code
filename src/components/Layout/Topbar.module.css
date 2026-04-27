@@ -202,3 +202,19 @@
   transition: background 0.15s;
 }
 .langBtn:hover { background: rgba(255,255,255,0.2); }
+
+/* Mobile hamburger menu button */
+.menuBtn {
+  display: none;
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+.menuBtn:hover { background: rgba(255,255,255,0.1); }
+@media (max-width: 600px) {
+  .menuBtn { display: flex; align-items: center; justify-content: center; }
+}

@@ -3,6 +3,7 @@ import { useApp } from '@/context/AppContext'
 import { useProjectIssues, useRefreshProjectIssues } from '@/hooks/useProjectIssues'
 import { useI18n } from '@/context/I18nContext'
 import type { IssueStatus, IssuePriority, PlatformIssue } from '@/types/platform'
+import type { TranslationKey } from '@/i18n'
 import styles from './Requirements.module.css'
 import AIInsight from '@/components/AIInsight/AIInsight'
 
@@ -13,20 +14,20 @@ const JIRA_BASE_URL = import.meta.env.VITE_JIRA_BASE_URL || ''
 type ViewMode = 'list' | 'kanban'
 
 // Kanban columns for requirements (backlog statuses)
-const KANBAN_COLUMNS: { status: IssueStatus | 'draft'; label: string }[] = [
-  { status: 'todo', label: '草稿' },
-  { status: 'in_review', label: '待评审 / 评审中' },
-  { status: 'in_testing', label: '已确认' },
-  { status: 'in_progress', label: '开发中' },
-  { status: 'done', label: '已完成' },
+const KANBAN_COLUMN_KEYS: { status: IssueStatus | 'draft'; labelKey: TranslationKey }[] = [
+  { status: 'todo', labelKey: 'req.draft' },
+  { status: 'in_review', labelKey: 'req.pendingReview' },
+  { status: 'in_testing', labelKey: 'req.confirmed' },
+  { status: 'in_progress', labelKey: 'req.inDev' },
+  { status: 'done', labelKey: 'req.done' },
 ]
 
-const STATUS_LABEL: Record<IssueStatus, string> = {
-  todo: '待办',
-  in_progress: '开发中',
-  in_review: '评审中',
-  in_testing: '测试中',
-  done: '已完成',
+const STATUS_LABEL_KEYS: Record<IssueStatus, TranslationKey> = {
+  todo: 'common.todo',
+  in_progress: 'common.inProgress',
+  in_review: 'common.inReview',
+  in_testing: 'common.inTesting',
+  done: 'common.completed',
 }
 
 const STATUS_TAG_CLASS: Record<IssueStatus, string> = {
@@ -52,7 +53,7 @@ function ListView({ issues }: { issues: PlatformIssue[] }) {
     return (
       <div className={styles.emptyState}>
         <div className={styles.emptyIcon}>📭</div>
-        <div className={styles.emptyText}>暂无匹配的需求</div>
+        <div className={styles.emptyText}>{t('req.noMatch')}</div>
       </div>
     )
   }
@@ -80,7 +81,7 @@ function ListView({ issues }: { issues: PlatformIssue[] }) {
               <td>{issue.title}</td>
               <td>
                 <span className={`${styles.tag} ${STATUS_TAG_CLASS[issue.status]}`}>
-                  {STATUS_LABEL[issue.status]}
+                  {t(STATUS_LABEL_KEYS[issue.status])}
                 </span>
               </td>
               <td>
@@ -107,14 +108,15 @@ function ListView({ issues }: { issues: PlatformIssue[] }) {
 // ─── Kanban View ─────────────────────────────────────────────
 
 function KanbanView({ issues }: { issues: PlatformIssue[] }) {
+  const { t } = useI18n()
   return (
     <div className={styles.kanban}>
-      {KANBAN_COLUMNS.map((col) => {
+      {KANBAN_COLUMN_KEYS.map((col) => {
         const colIssues = issues.filter((i) => i.status === col.status)
         return (
           <div key={col.status} className={styles.kanbanCol}>
             <div className={styles.kanbanColHeader}>
-              <span className={styles.kanbanColTitle}>{col.label}</span>
+              <span className={styles.kanbanColTitle}>{t(col.labelKey)}</span>
               <span className={styles.kanbanColCount}>{colIssues.length}</span>
             </div>
             {colIssues.map((issue) => (
@@ -220,7 +222,7 @@ export default function Requirements() {
           <div className={styles.subtitle}>
             {currentProjectKey
               ? `${currentProjectKey} · 共 ${rawIssues.length} 条需求（近一年）· 筛选后 ${issues.length} 条`
-              : '请先选择项目'}
+              : t('common.selectProjectFirst')}
           </div>
         </div>
       </div>
@@ -255,7 +257,7 @@ export default function Requirements() {
       {!currentProjectKey && (
         <div className={styles.emptyState}>
           <div className={styles.emptyIcon}>📋</div>
-          <div className={styles.emptyText}>请在顶部导航栏选择一个项目</div>
+          <div className={styles.emptyText}>{t('common.selectProjectHint')}</div>
         </div>
       )}
 

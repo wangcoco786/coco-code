@@ -46,13 +46,13 @@ export default function Toolbar({
         className={styles.toolbarBtn}
         onClick={onSyncJira}
         disabled={!hasProject || isSyncing}
-        title={!hasProject ? '请先选择项目' : undefined}
+        title={!hasProject ? t('roadmap.selectProjectTooltip') : undefined}
       >
         {isSyncing ? '⏳' : '🔄'} {t('roadmap.syncJira')}
       </button>
       {hasData && (
         <button className={styles.toolbarBtnDanger} onClick={onClearAll}>
-          🗑️ 清空
+          🗑️ {t('roadmap.clearAll')}
         </button>
       )}
     </div>

@@ -242,7 +242,7 @@ export default function Sprint() {
           <div className={styles.subtitle}>
             {currentSprint
               ? `${currentSprint.startDate?.slice(0, 10)} ~ ${currentSprint.endDate?.slice(0, 10)} · ${completedCount} / ${issues.length} ${t('sprint.completed')}`
-              : currentProjectKey ? t('sprint.noActiveSprint') : '请先选择项目'}
+              : currentProjectKey ? t('sprint.noActiveSprint') : t('common.selectProjectFirst')}
           </div>
         </div>
         <div className={styles.headerRight}>

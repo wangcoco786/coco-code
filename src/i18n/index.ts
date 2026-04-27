@@ -79,6 +79,29 @@ export type TranslationKey =
   | 'roadmap.template.quarterly.name' | 'roadmap.template.quarterly.description'
   | 'roadmap.template.productLaunch.name' | 'roadmap.template.productLaunch.description'
   | 'roadmap.template.customBlank.name' | 'roadmap.template.customBlank.description'
+  // Resource tab
+  | 'resource.totalTasks' | 'resource.assigned' | 'resource.unassigned'
+  | 'resource.avgLoad' | 'resource.overloaded' | 'resource.balanced'
+  | 'resource.underloaded' | 'resource.load' | 'resource.noTasks'
+  | 'resource.noData' | 'resource.developer'
+  | 'resource.collapse' | 'resource.expandMore'
+  | 'resource.sortBy' | 'resource.sortLoad' | 'resource.sortTaskCount' | 'resource.sortName'
+  | 'resource.detailAll' | 'resource.detailAssigned' | 'resource.detailUnassigned'
+  | 'resource.detailOverloaded' | 'resource.detailBalanced' | 'resource.detailUnderloaded'
+  | 'resource.unassignedBanner'
+  // Common: select project hint
+  | 'common.selectProjectFirst' | 'common.selectProjectHint'
+  // Requirements kanban columns
+  | 'req.draft' | 'req.pendingReview' | 'req.confirmed' | 'req.inDev' | 'req.done'
+  | 'req.noMatch'
+  // Milestone dialog
+  | 'milestone.planned' | 'milestone.inProgress' | 'milestone.completed' | 'milestone.delayed'
+  | 'milestone.editTitle' | 'milestone.name' | 'milestone.startDate' | 'milestone.endDate'
+  | 'milestone.status' | 'milestone.description' | 'milestone.namePlaceholder'
+  | 'milestone.descPlaceholder' | 'milestone.nameRequired' | 'milestone.startRequired'
+  | 'milestone.endRequired' | 'milestone.dateError' | 'milestone.delete'
+  // Roadmap toolbar
+  | 'roadmap.selectProjectTooltip' | 'roadmap.clearAll'
 
 type Translations = Record<TranslationKey, string>
 
@@ -172,6 +195,39 @@ const zh: Translations = {
   'roadmap.template.productLaunch.description': '需求→设计→开发→测试→发布 5 阶段',
   'roadmap.template.customBlank.name': '自定义空白',
   'roadmap.template.customBlank.description': '从零开始创建路线图',
+  // Resource tab
+  'resource.totalTasks': '总任务', 'resource.assigned': '已分配',
+  'resource.unassigned': '未分配', 'resource.avgLoad': '平均负载',
+  'resource.overloaded': '过载', 'resource.balanced': '均衡',
+  'resource.underloaded': '空闲', 'resource.load': '负载',
+  'resource.noTasks': '暂无任务', 'resource.noData': '暂无数据',
+  'resource.developer': '开发者',
+  'resource.collapse': '收起', 'resource.expandMore': '展开更多',
+  'resource.sortBy': '排序：', 'resource.sortLoad': '负载',
+  'resource.sortTaskCount': '任务数', 'resource.sortName': '姓名',
+  'resource.detailAll': '全部任务', 'resource.detailAssigned': '已分配任务',
+  'resource.detailUnassigned': '未分配任务', 'resource.detailOverloaded': '过载开发者的任务',
+  'resource.detailBalanced': '均衡开发者的任务', 'resource.detailUnderloaded': '空闲开发者的任务',
+  'resource.unassignedBanner': '个任务未分配负责人',
+  // Common
+  'common.selectProjectFirst': '请先选择项目',
+  'common.selectProjectHint': '请在顶部导航栏选择一个项目',
+  // Requirements kanban
+  'req.draft': '草稿', 'req.pendingReview': '待评审 / 评审中',
+  'req.confirmed': '已确认', 'req.inDev': '开发中', 'req.done': '已完成',
+  'req.noMatch': '暂无匹配的需求',
+  // Milestone dialog
+  'milestone.planned': '计划中', 'milestone.inProgress': '进行中',
+  'milestone.completed': '已完成', 'milestone.delayed': '已延期',
+  'milestone.editTitle': '编辑里程碑', 'milestone.name': '名称',
+  'milestone.startDate': '开始日期', 'milestone.endDate': '结束日期',
+  'milestone.status': '状态', 'milestone.description': '描述',
+  'milestone.namePlaceholder': '里程碑名称', 'milestone.descPlaceholder': '可选描述',
+  'milestone.nameRequired': '名称不能为空', 'milestone.startRequired': '请选择开始日期',
+  'milestone.endRequired': '请选择结束日期', 'milestone.dateError': '开始日期不能晚于结束日期',
+  'milestone.delete': '删除',
+  // Roadmap toolbar
+  'roadmap.selectProjectTooltip': '请先选择项目', 'roadmap.clearAll': '清空',
 }
 
 const en: Translations = {
@@ -264,6 +320,39 @@ const en: Translations = {
   'roadmap.template.productLaunch.description': 'Requirements → Design → Dev → Test → Launch',
   'roadmap.template.customBlank.name': 'Custom Blank',
   'roadmap.template.customBlank.description': 'Start from scratch',
+  // Resource tab
+  'resource.totalTasks': 'Total Tasks', 'resource.assigned': 'Assigned',
+  'resource.unassigned': 'Unassigned', 'resource.avgLoad': 'Avg Load',
+  'resource.overloaded': 'Overloaded', 'resource.balanced': 'Balanced',
+  'resource.underloaded': 'Idle', 'resource.load': 'Load',
+  'resource.noTasks': 'No tasks', 'resource.noData': 'No data',
+  'resource.developer': 'Developer',
+  'resource.collapse': 'Collapse', 'resource.expandMore': 'Show more',
+  'resource.sortBy': 'Sort: ', 'resource.sortLoad': 'Load',
+  'resource.sortTaskCount': 'Tasks', 'resource.sortName': 'Name',
+  'resource.detailAll': 'All Tasks', 'resource.detailAssigned': 'Assigned Tasks',
+  'resource.detailUnassigned': 'Unassigned Tasks', 'resource.detailOverloaded': 'Overloaded Dev Tasks',
+  'resource.detailBalanced': 'Balanced Dev Tasks', 'resource.detailUnderloaded': 'Idle Dev Tasks',
+  'resource.unassignedBanner': 'tasks have no assignee',
+  // Common
+  'common.selectProjectFirst': 'Please select a project',
+  'common.selectProjectHint': 'Please select a project from the top navigation',
+  // Requirements kanban
+  'req.draft': 'Draft', 'req.pendingReview': 'Pending / In Review',
+  'req.confirmed': 'Confirmed', 'req.inDev': 'In Development', 'req.done': 'Done',
+  'req.noMatch': 'No matching requirements',
+  // Milestone dialog
+  'milestone.planned': 'Planned', 'milestone.inProgress': 'In Progress',
+  'milestone.completed': 'Completed', 'milestone.delayed': 'Delayed',
+  'milestone.editTitle': 'Edit Milestone', 'milestone.name': 'Name',
+  'milestone.startDate': 'Start Date', 'milestone.endDate': 'End Date',
+  'milestone.status': 'Status', 'milestone.description': 'Description',
+  'milestone.namePlaceholder': 'Milestone name', 'milestone.descPlaceholder': 'Optional description',
+  'milestone.nameRequired': 'Name is required', 'milestone.startRequired': 'Start date is required',
+  'milestone.endRequired': 'End date is required', 'milestone.dateError': 'Start date cannot be after end date',
+  'milestone.delete': 'Delete',
+  // Roadmap toolbar
+  'roadmap.selectProjectTooltip': 'Please select a project first', 'roadmap.clearAll': 'Clear All',
 }
 
 const ja: Translations = {
@@ -356,6 +445,39 @@ const ja: Translations = {
   'roadmap.template.productLaunch.description': '要件→設計→開発→テスト→リリースの5段階',
   'roadmap.template.customBlank.name': 'カスタム空白',
   'roadmap.template.customBlank.description': 'ゼロから作成',
+  // Resource tab
+  'resource.totalTasks': '総タスク', 'resource.assigned': '割当済',
+  'resource.unassigned': '未割当', 'resource.avgLoad': '平均負荷',
+  'resource.overloaded': '過負荷', 'resource.balanced': 'バランス',
+  'resource.underloaded': '余裕あり', 'resource.load': '負荷',
+  'resource.noTasks': 'タスクなし', 'resource.noData': 'データなし',
+  'resource.developer': '開発者',
+  'resource.collapse': '折りたたむ', 'resource.expandMore': 'もっと見る',
+  'resource.sortBy': 'ソート：', 'resource.sortLoad': '負荷',
+  'resource.sortTaskCount': 'タスク数', 'resource.sortName': '名前',
+  'resource.detailAll': '全タスク', 'resource.detailAssigned': '割当済タスク',
+  'resource.detailUnassigned': '未割当タスク', 'resource.detailOverloaded': '過負荷開発者のタスク',
+  'resource.detailBalanced': 'バランス開発者のタスク', 'resource.detailUnderloaded': '余裕開発者のタスク',
+  'resource.unassignedBanner': '件のタスクが未割当です',
+  // Common
+  'common.selectProjectFirst': 'プロジェクトを選択してください',
+  'common.selectProjectHint': '上部のナビゲーションからプロジェクトを選択してください',
+  // Requirements kanban
+  'req.draft': '下書き', 'req.pendingReview': 'レビュー待ち / レビュー中',
+  'req.confirmed': '確認済', 'req.inDev': '開発中', 'req.done': '完了',
+  'req.noMatch': '一致する要件がありません',
+  // Milestone dialog
+  'milestone.planned': '計画中', 'milestone.inProgress': '進行中',
+  'milestone.completed': '完了', 'milestone.delayed': '遅延',
+  'milestone.editTitle': 'マイルストーンを編集', 'milestone.name': '名前',
+  'milestone.startDate': '開始日', 'milestone.endDate': '終了日',
+  'milestone.status': 'ステータス', 'milestone.description': '説明',
+  'milestone.namePlaceholder': 'マイルストーン名', 'milestone.descPlaceholder': '任意の説明',
+  'milestone.nameRequired': '名前は必須です', 'milestone.startRequired': '開始日を選択してください',
+  'milestone.endRequired': '終了日を選択してください', 'milestone.dateError': '開始日は終了日より前にしてください',
+  'milestone.delete': '削除',
+  // Roadmap toolbar
+  'roadmap.selectProjectTooltip': 'プロジェクトを選択してください', 'roadmap.clearAll': 'クリア',
 }
 
 const es: Translations = {
@@ -448,6 +570,39 @@ const es: Translations = {
   'roadmap.template.productLaunch.description': 'Requisitos → Diseño → Desarrollo → Pruebas → Lanzamiento',
   'roadmap.template.customBlank.name': 'Personalizado en blanco',
   'roadmap.template.customBlank.description': 'Comenzar desde cero',
+  // Resource tab
+  'resource.totalTasks': 'Total Tareas', 'resource.assigned': 'Asignadas',
+  'resource.unassigned': 'Sin Asignar', 'resource.avgLoad': 'Carga Prom.',
+  'resource.overloaded': 'Sobrecargado', 'resource.balanced': 'Equilibrado',
+  'resource.underloaded': 'Disponible', 'resource.load': 'Carga',
+  'resource.noTasks': 'Sin tareas', 'resource.noData': 'Sin datos',
+  'resource.developer': 'Desarrollador',
+  'resource.collapse': 'Colapsar', 'resource.expandMore': 'Ver más',
+  'resource.sortBy': 'Ordenar: ', 'resource.sortLoad': 'Carga',
+  'resource.sortTaskCount': 'Tareas', 'resource.sortName': 'Nombre',
+  'resource.detailAll': 'Todas las Tareas', 'resource.detailAssigned': 'Tareas Asignadas',
+  'resource.detailUnassigned': 'Tareas Sin Asignar', 'resource.detailOverloaded': 'Tareas de Devs Sobrecargados',
+  'resource.detailBalanced': 'Tareas de Devs Equilibrados', 'resource.detailUnderloaded': 'Tareas de Devs Disponibles',
+  'resource.unassignedBanner': 'tareas sin asignar',
+  // Common
+  'common.selectProjectFirst': 'Seleccione un proyecto primero',
+  'common.selectProjectHint': 'Seleccione un proyecto desde la navegación superior',
+  // Requirements kanban
+  'req.draft': 'Borrador', 'req.pendingReview': 'Pendiente / En Revisión',
+  'req.confirmed': 'Confirmado', 'req.inDev': 'En Desarrollo', 'req.done': 'Completado',
+  'req.noMatch': 'No hay requisitos coincidentes',
+  // Milestone dialog
+  'milestone.planned': 'Planificado', 'milestone.inProgress': 'En Progreso',
+  'milestone.completed': 'Completado', 'milestone.delayed': 'Retrasado',
+  'milestone.editTitle': 'Editar Hito', 'milestone.name': 'Nombre',
+  'milestone.startDate': 'Fecha de Inicio', 'milestone.endDate': 'Fecha de Fin',
+  'milestone.status': 'Estado', 'milestone.description': 'Descripción',
+  'milestone.namePlaceholder': 'Nombre del hito', 'milestone.descPlaceholder': 'Descripción opcional',
+  'milestone.nameRequired': 'El nombre es obligatorio', 'milestone.startRequired': 'Seleccione fecha de inicio',
+  'milestone.endRequired': 'Seleccione fecha de fin', 'milestone.dateError': 'La fecha de inicio no puede ser posterior a la de fin',
+  'milestone.delete': 'Eliminar',
+  // Roadmap toolbar
+  'roadmap.selectProjectTooltip': 'Seleccione un proyecto primero', 'roadmap.clearAll': 'Limpiar Todo',
 }
 
 export const translations: Record<Locale, Translations> = { zh, en, ja, es }

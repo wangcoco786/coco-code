@@ -142,7 +142,7 @@ export default function Roadmap() {
       <div className={styles.page}>
         <div className={styles.noProject}>
           <div className={styles.noProjectIcon}>🗺️</div>
-          <span>请先选择项目</span>
+          <span>{t('common.selectProjectFirst')}</span>
         </div>
       </div>
     )

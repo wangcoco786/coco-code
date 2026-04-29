@@ -21,8 +21,8 @@ const REQUIRED_ENV_VARS = ['JWT_SECRET', 'IAM_CLIENT_ID', 'IAM_CLIENT_SECRET', '
 const missingVars = REQUIRED_ENV_VARS.filter((key) => !process.env[key])
 
 if (missingVars.length > 0) {
-  console.error(`[启动失败] 缺少必需的环境变量: ${missingVars.join(', ')}`)
-  process.exit(1)
+  console.warn(`[警告] 缺少 IAM SSO 环境变量: ${missingVars.join(', ')}`)
+  console.warn('[警告] SSO 认证功能将不可用，其他功能正常运行')
 }
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))

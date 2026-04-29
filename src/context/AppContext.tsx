@@ -10,7 +10,11 @@ interface AppContextValue extends AppState {
 const AppContext = createContext<AppContextValue | null>(null)
 
 export function AppProvider({ children }: { children: React.ReactNode }) {
-  const [currentUser, setCurrentUserState] = useState<CurrentUser | null>(null)
+  const [currentUser, setCurrentUserState] = useState<CurrentUser | null>({
+    id: 'user-1',
+    name: 'User',
+    role: 'PM',
+  })
   const [currentProjectKey, setCurrentProjectKeyState] = useState<string | null>(null)
   const [notificationCount, setNotificationCountState] = useState(0)
 

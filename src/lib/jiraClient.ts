@@ -7,6 +7,7 @@ import type {
   JiraVersion,
 } from '@/types/jira'
 import type { IssuePriority, IssueStatus } from '@/types/platform'
+import { authFetch } from '@/lib/authFetch'
 
 // ============================================================
 // Jira API 错误类
@@ -32,7 +33,7 @@ async function jiraFetch<T>(path: string, options?: RequestInit): Promise<T> {
   // path 已包含 rest/api/2 或 rest/agile/1.0 前缀
   const url = `/api/jira/${path.replace(/^\//, '')}`
 
-  const response = await fetch(url, {
+  const response = await authFetch(url, {
     ...options,
     headers: {
       'Content-Type': 'application/json',

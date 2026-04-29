@@ -46,7 +46,7 @@ function RiskCard({ risk, onNotify, isPending }: RiskCardProps) {
       </span>
       <div className={styles.riskDesc}>{risk.description}</div>
       {risk.assignee && (
-        <div className={styles.riskMeta}>负责人：{risk.assignee}</div>
+        <div className={styles.riskMeta}>{t('risk.assigneeLabel')}：{risk.assignee}</div>
       )}
       <div className={styles.riskActions}>
         <button
@@ -54,7 +54,7 @@ function RiskCard({ risk, onNotify, isPending }: RiskCardProps) {
           onClick={() => onNotify(risk)}
           disabled={isPending}
         >
-          {isPending ? '推送中…' : `🔔 ${t('common.notify')}`}
+          {isPending ? t('reports.pushing') : `🔔 ${t('common.notify')}`}
         </button>
       </div>
     </div>
@@ -120,7 +120,7 @@ export default function Risk() {
       <div className={styles.header}>
         <div className={styles.headerLeft}>
           <h1 className={styles.title}>{t('risk.title')}</h1>
-          <div className={styles.subtitle}>基于当前 Sprint 数据自动识别风险</div>
+          <div className={styles.subtitle}>{t('risk.subtitle')}</div>
         </div>
         <div className={styles.headerRight}>
           <div className={styles.toggleRow}>
@@ -135,14 +135,14 @@ export default function Risk() {
 
       {isError && (
         <div className={styles.errorBanner}>
-          ⚠️ 数据加载失败：{error instanceof Error ? error.message : '未知错误'}
+          ⚠️ {t('risk.errorLoad')}：{error instanceof Error ? error.message : t('common.error')}
         </div>
       )}
 
       {/* AI 分析 */}
       {currentProjectKey && issues.length > 0 && (
         <AIInsight
-          title="AI 风险分析"
+          title={t('ai.insight')}
           buildPrompt={() => {
             return `请分析以下项目风险数据并给出洞察：\n` +
               `- 项目: ${currentProjectKey}\n` +
@@ -168,7 +168,7 @@ export default function Risk() {
             onClick={() => count > 0 && setModalLevel(level)}
             onMouseEnter={e => { if (count > 0) (e.currentTarget as HTMLElement).style.transform = 'translateY(-2px)' }}
             onMouseLeave={e => { (e.currentTarget as HTMLElement).style.transform = '' }}
-            title={count > 0 ? `点击查看${t(labelKey)}详细` : ''}
+            title={count > 0 ? t('dashboard.clickDetail') : ''}
           >
             <span className={styles.statIcon}>{icon}</span>
             <div className={styles.statInfo}>
@@ -252,11 +252,11 @@ export default function Risk() {
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
                 <thead>
                   <tr style={{ background: '#fafafa' }}>
-                    <th style={{ padding: '8px 12px', textAlign: 'left', borderBottom: '1px solid var(--border)', color: 'var(--text2)', fontWeight: 600 }}>等级</th>
-                    <th style={{ padding: '8px 12px', textAlign: 'left', borderBottom: '1px solid var(--border)', color: 'var(--text2)', fontWeight: 600 }}>类型</th>
-                    <th style={{ padding: '8px 12px', textAlign: 'left', borderBottom: '1px solid var(--border)', color: 'var(--text2)', fontWeight: 600 }}>描述</th>
-                    <th style={{ padding: '8px 12px', textAlign: 'left', borderBottom: '1px solid var(--border)', color: 'var(--text2)', fontWeight: 600 }}>负责人</th>
-                    <th style={{ padding: '8px 12px', textAlign: 'left', borderBottom: '1px solid var(--border)', color: 'var(--text2)', fontWeight: 600 }}>操作</th>
+                    <th style={{ padding: '8px 12px', textAlign: 'left', borderBottom: '1px solid var(--border)', color: 'var(--text2)', fontWeight: 600 }}>{t('dashboard.level')}</th>
+                    <th style={{ padding: '8px 12px', textAlign: 'left', borderBottom: '1px solid var(--border)', color: 'var(--text2)', fontWeight: 600 }}>{t('dashboard.riskType')}</th>
+                    <th style={{ padding: '8px 12px', textAlign: 'left', borderBottom: '1px solid var(--border)', color: 'var(--text2)', fontWeight: 600 }}>{t('dashboard.description')}</th>
+                    <th style={{ padding: '8px 12px', textAlign: 'left', borderBottom: '1px solid var(--border)', color: 'var(--text2)', fontWeight: 600 }}>{t('dashboard.assignee')}</th>
+                    <th style={{ padding: '8px 12px', textAlign: 'left', borderBottom: '1px solid var(--border)', color: 'var(--text2)', fontWeight: 600 }}>{t('reports.actions')}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -376,7 +376,7 @@ function BoardRiskView({ risks, columns, colLabels, onNotify, isPending }: Board
       {totalFiltered === 0 && hasFilter ? (
         <div className={styles.placeholder}>
           <div className={styles.placeholderIcon}>🔍</div>
-          <div className={styles.placeholderText}>无匹配风险</div>
+          <div className={styles.placeholderText}>{t('risk.noMatchRisk')}</div>
         </div>
       ) : (
         <div className={styles.kanban}>
@@ -422,6 +422,7 @@ interface CollabViewProps {
 
 function CollabView({ issues, isLoading }: CollabViewProps) {
   const { currentProjectKey } = useApp()
+  const { t } = useI18n()
 
   // 跨项目分组
   const collabGroups = useMemo(() => {
@@ -457,9 +458,9 @@ function CollabView({ issues, isLoading }: CollabViewProps) {
       <div className={styles.placeholder}>
         <div className={styles.placeholderIcon}>🤝</div>
         <div className={styles.placeholderText}>
-          当前 Sprint 暂无跨团队协作任务
+          {t('risk.noCollabTasks')}
           <div style={{ fontSize: 12, marginTop: 8, color: 'var(--text2)' }}>
-            系统通过识别 Issue 标题中的项目前缀（如 CP|TMS|OMS）来发现跨团队协作
+            {t('risk.collabDesc')}
           </div>
         </div>
       </div>
@@ -469,7 +470,7 @@ function CollabView({ issues, isLoading }: CollabViewProps) {
   return (
     <div>
       <div style={{ fontSize: 13, color: 'var(--text2)', marginBottom: 16 }}>
-        检测到 <strong>{collabGroups.length}</strong> 个跨团队协作项目，涉及 <strong>{collabGroups.reduce((s, g) => s + g.issues.length, 0)}</strong> 个任务
+        {t('risk.collabDetected')}: <strong>{collabGroups.length}</strong>，{t('risk.collabTasks')}: <strong>{collabGroups.reduce((s, g) => s + g.issues.length, 0)}</strong>
       </div>
       {collabGroups.map(group => {
         const total = group.issues.length
@@ -481,15 +482,15 @@ function CollabView({ issues, isLoading }: CollabViewProps) {
           <div key={group.project} className={styles.collabCard}>
             <div className={styles.collabHeader}>
               <div>
-                <div className={styles.collabTitle}>🔗 与 {group.project} 跨团队协作</div>
+                <div className={styles.collabTitle}>🔗 {t('risk.collabWith')} {group.project}</div>
                 <div className={styles.collabMeta}>
-                  涉及 {total} 个任务 · 完成 {group.done} · 进行中 {group.inProgress}
-                  {group.blocked > 0 && <span style={{ color: 'var(--danger)' }}> · ⚠️ 未分配 {group.blocked}</span>}
+                  {total} {t('risk.collabTasks')} · {t('risk.collabDone')} {group.done} · {t('risk.collabInProgress')} {group.inProgress}
+                  {group.blocked > 0 && <span style={{ color: 'var(--danger)' }}> · ⚠️ {t('common.unassigned')} {group.blocked}</span>}
                 </div>
               </div>
               <div style={{ textAlign: 'right' }}>
                 <div style={{ fontSize: 20, fontWeight: 700, color: healthColor }}>{pct}%</div>
-                <div style={{ fontSize: 11, color: 'var(--text2)' }}>完成率</div>
+                <div style={{ fontSize: 11, color: 'var(--text2)' }}>{t('risk.completionRate')}</div>
               </div>
             </div>
             <div className={styles.progressBar}>
@@ -505,13 +506,13 @@ function CollabView({ issues, isLoading }: CollabViewProps) {
                   {JIRA_BASE_URL ? <a href={`${JIRA_BASE_URL}/browse/${issue.id}`} target="_blank" rel="noopener noreferrer" className={styles.issueKey} style={{ textDecoration: 'none' }}>{issue.id}</a> : <span className={styles.issueKey}>{issue.id}</span>}
                   <span className={styles.issueTitle}>{issue.title}</span>
                   <span className={`${styles.statusBadge} ${issue.status === 'done' ? styles.statusDone : issue.status === 'in_progress' ? styles.statusInProgress : styles.statusTodo}`}>
-                    {issue.status === 'done' ? '已完成' : issue.status === 'in_progress' ? '进行中' : issue.status === 'in_review' ? '评审中' : issue.status === 'in_testing' ? '测试中' : '待办'}
+                    {issue.status === 'done' ? t('common.completed') : issue.status === 'in_progress' ? t('common.inProgress') : issue.status === 'in_review' ? t('common.inReview') : issue.status === 'in_testing' ? t('common.inTesting') : t('common.todo')}
                   </span>
                 </div>
               ))}
               {group.issues.length > 5 && (
                 <div style={{ fontSize: 12, color: 'var(--text2)', padding: '4px 0' }}>
-                  还有 {group.issues.length - 5} 个任务...
+                  {group.issues.length - 5} {t('risk.moreIssues')}
                 </div>
               )}
             </div>
@@ -530,6 +531,7 @@ interface DepsViewProps {
 }
 
 function DepsView({ issues, isLoading }: DepsViewProps) {
+  const { t } = useI18n()
   if (isLoading) return <div className={styles.skeleton} style={{ height: 200 }} />
 
   // 识别依赖风险：未分配 + 高优先级 + 超工时
@@ -551,9 +553,9 @@ function DepsView({ issues, isLoading }: DepsViewProps) {
   })
 
   const stats = [
-    { label: '未分配高优任务', count: blockedIssues.length, color: 'var(--danger)', icon: '🚨' },
-    { label: '超预估工时', count: overdueIssues.length, color: 'var(--warning)', icon: '⏰' },
-    { label: '3天无更新', count: staleIssues.length, color: 'var(--warning)', icon: '💤' },
+    { label: t('risk.unassignedHighPriority'), count: blockedIssues.length, color: 'var(--danger)', icon: '🚨' },
+    { label: t('risk.overtimeLabel'), count: overdueIssues.length, color: 'var(--warning)', icon: '⏰' },
+    { label: t('risk.noUpdateDays'), count: staleIssues.length, color: 'var(--warning)', icon: '💤' },
   ]
 
   return (
@@ -571,12 +573,12 @@ function DepsView({ issues, isLoading }: DepsViewProps) {
       {/* 未分配高优任务 */}
       {blockedIssues.length > 0 && (
         <div className={styles.depSection}>
-          <div className={styles.depSectionTitle}>🚨 未分配高优任务（需立即处理）</div>
+          <div className={styles.depSectionTitle}>🚨 {t('risk.unassignedHighPriority')}</div>
           {blockedIssues.map(issue => (
             <div key={issue.id} className={styles.depRow}>
               {JIRA_BASE_URL ? <a href={`${JIRA_BASE_URL}/browse/${issue.id}`} target="_blank" rel="noopener noreferrer" className={styles.issueKey} style={{ textDecoration: 'none' }}>{issue.id}</a> : <span className={styles.issueKey}>{issue.id}</span>}
               <span className={styles.issueTitle}>{issue.title}</span>
-              <span style={{ fontSize: 11, color: 'var(--danger)', fontWeight: 600 }}>{issue.priority} · 未分配</span>
+              <span style={{ fontSize: 11, color: 'var(--danger)', fontWeight: 600 }}>{issue.priority} · {t('common.unassigned')}</span>
             </div>
           ))}
         </div>
@@ -585,7 +587,7 @@ function DepsView({ issues, isLoading }: DepsViewProps) {
       {/* 超工时任务 */}
       {overdueIssues.length > 0 && (
         <div className={styles.depSection}>
-          <div className={styles.depSectionTitle}>⏰ 超预估工时任务</div>
+          <div className={styles.depSectionTitle}>⏰ {t('risk.overtimeLabel')}</div>
           {overdueIssues.map(issue => {
             const ratio = issue.estimatedHours && issue.spentHours
               ? Math.round((issue.spentHours / issue.estimatedHours) * 100)
@@ -595,7 +597,7 @@ function DepsView({ issues, isLoading }: DepsViewProps) {
                 {JIRA_BASE_URL ? <a href={`${JIRA_BASE_URL}/browse/${issue.id}`} target="_blank" rel="noopener noreferrer" className={styles.issueKey} style={{ textDecoration: 'none' }}>{issue.id}</a> : <span className={styles.issueKey}>{issue.id}</span>}
                 <span className={styles.issueTitle}>{issue.title}</span>
                 <span style={{ fontSize: 11, color: 'var(--warning)', fontWeight: 600 }}>
-                  超出 {ratio - 100}% · {issue.assignee?.name ?? '未分配'}
+                  {t('risk.exceed')} {ratio - 100}% · {issue.assignee?.name ?? t('common.unassigned')}
                 </span>
               </div>
             )
@@ -606,7 +608,7 @@ function DepsView({ issues, isLoading }: DepsViewProps) {
       {/* 长时间无更新 */}
       {staleIssues.length > 0 && (
         <div className={styles.depSection}>
-          <div className={styles.depSectionTitle}>💤 进行中但 3 天无更新</div>
+          <div className={styles.depSectionTitle}>💤 {t('risk.noUpdateDays')}</div>
           {staleIssues.map(issue => {
             const daysSince = Math.floor(
               (Date.now() - new Date(issue.updatedAt).getTime()) / (1000 * 60 * 60 * 24)
@@ -616,7 +618,7 @@ function DepsView({ issues, isLoading }: DepsViewProps) {
                 {JIRA_BASE_URL ? <a href={`${JIRA_BASE_URL}/browse/${issue.id}`} target="_blank" rel="noopener noreferrer" className={styles.issueKey} style={{ textDecoration: 'none' }}>{issue.id}</a> : <span className={styles.issueKey}>{issue.id}</span>}
                 <span className={styles.issueTitle}>{issue.title}</span>
                 <span style={{ fontSize: 11, color: 'var(--text2)' }}>
-                  {daysSince} 天未更新 · {issue.assignee?.name ?? '未分配'}
+                  {daysSince} {t('risk.daysNoUpdate')} · {issue.assignee?.name ?? t('common.unassigned')}
                 </span>
               </div>
             )
@@ -627,7 +629,7 @@ function DepsView({ issues, isLoading }: DepsViewProps) {
       {blockedIssues.length === 0 && overdueIssues.length === 0 && staleIssues.length === 0 && (
         <div className={styles.placeholder}>
           <div className={styles.placeholderIcon}>✅</div>
-          <div className={styles.placeholderText}>当前暂无依赖风险</div>
+          <div className={styles.placeholderText}>{t('risk.noDepsRisk')}</div>
         </div>
       )}
     </div>

@@ -5,6 +5,7 @@ import type {
   WecomResponse,
   WecomTextMessage,
 } from '@/types/wecom'
+import { authFetch } from '@/lib/authFetch'
 
 // ============================================================
 // 企业微信推送客户端
@@ -24,7 +25,7 @@ const RISK_LEVEL_LABEL: Record<string, string> = {
 
 // 发送消息（通过 Vercel Serverless 代理）
 async function sendMessage(message: WecomMessage): Promise<WecomResponse> {
-  const response = await fetch('/api/wecom/send', {
+  const response = await authFetch('/api/wecom/send', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ message }),

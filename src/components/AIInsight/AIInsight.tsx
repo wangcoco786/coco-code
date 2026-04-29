@@ -1,5 +1,6 @@
 import { useState, useCallback, useRef } from 'react'
 import { useAgentForce } from '@/hooks/useAgentForce'
+import { useI18n } from '@/context/I18nContext'
 import styles from './AIInsight.module.css'
 
 interface AIInsightProps {
@@ -9,7 +10,9 @@ interface AIInsightProps {
   title?: string
 }
 
-export default function AIInsight({ buildPrompt, title = 'AI 智能分析' }: AIInsightProps) {
+export default function AIInsight({ buildPrompt, title }: AIInsightProps) {
+  const { t } = useI18n()
+  const displayTitle = title ?? t('ai.insight')
   const [cached, setCached] = useState<string | null>(null)
   const [streaming, setStreaming] = useState('')
   const [error, setError] = useState<string | null>(null)
@@ -50,20 +53,20 @@ export default function AIInsight({ buildPrompt, title = 'AI 智能分析' }: AI
       <div className={styles.header}>
         <div className={styles.left}>
           <span className={styles.icon}>🤖</span>
-          <span className={styles.label}>{title}</span>
+          <span className={styles.label}>{displayTitle}</span>
         </div>
         {!hasContent && !isLoading && (
           <button className={styles.generateBtn} onClick={handleGenerate} disabled={isLoading}>
-            ✨ 生成分析
+            {t('ai.generate')}
           </button>
         )}
         {hasContent && (
           <div style={{ display: 'flex', gap: 6 }}>
             <button className={styles.generateBtn} onClick={handleGenerate} disabled={isLoading}>
-              🔄 重新分析
+              {t('ai.regenerate')}
             </button>
             <button className={styles.collapseBtn} onClick={() => setCollapsed(v => !v)}>
-              {collapsed ? '展开' : '收起'}
+              {collapsed ? t('ai.expand') : t('ai.collapse')}
             </button>
           </div>
         )}
@@ -71,7 +74,7 @@ export default function AIInsight({ buildPrompt, title = 'AI 智能分析' }: AI
 
       {isLoading && !streaming && (
         <div className={styles.loading}>
-          <span>AI 正在分析</span>
+          <span>{t('ai.analyzing')}</span>
           <span className={styles.dots}><span /><span /><span /></span>
         </div>
       )}
@@ -82,7 +85,7 @@ export default function AIInsight({ buildPrompt, title = 'AI 智能分析' }: AI
       {error && (
         <div className={styles.error}>
           <span>{error}</span>
-          <button className={styles.retryBtn} onClick={handleGenerate}>重试</button>
+          <button className={styles.retryBtn} onClick={handleGenerate}>{t('ai.retry')}</button>
         </div>
       )}
     </div>

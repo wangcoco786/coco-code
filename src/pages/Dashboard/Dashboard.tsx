@@ -14,7 +14,7 @@ export default function Dashboard() {
   const { currentUser, currentProjectKey } = useApp()
   const { t } = useI18n()
   const [activeTab, setActiveTab] = useState<DashTab>(
-    currentUser.role === 'DEV' ? 'personal' : 'global'
+    currentUser?.role === 'DEV' ? 'personal' : 'global'
   )
 
   const { data: sprints = [] } = useActiveSprintsByProject(currentProjectKey)
@@ -33,8 +33,8 @@ export default function Dashboard() {
           <p className={styles.subtitle}>
             {sprints.length > 0
               ? sprints.length === 1
-                ? `${sprint!.name} · ${sprint!.startDate?.slice(0, 10)} ~ ${sprint!.endDate?.slice(0, 10)} · ${issues.length} 个任务`
-                : `${sprints.length} 个活跃 Sprint · 共 ${issues.length} 个任务`
+                ? `${sprint!.name} · ${sprint!.startDate?.slice(0, 10)} ~ ${sprint!.endDate?.slice(0, 10)} · ${issues.length} ${t('dashboard.subtitle.tasks')}`
+                : `${sprints.length} ${t('dashboard.subtitle.activeSprints')} · ${issues.length} ${t('dashboard.subtitle.tasks')}`
               : currentProjectKey
               ? isLoading ? t('common.loading') : t('dashboard.noActiveSprint')
               : t('dashboard.selectProjectHint')}
@@ -49,7 +49,7 @@ export default function Dashboard() {
             className={`${styles.tab} ${activeTab === 'personal' ? styles.active : ''}`}
             onClick={() => setActiveTab('personal')}
           >{t('dashboard.personalView')}</button>
-          {currentUser.role === 'PM' && (
+          {currentUser?.role === 'PM' && (
             <button
               className={`${styles.tab} ${activeTab === 'decision' ? styles.active : ''}`}
               onClick={() => setActiveTab('decision')}
@@ -61,7 +61,7 @@ export default function Dashboard() {
       {/* AI 分析 */}
       {currentProjectKey && issues.length > 0 && (
         <AIInsight
-          title="AI 项目洞察"
+          title={t('ai.insight')}
           buildPrompt={() => {
             const done = issues.filter(i => i.status === 'done').length
             const inProgress = issues.filter(i => i.status === 'in_progress').length
@@ -89,7 +89,7 @@ export default function Dashboard() {
       {/* 错误 */}
       {error && currentProjectKey && (
         <div className={styles.errorBanner}>
-          ⚠️ 数据加载失败：{(error as Error).message}
+          ⚠️ {t('dashboard.errorLoad')}：{(error as Error).message}
         </div>
       )}
 
@@ -112,7 +112,7 @@ export default function Dashboard() {
               isLoading={isLoading}
             />
           )}
-          {activeTab === 'decision' && currentUser.role === 'PM' && (
+          {activeTab === 'decision' && currentUser?.role === 'PM' && (
             <DecisionView risks={risks} issues={issues} />
           )}
         </>
@@ -131,6 +131,7 @@ function DecisionView({
   risks: ReturnType<typeof analyzeRisks>
   issues: PlatformIssue[]
 }) {
+  const { t } = useI18n()
   const highRisks = risks.filter(r => r.level === 'high')
   const mediumRisks = risks.filter(r => r.level === 'medium')
   const allIssues = issues ?? []
@@ -144,31 +145,31 @@ function DecisionView({
       <div className={styles.decisionStats}>
         <div className={styles.statCard}>
           <div className={styles.statValue} style={{ color: 'var(--primary)' }}>{completionRate}%</div>
-          <div className={styles.statLabel}>完成率</div>
+          <div className={styles.statLabel}>{t('dashboard.completionRateLabel')}</div>
         </div>
         <div className={styles.statCard}>
           <div className={styles.statValue} style={{ color: 'var(--danger)' }}>{highRisks.length}</div>
-          <div className={styles.statLabel}>高危风险</div>
+          <div className={styles.statLabel}>{t('dashboard.highRisk')}</div>
         </div>
         <div className={styles.statCard}>
           <div className={styles.statValue} style={{ color: 'var(--warning)' }}>{mediumRisks.length}</div>
-          <div className={styles.statLabel}>中危风险</div>
+          <div className={styles.statLabel}>{t('dashboard.mediumRisk')}</div>
         </div>
         <div className={styles.statCard}>
           <div className={styles.statValue} style={{ color: 'var(--success)' }}>
             {completedIssues.length}/{allIssues.length}
           </div>
-          <div className={styles.statLabel}>已完成任务</div>
+          <div className={styles.statLabel}>{t('dashboard.completedTasks')}</div>
         </div>
       </div>
 
       {risks.length > 0 ? (
         <div className={styles.card}>
-          <div className={styles.cardTitle}>⚡ 待处理风险</div>
+          <div className={styles.cardTitle}>⚡ {t('dashboard.pendingRisks')}</div>
           {risks.slice(0, 5).map(risk => (
             <div key={risk.id} className={`${styles.riskItem} ${styles[risk.level]}`}>
               <span className={styles.riskBadge}>
-                {risk.level === 'high' ? '🔴 高危' : risk.level === 'medium' ? '🟡 中危' : '🟢 低危'}
+                {risk.level === 'high' ? `🔴 ${t('risk.high')}` : risk.level === 'medium' ? `🟡 ${t('risk.medium')}` : `🟢 ${t('risk.low')}`}
               </span>
               <span className={styles.riskDesc}>{risk.description}</span>
             </div>
@@ -176,7 +177,7 @@ function DecisionView({
         </div>
       ) : (
         <div className={styles.card} style={{ textAlign: 'center', padding: '40px', color: 'var(--text2)' }}>
-          ✅ 当前无风险
+          ✅ {t('dashboard.noRisks')}
         </div>
       )}
     </div>

@@ -110,7 +110,7 @@ export function useAgentForce(options: UseAgentForceOptions): UseAgentForceRetur
             ws.send(JSON.stringify({ type: 'user_message', content: pending }))
             clearResponseTimeout()
             timeoutRef.current = setTimeout(() => {
-              optionsRef.current.onError?.('AI 响应超时，请重试')
+              optionsRef.current.onError?.('AI response timeout, please retry')
               disconnect()
             }, RESPONSE_TIMEOUT_MS)
           }
@@ -124,7 +124,7 @@ export function useAgentForce(options: UseAgentForceOptions): UseAgentForceRetur
           // Reset timeout on each chunk — response is actively streaming
           clearResponseTimeout()
           timeoutRef.current = setTimeout(() => {
-            optionsRef.current.onError?.('AI 响应超时，请重试')
+            optionsRef.current.onError?.('AI response timeout, please retry')
             disconnect()
           }, RESPONSE_TIMEOUT_MS)
           accumulatedContentRef.current += msg.content as string
@@ -174,7 +174,7 @@ export function useAgentForce(options: UseAgentForceOptions): UseAgentForceRetur
 
       clearResponseTimeout()
       timeoutRef.current = setTimeout(() => {
-        optionsRef.current.onError?.('AI 响应超时，请重试')
+        optionsRef.current.onError?.('AI response timeout, please retry')
         disconnect()
       }, RESPONSE_TIMEOUT_MS)
     },

@@ -123,7 +123,7 @@ export interface CurrentUser {
 
 // 全局应用状态（AppContext）
 export interface AppState {
-  currentUser: CurrentUser
+  currentUser: CurrentUser | null
   currentBoardId: number | null  // 保留兼容性
   currentProjectKey: string | null
   notificationCount: number

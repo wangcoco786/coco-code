@@ -6,10 +6,6 @@ import { useI18n } from '@/context/I18nContext'
 import type { PlatformIssue } from '@/types/platform'
 import styles from './GlobalSearch.module.css'
 
-const STATUS_LABEL: Record<string, string> = {
-  todo: '待办', in_progress: '进行中', in_review: '评审中',
-  in_testing: '测试中', done: '已完成',
-}
 const PRIORITY_COLOR: Record<string, string> = {
   P0: 'var(--danger)', P1: 'var(--warning)', P2: 'var(--primary)', P3: 'var(--text2)',
 }
@@ -25,13 +21,13 @@ interface SearchResult {
 }
 
 // 静态页面搜索项
-const PAGE_ITEMS: { keywords: string[]; title: string; subtitle: string; path: string }[] = [
-  { keywords: ['dashboard', '驾驶舱', 'panel'], title: 'Dashboard', subtitle: '项目驾驶舱', path: '/dashboard' },
-  { keywords: ['requirements', '需求', 'requisitos', '要件'], title: '需求管理', subtitle: 'Requirements', path: '/requirements' },
-  { keywords: ['sprint', '看板', 'board'], title: 'Sprint 管理', subtitle: 'Sprint Management', path: '/sprint' },
-  { keywords: ['risk', '风险', 'riesgo', 'リスク'], title: '风险与协作', subtitle: 'Risk & Collaboration', path: '/risk' },
-  { keywords: ['reports', '报告', 'informe', 'レポート'], title: '报告中心', subtitle: 'Reports', path: '/reports' },
-  { keywords: ['settings', '设置', 'configuración', '設定'], title: '设置', subtitle: 'Settings', path: '/settings' },
+const PAGE_ITEMS: { keywords: string[]; titleKey: string; subtitleKey: string; path: string }[] = [
+  { keywords: ['dashboard', '驾驶舱', 'panel'], titleKey: 'nav.dashboard', subtitleKey: 'dashboard.title', path: '/dashboard' },
+  { keywords: ['requirements', '需求', 'requisitos', '要件'], titleKey: 'nav.requirements', subtitleKey: 'req.title', path: '/requirements' },
+  { keywords: ['sprint', '看板', 'board'], titleKey: 'nav.sprint', subtitleKey: 'sprint.title', path: '/sprint' },
+  { keywords: ['risk', '风险', 'riesgo', 'リスク'], titleKey: 'nav.risk', subtitleKey: 'risk.title', path: '/risk' },
+  { keywords: ['reports', '报告', 'informe', 'レポート'], titleKey: 'nav.reports', subtitleKey: 'reports.title', path: '/reports' },
+  { keywords: ['settings', '设置', 'configuración', '設定'], titleKey: 'nav.settings', subtitleKey: 'settings.title', path: '/settings' },
 ]
 
 interface Props {
@@ -101,8 +97,10 @@ export default function GlobalSearch({ placeholder }: Props) {
 
     // 搜索页面
     PAGE_ITEMS.forEach(p => {
-      if (p.keywords.some(k => k.includes(q)) || p.title.toLowerCase().includes(q) || p.subtitle.toLowerCase().includes(q)) {
-        out.push({ type: 'page', id: p.path, title: p.title, subtitle: p.subtitle, path: p.path })
+      const pTitle = t(p.titleKey as any)
+      const pSubtitle = t(p.subtitleKey as any)
+      if (p.keywords.some(k => k.includes(q)) || pTitle.toLowerCase().includes(q) || pSubtitle.toLowerCase().includes(q)) {
+        out.push({ type: 'page', id: p.path, title: pTitle, subtitle: pSubtitle, path: p.path })
       }
     })
 
@@ -117,11 +115,12 @@ export default function GlobalSearch({ placeholder }: Props) {
     }).slice(0, 10)
 
     issueResults.forEach((i: PlatformIssue) => {
+      const statusLabel = i.status === 'todo' ? t('common.todo') : i.status === 'in_progress' ? t('common.inProgress') : i.status === 'in_review' ? t('common.inReview') : i.status === 'in_testing' ? t('common.inTesting') : t('common.completed')
       out.push({
         type: 'issue',
         id: i.id,
         title: i.title,
-        subtitle: `${i.id} · ${STATUS_LABEL[i.status] ?? i.status} · ${i.assignee?.name ?? '未分配'}`,
+        subtitle: `${i.id} · ${statusLabel} · ${i.assignee?.name ?? t('common.unassigned')}`,
         priority: i.priority,
         status: i.status,
         path: '/sprint',
@@ -199,14 +198,14 @@ export default function GlobalSearch({ placeholder }: Props) {
         <div ref={dropdownRef} className={styles.dropdown}>
           {results.length === 0 ? (
             <div className={styles.empty}>
-              <span>🔍</span> 未找到 "<strong>{query}</strong>" 相关内容
+              <span>🔍</span> {t('search.noResults')} "<strong>{query}</strong>"
             </div>
           ) : (
             <>
               {/* 页面结果 */}
               {results.filter(r => r.type === 'page').length > 0 && (
                 <div className={styles.group}>
-                  <div className={styles.groupLabel}>页面</div>
+                  <div className={styles.groupLabel}>{t('search.pages')}</div>
                   {results.filter(r => r.type === 'page').map((r, i) => (
                     <div
                       key={r.id}
@@ -228,7 +227,7 @@ export default function GlobalSearch({ placeholder }: Props) {
               {/* Issue 结果 */}
               {results.filter(r => r.type === 'issue').length > 0 && (
                 <div className={styles.group}>
-                  <div className={styles.groupLabel}>任务 · {currentProjectKey}</div>
+                  <div className={styles.groupLabel}>{t('search.tasks')} · {currentProjectKey}</div>
                   {results.filter(r => r.type === 'issue').map((r, i) => {
                     const globalIdx = results.filter(x => x.type === 'page').length + i
                     return (
@@ -254,9 +253,9 @@ export default function GlobalSearch({ placeholder }: Props) {
               )}
 
               <div className={styles.footer}>
-                <span>↑↓ 导航</span>
-                <span>Enter 跳转</span>
-                <span>Esc 关闭</span>
+                <span>{t('search.navigate')}</span>
+                <span>{t('search.jump')}</span>
+                <span>{t('search.close')}</span>
               </div>
             </>
           )}

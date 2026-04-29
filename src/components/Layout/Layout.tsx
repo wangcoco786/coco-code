@@ -19,7 +19,7 @@ export default function Layout() {
       {sidebarOpen && <div className={styles.sidebarOverlay} onClick={() => setSidebarOpen(false)} />}
       <Sidebar expanded={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       <main className={styles.content}>
-        {currentUser.role === 'DEV' && (
+        {currentUser?.role === 'DEV' && (
           <div className={styles.devBanner}>
             👤 {currentUser.name} · {t('layout.devBanner')}
           </div>

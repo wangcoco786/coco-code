@@ -74,11 +74,11 @@ const productLaunch: RoadmapTemplate = {
   descriptionKey: 'roadmap.template.productLaunch.description',
   icon: '🚀',
   milestones: [
-    { name: '需求分析', startDayOffset: 0, endDayOffset: 14, status: 'planned' },
-    { name: '设计', startDayOffset: 14, endDayOffset: 28, status: 'planned' },
-    { name: '开发', startDayOffset: 28, endDayOffset: 70, status: 'planned' },
-    { name: '测试', startDayOffset: 70, endDayOffset: 84, status: 'planned' },
-    { name: '发布', startDayOffset: 84, endDayOffset: 91, status: 'planned' },
+    { name: 'Requirements Analysis', startDayOffset: 0, endDayOffset: 14, status: 'planned' },
+    { name: 'Design', startDayOffset: 14, endDayOffset: 28, status: 'planned' },
+    { name: 'Development', startDayOffset: 28, endDayOffset: 70, status: 'planned' },
+    { name: 'Testing', startDayOffset: 70, endDayOffset: 84, status: 'planned' },
+    { name: 'Release', startDayOffset: 84, endDayOffset: 91, status: 'planned' },
   ],
   nodes: [
     { name: 'Design Review', dayOffset: 28, type: 'review' },

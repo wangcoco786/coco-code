@@ -9,11 +9,59 @@ import path from 'path'
 import os from 'os'
 import { fileURLToPath } from 'url'
 
+import { ssoLoginHandler, ssoCallbackHandler } from './src/server/oidcClient.js'
+import { refreshToken as refreshTokenService, logout as logoutService } from './src/server/authService.js'
+import { authMiddleware } from './src/server/authMiddleware.js'
+import { ssoCallbackLimiter } from './src/server/rateLimiter.js'
+
+// ============================================================
+// 环境变量启动检查
+// ============================================================
+const REQUIRED_ENV_VARS = ['JWT_SECRET', 'IAM_CLIENT_ID', 'IAM_CLIENT_SECRET', 'IAM_ISSUER_URL']
+const missingVars = REQUIRED_ENV_VARS.filter((key) => !process.env[key])
+
+if (missingVars.length > 0) {
+  console.error(`[启动失败] 缺少必需的环境变量: ${missingVars.join(', ')}`)
+  process.exit(1)
+}
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const app = express()
 const PORT = process.env.PORT || 3000
 
 app.use(express.json({ limit: '10mb' }))
+
+// ============================================================
+// 认证路由（无需 Auth Middleware 保护）
+// ============================================================
+app.get('/api/auth/sso/login', ssoLoginHandler)
+app.get('/api/auth/sso/callback', ssoCallbackLimiter, ssoCallbackHandler)
+
+app.post('/api/auth/refresh', (req, res) => {
+  const { refreshToken } = req.body || {}
+  if (!refreshToken) {
+    return res.status(401).json({ error: '刷新令牌无效' })
+  }
+  try {
+    const result = refreshTokenService(refreshToken)
+    return res.status(200).json(result)
+  } catch (err) {
+    return res.status(err.status || 401).json({ error: err.message || '刷新令牌无效' })
+  }
+})
+
+app.post('/api/auth/logout', (req, res) => {
+  const { refreshToken } = req.body || {}
+  if (refreshToken) {
+    logoutService(refreshToken)
+  }
+  return res.status(200).json({ message: '已登出' })
+})
+
+// ============================================================
+// Auth Middleware — 保护后续所有 /api/ 路由
+// ============================================================
+app.use('/api', authMiddleware)
 
 // ============================================================
 // Jira API 代理  /api/jira/...

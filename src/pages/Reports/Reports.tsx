@@ -11,12 +11,12 @@ import AIInsight from '@/components/AIInsight/AIInsight'
 
 // ─── helpers ────────────────────────────────────────────────
 
-const QUICK_CARDS: { type: ReportType; label: string; desc: string; icon: string }[] = [
-  { type: 'daily', label: '日报', desc: '每日进展', icon: '📅' },
-  { type: 'weekly', label: '周报', desc: '本周总结', icon: '📊' },
-  { type: 'sprint_review', label: 'Sprint 报告', desc: '复盘总结', icon: '🎯' },
-  { type: 'daily', label: '月报', desc: '月度汇总', icon: '📈' },
-  { type: 'weekly', label: '协作报告', desc: '跨团队', icon: '🤝' },
+const QUICK_CARDS: { type: ReportType; labelKey: string; descKey: string; icon: string }[] = [
+  { type: 'daily', labelKey: 'reports.daily', descKey: 'reports.dailyDesc', icon: '📅' },
+  { type: 'weekly', labelKey: 'reports.weekly', descKey: 'reports.weeklyDesc', icon: '📊' },
+  { type: 'sprint_review', labelKey: 'reports.sprint', descKey: 'reports.sprintDesc', icon: '🎯' },
+  { type: 'daily', labelKey: 'reports.monthly', descKey: 'reports.monthlyDesc', icon: '📈' },
+  { type: 'weekly', labelKey: 'reports.collaboration', descKey: 'reports.collaborationDesc', icon: '🤝' },
 ]
 
 // ─── Generate Report Content ─────────────────────────────────
@@ -218,7 +218,7 @@ export default function Reports() {
   const isLoading = rawLoading && !!currentProjectKey
 
   const wecomSend = useWecomSend()
-  const isDev = currentUser.role === 'DEV'
+  const isDev = currentUser?.role === 'DEV'
   const projectName = sprint?.name ?? currentProjectKey ?? 'Project'
 
   const risks = useMemo(() => analyzeRisks(issues), [issues])
@@ -293,21 +293,21 @@ export default function Reports() {
       <div className={styles.header}>
         <div className={styles.headerLeft}>
           <h1 className={styles.title}>{t('reports.title')}</h1>
-          <div className={styles.subtitle}>自动生成并推送项目报告</div>
+          <div className={styles.subtitle}>{t('reports.subtitle')}</div>
         </div>
       </div>
 
       {/* Error */}
       {isError && (
         <div className={styles.errorBanner}>
-          ⚠️ 数据加载失败：{error instanceof Error ? error.message : '未知错误'}
+          ⚠️ {t('dashboard.errorLoad')}：{error instanceof Error ? error.message : t('common.error')}
         </div>
       )}
 
       {/* AI 分析 */}
       {currentProjectKey && issues.length > 0 && (
         <AIInsight
-          title="AI 报告助手"
+          title={t('ai.insight')}
           buildPrompt={() => {
             const done = issues.filter(i => i.status === 'done').length
             const inProgress = issues.filter(i => i.status === 'in_progress').length
@@ -324,10 +324,10 @@ export default function Reports() {
       {/* Quick cards */}
       <div className={styles.quickCards}>
         {QUICK_CARDS.map((card) => (
-          <div key={card.label} className={styles.quickCard}>
+          <div key={card.labelKey} className={styles.quickCard}>
             <div className={styles.quickCardIcon}>{card.icon}</div>
-            <div className={styles.quickCardLabel}>{card.label}</div>
-            <div className={styles.quickCardDesc}>{card.desc}</div>
+            <div className={styles.quickCardLabel}>{t(card.labelKey as any)}</div>
+            <div className={styles.quickCardDesc}>{t(card.descKey as any)}</div>
           </div>
         ))}
       </div>
@@ -339,7 +339,7 @@ export default function Reports() {
         <div className={styles.layout}>
           {/* Table */}
           <div className={styles.card}>
-            <div className={styles.cardTitle}>报告列表</div>
+            <div className={styles.cardTitle}>{t('reports.reportList')}</div>
 
             {/* 筛选栏 */}
             <div className={styles.filterBar} style={{ padding: '12px 16px 0' }}>
@@ -348,7 +348,7 @@ export default function Reports() {
                 value={typeFilter}
                 onChange={(e) => setTypeFilter(e.target.value as '' | ReportType)}
               >
-                <option value="">全部类型</option>
+                <option value="">{t('reports.allTypes')}</option>
                 <option value="daily">{t('reports.daily')}</option>
                 <option value="weekly">{t('reports.weekly')}</option>
                 <option value="sprint_review">{t('reports.sprint')}</option>
@@ -359,7 +359,7 @@ export default function Reports() {
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value as '' | ReportStatus)}
               >
-                <option value="">全部状态</option>
+                <option value="">{t('reports.allStatus')}</option>
                 <option value="draft">{t('reports.draft')}</option>
                 <option value="pushed">{t('reports.pushed')}</option>
               </select>
@@ -374,11 +374,11 @@ export default function Reports() {
             <table className={styles.table}>
               <thead>
                 <tr>
-                  <th>类型</th>
-                  <th>标题</th>
-                  <th>日期</th>
-                  <th>状态</th>
-                  <th>操作</th>
+                  <th>{t('reports.type')}</th>
+                  <th>{t('reports.reportTitle')}</th>
+                  <th>{t('reports.date')}</th>
+                  <th>{t('reports.status')}</th>
+                  <th>{t('reports.actions')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -417,7 +417,7 @@ export default function Reports() {
                           onClick={() => handlePush(report)}
                           disabled={wecomSend.isPending || report.status === 'pushed'}
                         >
-                          {wecomSend.isPending ? '推送中…' : t('reports.pushWecom')}
+                          {wecomSend.isPending ? t('reports.pushing') : t('reports.pushWecom')}
                         </button>
                       </td>
                     </tr>
@@ -441,7 +441,7 @@ export default function Reports() {
               {selectedReport ? (
                 <pre className={styles.previewPre}>{selectedReport.content}</pre>
               ) : (
-                <div className={styles.previewEmpty}>← 点击左侧报告查看详情</div>
+                <div className={styles.previewEmpty}>{t('reports.previewEmpty')}</div>
               )}
             </div>
           </div>

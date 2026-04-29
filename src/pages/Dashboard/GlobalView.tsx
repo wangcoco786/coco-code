@@ -67,7 +67,7 @@ function RiskDetail({ risks }: { risks: Risk[] }) {
       </div>
       <table className={styles.riskTable}>
         <thead>
-          <tr><th>等级</th><th>类型</th><th>描述</th><th>负责人</th></tr>
+          <tr><th>{t('dashboard.level')}</th><th>{t('dashboard.riskType')}</th><th>{t('dashboard.description')}</th><th>{t('dashboard.assignee')}</th></tr>
         </thead>
         <tbody>
           {filtered.map(risk => (
@@ -106,11 +106,11 @@ function IssueDetail({ issues }: { issues: PlatformIssue[]; title?: string }) {
   return (
     <div>
       <div style={{ fontSize: 13, color: 'var(--text2)', marginBottom: 12 }}>
-        共 <strong>{issues.length}</strong> 个任务
+        {t('dashboard.totalCount')} <strong>{issues.length}</strong> {t('dashboard.subtitle.tasks')}
       </div>
       <table className={styles.riskTable}>
         <thead>
-          <tr><th>ID</th><th>标题</th><th>优先级</th><th>状态</th><th>负责人</th></tr>
+          <tr><th>ID</th><th>{t('sprint.thTitle')}</th><th>{t('sprint.thPriority')}</th><th>{t('reports.status')}</th><th>{t('dashboard.assignee')}</th></tr>
         </thead>
         <tbody>
           {issues.slice(0, 50).map(issue => (
@@ -137,7 +137,7 @@ function IssueDetail({ issues }: { issues: PlatformIssue[]; title?: string }) {
       </table>
       {issues.length > 50 && (
         <div style={{ textAlign: 'center', padding: '8px 0', fontSize: 12, color: 'var(--text2)' }}>
-          仅显示前 50 条，共 {issues.length} 条
+          {t('dashboard.showFirst50')} {issues.length} {t('dashboard.items')}
         </div>
       )}
     </div>
@@ -180,24 +180,24 @@ export default function GlobalView({ sprint, issues, risks, isLoading }: Props) 
   useEffect(() => {
     const canvas = canvasRef.current
     if (!canvas || !sprint) return
-    drawBurndown(canvas, totalIssues, sprint)
+    drawBurndown(canvas, totalIssues, sprint, t)
   }, [sprint, totalIssues])
 
   // 弹窗内容
   const getModalContent = () => {
     switch (modal) {
       case 'risks':
-        return <DetailModal title={`${t('dashboard.riskAlert')}（${risks.length} 个）`} onClose={() => setModal(null)}><RiskDetail risks={risks} /></DetailModal>
+        return <DetailModal title={`${t('dashboard.riskAlert')}（${risks.length}）`} onClose={() => setModal(null)}><RiskDetail risks={risks} /></DetailModal>
       case 'unassigned':
-        return <DetailModal title={`${t('dashboard.unassigned')}（${unassigned} 个）`} onClose={() => setModal(null)}><IssueDetail issues={issues.filter(i => !i.assignee && i.status !== 'done')} title={t('dashboard.unassigned')} /></DetailModal>
+        return <DetailModal title={`${t('dashboard.unassigned')}（${unassigned}）`} onClose={() => setModal(null)}><IssueDetail issues={issues.filter(i => !i.assignee && i.status !== 'done')} title={t('dashboard.unassigned')} /></DetailModal>
       case 'inProgress':
-        return <DetailModal title={`${t('dashboard.inProgress')}（${inProgressIssues.length} 个）`} onClose={() => setModal(null)}><IssueDetail issues={inProgressIssues} title={t('dashboard.inProgress')} /></DetailModal>
+        return <DetailModal title={`${t('dashboard.inProgress')}（${inProgressIssues.length}）`} onClose={() => setModal(null)}><IssueDetail issues={inProgressIssues} title={t('dashboard.inProgress')} /></DetailModal>
       case 'todo':
-        return <DetailModal title={`${t('dashboard.todo')}（${todoIssues.length} 个）`} onClose={() => setModal(null)}><IssueDetail issues={todoIssues} title={t('dashboard.todo')} /></DetailModal>
+        return <DetailModal title={`${t('dashboard.todo')}（${todoIssues.length}）`} onClose={() => setModal(null)}><IssueDetail issues={todoIssues} title={t('dashboard.todo')} /></DetailModal>
       case 'done':
-        return <DetailModal title={`${t('dashboard.done')}（${completedIssues} 个）`} onClose={() => setModal(null)}><IssueDetail issues={completedIssues > 0 ? issues.filter(i => i.status === 'done') : []} title={t('dashboard.done')} /></DetailModal>
+        return <DetailModal title={`${t('dashboard.done')}（${completedIssues}）`} onClose={() => setModal(null)}><IssueDetail issues={completedIssues > 0 ? issues.filter(i => i.status === 'done') : []} title={t('dashboard.done')} /></DetailModal>
       case 'total':
-        return <DetailModal title={`${t('common.all')}（${totalIssues} 个）`} onClose={() => setModal(null)}><IssueDetail issues={issues} title={t('common.all')} /></DetailModal>
+        return <DetailModal title={`${t('common.all')}（${totalIssues}）`} onClose={() => setModal(null)}><IssueDetail issues={issues} title={t('common.all')} /></DetailModal>
       default:
         return null
     }
@@ -225,7 +225,7 @@ export default function GlobalView({ sprint, issues, risks, isLoading }: Props) 
         <div
           className={`${styles.metricCard} ${styles.info} ${styles.clickable}`}
           onClick={() => setModal('total')}
-          title="点击查看明细"
+          title={t('dashboard.clickDetail')}
         >
           <div className={styles.metricLabel}>{t('dashboard.completionRate')}</div>
           <div className={styles.metricValue}>{completionRate}%</div>
@@ -235,42 +235,42 @@ export default function GlobalView({ sprint, issues, risks, isLoading }: Props) 
               style={{ width: `${completionRate}%` }}
             />
           </div>
-          <div className={styles.metricSub}>已完成 {completedIssues}/{totalIssues} 个任务 →</div>
+          <div className={styles.metricSub}>{t('common.completed')} {completedIssues}/{totalIssues} {t('dashboard.subtitle.tasks')} →</div>
         </div>
 
         <div
           className={`${styles.metricCard} ${highRisks > 0 ? styles.danger : styles.success} ${styles.clickable}`}
           onClick={() => setModal('risks')}
-          title="点击查看风险明细"
+          title={t('dashboard.clickDetail')}
         >
           <div className={styles.metricLabel}>{t('dashboard.riskAlert')}</div>
           <div className={styles.metricValue}>{highRisks + mediumRisks}</div>
           <div className={styles.metricSub}>
-            🔴 高危 {highRisks} · 🟡 中危 {mediumRisks} →
+            🔴 {t('risk.high')} {highRisks} · 🟡 {t('risk.medium')} {mediumRisks} →
           </div>
         </div>
 
         <div
           className={`${styles.metricCard} ${unassigned > 0 ? styles.warning : styles.success} ${styles.clickable}`}
           onClick={() => unassigned > 0 ? setModal('unassigned') : undefined}
-          title={unassigned > 0 ? '点击查看未分配任务' : ''}
+          title={unassigned > 0 ? t('dashboard.clickDetail') : ''}
         >
           <div className={styles.metricLabel}>{t('dashboard.unassigned')}</div>
           <div className={styles.metricValue}>{unassigned}</div>
           <div className={styles.metricSub}>
-            {unassigned > 0 ? '⚠️ 需要分配负责人 →' : '✅ 全部已分配'}
+            {unassigned > 0 ? `⚠️ ${t('dashboard.needAssign')} →` : `✅ ${t('dashboard.allAssigned')}`}
           </div>
         </div>
 
         <div
           className={`${styles.metricCard} ${styles.info} ${styles.clickable}`}
           onClick={() => setModal('inProgress')}
-          title="点击查看进行中任务"
+          title={t('dashboard.clickDetail')}
         >
           <div className={styles.metricLabel}>{t('dashboard.totalTasks')}</div>
           <div className={styles.metricValue}>{totalIssues}</div>
           <div className={styles.metricSub}>
-            进行中 {inProgressIssues.length} · 待办 {todoIssues.length} →
+            {t('common.inProgress')} {inProgressIssues.length} · {t('common.todo')} {todoIssues.length} →
           </div>
         </div>
       </div>
@@ -280,7 +280,7 @@ export default function GlobalView({ sprint, issues, risks, isLoading }: Props) 
         <div className={styles.card}>
           <div className={styles.cardTitle}>
             {t('dashboard.burndown')}
-            <span className={`${styles.tag} ${styles.tagInfo}`}>任务数</span>
+            <span className={`${styles.tag} ${styles.tagInfo}`}>{t('dashboard.taskCount')}</span>
           </div>
           {sprint ? (
             <div style={{ position: 'relative', height: 220 }}>
@@ -327,12 +327,12 @@ export default function GlobalView({ sprint, issues, risks, isLoading }: Props) 
               style={{ cursor: 'pointer', border: 'none', background: 'var(--primary-light)' }}
               onClick={() => setModal('risks')}
             >
-              查看全部 {risks.length} 个 →
+              {t('dashboard.viewAll')} {risks.length} →
             </button>
           </div>
           <table className={styles.riskTable}>
             <thead>
-              <tr><th>等级</th><th>类型</th><th>描述</th><th>负责人</th><th>状态</th></tr>
+              <tr><th>{t('dashboard.level')}</th><th>{t('dashboard.riskType')}</th><th>{t('dashboard.description')}</th><th>{t('dashboard.assignee')}</th><th>{t('dashboard.riskStatus')}</th></tr>
             </thead>
             <tbody>
               {risks.slice(0, 5).map(risk => (
@@ -375,7 +375,7 @@ export default function GlobalView({ sprint, issues, risks, isLoading }: Props) 
                 key={status}
                 style={{ textAlign: 'center', minWidth: 80, cursor: m ? 'pointer' : 'default' }}
                 onClick={() => m && setModal(m)}
-                title={m ? '点击查看明细' : ''}
+                title={m ? t('dashboard.clickDetail') : ''}
               >
                 <div style={{ fontSize: 24, fontWeight: 700, color, textDecoration: m ? 'underline dotted' : 'none' }}>{count}</div>
                 <div style={{ fontSize: 12, color: 'var(--text2)', marginTop: 4 }}>{t(labelKey)}</div>
@@ -393,7 +393,7 @@ export default function GlobalView({ sprint, issues, risks, isLoading }: Props) 
 }
 
 // ─── 燃尽图 ──────────────────────────────────────────────────
-function drawBurndown(canvas: HTMLCanvasElement, totalIssues: number, sprint: JiraSprint) {
+function drawBurndown(canvas: HTMLCanvasElement, totalIssues: number, sprint: JiraSprint, t: (key: any) => string) {
   const ctx = canvas.getContext('2d')
   if (!ctx) return
   const w = canvas.parentElement?.offsetWidth ?? 400
@@ -436,6 +436,6 @@ function drawBurndown(canvas: HTMLCanvasElement, totalIssues: number, sprint: Ji
     ctx.beginPath(); ctx.arc(cx2, cy2, 4, 0, Math.PI * 2); ctx.fillStyle = '#1677ff'; ctx.fill()
   }
   ctx.font = '11px sans-serif'; ctx.textAlign = 'left'
-  ctx.fillStyle = '#999'; ctx.fillText('理想线', w - pad.r + 4, pad.t + 14)
-  ctx.fillStyle = '#1677ff'; ctx.fillText('实际', w - pad.r + 4, pad.t + 30)
+  ctx.fillStyle = '#999'; ctx.fillText(t('dashboard.idealLine'), w - pad.r + 4, pad.t + 14)
+  ctx.fillStyle = '#1677ff'; ctx.fillText(t('dashboard.actualLine'), w - pad.r + 4, pad.t + 30)
 }

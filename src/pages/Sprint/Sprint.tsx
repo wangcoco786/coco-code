@@ -228,7 +228,7 @@ export default function Sprint() {
   const isLoading = rawLoading && !!currentProjectKey
   const refresh = useRefreshProjectIssues()
 
-  const isDev = currentUser.role === 'DEV'
+  const isDev = currentUser?.role === 'DEV'
   const completedCount = issues.filter((i) => i.status === 'done').length
 
   return (
@@ -263,7 +263,7 @@ export default function Sprint() {
             onClick={refresh}
             disabled={isLoading}
           >
-            {isLoading ? '同步中…' : t('sprint.syncNow')}
+            {isLoading ? t('sprint.syncing') : t('sprint.syncNow')}
           </button>
         </div>
       </div>
@@ -271,14 +271,14 @@ export default function Sprint() {
       {/* Error */}
       {isError && (
         <div className={styles.errorBanner}>
-          ⚠️ 数据加载失败：{error instanceof Error ? error.message : '未知错误'}
+          ⚠️ {t('sprint.errorLoad')}：{error instanceof Error ? error.message : t('common.error')}
         </div>
       )}
 
       {/* AI 分析 */}
       {currentProjectKey && issues.length > 0 && currentSprint && (
         <AIInsight
-          title="AI Sprint 分析"
+          title={t('ai.insight')}
           buildPrompt={() => {
             const done = issues.filter(i => i.status === 'done').length
             const inProgress = issues.filter(i => i.status === 'in_progress').length
@@ -320,7 +320,7 @@ export default function Sprint() {
           {activeTab === 'board' && (
             <BoardTab
               issues={issues}
-              currentUserId={currentUser.id}
+              currentUserId={currentUser?.id ?? ''}
               isDev={isDev}
             />
           )}
@@ -345,6 +345,7 @@ interface PlanTabProps {
 }
 
 function PlanTab({ projectKey, sprintIssues }: PlanTabProps) {
+  const { t } = useI18n()
   const [selected, setSelected] = useState<Set<string>>(new Set())
 
   // 从项目 Backlog 拉取候选任务（未在当前 Sprint 中的）
@@ -388,14 +389,14 @@ function PlanTab({ projectKey, sprintIssues }: PlanTabProps) {
     <div>
       {/* 规划助手说明 */}
       <div className={styles.planBanner}>
-        <div className={styles.planBannerTitle}>📋 Sprint 规划助手</div>
+        <div className={styles.planBannerTitle}>{t('sprint.planBannerTitle')}</div>
         <div className={styles.planBannerDesc}>
-          AI 已从 Backlog 中筛选候选任务，按优先级和紧急度排序。勾选任务后可导出规划清单。
+          {t('sprint.planBannerDesc')}
         </div>
         <div className={styles.planStats}>
-          <span>📊 当前 Sprint：<strong>{sprintIssues.length}</strong> 个任务</span>
-          <span>📥 Backlog 候选：<strong>{candidates.length}</strong> 个</span>
-          <span>✅ 已选：<strong>{selected.size}</strong> 个</span>
+          <span>📊 {t('sprint.currentSprint')}：<strong>{sprintIssues.length}</strong> {t('dashboard.subtitle.tasks')}</span>
+          <span>📥 {t('sprint.backlogCandidates')}：<strong>{candidates.length}</strong></span>
+          <span>✅ {t('sprint.selected')}：<strong>{selected.size}</strong></span>
         </div>
       </div>
 
@@ -403,18 +404,18 @@ function PlanTab({ projectKey, sprintIssues }: PlanTabProps) {
         {/* 候选任务列表 */}
         <div className={styles.planCard}>
           <div className={styles.planCardTitle}>
-            📥 Backlog 候选任务（AI 已排序）
+            {t('sprint.backlogTitle')}
             <button
               className={styles.btnSm}
               onClick={() => setSelected(new Set(scored.slice(0, 10).map(i => i.id)))}
             >
-              一键选前10
+              {t('sprint.selectTop10')}
             </button>
           </div>
           {isLoading ? (
-            <div style={{ padding: 20, textAlign: 'center', color: 'var(--text2)' }}>加载中...</div>
+            <div style={{ padding: 20, textAlign: 'center', color: 'var(--text2)' }}>{t('common.loading')}</div>
           ) : scored.length === 0 ? (
-            <div style={{ padding: 20, textAlign: 'center', color: 'var(--text2)' }}>Backlog 暂无候选任务</div>
+            <div style={{ padding: 20, textAlign: 'center', color: 'var(--text2)' }}>{t('sprint.noBacklog')}</div>
           ) : (
             <table className={styles.planTable}>
               <thead>
@@ -426,10 +427,10 @@ function PlanTab({ projectKey, sprintIssues }: PlanTabProps) {
                     }} />
                   </th>
                   <th>ID</th>
-                  <th>标题</th>
-                  <th>优先级</th>
-                  <th>负责人</th>
-                  <th>AI评分</th>
+                  <th>{t('sprint.thTitle')}</th>
+                  <th>{t('sprint.thPriority')}</th>
+                  <th>{t('sprint.thAssignee')}</th>
+                  <th>{t('sprint.thAiScore')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -454,7 +455,7 @@ function PlanTab({ projectKey, sprintIssues }: PlanTabProps) {
                         background: issue.priority === 'P0' ? 'var(--danger-light)' : issue.priority === 'P1' ? 'var(--warning-light)' : 'var(--primary-light)',
                       }}>{issue.priority}</span>
                     </td>
-                    <td style={{ fontSize: 12 }}>{issue.assignee?.name ?? <span style={{ color: 'var(--text2)' }}>未分配</span>}</td>
+                    <td style={{ fontSize: 12 }}>{issue.assignee?.name ?? <span style={{ color: 'var(--text2)' }}>{t('sprint.unassigned')}</span>}</td>
                     <td>
                       <span style={{
                         fontSize: 12, fontWeight: 700,
@@ -471,16 +472,16 @@ function PlanTab({ projectKey, sprintIssues }: PlanTabProps) {
         {/* 已选任务 + AI 建议 */}
         <div>
           <div className={styles.planCard} style={{ marginBottom: 12 }}>
-            <div className={styles.planCardTitle}>🧠 AI 规划建议</div>
+            <div className={styles.planCardTitle}>{t('sprint.aiPlanSuggestion')}</div>
             <div style={{ fontSize: 13, lineHeight: 1.8 }}>
-              <div>当前 Sprint：<strong>{sprintIssues.length}</strong> 个任务</div>
-              <div>已选新增：<strong style={{ color: 'var(--primary)' }}>{selected.size}</strong> 个</div>
+              <div>{t('sprint.currentSprint')}：<strong>{sprintIssues.length}</strong> {t('dashboard.subtitle.tasks')}</div>
+              <div>{t('sprint.selected')}：<strong style={{ color: 'var(--primary)' }}>{selected.size}</strong></div>
               <div style={{ marginTop: 8, padding: '8px 10px', background: 'var(--primary-light)', borderRadius: 6, fontSize: 12 }}>
                 {selected.size === 0
-                  ? '💡 请从左侧选择要加入下个 Sprint 的任务'
+                  ? `💡 ${t('sprint.selectHint')}`
                   : selected.size <= 10
-                  ? `✅ 已选 ${selected.size} 个任务，规模合理`
-                  : `⚠️ 已选 ${selected.size} 个任务，建议控制在 10 个以内`}
+                  ? `✅ ${selected.size} ${t('sprint.sizeOk')}`
+                  : `⚠️ ${selected.size} ${t('sprint.sizeTooMany')}`}
               </div>
             </div>
           </div>
@@ -488,8 +489,8 @@ function PlanTab({ projectKey, sprintIssues }: PlanTabProps) {
           {selectedIssues.length > 0 && (
             <div className={styles.planCard}>
               <div className={styles.planCardTitle}>
-                ✅ 已选任务（{selectedIssues.length}）
-                <button className={styles.btnSm} onClick={() => setSelected(new Set())}>清空</button>
+                ✅ {t('sprint.selectedTasks')}（{selectedIssues.length}）
+                <button className={styles.btnSm} onClick={() => setSelected(new Set())}>{t('sprint.clearSelection')}</button>
               </div>
               {selectedIssues.map(issue => (
                 <div key={issue.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', borderBottom: '1px solid var(--border)', fontSize: 13 }}>
@@ -512,10 +513,10 @@ function PlanTab({ projectKey, sprintIssues }: PlanTabProps) {
                 onClick={() => {
                   const text = selectedIssues.map(i => `${i.id}: ${i.title}`).join('\n')
                   navigator.clipboard?.writeText(text).catch(() => {})
-                  alert(`已复制 ${selectedIssues.length} 个任务到剪贴板`)
+                  alert(`${t('sprint.copiedAlert')} (${selectedIssues.length})`)
                 }}
               >
-                📋 复制规划清单
+                {t('sprint.copyPlan')}
               </button>
             </div>
           )}
@@ -529,8 +530,8 @@ function PlanTab({ projectKey, sprintIssues }: PlanTabProps) {
 
 function _statusLabel(status: IssueStatus): string {
   const map: Record<IssueStatus, string> = {
-    todo: '待办', in_progress: '进行中', in_review: '评审中',
-    in_testing: '测试中', done: '已完成',
+    todo: 'To Do', in_progress: 'In Progress', in_review: 'In Review',
+    in_testing: 'In Testing', done: 'Done',
   }
   return map[status] ?? status
 }
@@ -538,8 +539,8 @@ void _statusLabel
 
 function _daysSince(isoDate: string): string {
   const days = Math.floor((Date.now() - new Date(isoDate).getTime()) / (1000 * 60 * 60 * 24))
-  if (days === 0) return '今天'
-  if (days === 1) return '昨天'
-  return `${days} 天前`
+  if (days === 0) return 'Today'
+  if (days === 1) return 'Yesterday'
+  return `${days} days ago`
 }
 void _daysSince

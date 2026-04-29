@@ -4,6 +4,7 @@ import { useI18n } from '@/context/I18nContext'
 import { useJiraProjects } from '@/hooks/useJiraBoard'
 import { LOCALES } from '@/i18n'
 import GlobalSearch from '@/components/GlobalSearch/GlobalSearch'
+import { getRefreshToken, clearTokens } from '@/lib/tokenManager'
 import type { CurrentUser } from '@/types/platform'
 import styles from './Topbar.module.css'
 
@@ -23,6 +24,22 @@ export default function Topbar({ onMenuToggle }: { onMenuToggle?: () => void }) 
   const { data: projects, isLoading } = useJiraProjects()
   const [showUserMenu, setShowUserMenu] = useState(false)
   const [showLangMenu, setShowLangMenu] = useState(false)
+
+  const handleLogout = async () => {
+    try {
+      const refreshToken = getRefreshToken()
+      await fetch('/api/auth/logout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ refreshToken }),
+      })
+    } catch {
+      // Ignore network errors — still clear tokens and redirect
+    } finally {
+      clearTokens()
+      window.location.href = '/login'
+    }
+  }
 
   return (
     <header className={styles.topbar}>
@@ -94,8 +111,8 @@ export default function Topbar({ onMenuToggle }: { onMenuToggle?: () => void }) 
             onClick={() => setShowUserMenu((v) => !v)}
             aria-label={t('topbar.switchRole')}
           >
-            <span className={`${styles.roleTag} ${currentUser.role === 'PM' ? styles.pm : styles.dev}`}>
-              {currentUser.role}
+            <span className={`${styles.roleTag} ${currentUser?.role === 'PM' ? styles.pm : styles.dev}`}>
+              {currentUser?.role ?? ''}
             </span>
           </button>
           {showUserMenu && (
@@ -104,7 +121,7 @@ export default function Topbar({ onMenuToggle }: { onMenuToggle?: () => void }) 
               {USERS.map((user) => (
                 <button
                   key={user.id}
-                  className={`${styles.dropdownItem} ${currentUser.id === user.id ? styles.active : ''}`}
+                  className={`${styles.dropdownItem} ${currentUser?.id === user.id ? styles.active : ''}`}
                   onClick={() => { setCurrentUser(user); setShowUserMenu(false) }}
                 >
                   <span className={`${styles.roleTag} ${user.role === 'PM' ? styles.pm : styles.dev}`}>
@@ -112,6 +129,13 @@ export default function Topbar({ onMenuToggle }: { onMenuToggle?: () => void }) 
                   </span>
                 </button>
               ))}
+              <div className={styles.dropdownDivider} />
+              <button
+                className={`${styles.dropdownItem} ${styles.logoutItem}`}
+                onClick={handleLogout}
+              >
+                🚪 {t('topbar.logout')}
+              </button>
             </div>
           )}
         </div>

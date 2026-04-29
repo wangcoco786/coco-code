@@ -34,26 +34,27 @@ function writeBool(key: string, val: boolean) {
 
 function ProjectTab() {
   const { currentBoardId, currentProjectKey } = useApp()
+  const { t } = useI18n()
 
   return (
     <div className={styles.card}>
-      <div className={styles.cardTitle}>项目配置</div>
+      <div className={styles.cardTitle}>{t('settings.projectConfig')}</div>
       <div className={styles.formRow}>
-        <span className={styles.formLabel}>Board ID</span>
+        <span className={styles.formLabel}>{t('settings.boardId')}</span>
         <span className={styles.formValueMono}>
-          {currentBoardId !== null ? String(currentBoardId) : '未配置'}
+          {currentBoardId !== null ? String(currentBoardId) : t('settings.notConfigured')}
         </span>
       </div>
       <div className={styles.formRow}>
-        <span className={styles.formLabel}>项目 Key</span>
+        <span className={styles.formLabel}>{t('settings.projectKey')}</span>
         <span className={styles.formValue}>
-          {currentProjectKey ?? <span style={{ color: 'var(--text2)' }}>未配置</span>}
+          {currentProjectKey ?? <span style={{ color: 'var(--text2)' }}>{t('settings.notConfigured')}</span>}
         </span>
       </div>
       <div className={styles.formRow}>
-        <span className={styles.formLabel}>说明</span>
+        <span className={styles.formLabel}></span>
         <span className={styles.formValue} style={{ color: 'var(--text2)', fontSize: 13 }}>
-          Board ID 和项目 Key 通过环境变量 VITE_DEFAULT_BOARD_ID 配置
+          {t('settings.configDesc')}
         </span>
       </div>
     </div>
@@ -85,16 +86,16 @@ function JiraTab() {
       if (ok) {
         const now = new Date().toLocaleString('zh-CN')
         try { localStorage.setItem('ai_pm_last_sync', now) } catch { /* ignore */ }
-        showToast({ type: 'success', title: '✅ 连接成功', description: 'Jira 服务器连接正常' })
+        showToast({ type: 'success', title: t('toast.connectSuccess'), description: t('toast.connectSuccessDesc') })
       } else {
-        showToast({ type: 'error', title: '❌ 连接失败', description: '请检查 Jira 地址和认证配置' })
+        showToast({ type: 'error', title: t('toast.connectFail'), description: t('toast.connectFailDesc') })
       }
     } catch (e) {
       setConnected(false)
       showToast({
         type: 'error',
-        title: '❌ 连接失败',
-        description: e instanceof Error ? e.message : '未知错误',
+        title: t('toast.connectFail'),
+        description: e instanceof Error ? e.message : t('common.error'),
       })
     } finally {
       setTesting(false)
@@ -103,11 +104,11 @@ function JiraTab() {
 
   return (
     <div className={styles.card}>
-      <div className={styles.cardTitle}>Jira 集成</div>
+      <div className={styles.cardTitle}>{t('settings.jiraIntegration')}</div>
       <div className={styles.formRow}>
-        <span className={styles.formLabel}>连接状态</span>
+        <span className={styles.formLabel}>{t('settings.connectionStatus')}</span>
         {connected === null ? (
-          <span className={styles.formValue} style={{ color: 'var(--text2)' }}>未检测</span>
+          <span className={styles.formValue} style={{ color: 'var(--text2)' }}>{t('settings.notTested')}</span>
         ) : connected ? (
           <span className={`${styles.statusBadge} ${styles.statusConnected}`}>
             <span className={styles.statusDot} />
@@ -121,13 +122,13 @@ function JiraTab() {
         )}
       </div>
       <div className={styles.formRow}>
-        <span className={styles.formLabel}>Jira 地址</span>
+        <span className={styles.formLabel}>{t('settings.jiraUrl')}</span>
         <span className={styles.formValueMono}>
-          {jiraUrl ?? <span style={{ color: 'var(--text2)' }}>未配置（VITE_JIRA_BASE_URL）</span>}
+          {jiraUrl ?? <span style={{ color: 'var(--text2)' }}>{t('settings.notConfigured')}（VITE_JIRA_BASE_URL）</span>}
         </span>
       </div>
       <div className={styles.formRow}>
-        <span className={styles.formLabel}>最后同步</span>
+        <span className={styles.formLabel}>{t('settings.lastSync')}</span>
         <span className={styles.formValue}>{lastSync}</span>
       </div>
       <div className={styles.formRow}>
@@ -137,7 +138,7 @@ function JiraTab() {
           onClick={handleTestConnection}
           disabled={testing}
         >
-          {testing ? '测试中…' : t('settings.testConnection')}
+          {testing ? t('settings.testing') : t('settings.testConnection')}
         </button>
       </div>
     </div>
@@ -147,6 +148,7 @@ function JiraTab() {
 // ─── Notifications Tab ───────────────────────────────────────
 
 function NotificationsTab() {
+  const { t } = useI18n()
   const [highRisk, setHighRisk] = useState(() => readBool(LS_NOTIF_HIGH, true))
   const [daily, setDaily] = useState(() => readBool(LS_NOTIF_DAILY, true))
   const [weekly, setWeekly] = useState(() => readBool(LS_NOTIF_WEEKLY, false))
@@ -157,12 +159,12 @@ function NotificationsTab() {
 
   return (
     <div className={styles.card}>
-      <div className={styles.cardTitle}>通知设置</div>
+      <div className={styles.cardTitle}>{t('settings.notifSettings')}</div>
 
       <div className={styles.toggleRow}>
         <div className={styles.toggleInfo}>
-          <div className={styles.toggleLabel}>高危风险推送</div>
-          <div className={styles.toggleDesc}>检测到高危风险时自动推送企业微信</div>
+          <div className={styles.toggleLabel}>{t('settings.highRiskPush')}</div>
+          <div className={styles.toggleDesc}>{t('settings.highRiskPushDesc')}</div>
         </div>
         <label className={styles.toggle}>
           <input
@@ -176,8 +178,8 @@ function NotificationsTab() {
 
       <div className={styles.toggleRow}>
         <div className={styles.toggleInfo}>
-          <div className={styles.toggleLabel}>日报推送</div>
-          <div className={styles.toggleDesc}>每天下班前自动推送日报至企业微信</div>
+          <div className={styles.toggleLabel}>{t('settings.dailyPush')}</div>
+          <div className={styles.toggleDesc}>{t('settings.dailyPushDesc')}</div>
         </div>
         <label className={styles.toggle}>
           <input
@@ -191,8 +193,8 @@ function NotificationsTab() {
 
       <div className={styles.toggleRow}>
         <div className={styles.toggleInfo}>
-          <div className={styles.toggleLabel}>周报推送</div>
-          <div className={styles.toggleDesc}>每周五下午自动推送周报至企业微信</div>
+          <div className={styles.toggleLabel}>{t('settings.weeklyPush')}</div>
+          <div className={styles.toggleDesc}>{t('settings.weeklyPushDesc')}</div>
         </div>
         <label className={styles.toggle}>
           <input
@@ -210,34 +212,35 @@ function NotificationsTab() {
 // ─── Permissions Tab ─────────────────────────────────────────
 
 const PERMISSIONS = [
-  { feature: '查看 Sprint 看板', pm: true, dev: true },
-  { feature: '管理 Sprint（创建/关闭）', pm: true, dev: false },
-  { feature: '查看需求列表', pm: true, dev: true },
-  { feature: '创建/编辑需求', pm: true, dev: false },
-  { feature: '查看风险看板', pm: true, dev: true },
-  { feature: '推送风险通知', pm: true, dev: false },
-  { feature: '查看报告', pm: true, dev: true },
-  { feature: '推送报告', pm: true, dev: false },
-  { feature: '修改项目配置', pm: true, dev: false },
-  { feature: '管理 Jira 集成', pm: true, dev: false },
+  { featureKey: 'settings.perm.viewSprint', pm: true, dev: true },
+  { featureKey: 'settings.perm.manageSprint', pm: true, dev: false },
+  { featureKey: 'settings.perm.viewReqs', pm: true, dev: true },
+  { featureKey: 'settings.perm.editReqs', pm: true, dev: false },
+  { featureKey: 'settings.perm.viewRisk', pm: true, dev: true },
+  { featureKey: 'settings.perm.pushRisk', pm: true, dev: false },
+  { featureKey: 'settings.perm.viewReports', pm: true, dev: true },
+  { featureKey: 'settings.perm.pushReports', pm: true, dev: false },
+  { featureKey: 'settings.perm.editConfig', pm: true, dev: false },
+  { featureKey: 'settings.perm.manageJira', pm: true, dev: false },
 ]
 
 function PermissionsTab() {
+  const { t } = useI18n()
   return (
     <div className={styles.card}>
-      <div className={styles.cardTitle}>权限管理</div>
+      <div className={styles.cardTitle}>{t('settings.permManagement')}</div>
       <table className={styles.permTable}>
         <thead>
           <tr>
-            <th>功能</th>
-            <th>PM</th>
-            <th>DEV</th>
+            <th>{t('settings.feature')}</th>
+            <th>{t('settings.pm')}</th>
+            <th>{t('settings.dev')}</th>
           </tr>
         </thead>
         <tbody>
           {PERMISSIONS.map((row) => (
-            <tr key={row.feature}>
-              <td>{row.feature}</td>
+            <tr key={row.featureKey}>
+              <td>{t(row.featureKey as any)}</td>
               <td>
                 {row.pm
                   ? <span className={styles.permCheck}>✓</span>
@@ -274,7 +277,7 @@ export default function Settings() {
       <div className={styles.header}>
         <div>
           <h1 className={styles.title}>{t('settings.title')}</h1>
-          <div className={styles.subtitle}>项目配置与集成管理</div>
+          <div className={styles.subtitle}>{t('settings.subtitle')}</div>
         </div>
       </div>
 

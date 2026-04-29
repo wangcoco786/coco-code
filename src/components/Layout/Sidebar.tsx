@@ -17,7 +17,7 @@ export default function Sidebar({ expanded, onClose }: { expanded?: boolean; onC
     { path: '/settings',     icon: '⚙️', labelKey: 'nav.settings',     roles: ['PM', 'DEV'] },
   ] as const
 
-  const visibleItems = NAV_ITEMS.filter(item => (item.roles as readonly string[]).includes(currentUser.role))
+  const visibleItems = NAV_ITEMS.filter(item => currentUser && (item.roles as readonly string[]).includes(currentUser.role))
 
   return (
     <nav className={`${styles.sidebar} ${expanded ? styles.sidebarExpanded : ''}`} aria-label="主导航">

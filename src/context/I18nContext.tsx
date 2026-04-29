@@ -14,13 +14,11 @@ const LS_KEY = 'ai_pm_locale'
 function getSavedLocale(): Locale {
   try {
     const saved = localStorage.getItem(LS_KEY)
-    if (saved === 'zh' || saved === 'en' || saved === 'ja' || saved === 'es') return saved
+    // Only respect saved locale if user explicitly chose it (not auto-detected zh)
+    if (saved === 'en' || saved === 'ja' || saved === 'es') return saved
+    // Force English as default — clear any stale 'zh' from auto-detection
+    if (saved === 'zh') localStorage.removeItem(LS_KEY)
   } catch { /* ignore */ }
-  // 根据浏览器语言自动选择
-  const lang = navigator.language.toLowerCase()
-  if (lang.startsWith('zh')) return 'zh'
-  if (lang.startsWith('ja')) return 'ja'
-  if (lang.startsWith('es')) return 'es'
   return 'en'
 }
 

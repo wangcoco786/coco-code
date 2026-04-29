@@ -6,7 +6,7 @@ const JIRA_BASE_URL = import.meta.env.VITE_JIRA_BASE_URL || ''
 
 interface Props {
   issues: PlatformIssue[]
-  currentUser: CurrentUser
+  currentUser: CurrentUser | null
   isLoading: boolean
 }
 
@@ -21,7 +21,7 @@ export default function PersonalView({ issues, currentUser, isLoading }: Props) 
   const { t } = useI18n()
   // 过滤当前用户的任务（按名字匹配，实际应按 accountId）
   const myIssues = issues.filter(
-    i => i.assignee?.name === currentUser.name || i.assignee?.name.includes(currentUser.name)
+    i => currentUser && (i.assignee?.name === currentUser.name || i.assignee?.name.includes(currentUser.name))
   )
 
   const myActive = myIssues.filter(i => i.status !== 'done')
@@ -47,7 +47,7 @@ export default function PersonalView({ issues, currentUser, isLoading }: Props) 
         <div className={styles.card}>
           <div className={styles.cardTitle}>
             {t('dashboard.myTasks')}
-            <span className={`${styles.tag} ${styles.tagDefault}`}>{myIssues.length} 条</span>
+            <span className={`${styles.tag} ${styles.tagDefault}`}>{myIssues.length} {t('dashboard.items')}</span>
           </div>
           {myIssues.length > 0 ? (
             <table className={styles.taskTable}>
@@ -87,7 +87,7 @@ export default function PersonalView({ issues, currentUser, isLoading }: Props) 
             </table>
           ) : (
             <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--text2)' }}>
-              当前 Sprint 暂无分配给你的任务
+              {t('dashboard.noTasksForYou')}
             </div>
           )}
         </div>
@@ -97,11 +97,11 @@ export default function PersonalView({ issues, currentUser, isLoading }: Props) 
           <div className={styles.card} style={{ marginBottom: 16 }}>
             <div className={styles.cardTitle}>{t('dashboard.pendingItems')}</div>
             <div style={{ fontSize: 13, lineHeight: 2.2 }}>
-              <div>⚡ {t('common.inProgress')} <strong>{myActive.length}</strong> 个</div>
-              <div>✅ {t('common.completed')} <strong>{myDone.length}</strong> 个</div>
-              <div>📋 {t('common.todo')} <strong>{myIssues.filter(i => i.status === 'todo').length}</strong> 个</div>
+              <div>⚡ {t('common.inProgress')} <strong>{myActive.length}</strong></div>
+              <div>✅ {t('common.completed')} <strong>{myDone.length}</strong></div>
+              <div>📋 {t('common.todo')} <strong>{myIssues.filter(i => i.status === 'todo').length}</strong></div>
               {myBlocked.length > 0 && (
-                <div style={{ color: 'var(--danger)' }}>⚠️ {t('common.unassigned')} <strong>{myBlocked.length}</strong> 个</div>
+                <div style={{ color: 'var(--danger)' }}>⚠️ {t('common.unassigned')} <strong>{myBlocked.length}</strong></div>
               )}
             </div>
           </div>
@@ -109,7 +109,7 @@ export default function PersonalView({ issues, currentUser, isLoading }: Props) 
           <div className={styles.card}>
             <div className={styles.cardTitle}>{t('dashboard.myProgress')}</div>
             <div style={{ fontSize: 13 }}>
-              本 Sprint 完成率：
+              {t('dashboard.sprintCompletionRate')}：
               <strong style={{ color: 'var(--primary)' }}>
                 {myIssues.length > 0 ? Math.round((myDone.length / myIssues.length) * 100) : 0}%
               </strong>
@@ -123,7 +123,7 @@ export default function PersonalView({ issues, currentUser, isLoading }: Props) 
               />
             </div>
             <div style={{ fontSize: 12, color: 'var(--text2)', marginTop: 4 }}>
-              {myDone.length} / {myIssues.length} 个任务
+              {myDone.length} / {myIssues.length} {t('dashboard.subtitle.tasks')}
             </div>
           </div>
         </div>

@@ -8,17 +8,18 @@ import {
   buildAISummaryPrompt,
 } from '@/lib/changeDetector'
 import { useAgentForce } from '@/hooks/useAgentForce'
+import { useI18n } from '@/context/I18nContext'
 import styles from './ChangeTab.module.css'
 
 // ─── Constants ──────────────────────────────────────────────
 
 const JIRA_BASE_URL = import.meta.env.VITE_JIRA_BASE_URL || ''
 
-const CHANGE_TYPE_LABELS: Record<ChangeType, string> = {
-  priority_change: '优先级变更',
-  new_addition: '新增需求',
-  scope_change: '范围变更',
-  status_regression: '状态回退',
+const CHANGE_TYPE_LABEL_KEYS: Record<ChangeType, string> = {
+  priority_change: 'change.priorityChange',
+  new_addition: 'change.newAddition',
+  scope_change: 'change.scopeChange',
+  status_regression: 'change.statusRegression',
 }
 
 const CHANGE_TYPE_BADGE_STYLES: Record<ChangeType, string> = {
@@ -35,16 +36,16 @@ const CHANGE_TYPE_TAB_STYLES: Record<ChangeType, string> = {
   status_regression: styles.typeRegression,
 }
 
-const IMPACT_LEVEL_LABELS: Record<string, string> = {
-  high: '高影响',
-  medium: '中影响',
-  low: '低影响',
+const IMPACT_LEVEL_LABEL_KEYS: Record<string, string> = {
+  high: 'change.highImpact',
+  medium: 'change.mediumImpact',
+  low: 'change.lowImpact',
 }
 
-const SEVERITY_LABELS: Record<string, string> = {
-  high: '高',
-  medium: '中',
-  low: '低',
+const SEVERITY_LABEL_KEYS: Record<string, string> = {
+  high: 'change.severityHigh',
+  medium: 'change.severityMedium',
+  low: 'change.severityLow',
 }
 
 const ALL_CHANGE_TYPES: ChangeType[] = [
@@ -62,6 +63,7 @@ interface ImpactDashboardProps {
 }
 
 function ImpactDashboard({ impact, scopeMetrics }: ImpactDashboardProps) {
+  const { t } = useI18n()
   const impactLevelClass =
     impact.impactLevel === 'high'
       ? styles.impactLevelHigh
@@ -88,28 +90,28 @@ function ImpactDashboard({ impact, scopeMetrics }: ImpactDashboardProps) {
       <div className={styles.impactGrid}>
         <div className={styles.statCard}>
           <div className={styles.statValue}>{impact.totalChanges}</div>
-          <div className={styles.statLabel}>总变更数</div>
+          <div className={styles.statLabel}>{t('change.totalChanges')}</div>
         </div>
         {ALL_CHANGE_TYPES.map((type) => (
           <div key={type} className={styles.statCard}>
             <div className={styles.statValue}>{impact.changesByType[type]}</div>
-            <div className={styles.statLabel}>{CHANGE_TYPE_LABELS[type]}</div>
+            <div className={styles.statLabel}>{t(CHANGE_TYPE_LABEL_KEYS[type] as any)}</div>
           </div>
         ))}
         <div className={`${styles.statCard} ${impactStatClass}`}>
           <div className={styles.statValue}>{impact.affectedStoryPoints}</div>
-          <div className={styles.statLabel}>受影响任务数</div>
+          <div className={styles.statLabel}>{t('change.affectedTasks')}</div>
           <span className={`${styles.impactLevelBadge} ${impactLevelClass}`}>
-            {IMPACT_LEVEL_LABELS[impact.impactLevel]}
+            {t(IMPACT_LEVEL_LABEL_KEYS[impact.impactLevel] as any)}
           </span>
         </div>
       </div>
 
       <div className={styles.comparisonSection}>
         <div className={styles.comparisonCard}>
-          <div className={styles.comparisonTitle}>基线 vs 当前</div>
+          <div className={styles.comparisonTitle}>{t('change.baselineVsCurrent')}</div>
           <div className={styles.comparisonRow}>
-            <span>需求数</span>
+            <span>{t('change.reqCount')}</span>
             <span className={styles.comparisonValue}>
               {baselineIssueCount} → {currentIssueCount}
             </span>
@@ -120,7 +122,7 @@ function ImpactDashboard({ impact, scopeMetrics }: ImpactDashboardProps) {
             )}
           </div>
           <div className={styles.comparisonRow}>
-            <span>变更任务</span>
+            <span>{t('change.changeTasks')}</span>
             <span className={styles.comparisonValue}>
               {impact.baselineStoryPoints} → {currentSP}
             </span>
@@ -143,6 +145,7 @@ interface ChangeDetectionSectionProps {
 }
 
 function ChangeDetectionSection({ changes }: ChangeDetectionSectionProps) {
+  const { t } = useI18n()
   const [activeFilter, setActiveFilter] = useState<ChangeType | 'all'>('all')
 
   const grouped = useMemo(() => {
@@ -165,14 +168,14 @@ function ChangeDetectionSection({ changes }: ChangeDetectionSectionProps) {
 
   return (
     <div className={styles.changeDetection}>
-      <div className={styles.sectionTitle}>变更检测</div>
+      <div className={styles.sectionTitle}>{t('change.detection')}</div>
 
       <div className={styles.changeTypeTabs}>
         <button
           className={`${styles.changeTypeTab} ${activeFilter === 'all' ? styles.changeTypeTabActive : ''}`}
           onClick={() => setActiveFilter('all')}
         >
-          全部
+          {t('common.all')}
           <span className={styles.countBadge}>{changes.length}</span>
         </button>
         {ALL_CHANGE_TYPES.map((type) => (
@@ -181,7 +184,7 @@ function ChangeDetectionSection({ changes }: ChangeDetectionSectionProps) {
             className={`${styles.changeTypeTab} ${activeFilter === type ? `${styles.changeTypeTabActive} ${CHANGE_TYPE_TAB_STYLES[type]}` : ''}`}
             onClick={() => setActiveFilter(type)}
           >
-            {CHANGE_TYPE_LABELS[type]}
+            {t(CHANGE_TYPE_LABEL_KEYS[type] as any)}
             <span className={styles.countBadge}>{grouped[type].length}</span>
           </button>
         ))}
@@ -206,7 +209,7 @@ function ChangeDetectionSection({ changes }: ChangeDetectionSectionProps) {
               </div>
               <div className={styles.changeItemBadges}>
                 <span className={`${styles.changeTypeBadge} ${CHANGE_TYPE_BADGE_STYLES[change.changeType]}`}>
-                  {CHANGE_TYPE_LABELS[change.changeType]}
+                  {t(CHANGE_TYPE_LABEL_KEYS[change.changeType] as any)}
                 </span>
                 <span className={`${styles.severityBadge} ${
                   change.severity === 'high'
@@ -215,7 +218,7 @@ function ChangeDetectionSection({ changes }: ChangeDetectionSectionProps) {
                       ? styles.severityMedium
                       : styles.severityLow
                 }`}>
-                  {SEVERITY_LABELS[change.severity]}
+                  {t(SEVERITY_LABEL_KEYS[change.severity] as any)}
                 </span>
                 {isP0 && <span className={styles.p0AlertBadge}>P0</span>}
               </div>
@@ -235,6 +238,7 @@ interface ScopeCreepPanelProps {
 }
 
 function ScopeCreepPanel({ metrics, newIssues }: ScopeCreepPanelProps) {
+  const { t } = useI18n()
   const sortedNewIssues = useMemo(
     () => [...newIssues].sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()),
     [newIssues],
@@ -242,14 +246,14 @@ function ScopeCreepPanel({ metrics, newIssues }: ScopeCreepPanelProps) {
 
   return (
     <div className={styles.scopeCreepPanel}>
-      <div className={styles.sectionTitle}>范围蔓延分析</div>
+      <div className={styles.sectionTitle}>{t('change.scopeCreepAnalysis')}</div>
 
       {metrics.isCreeping && (
         <div className={styles.scopeCreepWarning}>
           <span className={styles.scopeCreepWarningIcon}>⚠️</span>
           <div className={styles.scopeCreepWarningText}>
-            <strong>范围蔓延警告</strong> — Sprint 范围增长 {metrics.scopeIncreasePercentage.toFixed(1)}%，
-            新增 {metrics.addedIssueCount} 个需求（{metrics.addedStoryPoints} 个任务）
+            <strong>{t('change.scopeCreepWarning')}</strong> — {t('change.scopeGrowth')} {metrics.scopeIncreasePercentage.toFixed(1)}%，
+            {t('change.addedReqs')} {metrics.addedIssueCount}（{metrics.addedStoryPoints} {t('dashboard.subtitle.tasks')}）
           </div>
         </div>
       )}
@@ -257,29 +261,29 @@ function ScopeCreepPanel({ metrics, newIssues }: ScopeCreepPanelProps) {
       <div className={styles.scopeMetrics}>
         <div className={styles.scopeMetricCard}>
           <div className={styles.scopeMetricValue}>{metrics.baselineIssueCount}</div>
-          <div className={styles.scopeMetricLabel}>基线需求数</div>
+          <div className={styles.scopeMetricLabel}>{t('change.baselineReqs')}</div>
         </div>
         <div className={styles.scopeMetricCard}>
           <div className={styles.scopeMetricValue}>{metrics.currentIssueCount}</div>
-          <div className={styles.scopeMetricLabel}>当前需求数</div>
+          <div className={styles.scopeMetricLabel}>{t('change.currentReqs')}</div>
         </div>
         <div className={styles.scopeMetricCard}>
           <div className={styles.scopeMetricValue}>{metrics.addedIssueCount}</div>
-          <div className={styles.scopeMetricLabel}>新增需求</div>
+          <div className={styles.scopeMetricLabel}>{t('change.addedReqs')}</div>
         </div>
         <div className={styles.scopeMetricCard}>
           <div className={styles.scopeMetricValue}>{metrics.addedStoryPoints}</div>
-          <div className={styles.scopeMetricLabel}>新增任务数</div>
+          <div className={styles.scopeMetricLabel}>{t('change.addedTasks')}</div>
         </div>
         <div className={styles.scopeMetricCard}>
           <div className={styles.scopeMetricValue}>{metrics.scopeIncreasePercentage.toFixed(1)}%</div>
-          <div className={styles.scopeMetricLabel}>范围增长</div>
+          <div className={styles.scopeMetricLabel}>{t('change.scopeGrowth')}</div>
         </div>
       </div>
 
       {sortedNewIssues.length > 0 && (
         <>
-          <div className={styles.sectionTitle}>新增需求时间线</div>
+          <div className={styles.sectionTitle}>{t('change.newReqTimeline')}</div>
           <div className={styles.scopeTimeline}>
             {sortedNewIssues.map((issue) => (
               <div key={issue.id} className={styles.scopeTimelineItem}>
@@ -292,7 +296,7 @@ function ScopeCreepPanel({ metrics, newIssues }: ScopeCreepPanelProps) {
                   ) : issue.id}
                 </span>
                 <span className={styles.scopeTimelineTitle}>{issue.title}</span>
-                <span className={styles.scopeTimelineSP}>{issue.storyPoints || 1} 任务</span>
+                <span className={styles.scopeTimelineSP}>{issue.storyPoints || 1} {t('dashboard.subtitle.tasks')}</span>
               </div>
             ))}
           </div>
@@ -311,6 +315,7 @@ interface AISummaryPanelProps {
 }
 
 function AISummaryPanel({ changes, scopeMetrics, sprint }: AISummaryPanelProps) {
+  const { t } = useI18n()
   const [cachedSummary, setCachedSummary] = useState<string | null>(null)
   const [streamedContent, setStreamedContent] = useState('')
   const [error, setError] = useState<string | null>(null)
@@ -356,7 +361,7 @@ function AISummaryPanel({ changes, scopeMetrics, sprint }: AISummaryPanelProps) 
 
   return (
     <div className={styles.aiSummaryPanel}>
-      <div className={styles.sectionTitle}>AI 变更分析</div>
+      <div className={styles.sectionTitle}>{t('change.aiAnalysis')}</div>
 
       {!cachedSummary && !isLoading && !streamedContent && (
         <button
@@ -365,13 +370,13 @@ function AISummaryPanel({ changes, scopeMetrics, sprint }: AISummaryPanelProps) 
           disabled={isLoading}
         >
           <span className={styles.aiGenerateBtnIcon}>🤖</span>
-          AI 变更分析
+          {t('change.aiAnalyzeBtn')}
         </button>
       )}
 
       {isLoading && !streamedContent && (
         <div className={styles.aiLoading}>
-          <span>AI 正在分析变更</span>
+          <span>{t('change.aiAnalyzing')}</span>
           <span className={styles.aiLoadingDots}>
             <span />
             <span />
@@ -389,7 +394,7 @@ function AISummaryPanel({ changes, scopeMetrics, sprint }: AISummaryPanelProps) 
           <div className={styles.aiSummaryContent}>{cachedSummary}</div>
           <div className={styles.aiCachedIndicator}>
             <span className={styles.aiCachedDot} />
-            已缓存
+            {t('ai.cached')}
           </div>
         </>
       )}
@@ -398,7 +403,7 @@ function AISummaryPanel({ changes, scopeMetrics, sprint }: AISummaryPanelProps) 
         <div className={styles.aiError}>
           <span className={styles.aiErrorText}>{error}</span>
           <button className={styles.aiRetryBtn} onClick={handleRetry}>
-            重试
+            {t('ai.retry')}
           </button>
         </div>
       )}
@@ -414,6 +419,7 @@ interface ChangeTabProps {
 }
 
 export default function ChangeTab({ issues, sprint }: ChangeTabProps) {
+  const { t } = useI18n()
   const sprintStartDate = sprint?.startDate ?? ''
 
   const changes = useMemo(
@@ -444,7 +450,7 @@ export default function ChangeTab({ issues, sprint }: ChangeTabProps) {
       <div>
         <div className={styles.infoMessage}>
           <span className={styles.infoMessageIcon}>ℹ️</span>
-          <span>Sprint 开始日期不可用，无法进行变更检测</span>
+          <span>{t('change.noSprintDate')}</span>
         </div>
       </div>
     )
@@ -455,7 +461,7 @@ export default function ChangeTab({ issues, sprint }: ChangeTabProps) {
     return (
       <div className={styles.emptyState}>
         <div className={styles.emptyIcon}>✅</div>
-        <div className={styles.emptyText}>未检测到需求变更</div>
+        <div className={styles.emptyText}>{t('change.noChanges')}</div>
       </div>
     )
   }

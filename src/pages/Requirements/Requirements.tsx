@@ -221,7 +221,7 @@ export default function Requirements() {
           <h1 className={styles.title}>{t('req.title')}</h1>
           <div className={styles.subtitle}>
             {currentProjectKey
-              ? `${currentProjectKey} · 共 ${rawIssues.length} 条需求（近一年）· 筛选后 ${issues.length} 条`
+              ? `${currentProjectKey} · ${rawIssues.length} ${t('req.reqs')}（${t('req.lastYear')}）· ${t('req.filtered')} ${issues.length}`
               : t('common.selectProjectFirst')}
           </div>
         </div>
@@ -230,7 +230,7 @@ export default function Requirements() {
       {/* AI 分析 */}
       {currentProjectKey && rawIssues.length > 0 && (
         <AIInsight
-          title="AI 需求分析"
+          title={t('ai.insight')}
           buildPrompt={() => {
             const todo = rawIssues.filter(i => i.status === 'todo').length
             const done = rawIssues.filter(i => i.status === 'done').length
@@ -249,7 +249,7 @@ export default function Requirements() {
       {/* Error */}
       {isError && (
         <div className={styles.errorBanner}>
-          ⚠️ 数据加载失败：{error instanceof Error ? error.message : '未知错误'}
+          ⚠️ {t('req.errorLoad')}：{error instanceof Error ? error.message : t('common.error')}
         </div>
       )}
 
@@ -265,11 +265,11 @@ export default function Requirements() {
       {rawIssues.length > 0 && (
         <div style={{ display: 'flex', gap: 12, marginBottom: 16, flexWrap: 'wrap' }}>
           {[
-            { label: '待办/草稿', status: 'todo', color: 'var(--text2)', bg: '#f5f5f5' },
-            { label: '评审中', status: 'in_review', color: '#d48806', bg: 'var(--warning-light)' },
-            { label: '开发中', status: 'in_progress', color: 'var(--primary)', bg: 'var(--primary-light)' },
-            { label: '测试中', status: 'in_testing', color: '#722ed1', bg: '#f9f0ff' },
-            { label: '已完成', status: 'done', color: '#389e0d', bg: 'var(--success-light)' },
+            { label: t('req.statusDraft'), status: 'todo', color: 'var(--text2)', bg: '#f5f5f5' },
+            { label: t('req.statusReview'), status: 'in_review', color: '#d48806', bg: 'var(--warning-light)' },
+            { label: t('req.statusDev'), status: 'in_progress', color: 'var(--primary)', bg: 'var(--primary-light)' },
+            { label: t('req.statusTest'), status: 'in_testing', color: '#722ed1', bg: '#f9f0ff' },
+            { label: t('req.statusDone'), status: 'done', color: '#389e0d', bg: 'var(--success-light)' },
           ].map(({ label, status, color, bg }) => {
             const count = rawIssues.filter(i => i.status === status).length
             return (
@@ -295,11 +295,11 @@ export default function Requirements() {
           onChange={(e) => setStatusFilter(e.target.value as '' | IssueStatus)}
         >
           <option value="">{t('req.allStatus')}</option>
-          <option value="todo">草稿 / 待办</option>
-          <option value="in_review">评审中</option>
-          <option value="in_progress">开发中</option>
-          <option value="in_testing">测试中</option>
-          <option value="done">已完成</option>
+          <option value="todo">{t('req.statusDraft')}</option>
+          <option value="in_review">{t('req.statusReview')}</option>
+          <option value="in_progress">{t('req.statusDev')}</option>
+          <option value="in_testing">{t('req.statusTest')}</option>
+          <option value="done">{t('req.statusDone')}</option>
         </select>
 
         <select
@@ -308,10 +308,10 @@ export default function Requirements() {
           onChange={(e) => setPriorityFilter(e.target.value as '' | IssuePriority)}
         >
           <option value="">{t('req.allPriority')}</option>
-          <option value="P0">P0 紧急</option>
-          <option value="P1">P1 高</option>
-          <option value="P2">P2 中</option>
-          <option value="P3">P3 低</option>
+          <option value="P0">{t('req.p0Urgent')}</option>
+          <option value="P1">{t('req.p1High')}</option>
+          <option value="P2">{t('req.p2Medium')}</option>
+          <option value="P3">{t('req.p3Low')}</option>
         </select>
 
         <select
@@ -360,7 +360,7 @@ export default function Requirements() {
             onClick={refresh}
             disabled={isLoading}
           >
-            {isLoading ? '同步中…' : t('req.syncJira')}
+            {isLoading ? t('req.syncing') : t('req.syncJira')}
           </button>
         </div>
       </div>

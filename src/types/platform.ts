@@ -362,3 +362,82 @@ export interface AIContext {
   suggestions: string[]
   metadata: Record<string, unknown>
 }
+
+// ─── Recommendation Types (Phase 3) ────────────────────────
+export interface MemberProfile {
+  id: string
+  name: string
+  skills: string[]
+  currentLoad: number
+  capacity: number
+  completionRate: number
+  avgCompletionDays: number
+}
+
+export interface RecommendationCandidate {
+  memberId: string
+  memberName: string
+  score: number
+  reasons: string[]
+  workloadPercentage: number
+  skillMatch: number
+  historicalRate: number
+}
+
+export interface RecommendationResult {
+  status: 'success' | 'insufficient_data'
+  candidates: RecommendationCandidate[]
+  message?: string
+}
+
+// ─── Similarity Types (Phase 3) ─────────────────────────────
+export interface SimilarityResult {
+  issueId: string
+  issueTitle: string
+  similarity: number
+}
+
+// ─── Sync Queue Types (Phase 3) ─────────────────────────────
+export interface SyncOperation {
+  id: string
+  type: 'status_change' | 'assignee_change' | 'priority_change'
+  issueId: string
+  payload: Record<string, unknown>
+  createdAt: string
+  retryCount: number
+  status: 'pending' | 'syncing' | 'failed' | 'success'
+}
+
+export interface SyncConflict {
+  issueId: string
+  field: string
+  localValue: unknown
+  remoteValue: unknown
+  localTimestamp: string
+  remoteTimestamp: string
+}
+
+// ─── Audit Log Types (Phase 3) ──────────────────────────────
+export interface AuditLogEntry {
+  id: string
+  operationType: string
+  operator: { id: string; name: string; role: UserRole }
+  timestamp: string
+  target: { type: string; id: string; name: string }
+  changes: { field: string; oldValue: unknown; newValue: unknown }[]
+  priority: 'high' | 'normal'
+  metadata?: Record<string, unknown>
+}
+
+// ─── Activity Feed Types (Phase 3) ──────────────────────────
+export type ActivityType = 'task_created' | 'status_change' | 'comment' | 'assignment_change' | 'priority_change'
+
+export interface ActivityItem {
+  id: string
+  type: ActivityType
+  actor: { id: string; name: string }
+  target: { type: string; id: string; title: string }
+  description: string
+  timestamp: string
+  metadata?: Record<string, unknown>
+}

@@ -239,6 +239,18 @@ export interface VelocityRecord {
   durationDays: number
 }
 
+export interface SprintPrediction {
+  completionProbability: number  // 0-100
+  predictedEndDate: string       // ISO 8601
+  confidence: {
+    optimistic: string    // 最早完成日期
+    mostLikely: string    // 最可能完成日期
+    pessimistic: string   // 最晚完成日期
+  }
+  isReliable: boolean           // 历史数据是否充足（≥3 Sprint）
+  warningMessage?: string       // 数据不足时的提示
+}
+
 export interface VelocityChartData {
   sprints: { name: string; velocity: number; planned: number }[]
   averageVelocity: number
@@ -303,4 +315,50 @@ export interface DelayPropagation {
   newEndDate: string
   delayDays: number
   isDirectlyAffected: boolean
+}
+
+// ─── Automation Types (Phase 2) ─────────────────────────────
+
+export type ConditionType =
+  | 'status_change'
+  | 'priority_change'
+  | 'timeout_no_update'
+  | 'assignee_change'
+  | 'scope_change'
+
+export type ActionType =
+  | 'send_wecom'
+  | 'change_status'
+  | 'assign_member'
+  | 'add_label'
+  | 'generate_report'
+
+export interface AutomationRule {
+  id: string
+  name: string
+  enabled: boolean
+  condition: { type: ConditionType; params: Record<string, unknown> }
+  action: { type: ActionType; params: Record<string, unknown> }
+  createdAt: string
+  lastTriggeredAt?: string
+  executionCount: number
+}
+
+export interface RuleExecutionResult {
+  ruleId: string
+  success: boolean
+  error?: string
+  executedAt: string
+}
+
+// ─── AI Context Types (Phase 2) ─────────────────────────────
+
+export type PageType = 'sprint' | 'requirements' | 'risk' | 'dashboard' | 'reports' | 'roadmap'
+
+export interface AIContext {
+  pageType: PageType
+  projectKey: string | null
+  summary: string
+  suggestions: string[]
+  metadata: Record<string, unknown>
 }

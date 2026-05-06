@@ -56,6 +56,43 @@
   --transition: all 0.2s ease;
 }
 
+/* ─── Dark Theme ─────────────────────────────────────────── */
+[data-theme="dark"] {
+  --primary: #4096ff;
+  --primary-hover: #69b1ff;
+  --primary-light: #111d2c;
+  --primary-border: #15395b;
+
+  --danger: #ff4d4f;
+  --danger-light: #2a1215;
+  --danger-border: #58181c;
+
+  --warning: #faad14;
+  --warning-light: #2b2111;
+  --warning-border: #594214;
+
+  --success: #52c41a;
+  --success-light: #162312;
+  --success-border: #274916;
+
+  --bg: #141414;
+  --card: #1f1f1f;
+  --card-hover: #2a2a2a;
+
+  --text: #e8e8e8;
+  --text2: #a0a0a0;
+  --text3: #6b6b6b;
+
+  --border: #303030;
+  --border-strong: #434343;
+
+  --shadow-sm: 0 1px 4px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
+
+  color-scheme: dark;
+}
+
 /* 全局重置 */
 *,
 *::before,

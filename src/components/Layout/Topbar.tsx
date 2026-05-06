@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useApp } from '@/context/AppContext'
 import { useI18n } from '@/context/I18nContext'
 import { useJiraProjects } from '@/hooks/useJiraBoard'
@@ -20,6 +21,7 @@ export default function Topbar({ onMenuToggle }: { onMenuToggle?: () => void }) 
     setCurrentUser, setCurrentProjectKey,
   } = useApp()
   const { locale, setLocale, t } = useI18n()
+  const navigate = useNavigate()
 
   const { data: projects, isLoading } = useJiraProjects()
   const [showUserMenu, setShowUserMenu] = useState(false)
@@ -71,7 +73,7 @@ export default function Topbar({ onMenuToggle }: { onMenuToggle?: () => void }) 
       </div>
 
       <div className={styles.right}>
-        <button className={styles.bell} aria-label={`通知 ${notificationCount}`}>
+        <button className={styles.bell} aria-label={`通知 ${notificationCount}`} onClick={() => navigate('/notifications')}>
           🔔
           {notificationCount > 0 && (
             <span className={styles.badge}>{notificationCount}</span>

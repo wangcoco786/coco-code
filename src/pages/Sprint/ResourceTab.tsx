@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react'
-import type { PlatformIssue, DeveloperProfile, DeveloperSortKey } from '@/types/platform'
+import type { PlatformIssue, DeveloperProfile, DeveloperSortKey, TimeRange } from '@/types/platform'
 import {
   computeDeveloperProfiles,
   computeWorkloadInfo,
@@ -8,6 +8,8 @@ import {
 } from '@/lib/workloadCalculator'
 import { useI18n } from '@/context/I18nContext'
 import type { TranslationKey } from '@/i18n'
+import { HeatmapChart, TimeRangeSelector } from '@/components/Charts'
+import { computeHeatmap } from '@/lib/chartDataEngine'
 import styles from './ResourceTab.module.css'
 
 const JIRA_BASE_URL = import.meta.env.VITE_JIRA_BASE_URL || ''
@@ -262,12 +264,19 @@ export default function ResourceTab({ issues }: ResourceTabProps) {
   const [sortKey, setSortKey] = useState<DeveloperSortKey>('load')
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set())
   const [summaryFilter, setSummaryFilter] = useState<SummaryFilter>(null)
+  const [heatmapTimeRange, setHeatmapTimeRange] = useState<TimeRange>('2w')
 
   const profiles = useMemo(() => computeDeveloperProfiles(issues), [issues])
 
   const teamSummary = useMemo(
     () => computeTeamSummary(profiles, issues),
     [profiles, issues],
+  )
+
+  // Heatmap data computed from issues and selected time range
+  const heatmapData = useMemo(
+    () => computeHeatmap(issues, heatmapTimeRange),
+    [issues, heatmapTimeRange],
   )
 
   // Pre-compute workload info per developer for sorting & display
@@ -387,6 +396,16 @@ export default function ResourceTab({ issues }: ResourceTabProps) {
           <span>
             {t('resource.unassigned')} <strong>{teamSummary.unassignedTasks}</strong> {t('resource.unassignedBanner')}
           </span>
+        </div>
+      )}
+
+      {/* Team Performance Heatmap */}
+      {issues.length > 0 && (
+        <div style={{ marginBottom: 16 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', marginBottom: 8 }}>
+            <TimeRangeSelector value={heatmapTimeRange} onChange={setHeatmapTimeRange} />
+          </div>
+          <HeatmapChart data={heatmapData} title="Team Performance Heatmap" />
         </div>
       )}
 

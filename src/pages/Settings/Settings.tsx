@@ -2,12 +2,13 @@
 import { useApp } from '@/context/AppContext'
 import { useToast } from '@/context/ToastContext'
 import { useI18n } from '@/context/I18nContext'
+import { useTheme } from '@/context/ThemeContext'
 import { jiraClient } from '@/lib/jiraClient'
 import styles from './Settings.module.css'
 
 // ─── helpers ────────────────────────────────────────────────
 
-type SettingsTab = 'project' | 'jira' | 'notifications' | 'permissions'
+type SettingsTab = 'project' | 'jira' | 'notifications' | 'appearance' | 'permissions'
 
 const LS_NOTIF_HIGH = 'ai_pm_notif_high_risk'
 const LS_NOTIF_DAILY = 'ai_pm_notif_daily'
@@ -209,6 +210,45 @@ function NotificationsTab() {
   )
 }
 
+// ─── Appearance Tab ──────────────────────────────────────────
+
+function AppearanceTab() {
+  const { theme, setTheme } = useTheme()
+
+  const themeOptions: { value: 'light' | 'dark' | 'system'; label: string; icon: string }[] = [
+    { value: 'light', label: '浅色模式', icon: '☀️' },
+    { value: 'dark', label: '深色模式', icon: '🌙' },
+    { value: 'system', label: '跟随系统', icon: '💻' },
+  ]
+
+  return (
+    <div className={styles.card}>
+      <div className={styles.cardTitle}>外观设置</div>
+      <div className={styles.formRow}>
+        <span className={styles.formLabel}>主题模式</span>
+        <div style={{ display: 'flex', gap: 8 }}>
+          {themeOptions.map(opt => (
+            <button
+              key={opt.value}
+              className={theme === opt.value ? styles.btnPrimary : styles.btnDefault}
+              onClick={() => setTheme(opt.value)}
+              style={{ minWidth: 90 }}
+            >
+              {opt.icon} {opt.label}
+            </button>
+          ))}
+        </div>
+      </div>
+      <div className={styles.formRow}>
+        <span className={styles.formLabel} />
+        <span className={styles.formValue} style={{ color: 'var(--text2)', fontSize: 13 }}>
+          选择"跟随系统"将自动匹配操作系统的深色/浅色偏好设置
+        </span>
+      </div>
+    </div>
+  )
+}
+
 // ─── Permissions Tab ─────────────────────────────────────────
 
 const PERMISSIONS = [
@@ -269,6 +309,7 @@ export default function Settings() {
     { key: 'project', label: t('settings.project') },
     { key: 'jira', label: t('settings.jira') },
     { key: 'notifications', label: t('settings.notifications') },
+    { key: 'appearance', label: '外观' },
     { key: 'permissions', label: t('settings.permissions') },
   ]
 
@@ -298,6 +339,7 @@ export default function Settings() {
       {activeTab === 'project' && <ProjectTab />}
       {activeTab === 'jira' && <JiraTab />}
       {activeTab === 'notifications' && <NotificationsTab />}
+      {activeTab === 'appearance' && <AppearanceTab />}
       {activeTab === 'permissions' && <PermissionsTab />}
     </div>
   )

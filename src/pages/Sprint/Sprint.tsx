@@ -7,10 +7,12 @@ import {
   useRefreshProjectIssues,
 } from '@/hooks/useProjectIssues'
 import { useI18n } from '@/context/I18nContext'
-import type { IssueStatus, IssuePriority, PlatformIssue } from '@/types/platform'
+import type { IssueStatus, IssuePriority, PlatformIssue, TimeRange } from '@/types/platform'
 import ResourceTab from './ResourceTab'
 import ChangeTab from './ChangeTab'
 import AIInsight from '@/components/AIInsight/AIInsight'
+import { CFDChart, TimeRangeSelector } from '@/components/Charts'
+import { computeCFD } from '@/lib/chartDataEngine'
 import styles from './Sprint.module.css'
 
 // ─── helpers ────────────────────────────────────────────────
@@ -295,6 +297,11 @@ export default function Sprint() {
         />
       )}
 
+      {/* Cumulative Flow Diagram */}
+      {currentProjectKey && issues.length > 0 && currentSprint && (
+        <CFDSection issues={issues} sprint={currentSprint} />
+      )}
+
       {/* Tabs */}
       <div className={styles.tabs}>
         {sprintTabs.map((tab) => (
@@ -522,6 +529,55 @@ function PlanTab({ projectKey, sprintIssues }: PlanTabProps) {
           )}
         </div>
       </div>
+    </div>
+  )
+}
+
+// ─── CFD Section ─────────────────────────────────────────────
+
+interface CFDSectionProps {
+  issues: PlatformIssue[]
+  sprint: { startDate: string; endDate: string }
+}
+
+function CFDSection({ issues, sprint }: CFDSectionProps) {
+  const [timeRange, setTimeRange] = useState<TimeRange>('2w')
+
+  const cfdData = useMemo(() => {
+    // Compute date range based on selected time range
+    const now = new Date()
+    let startDate: string
+
+    switch (timeRange) {
+      case '1w':
+        startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+        break
+      case '2w':
+        startDate = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+        break
+      case '1m':
+        startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+        break
+      case '3m':
+        startDate = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+        break
+    }
+
+    // Use sprint dates as bounds if available, otherwise use time range
+    const effectiveStart = sprint.startDate
+      ? new Date(Math.max(new Date(startDate).getTime(), new Date(sprint.startDate).getTime())).toISOString().split('T')[0]
+      : startDate
+    const effectiveEnd = now.toISOString().split('T')[0]
+
+    return computeCFD(issues, effectiveStart, effectiveEnd)
+  }, [issues, sprint, timeRange])
+
+  return (
+    <div style={{ marginBottom: 16 }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', marginBottom: 8 }}>
+        <TimeRangeSelector value={timeRange} onChange={setTimeRange} />
+      </div>
+      <CFDChart data={cfdData} title="Cumulative Flow Diagram" />
     </div>
   )
 }

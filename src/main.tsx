@@ -5,6 +5,8 @@ import { keepPreviousData } from '@tanstack/react-query'
 import { AppProvider } from '@/context/AppContext'
 import { ToastProvider } from '@/context/ToastContext'
 import { I18nProvider } from '@/context/I18nContext'
+import { ThemeProvider } from '@/context/ThemeContext'
+import { NotificationProvider } from '@/context/NotificationContext'
 import App from './App'
 import '@/styles/variables.css'
 
@@ -39,11 +41,15 @@ createRoot(rootEl).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
       <I18nProvider>
-        <AppProvider>
-          <ToastProvider>
-            <App />
-          </ToastProvider>
-        </AppProvider>
+        <ThemeProvider>
+          <AppProvider>
+            <NotificationProvider>
+              <ToastProvider>
+                <App />
+              </ToastProvider>
+            </NotificationProvider>
+          </AppProvider>
+        </ThemeProvider>
       </I18nProvider>
     </QueryClientProvider>
   </StrictMode>

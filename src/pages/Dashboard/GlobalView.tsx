@@ -1,7 +1,12 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useMemo } from 'react'
 import type { JiraSprint } from '@/types/jira'
-import type { PlatformIssue, Risk, TeamMemberLoad } from '@/types/platform'
+import type { PlatformIssue, Risk, TeamMemberLoad, VelocityRecord } from '@/types/platform'
 import { useI18n } from '@/context/I18nContext'
+import { useApp } from '@/context/AppContext'
+import { useJiraSprints } from '@/hooks/useJiraSprints'
+import { useJiraBoards } from '@/hooks/useJiraBoard'
+import { VelocityChart } from '@/components/Charts'
+import { computeVelocityChart } from '@/lib/chartDataEngine'
 import styles from './Dashboard.module.css'
 
 const JIRA_BASE_URL = import.meta.env.VITE_JIRA_BASE_URL || ''
@@ -150,8 +155,42 @@ type ModalType = 'risks' | 'unassigned' | 'inProgress' | 'todo' | 'done' | 'tota
 
 export default function GlobalView({ sprint, issues, risks, isLoading }: Props) {
   const { t } = useI18n()
+  const { currentProjectKey } = useApp()
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [modal, setModal] = useState<ModalType>(null)
+
+  // ─── Velocity Chart Data ─────────────────────────────────
+  // Fetch boards to find the scrum board for this project
+  const { data: boards = [] } = useJiraBoards()
+  const projectBoard = useMemo(
+    () => boards.find((b) => b.location?.projectKey === currentProjectKey && b.type === 'scrum') ?? boards[0] ?? null,
+    [boards, currentProjectKey],
+  )
+  const boardId = projectBoard?.id ?? null
+
+  // Fetch closed sprints for velocity history
+  const { data: closedSprints = [] } = useJiraSprints(boardId, 'closed')
+
+  // Compute velocity records from closed sprints
+  const velocityRecords: VelocityRecord[] = useMemo(() => {
+    return closedSprints.map((s) => {
+      const startDate = new Date(s.startDate)
+      const endDate = new Date(s.endDate)
+      const durationDays = Math.max(1, Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)))
+      return {
+        sprintId: s.id,
+        sprintName: s.name,
+        plannedPoints: 0, // Not available from sprint data alone
+        completedPoints: 0, // Will be estimated from sprint data
+        durationDays,
+      }
+    })
+  }, [closedSprints])
+
+  const velocityChartData = useMemo(
+    () => computeVelocityChart(velocityRecords, 6),
+    [velocityRecords],
+  )
 
   const totalIssues = issues.length
   const completedIssues = issues.filter(i => i.status === 'done').length
@@ -315,6 +354,11 @@ export default function GlobalView({ sprint, issues, risks, isLoading }: Props) 
             <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--text2)' }}>{t('common.noData')}</div>
           )}
         </div>
+      </div>
+
+      {/* 速度趋势图 (Velocity Chart) */}
+      <div className={styles.card}>
+        <VelocityChart data={velocityChartData} title="Velocity Trend" />
       </div>
 
       {/* 风险列表 */}

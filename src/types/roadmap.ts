@@ -16,6 +16,7 @@ export interface RoadmapMilestone {
   endDate: string               // YYYY-MM-DD
   description: string
   status: MilestoneStatus
+  owner?: string                // 负责人（用于按团队/负责人筛选）
   jiraVersionId?: string        // 关联 Jira Fix Version
   createdAt: string             // ISO 8601
   updatedAt: string             // ISO 8601

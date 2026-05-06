@@ -228,3 +228,79 @@ export interface ImpactAnalysis {
 
 /** Sort options for developer profile cards */
 export type DeveloperSortKey = 'load' | 'taskCount' | 'name'
+
+// ─── Chart Data Types (Phase 1) ─────────────────────────────
+
+export interface VelocityRecord {
+  sprintId: number
+  sprintName: string
+  plannedPoints: number
+  completedPoints: number
+  durationDays: number
+}
+
+export interface VelocityChartData {
+  sprints: { name: string; velocity: number; planned: number }[]
+  averageVelocity: number
+  trend: 'improving' | 'stable' | 'declining'
+}
+
+export interface CFDDataPoint {
+  date: string
+  todo: number
+  inProgress: number
+  inReview: number
+  inTesting: number
+  done: number
+}
+
+export interface HeatmapCell {
+  memberId: string
+  memberName: string
+  period: string
+  intensity: number
+  taskCount: number
+}
+
+export type TimeRange = '1w' | '2w' | '1m' | '3m'
+
+// ─── Notification Types (Phase 1) ───────────────────────────
+
+export type NotificationType = 'risk' | 'task' | 'mention' | 'automation' | 'system'
+
+export interface PlatformNotification {
+  id: string
+  type: NotificationType
+  title: string
+  message: string
+  createdAt: string
+  read: boolean
+  priority: 'high' | 'normal'
+  actionUrl?: string
+  metadata?: Record<string, unknown>
+}
+
+export interface NotificationPreferences {
+  wecomPush: NotificationType[]
+  platformOnly: NotificationType[]
+}
+
+// ─── Theme Types (Phase 1) ──────────────────────────────────
+
+export type ThemeMode = 'light' | 'dark' | 'system'
+
+// ─── Dependency Types (Phase 1) ─────────────────────────────
+
+export interface MilestoneDependency {
+  fromId: string
+  toId: string
+  type: 'finish-to-start' | 'start-to-start'
+}
+
+export interface DelayPropagation {
+  milestoneId: string
+  originalEndDate: string
+  newEndDate: string
+  delayDays: number
+  isDirectlyAffected: boolean
+}

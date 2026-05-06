@@ -1,6 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { useLocation } from 'react-router-dom'
 import { useApp } from '@/context/AppContext'
 import { jiraClient } from '@/lib/jiraClient'
+import { buildPageContext } from '@/lib/aiContextBuilder'
+import type { PageType, AIContext } from '@/types/platform'
 import styles from './AIAssistant.module.css'
 
 // ============================================================
@@ -104,6 +107,7 @@ interface ChatMessage {
 
 export default function AIAssistant() {
   const { currentProjectKey } = useApp()
+  const location = useLocation()
   const [open, setOpen] = useState(false)
   const [closing, setClosing] = useState(false)
   const [messages, setMessages] = useState<ChatMessage[]>([
@@ -112,6 +116,24 @@ export default function AIAssistant() {
   const [input, setInput] = useState('')
   const [isConnected, setIsConnected] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+
+  // ─── Page Context ─────────────────────────────────────────
+  const [pageContext, setPageContext] = useState<AIContext | null>(null)
+
+  useEffect(() => {
+    const path = location.pathname.replace('/', '') || 'dashboard'
+    const pageTypeMap: Record<string, PageType> = {
+      dashboard: 'dashboard',
+      sprint: 'sprint',
+      requirements: 'requirements',
+      risk: 'risk',
+      reports: 'reports',
+      roadmap: 'roadmap',
+    }
+    const pageType = pageTypeMap[path] ?? 'dashboard'
+    const ctx = buildPageContext(pageType, { projectKey: currentProjectKey })
+    setPageContext(ctx)
+  }, [location.pathname, currentProjectKey])
 
   const wsRef = useRef<WebSocket | null>(null)
   const sessionIdRef = useRef<string | null>(null)
@@ -314,6 +336,24 @@ export default function AIAssistant() {
             ))}
             <div ref={messagesEndRef} />
           </div>
+
+          {/* 上下文感知建议 */}
+          {pageContext && open && messages.length <= 1 && (
+            <div className={styles.contextSection}>
+              <div className={styles.contextSummary}>{pageContext.summary}</div>
+              <div className={styles.suggestionsRow}>
+                {pageContext.suggestions.map((suggestion, idx) => (
+                  <button
+                    key={idx}
+                    className={styles.suggestionChip}
+                    onClick={() => { setInput(suggestion); setTimeout(sendMessage, 0) }}
+                  >
+                    💡 {suggestion}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* 快捷问题 */}
           {messages.length <= 1 && (

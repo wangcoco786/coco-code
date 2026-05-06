@@ -16,6 +16,7 @@ export type TranslationKey =
   // 导航
   | 'nav.dashboard' | 'nav.requirements' | 'nav.sprint'
   | 'nav.risk' | 'nav.reports' | 'nav.settings'
+  | 'nav.automation' | 'nav.notifications'
   // 通用
   | 'common.loading' | 'common.sync' | 'common.reset'
   | 'common.search' | 'common.all' | 'common.save'
@@ -196,6 +197,24 @@ export type TranslationKey =
   | 'roadmap.template.reqAnalysis' | 'roadmap.template.design'
   | 'roadmap.template.development' | 'roadmap.template.testing'
   | 'roadmap.template.release'
+  // Prediction
+  | 'prediction.title' | 'prediction.completionProb' | 'prediction.predictedEnd'
+  | 'prediction.confidence' | 'prediction.optimistic' | 'prediction.mostLikely'
+  | 'prediction.pessimistic' | 'prediction.riskAlert' | 'prediction.unreliable'
+  | 'prediction.noData'
+  // Automation
+  | 'automation.title' | 'automation.addRule' | 'automation.presetTemplates'
+  | 'automation.ruleName' | 'automation.condition' | 'automation.action'
+  | 'automation.enabled' | 'automation.execCount' | 'automation.noRules'
+  | 'automation.enableTemplate' | 'automation.deleteRule' | 'automation.save'
+  | 'automation.conditionTypes.status_change' | 'automation.conditionTypes.priority_change'
+  | 'automation.conditionTypes.timeout_no_update' | 'automation.conditionTypes.assignee_change'
+  | 'automation.conditionTypes.scope_change'
+  | 'automation.actionTypes.send_wecom' | 'automation.actionTypes.change_status'
+  | 'automation.actionTypes.assign_member' | 'automation.actionTypes.add_label'
+  | 'automation.actionTypes.generate_report'
+  // AI Context
+  | 'ai.contextSummary' | 'ai.suggestions'
 
 type Translations = Record<TranslationKey, string>
 
@@ -203,6 +222,7 @@ const zh: Translations = {
   'nav.dashboard': 'Dashboard', 'nav.requirements': '需求管理',
   'nav.sprint': 'Sprint 管理', 'nav.risk': '风险与协作',
   'nav.reports': '报告中心', 'nav.settings': '设置',
+  'nav.automation': '自动化规则', 'nav.notifications': '通知中心',
   'common.loading': '加载中...', 'common.sync': '立即同步',
   'common.reset': '重置筛选', 'common.search': '搜索',
   'common.all': '全部', 'common.save': '保存',
@@ -464,12 +484,40 @@ const zh: Translations = {
   'roadmap.template.reqAnalysis': '需求分析', 'roadmap.template.design': '设计',
   'roadmap.template.development': '开发', 'roadmap.template.testing': '测试',
   'roadmap.template.release': '发布',
+  // Prediction
+  'prediction.title': '交付预测', 'prediction.completionProb': '完成概率',
+  'prediction.predictedEnd': '预测完成日期', 'prediction.confidence': '置信区间',
+  'prediction.optimistic': '乐观', 'prediction.mostLikely': '最可能',
+  'prediction.pessimistic': '悲观', 'prediction.riskAlert': '⚠️ 交付风险预警：完成概率低于 60%',
+  'prediction.unreliable': '历史数据不足，预测仅供参考',
+  'prediction.noData': '暂无预测数据',
+  // Automation
+  'automation.title': '自动化规则', 'automation.addRule': '添加规则',
+  'automation.presetTemplates': '预置模板', 'automation.ruleName': '规则名称',
+  'automation.condition': '触发条件', 'automation.action': '执行动作',
+  'automation.enabled': '已启用', 'automation.execCount': '执行次数',
+  'automation.noRules': '暂无自动化规则，请添加或启用预置模板',
+  'automation.enableTemplate': '一键启用', 'automation.deleteRule': '删除',
+  'automation.save': '保存规则',
+  'automation.conditionTypes.status_change': '状态变更',
+  'automation.conditionTypes.priority_change': '优先级变更',
+  'automation.conditionTypes.timeout_no_update': '超时未更新',
+  'automation.conditionTypes.assignee_change': '负责人变更',
+  'automation.conditionTypes.scope_change': '范围变更',
+  'automation.actionTypes.send_wecom': '发送企微通知',
+  'automation.actionTypes.change_status': '变更状态',
+  'automation.actionTypes.assign_member': '分配成员',
+  'automation.actionTypes.add_label': '添加标签',
+  'automation.actionTypes.generate_report': '生成报告',
+  // AI Context
+  'ai.contextSummary': '当前页面上下文', 'ai.suggestions': '智能建议',
 }
 
 const en: Translations = {
   'nav.dashboard': 'Dashboard', 'nav.requirements': 'Requirements',
   'nav.sprint': 'Sprint', 'nav.risk': 'Risk & Collab',
   'nav.reports': 'Reports', 'nav.settings': 'Settings',
+  'nav.automation': 'Automation', 'nav.notifications': 'Notifications',
   'common.loading': 'Loading...', 'common.sync': 'Sync Now',
   'common.reset': 'Reset Filters', 'common.search': 'Search',
   'common.all': 'All', 'common.save': 'Save',
@@ -731,12 +779,40 @@ const en: Translations = {
   'roadmap.template.reqAnalysis': 'Requirements Analysis', 'roadmap.template.design': 'Design',
   'roadmap.template.development': 'Development', 'roadmap.template.testing': 'Testing',
   'roadmap.template.release': 'Release',
+  // Prediction
+  'prediction.title': 'Delivery Prediction', 'prediction.completionProb': 'Completion Probability',
+  'prediction.predictedEnd': 'Predicted End Date', 'prediction.confidence': 'Confidence Interval',
+  'prediction.optimistic': 'Optimistic', 'prediction.mostLikely': 'Most Likely',
+  'prediction.pessimistic': 'Pessimistic', 'prediction.riskAlert': '⚠️ Delivery Risk: Completion probability below 60%',
+  'prediction.unreliable': 'Insufficient historical data, prediction is for reference only',
+  'prediction.noData': 'No prediction data available',
+  // Automation
+  'automation.title': 'Automation Rules', 'automation.addRule': 'Add Rule',
+  'automation.presetTemplates': 'Preset Templates', 'automation.ruleName': 'Rule Name',
+  'automation.condition': 'Condition', 'automation.action': 'Action',
+  'automation.enabled': 'Enabled', 'automation.execCount': 'Executions',
+  'automation.noRules': 'No automation rules yet. Add one or enable a preset template.',
+  'automation.enableTemplate': 'Enable', 'automation.deleteRule': 'Delete',
+  'automation.save': 'Save Rule',
+  'automation.conditionTypes.status_change': 'Status Change',
+  'automation.conditionTypes.priority_change': 'Priority Change',
+  'automation.conditionTypes.timeout_no_update': 'Timeout No Update',
+  'automation.conditionTypes.assignee_change': 'Assignee Change',
+  'automation.conditionTypes.scope_change': 'Scope Change',
+  'automation.actionTypes.send_wecom': 'Send WeCom Notification',
+  'automation.actionTypes.change_status': 'Change Status',
+  'automation.actionTypes.assign_member': 'Assign Member',
+  'automation.actionTypes.add_label': 'Add Label',
+  'automation.actionTypes.generate_report': 'Generate Report',
+  // AI Context
+  'ai.contextSummary': 'Current Page Context', 'ai.suggestions': 'Smart Suggestions',
 }
 
 const ja: Translations = {
   'nav.dashboard': 'ダッシュボード', 'nav.requirements': '要件管理',
   'nav.sprint': 'スプリント', 'nav.risk': 'リスク・協力',
   'nav.reports': 'レポート', 'nav.settings': '設定',
+  'nav.automation': '自動化ルール', 'nav.notifications': '通知センター',
   'common.loading': '読み込み中...', 'common.sync': '今すぐ同期',
   'common.reset': 'フィルターリセット', 'common.search': '検索',
   'common.all': 'すべて', 'common.save': '保存',
@@ -998,12 +1074,40 @@ const ja: Translations = {
   'roadmap.template.reqAnalysis': '要件分析', 'roadmap.template.design': '設計',
   'roadmap.template.development': '開発', 'roadmap.template.testing': 'テスト',
   'roadmap.template.release': 'リリース',
+  // Prediction
+  'prediction.title': '納期予測', 'prediction.completionProb': '完了確率',
+  'prediction.predictedEnd': '予測完了日', 'prediction.confidence': '信頼区間',
+  'prediction.optimistic': '楽観的', 'prediction.mostLikely': '最も可能性が高い',
+  'prediction.pessimistic': '悲観的', 'prediction.riskAlert': '⚠️ 納期リスク：完了確率が60%未満',
+  'prediction.unreliable': '履歴データ不足、予測は参考値です',
+  'prediction.noData': '予測データなし',
+  // Automation
+  'automation.title': '自動化ルール', 'automation.addRule': 'ルール追加',
+  'automation.presetTemplates': 'プリセットテンプレート', 'automation.ruleName': 'ルール名',
+  'automation.condition': '条件', 'automation.action': 'アクション',
+  'automation.enabled': '有効', 'automation.execCount': '実行回数',
+  'automation.noRules': '自動化ルールがありません。追加するかプリセットを有効にしてください。',
+  'automation.enableTemplate': '有効化', 'automation.deleteRule': '削除',
+  'automation.save': 'ルールを保存',
+  'automation.conditionTypes.status_change': 'ステータス変更',
+  'automation.conditionTypes.priority_change': '優先度変更',
+  'automation.conditionTypes.timeout_no_update': 'タイムアウト未更新',
+  'automation.conditionTypes.assignee_change': '担当者変更',
+  'automation.conditionTypes.scope_change': 'スコープ変更',
+  'automation.actionTypes.send_wecom': 'WeCom通知送信',
+  'automation.actionTypes.change_status': 'ステータス変更',
+  'automation.actionTypes.assign_member': 'メンバー割当',
+  'automation.actionTypes.add_label': 'ラベル追加',
+  'automation.actionTypes.generate_report': 'レポート生成',
+  // AI Context
+  'ai.contextSummary': '現在のページコンテキスト', 'ai.suggestions': 'スマート提案',
 }
 
 const es: Translations = {
   'nav.dashboard': 'Panel', 'nav.requirements': 'Requisitos',
   'nav.sprint': 'Sprint', 'nav.risk': 'Riesgos',
   'nav.reports': 'Informes', 'nav.settings': 'Configuración',
+  'nav.automation': 'Automatización', 'nav.notifications': 'Notificaciones',
   'common.loading': 'Cargando...', 'common.sync': 'Sincronizar',
   'common.reset': 'Restablecer', 'common.search': 'Buscar',
   'common.all': 'Todos', 'common.save': 'Guardar',
@@ -1265,6 +1369,33 @@ const es: Translations = {
   'roadmap.template.reqAnalysis': 'Análisis de Requisitos', 'roadmap.template.design': 'Diseño',
   'roadmap.template.development': 'Desarrollo', 'roadmap.template.testing': 'Pruebas',
   'roadmap.template.release': 'Lanzamiento',
+  // Prediction
+  'prediction.title': 'Predicción de Entrega', 'prediction.completionProb': 'Probabilidad de Completado',
+  'prediction.predictedEnd': 'Fecha Estimada de Fin', 'prediction.confidence': 'Intervalo de Confianza',
+  'prediction.optimistic': 'Optimista', 'prediction.mostLikely': 'Más Probable',
+  'prediction.pessimistic': 'Pesimista', 'prediction.riskAlert': '⚠️ Riesgo de Entrega: Probabilidad de completado inferior al 60%',
+  'prediction.unreliable': 'Datos históricos insuficientes, la predicción es solo referencial',
+  'prediction.noData': 'Sin datos de predicción',
+  // Automation
+  'automation.title': 'Reglas de Automatización', 'automation.addRule': 'Agregar Regla',
+  'automation.presetTemplates': 'Plantillas Predefinidas', 'automation.ruleName': 'Nombre de Regla',
+  'automation.condition': 'Condición', 'automation.action': 'Acción',
+  'automation.enabled': 'Habilitado', 'automation.execCount': 'Ejecuciones',
+  'automation.noRules': 'Sin reglas de automatización. Agregue una o habilite una plantilla.',
+  'automation.enableTemplate': 'Habilitar', 'automation.deleteRule': 'Eliminar',
+  'automation.save': 'Guardar Regla',
+  'automation.conditionTypes.status_change': 'Cambio de Estado',
+  'automation.conditionTypes.priority_change': 'Cambio de Prioridad',
+  'automation.conditionTypes.timeout_no_update': 'Sin Actualización',
+  'automation.conditionTypes.assignee_change': 'Cambio de Asignado',
+  'automation.conditionTypes.scope_change': 'Cambio de Alcance',
+  'automation.actionTypes.send_wecom': 'Enviar Notificación WeCom',
+  'automation.actionTypes.change_status': 'Cambiar Estado',
+  'automation.actionTypes.assign_member': 'Asignar Miembro',
+  'automation.actionTypes.add_label': 'Agregar Etiqueta',
+  'automation.actionTypes.generate_report': 'Generar Informe',
+  // AI Context
+  'ai.contextSummary': 'Contexto de Página Actual', 'ai.suggestions': 'Sugerencias Inteligentes',
 }
 
 export const translations: Record<Locale, Translations> = { zh, en, ja, es }

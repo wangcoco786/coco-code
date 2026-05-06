@@ -3,10 +3,12 @@ import type { JiraSprint } from '@/types/jira'
 import type { PlatformIssue, Risk, TeamMemberLoad, VelocityRecord } from '@/types/platform'
 import { useI18n } from '@/context/I18nContext'
 import { useApp } from '@/context/AppContext'
+import { useNotifications } from '@/context/NotificationContext'
 import { useJiraSprints } from '@/hooks/useJiraSprints'
 import { useJiraBoards } from '@/hooks/useJiraBoard'
 import { VelocityChart } from '@/components/Charts'
 import { computeVelocityChart } from '@/lib/chartDataEngine'
+import { predictSprintCompletion, shouldTriggerAlert } from '@/lib/predictionEngine'
 import styles from './Dashboard.module.css'
 
 const JIRA_BASE_URL = import.meta.env.VITE_JIRA_BASE_URL || ''
@@ -192,6 +194,36 @@ export default function GlobalView({ sprint, issues, risks, isLoading }: Props) 
     [velocityRecords],
   )
 
+  // ─── Prediction Engine ─────────────────────────────────────
+  const { addNotification } = useNotifications()
+  const alertSentRef = useRef(false)
+
+  const prediction = useMemo(() => {
+    if (!sprint || issues.length === 0) return null
+    const start = new Date(sprint.startDate)
+    const end = new Date(sprint.endDate)
+    const totalDays = Math.max(1, Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)))
+    const daysElapsed = Math.min(totalDays, Math.max(0, Math.ceil((Date.now() - start.getTime()) / (1000 * 60 * 60 * 24))))
+    const totalTasks = issues.length
+    const completedTasks = issues.filter(i => i.status === 'done').length
+    const remainingTasks = totalTasks - completedTasks
+    return predictSprintCompletion(remainingTasks, completedTasks, totalTasks, daysElapsed, totalDays, velocityRecords)
+  }, [sprint, issues, velocityRecords])
+
+  // Send risk alert when probability < 60%
+  useEffect(() => {
+    if (prediction && shouldTriggerAlert(prediction) && !alertSentRef.current) {
+      alertSentRef.current = true
+      addNotification({
+        type: 'risk',
+        title: '交付风险预警',
+        message: `Sprint 完成概率仅 ${prediction.completionProbability.toFixed(0)}%，存在交付风险`,
+        priority: 'high',
+        actionUrl: '/sprint',
+      })
+    }
+  }, [prediction, addNotification])
+
   const totalIssues = issues.length
   const completedIssues = issues.filter(i => i.status === 'done').length
   const completionRate = totalIssues > 0 ? Math.round((completedIssues / totalIssues) * 100) : 0
@@ -313,6 +345,36 @@ export default function GlobalView({ sprint, issues, risks, isLoading }: Props) 
           </div>
         </div>
       </div>
+
+      {/* 交付预测指示器 */}
+      {prediction && (
+        <div className={styles.card} style={{ marginBottom: 16 }}>
+          <div className={styles.cardTitle}>{t('prediction.title')}</div>
+          <div style={{ display: 'flex', gap: 24, alignItems: 'center', flexWrap: 'wrap' }}>
+            <div style={{ textAlign: 'center', minWidth: 120 }}>
+              <div style={{
+                fontSize: 32, fontWeight: 700,
+                color: prediction.completionProbability > 80 ? 'var(--success)'
+                  : prediction.completionProbability >= 60 ? 'var(--warning)'
+                  : 'var(--danger)',
+              }}>
+                {prediction.completionProbability.toFixed(0)}%
+              </div>
+              <div style={{ fontSize: 12, color: 'var(--text2)', marginTop: 4 }}>{t('prediction.completionProb')}</div>
+            </div>
+            <div style={{ flex: 1, fontSize: 13, lineHeight: 2 }}>
+              <div><strong>{t('prediction.predictedEnd')}:</strong> {prediction.predictedEndDate.slice(0, 10)}</div>
+              <div><strong>{t('prediction.confidence')}:</strong> {t('prediction.optimistic')} {prediction.confidence.optimistic.slice(0, 10)} ~ {t('prediction.pessimistic')} {prediction.confidence.pessimistic.slice(0, 10)}</div>
+              {!prediction.isReliable && (
+                <div style={{ color: 'var(--warning)', fontSize: 12 }}>⚠️ {t('prediction.unreliable')}</div>
+              )}
+              {shouldTriggerAlert(prediction) && (
+                <div style={{ color: 'var(--danger)', fontSize: 12, fontWeight: 600 }}>{t('prediction.riskAlert')}</div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* 燃尽图 + 负载 */}
       <div className={styles.twoCol}>

@@ -1,4 +1,4 @@
-﻿import { useState, useMemo } from 'react'
+﻿import { useState, useMemo, useEffect, useRef } from 'react'
 import { useApp } from '@/context/AppContext'
 import {
   useActiveSprintIssuesByProject,
@@ -7,12 +7,14 @@ import {
   useRefreshProjectIssues,
 } from '@/hooks/useProjectIssues'
 import { useI18n } from '@/context/I18nContext'
-import type { IssueStatus, IssuePriority, PlatformIssue, TimeRange } from '@/types/platform'
+import { useNotifications } from '@/context/NotificationContext'
+import type { IssueStatus, IssuePriority, PlatformIssue, TimeRange, VelocityRecord } from '@/types/platform'
 import ResourceTab from './ResourceTab'
 import ChangeTab from './ChangeTab'
 import AIInsight from '@/components/AIInsight/AIInsight'
 import { CFDChart, TimeRangeSelector } from '@/components/Charts'
 import { computeCFD } from '@/lib/chartDataEngine'
+import { predictSprintCompletion, shouldTriggerAlert } from '@/lib/predictionEngine'
 import styles from './Sprint.module.css'
 
 // ─── helpers ────────────────────────────────────────────────
@@ -297,6 +299,11 @@ export default function Sprint() {
         />
       )}
 
+      {/* Sprint 交付预测 */}
+      {currentProjectKey && issues.length > 0 && currentSprint && (
+        <SprintPredictionSection issues={issues} sprint={currentSprint} />
+      )}
+
       {/* Cumulative Flow Diagram */}
       {currentProjectKey && issues.length > 0 && currentSprint && (
         <CFDSection issues={issues} sprint={currentSprint} />
@@ -526,6 +533,79 @@ function PlanTab({ projectKey, sprintIssues }: PlanTabProps) {
                 {t('sprint.copyPlan')}
               </button>
             </div>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ─── Sprint Prediction Section ───────────────────────────────
+
+interface SprintPredictionSectionProps {
+  issues: PlatformIssue[]
+  sprint: { startDate: string; endDate: string; name: string }
+}
+
+function SprintPredictionSection({ issues, sprint }: SprintPredictionSectionProps) {
+  const { t } = useI18n()
+  const { addNotification } = useNotifications()
+  const alertSentRef = useRef(false)
+
+  const prediction = useMemo(() => {
+    const start = new Date(sprint.startDate)
+    const end = new Date(sprint.endDate)
+    const totalDays = Math.max(1, Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)))
+    const daysElapsed = Math.min(totalDays, Math.max(0, Math.ceil((Date.now() - start.getTime()) / (1000 * 60 * 60 * 24))))
+    const totalTasks = issues.length
+    const completedTasks = issues.filter(i => i.status === 'done').length
+    const remainingTasks = totalTasks - completedTasks
+    const velocityHistory: VelocityRecord[] = [] // No historical data in Sprint page context
+    return predictSprintCompletion(remainingTasks, completedTasks, totalTasks, daysElapsed, totalDays, velocityHistory)
+  }, [issues, sprint])
+
+  useEffect(() => {
+    if (prediction && shouldTriggerAlert(prediction) && !alertSentRef.current) {
+      alertSentRef.current = true
+      addNotification({
+        type: 'risk',
+        title: '交付风险预警',
+        message: `Sprint "${sprint.name}" 完成概率仅 ${prediction.completionProbability.toFixed(0)}%`,
+        priority: 'high',
+        actionUrl: '/sprint',
+      })
+    }
+  }, [prediction, addNotification, sprint.name])
+
+  if (!prediction) return null
+
+  const probColor = prediction.completionProbability > 80 ? 'var(--success)'
+    : prediction.completionProbability >= 60 ? 'var(--warning)'
+    : 'var(--danger)'
+
+  return (
+    <div className={styles.predictionCard} style={{ marginBottom: 16, padding: 16, background: 'var(--card)', borderRadius: 8, border: '1px solid var(--border)' }}>
+      <div style={{ fontWeight: 600, marginBottom: 12, fontSize: 14 }}>{t('prediction.title')}</div>
+      <div style={{ display: 'flex', gap: 24, alignItems: 'center', flexWrap: 'wrap' }}>
+        <div style={{ textAlign: 'center', minWidth: 100 }}>
+          <div style={{ fontSize: 28, fontWeight: 700, color: probColor }}>
+            {prediction.completionProbability.toFixed(0)}%
+          </div>
+          <div style={{ fontSize: 11, color: 'var(--text2)' }}>{t('prediction.completionProb')}</div>
+        </div>
+        <div style={{ flex: 1, fontSize: 13, lineHeight: 2 }}>
+          <div><strong>{t('prediction.predictedEnd')}:</strong> {prediction.predictedEndDate.slice(0, 10)}</div>
+          <div>
+            <strong>{t('prediction.confidence')}:</strong>{' '}
+            <span style={{ color: 'var(--success)' }}>{t('prediction.optimistic')} {prediction.confidence.optimistic.slice(0, 10)}</span>
+            {' ~ '}
+            <span style={{ color: 'var(--danger)' }}>{t('prediction.pessimistic')} {prediction.confidence.pessimistic.slice(0, 10)}</span>
+          </div>
+          {!prediction.isReliable && (
+            <div style={{ color: 'var(--warning)', fontSize: 12 }}>⚠️ {t('prediction.unreliable')}</div>
+          )}
+          {shouldTriggerAlert(prediction) && (
+            <div style={{ color: 'var(--danger)', fontSize: 12, fontWeight: 600 }}>{t('prediction.riskAlert')}</div>
           )}
         </div>
       </div>

@@ -326,3 +326,41 @@
   .panel { width: calc(100vw - 16px); right: 8px; bottom: 8px; height: calc(100vh - 16px); border-radius: 16px; }
   .overlay { backdrop-filter: blur(4px); }
 }
+
+/* ===== 上下文感知建议 ===== */
+.contextSection {
+  padding: 8px 16px 4px;
+  border-top: 1px solid var(--border, #e8e8e8);
+}
+.contextSummary {
+  font-size: 11px;
+  color: var(--text2, #666);
+  margin-bottom: 6px;
+  line-height: 1.4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.suggestionsRow {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.suggestionChip {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 6px 10px;
+  font-size: 12px;
+  background: var(--primary-light, #e6f4ff);
+  color: var(--primary, #1677ff);
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s;
+  line-height: 1.4;
+}
+.suggestionChip:hover {
+  background: var(--primary, #1677ff);
+  color: #fff;
+}

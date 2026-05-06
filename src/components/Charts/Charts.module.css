@@ -86,7 +86,12 @@
 /* ─── CFD Chart ──────────────────────────────────────────── */
 
 .cfdArea {
-  opacity: 0.7;
+  opacity: 0.85;
+  transition: opacity 0.2s ease;
+}
+
+.cfdArea:hover {
+  opacity: 1;
 }
 
 .cfdAreaTodo {

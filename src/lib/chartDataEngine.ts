@@ -146,8 +146,23 @@ export function computeCFD(
     return []
   }
 
+  // Sort issues by updatedAt to simulate status progression over time
+  const sortedIssues = [...issues].sort(
+    (a, b) => new Date(a.updatedAt).getTime() - new Date(b.updatedAt).getTime()
+  )
+
+  // Status progression order (higher index = more advanced)
+  const STATUS_ORDER: Record<string, number> = {
+    todo: 0,
+    in_progress: 1,
+    in_review: 2,
+    in_testing: 3,
+    done: 4,
+  }
+
   return dates.map((date) => {
     const dateEnd = new Date(date + 'T23:59:59.999Z')
+    const dateStart = new Date(date + 'T00:00:00.000Z')
 
     let todo = 0
     let inProgress = 0
@@ -155,12 +170,29 @@ export function computeCFD(
     let inTesting = 0
     let done = 0
 
-    for (const issue of issues) {
+    for (const issue of sortedIssues) {
       const createdAt = new Date(issue.createdAt)
       // Only count issues that existed on or before this date
       if (createdAt > dateEnd) continue
 
-      switch (issue.status) {
+      const updatedAt = new Date(issue.updatedAt)
+      const currentStatusOrder = STATUS_ORDER[issue.status] ?? 0
+
+      // Simulate: if the issue was updated after this date, it was likely
+      // in an earlier status on this date. Estimate based on time progression.
+      let effectiveStatus = issue.status
+      if (updatedAt > dateEnd && currentStatusOrder > 0) {
+        // Issue hadn't reached its current status yet on this date
+        // Estimate it was one or more steps back
+        const totalDuration = updatedAt.getTime() - createdAt.getTime()
+        const elapsed = dateEnd.getTime() - createdAt.getTime()
+        const progress = totalDuration > 0 ? Math.max(0, Math.min(1, elapsed / totalDuration)) : 1
+        const estimatedOrder = Math.floor(progress * currentStatusOrder)
+        const statusNames = ['todo', 'in_progress', 'in_review', 'in_testing', 'done']
+        effectiveStatus = statusNames[Math.min(estimatedOrder, 4)] as typeof issue.status
+      }
+
+      switch (effectiveStatus) {
         case 'todo':
           todo++
           break

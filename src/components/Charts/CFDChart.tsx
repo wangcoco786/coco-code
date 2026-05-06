@@ -10,11 +10,11 @@ interface CFDChartProps {
 }
 
 const STATUS_COLORS = {
-  done: 'var(--success)',
+  done: '#52c41a',
   inTesting: '#13c2c2',
   inReview: '#722ed1',
-  inProgress: 'var(--primary)',
-  todo: 'var(--warning)',
+  inProgress: '#1677ff',
+  todo: '#8c8c8c',
 } as const
 
 type StatusKey = keyof typeof STATUS_COLORS

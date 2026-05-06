@@ -239,6 +239,20 @@ export type TranslationKey =
   | 'settings.themeDesc'
   // Resource tab heatmap
   | 'resource.teamPerformanceHeatmap'
+  // Audit Log
+  | 'nav.audit'
+  | 'audit.title' | 'audit.subtitle' | 'audit.exportCsv'
+  | 'audit.timeRange' | 'audit.operator' | 'audit.operationType'
+  | 'audit.target' | 'audit.changes' | 'audit.priority'
+  | 'audit.totalRecords' | 'audit.time'
+  // Activity Feed
+  | 'activity.title' | 'activity.empty'
+  // Settings Sync
+  | 'settings.syncStatus' | 'settings.syncIndicator'
+  // Requirements AI
+  | 'req.aiRecommend' | 'req.aiNoData'
+  // Duplicate Detection
+  | 'req.detectDuplicates' | 'req.duplicateResults' | 'req.noDuplicates'
 
 type Translations = Record<TranslationKey, string>
 
@@ -565,6 +579,32 @@ const zh: Translations = {
   'settings.themeDesc': '选择"跟随系统"将自动匹配操作系统的深色/浅色偏好设置',
   // Resource tab heatmap
   'resource.teamPerformanceHeatmap': '团队绩效热力图',
+  // Audit Log
+  'nav.audit': '审计日志',
+  'audit.title': '审计日志',
+  'audit.subtitle': '记录所有敏感操作和系统变更',
+  'audit.exportCsv': '导出 CSV',
+  'audit.timeRange': '时间范围',
+  'audit.operator': '操作人',
+  'audit.operationType': '操作类型',
+  'audit.target': '操作对象',
+  'audit.changes': '变更内容',
+  'audit.priority': '优先级',
+  'audit.totalRecords': '共计记录',
+  'audit.time': '时间',
+  // Activity Feed
+  'activity.title': '最近活动',
+  'activity.empty': '暂无活动记录',
+  // Settings Sync
+  'settings.syncStatus': '同步状态',
+  'settings.syncIndicator': '同步指示器',
+  // Requirements AI
+  'req.aiRecommend': 'AI 推荐',
+  'req.aiNoData': '数据不足，无法推荐',
+  // Duplicate Detection
+  'req.detectDuplicates': '检测重复',
+  'req.duplicateResults': '重复检测结果',
+  'req.noDuplicates': '未发现重复需求',
 }
 
 const en: Translations = {
@@ -890,6 +930,32 @@ const en: Translations = {
   'settings.themeDesc': 'Selecting "System" will automatically match your OS light/dark preference',
   // Resource tab heatmap
   'resource.teamPerformanceHeatmap': 'Team Performance Heatmap',
+  // Audit Log
+  'nav.audit': 'Audit Log',
+  'audit.title': 'Audit Log',
+  'audit.subtitle': 'Track all sensitive operations and system changes',
+  'audit.exportCsv': 'Export CSV',
+  'audit.timeRange': 'Time Range',
+  'audit.operator': 'Operator',
+  'audit.operationType': 'Operation Type',
+  'audit.target': 'Target',
+  'audit.changes': 'Changes',
+  'audit.priority': 'Priority',
+  'audit.totalRecords': 'Total Records',
+  'audit.time': 'Time',
+  // Activity Feed
+  'activity.title': 'Recent Activity',
+  'activity.empty': 'No activity yet',
+  // Settings Sync
+  'settings.syncStatus': 'Sync Status',
+  'settings.syncIndicator': 'Sync Indicator',
+  // Requirements AI
+  'req.aiRecommend': 'AI Recommend',
+  'req.aiNoData': 'Insufficient data for recommendation',
+  // Duplicate Detection
+  'req.detectDuplicates': 'Detect Duplicates',
+  'req.duplicateResults': 'Duplicate Detection Results',
+  'req.noDuplicates': 'No duplicate requirements found',
 }
 
 const ja: Translations = {
@@ -1215,6 +1281,32 @@ const ja: Translations = {
   'settings.themeDesc': '「システム」を選択するとOSのライト/ダーク設定に自動的に合わせます',
   // Resource tab heatmap
   'resource.teamPerformanceHeatmap': 'チームパフォーマンスヒートマップ',
+  // Audit Log
+  'nav.audit': '監査ログ',
+  'audit.title': '監査ログ',
+  'audit.subtitle': 'すべての機密操作とシステム変更を記録',
+  'audit.exportCsv': 'CSV エクスポート',
+  'audit.timeRange': '期間',
+  'audit.operator': '操作者',
+  'audit.operationType': '操作タイプ',
+  'audit.target': '対象',
+  'audit.changes': '変更内容',
+  'audit.priority': '優先度',
+  'audit.totalRecords': '合計レコード',
+  'audit.time': '時間',
+  // Activity Feed
+  'activity.title': '最近のアクティビティ',
+  'activity.empty': 'アクティビティはまだありません',
+  // Settings Sync
+  'settings.syncStatus': '同期ステータス',
+  'settings.syncIndicator': '同期インジケーター',
+  // Requirements AI
+  'req.aiRecommend': 'AI 推薦',
+  'req.aiNoData': 'データ不足のため推薦できません',
+  // Duplicate Detection
+  'req.detectDuplicates': '重複検出',
+  'req.duplicateResults': '重複検出結果',
+  'req.noDuplicates': '重複する要件は見つかりませんでした',
 }
 
 const es: Translations = {
@@ -1540,6 +1632,32 @@ const es: Translations = {
   'settings.themeDesc': 'Seleccionar "Sistema" se ajustará automáticamente a la preferencia de claro/oscuro de su SO',
   // Resource tab heatmap
   'resource.teamPerformanceHeatmap': 'Mapa de Calor del Rendimiento del Equipo',
+  // Audit Log
+  'nav.audit': 'Registro de Auditoría',
+  'audit.title': 'Registro de Auditoría',
+  'audit.subtitle': 'Registrar todas las operaciones sensibles y cambios del sistema',
+  'audit.exportCsv': 'Exportar CSV',
+  'audit.timeRange': 'Rango de Tiempo',
+  'audit.operator': 'Operador',
+  'audit.operationType': 'Tipo de Operación',
+  'audit.target': 'Objetivo',
+  'audit.changes': 'Cambios',
+  'audit.priority': 'Prioridad',
+  'audit.totalRecords': 'Total de Registros',
+  'audit.time': 'Hora',
+  // Activity Feed
+  'activity.title': 'Actividad Reciente',
+  'activity.empty': 'Sin actividad aún',
+  // Settings Sync
+  'settings.syncStatus': 'Estado de Sincronización',
+  'settings.syncIndicator': 'Indicador de Sincronización',
+  // Requirements AI
+  'req.aiRecommend': 'Recomendación IA',
+  'req.aiNoData': 'Datos insuficientes para recomendar',
+  // Duplicate Detection
+  'req.detectDuplicates': 'Detectar Duplicados',
+  'req.duplicateResults': 'Resultados de Detección de Duplicados',
+  'req.noDuplicates': 'No se encontraron requisitos duplicados',
 }
 
 export const translations: Record<Locale, Translations> = { zh, en, ja, es }

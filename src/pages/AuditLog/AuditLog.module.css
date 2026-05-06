@@ -1,0 +1,202 @@
+.page {}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.title { font-size: 20px; font-weight: 700; }
+.subtitle { font-size: 13px; color: var(--text2); margin-top: 2px; }
+
+.btnPrimary {
+  padding: 7px 16px;
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 13px;
+  transition: var(--transition);
+}
+.btnPrimary:hover { background: var(--primary-hover); }
+
+.btnReset {
+  padding: 6px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  background: var(--card);
+  cursor: pointer;
+  color: var(--text2);
+}
+.btnReset:hover { color: var(--danger); border-color: var(--danger); }
+
+/* Filters */
+.filters {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  padding: 12px 16px;
+  background: var(--card);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+
+.filterGroup {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.filterLabel {
+  font-size: 12px;
+  color: var(--text2);
+  white-space: nowrap;
+}
+
+.filterSep {
+  color: var(--text2);
+  font-size: 13px;
+}
+
+.dateInput {
+  padding: 5px 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  background: var(--card);
+  color: var(--text);
+}
+
+.select {
+  padding: 5px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--card);
+  font-size: 12px;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.resultCount {
+  font-size: 12px;
+  color: var(--text2);
+  margin-bottom: 8px;
+}
+
+/* Table */
+.tableWrap {
+  background: var(--card);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  overflow: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th,
+.table td {
+  padding: 10px 14px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+
+.table th {
+  background: #fafafa;
+  font-weight: 600;
+  color: var(--text2);
+  white-space: nowrap;
+}
+
+.table tr:hover td { background: #f0f5ff; }
+
+.emptyRow {
+  text-align: center;
+  padding: 40px !important;
+  color: var(--text2);
+}
+
+.timeCell {
+  white-space: nowrap;
+  font-size: 12px;
+  color: var(--text2);
+}
+
+.operatorBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.roleBadge {
+  font-size: 10px;
+  padding: 1px 5px;
+  border-radius: 3px;
+  background: var(--primary-light);
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.targetInfo {
+  font-size: 12px;
+  color: var(--text);
+}
+
+.changeItem {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  margin-bottom: 2px;
+}
+
+.changeField {
+  color: var(--text2);
+  font-weight: 500;
+}
+
+.changeOld {
+  color: var(--danger);
+  text-decoration: line-through;
+}
+
+.changeArrow {
+  color: var(--text2);
+}
+
+.changeNew {
+  color: var(--success);
+  font-weight: 500;
+}
+
+.priorityBadge {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+}
+
+.priorityHigh {
+  background: var(--danger-light);
+  color: var(--danger);
+}
+
+.priorityNormal {
+  background: var(--success-light);
+  color: #389e0d;
+}
+
+@media (max-width: 768px) {
+  .filters { flex-direction: column; align-items: stretch; }
+  .filterGroup { flex-wrap: wrap; }
+}

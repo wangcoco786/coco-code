@@ -2,7 +2,9 @@
 import { useApp } from '@/context/AppContext'
 import { useProjectIssues, useRefreshProjectIssues } from '@/hooks/useProjectIssues'
 import { useI18n } from '@/context/I18nContext'
-import type { IssueStatus, IssuePriority, PlatformIssue } from '@/types/platform'
+import { recommendAssignees } from '@/lib/recommendationEngine'
+import { findSimilarIssues } from '@/lib/similarityEngine'
+import type { IssueStatus, IssuePriority, PlatformIssue, MemberProfile } from '@/types/platform'
 import type { TranslationKey } from '@/i18n'
 import styles from './Requirements.module.css'
 import AIInsight from '@/components/AIInsight/AIInsight'
@@ -45,9 +47,83 @@ const PRIORITY_CLASS: Record<IssuePriority, string> = {
   P3: styles.p3,
 }
 
+// ─── AI Recommendation Popup ─────────────────────────────────
+
+function AIRecommendButton({ issue, allIssues }: { issue: PlatformIssue; allIssues: PlatformIssue[] }) {
+  const { t } = useI18n()
+  const [showPopup, setShowPopup] = useState(false)
+
+  // Build mock MemberProfiles from existing assignee data
+  const teamProfiles: MemberProfile[] = useMemo(() => {
+    const assigneeMap = new Map<string, { name: string; labels: string[]; taskCount: number; doneCount: number }>()
+    for (const iss of allIssues) {
+      if (!iss.assignee) continue
+      const existing = assigneeMap.get(iss.assignee.id)
+      if (existing) {
+        existing.labels.push(...iss.labels)
+        existing.taskCount++
+        if (iss.status === 'done') existing.doneCount++
+      } else {
+        assigneeMap.set(iss.assignee.id, {
+          name: iss.assignee.name,
+          labels: [...iss.labels],
+          taskCount: 1,
+          doneCount: iss.status === 'done' ? 1 : 0,
+        })
+      }
+    }
+    return Array.from(assigneeMap.entries()).map(([id, data]) => ({
+      id,
+      name: data.name,
+      skills: [...new Set(data.labels)],
+      currentLoad: data.taskCount - data.doneCount,
+      capacity: 10,
+      completionRate: data.taskCount > 0 ? data.doneCount / data.taskCount : 0.5,
+      avgCompletionDays: 5,
+    }))
+  }, [allIssues])
+
+  const result = useMemo(() => {
+    if (!showPopup) return null
+    return recommendAssignees(
+      { labels: issue.labels, priority: issue.priority, storyPoints: issue.storyPoints },
+      teamProfiles
+    )
+  }, [showPopup, issue, teamProfiles])
+
+  return (
+    <span style={{ position: 'relative', display: 'inline-block' }}>
+      <button
+        className={styles.aiRecBtn}
+        onClick={() => setShowPopup(!showPopup)}
+        title={t('req.aiRecommend' as any)}
+      >
+        🤖
+      </button>
+      {showPopup && result && (
+        <div className={styles.aiRecPopup}>
+          <div className={styles.aiRecTitle}>{t('req.aiRecommend' as any)}</div>
+          {result.status === 'insufficient_data' ? (
+            <div className={styles.aiRecEmpty}>{t('req.aiNoData' as any)}</div>
+          ) : (
+            result.candidates.map((c) => (
+              <div key={c.memberId} className={styles.aiRecItem}>
+                <span className={styles.aiRecName}>{c.memberName}</span>
+                <span className={styles.aiRecScore}>{c.score}</span>
+                <span className={styles.aiRecReason}>{c.reasons[0]}</span>
+              </div>
+            ))
+          )}
+          <button className={styles.aiRecClose} onClick={() => setShowPopup(false)}>✕</button>
+        </div>
+      )}
+    </span>
+  )
+}
+
 // ─── List View ───────────────────────────────────────────────
 
-function ListView({ issues }: { issues: PlatformIssue[] }) {
+function ListView({ issues, allIssues }: { issues: PlatformIssue[]; allIssues: PlatformIssue[] }) {
   const { t } = useI18n()
   if (issues.length === 0) {
     return (
@@ -89,7 +165,14 @@ function ListView({ issues }: { issues: PlatformIssue[] }) {
                   {issue.priority}
                 </span>
               </td>
-              <td>{issue.assignee?.name ?? <span style={{ color: 'var(--text2)' }}>{t('common.unassigned')}</span>}</td>
+              <td>
+                {issue.assignee?.name ?? (
+                  <span style={{ color: 'var(--text2)', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                    {t('common.unassigned')}
+                    <AIRecommendButton issue={issue} allIssues={allIssues} />
+                  </span>
+                )}
+              </td>
               <td>
                 {issue.labels.length > 0
                   ? issue.labels.map((l) => (
@@ -147,6 +230,58 @@ function KanbanView({ issues }: { issues: PlatformIssue[] }) {
   )
 }
 
+// ─── Duplicate Detection Modal ───────────────────────────────
+
+interface DuplicatePair {
+  issue1: PlatformIssue
+  issue2: PlatformIssue
+  similarity: number
+}
+
+function DuplicateDetectionModal({
+  pairs,
+  onClose,
+}: {
+  pairs: DuplicatePair[]
+  onClose: () => void
+}) {
+  const { t } = useI18n()
+  return (
+    <div className={styles.modalOverlay} onClick={onClose}>
+      <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+        <div className={styles.modalHeader}>
+          <h3 className={styles.modalTitle}>{t('req.duplicateResults' as any)}</h3>
+          <button className={styles.modalClose} onClick={onClose}>✕</button>
+        </div>
+        <div className={styles.modalBody}>
+          {pairs.length === 0 ? (
+            <div className={styles.modalEmpty}>{t('req.noDuplicates' as any)}</div>
+          ) : (
+            pairs.map((pair, idx) => (
+              <div key={idx} className={styles.duplicateItem}>
+                <div className={styles.duplicateSimilarity}>
+                  {Math.round(pair.similarity * 100)}%
+                </div>
+                <div className={styles.duplicatePair}>
+                  <div className={styles.duplicateIssue}>
+                    <span className={styles.duplicateId}>{pair.issue1.id}</span>
+                    <span className={styles.duplicateTitle}>{pair.issue1.title}</span>
+                  </div>
+                  <div className={styles.duplicateArrow}>↔</div>
+                  <div className={styles.duplicateIssue}>
+                    <span className={styles.duplicateId}>{pair.issue2.id}</span>
+                    <span className={styles.duplicateTitle}>{pair.issue2.title}</span>
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // ─── Main Page ───────────────────────────────────────────────
 
 export default function Requirements() {
@@ -158,6 +293,8 @@ export default function Requirements() {
   const [assigneeFilter, setAssigneeFilter] = useState<string>('')
   const [keyword, setKeyword] = useState('')
   const [viewMode, setViewMode] = useState<ViewMode>('list')
+  const [showDuplicates, setShowDuplicates] = useState(false)
+  const [duplicatePairs, setDuplicatePairs] = useState<DuplicatePair[]>([])
 
   const filters = useMemo(
     () => ({
@@ -211,6 +348,30 @@ export default function Requirements() {
     setPriorityFilter('')
     setAssigneeFilter('')
     setKeyword('')
+  }
+
+  function handleDetectDuplicates() {
+    const pairs: DuplicatePair[] = []
+    const issueList = rawIssues.map(i => ({ id: i.id, title: i.title }))
+    const seen = new Set<string>()
+
+    for (const issue of rawIssues) {
+      const similar = findSimilarIssues(issue.title, issueList.filter(i => i.id !== issue.id), 0.6)
+      for (const result of similar) {
+        const pairKey = [issue.id, result.issueId].sort().join('-')
+        if (!seen.has(pairKey)) {
+          seen.add(pairKey)
+          const matchedIssue = rawIssues.find(i => i.id === result.issueId)
+          if (matchedIssue) {
+            pairs.push({ issue1: issue, issue2: matchedIssue, similarity: result.similarity })
+          }
+        }
+      }
+    }
+
+    pairs.sort((a, b) => b.similarity - a.similarity)
+    setDuplicatePairs(pairs)
+    setShowDuplicates(true)
   }
 
   return (
@@ -362,6 +523,16 @@ export default function Requirements() {
           >
             {isLoading ? t('req.syncing') : t('req.syncJira')}
           </button>
+
+          {rawIssues.length > 1 && (
+            <button
+              className={styles.btnDuplicate}
+              onClick={handleDetectDuplicates}
+              title={t('req.detectDuplicates' as any)}
+            >
+              🔍 {t('req.detectDuplicates' as any)}
+            </button>
+          )}
         </div>
       </div>
 
@@ -374,9 +545,17 @@ export default function Requirements() {
           <div className={styles.skeleton} />
         </>
       ) : viewMode === 'list' ? (
-        <ListView issues={issues} />
+        <ListView issues={issues} allIssues={rawIssues} />
       ) : (
         <KanbanView issues={issues} />
+      )}
+
+      {/* Duplicate Detection Modal */}
+      {showDuplicates && (
+        <DuplicateDetectionModal
+          pairs={duplicatePairs}
+          onClose={() => setShowDuplicates(false)}
+        />
       )}
     </div>
   )

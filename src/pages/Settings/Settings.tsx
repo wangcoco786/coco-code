@@ -69,7 +69,7 @@ function JiraTab() {
   const { t } = useI18n()
   const [connected, setConnected] = useState<boolean | null>(null)
   const [testing, setTesting] = useState(false)
-  const [lastSync] = useState<string>(() => {
+  const [lastSync, setLastSync] = useState<string>(() => {
     try {
       return localStorage.getItem('ai_pm_last_sync') ?? '—'
     } catch {
@@ -87,6 +87,7 @@ function JiraTab() {
       if (ok) {
         const now = new Date().toLocaleString('zh-CN')
         try { localStorage.setItem('ai_pm_last_sync', now) } catch { /* ignore */ }
+        setLastSync(now)
         showToast({ type: 'success', title: t('toast.connectSuccess'), description: t('toast.connectSuccessDesc') })
       } else {
         showToast({ type: 'error', title: t('toast.connectFail'), description: t('toast.connectFailDesc') })
@@ -104,45 +105,76 @@ function JiraTab() {
   }
 
   return (
-    <div className={styles.card}>
-      <div className={styles.cardTitle}>{t('settings.jiraIntegration')}</div>
-      <div className={styles.formRow}>
-        <span className={styles.formLabel}>{t('settings.connectionStatus')}</span>
-        {connected === null ? (
-          <span className={styles.formValue} style={{ color: 'var(--text2)' }}>{t('settings.notTested')}</span>
-        ) : connected ? (
-          <span className={`${styles.statusBadge} ${styles.statusConnected}`}>
-            <span className={styles.statusDot} />
-            {t('settings.connected')}
+    <>
+      {/* 同步状态 Section */}
+      <div className={styles.card}>
+        <div className={styles.cardTitle}>{t('settings.syncStatus' as any)}</div>
+        <div className={styles.formRow}>
+          <span className={styles.formLabel}>{t('settings.syncIndicator' as any)}</span>
+          {connected === null ? (
+            <span className={`${styles.statusBadge}`} style={{ background: '#f5f5f5', color: 'var(--text2)' }}>
+              <span className={styles.statusDot} style={{ background: 'var(--text2)' }} />
+              {t('settings.notTested')}
+            </span>
+          ) : connected ? (
+            <span className={`${styles.statusBadge} ${styles.statusConnected}`}>
+              <span className={styles.statusDot} />
+              {t('settings.connected')}
+            </span>
+          ) : (
+            <span className={`${styles.statusBadge} ${styles.statusDisconnected}`}>
+              <span className={styles.statusDot} />
+              {t('settings.disconnected')}
+            </span>
+          )}
+        </div>
+        <div className={styles.formRow}>
+          <span className={styles.formLabel}>{t('settings.lastSync')}</span>
+          <span className={styles.formValue}>{lastSync}</span>
+        </div>
+      </div>
+
+      {/* Jira Integration Details */}
+      <div className={styles.card}>
+        <div className={styles.cardTitle}>{t('settings.jiraIntegration')}</div>
+        <div className={styles.formRow}>
+          <span className={styles.formLabel}>{t('settings.connectionStatus')}</span>
+          {connected === null ? (
+            <span className={styles.formValue} style={{ color: 'var(--text2)' }}>{t('settings.notTested')}</span>
+          ) : connected ? (
+            <span className={`${styles.statusBadge} ${styles.statusConnected}`}>
+              <span className={styles.statusDot} />
+              {t('settings.connected')}
+            </span>
+          ) : (
+            <span className={`${styles.statusBadge} ${styles.statusDisconnected}`}>
+              <span className={styles.statusDot} />
+              {t('settings.disconnected')}
+            </span>
+          )}
+        </div>
+        <div className={styles.formRow}>
+          <span className={styles.formLabel}>{t('settings.jiraUrl')}</span>
+          <span className={styles.formValueMono}>
+            {jiraUrl ?? <span style={{ color: 'var(--text2)' }}>{t('settings.notConfigured')}（VITE_JIRA_BASE_URL）</span>}
           </span>
-        ) : (
-          <span className={`${styles.statusBadge} ${styles.statusDisconnected}`}>
-            <span className={styles.statusDot} />
-            {t('settings.disconnected')}
-          </span>
-        )}
+        </div>
+        <div className={styles.formRow}>
+          <span className={styles.formLabel}>{t('settings.lastSync')}</span>
+          <span className={styles.formValue}>{lastSync}</span>
+        </div>
+        <div className={styles.formRow}>
+          <span className={styles.formLabel} />
+          <button
+            className={styles.btnPrimary}
+            onClick={handleTestConnection}
+            disabled={testing}
+          >
+            {testing ? t('settings.testing') : t('settings.testConnection')}
+          </button>
+        </div>
       </div>
-      <div className={styles.formRow}>
-        <span className={styles.formLabel}>{t('settings.jiraUrl')}</span>
-        <span className={styles.formValueMono}>
-          {jiraUrl ?? <span style={{ color: 'var(--text2)' }}>{t('settings.notConfigured')}（VITE_JIRA_BASE_URL）</span>}
-        </span>
-      </div>
-      <div className={styles.formRow}>
-        <span className={styles.formLabel}>{t('settings.lastSync')}</span>
-        <span className={styles.formValue}>{lastSync}</span>
-      </div>
-      <div className={styles.formRow}>
-        <span className={styles.formLabel} />
-        <button
-          className={styles.btnPrimary}
-          onClick={handleTestConnection}
-          disabled={testing}
-        >
-          {testing ? t('settings.testing') : t('settings.testConnection')}
-        </button>
-      </div>
-    </div>
+    </>
   )
 }
 

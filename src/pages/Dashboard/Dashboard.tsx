@@ -1,12 +1,15 @@
-﻿import { useState } from 'react'
+﻿import { useState, useMemo } from 'react'
 import { useApp } from '@/context/AppContext'
 import { useActiveSprintIssuesByProject, useActiveSprintsByProject } from '@/hooks/useProjectIssues'
 import { analyzeRisks, calculateTeamLoad } from '@/lib/riskEngine'
 import { useI18n } from '@/context/I18nContext'
+import { sortAndLimitActivities } from '@/lib/activityFeed'
 import AIInsight from '@/components/AIInsight/AIInsight'
+import ActivityFeed from '@/components/ActivityFeed/ActivityFeed'
 import GlobalView from './GlobalView'
 import PersonalView from './PersonalView'
 import styles from './Dashboard.module.css'
+import type { PlatformIssue, ActivityItem } from '@/types/platform'
 
 type DashTab = 'global' | 'personal' | 'decision'
 
@@ -24,6 +27,35 @@ export default function Dashboard() {
 
   const risks = analyzeRisks(issues)
   const teamLoad = calculateTeamLoad(issues, {})
+
+  // Generate sample activities from sprint issues
+  const sampleActivities: ActivityItem[] = useMemo(() => {
+    if (issues.length === 0) return []
+    const activities: ActivityItem[] = []
+    for (const issue of issues.slice(0, 20)) {
+      // Task created activity
+      activities.push({
+        id: `act-created-${issue.id}`,
+        type: 'task_created',
+        actor: { id: issue.assignee?.id ?? 'system', name: issue.assignee?.name ?? 'System' },
+        target: { type: 'issue', id: issue.id, title: issue.title },
+        description: '创建了任务',
+        timestamp: issue.createdAt,
+      })
+      // Status change activity for non-todo issues
+      if (issue.status !== 'todo') {
+        activities.push({
+          id: `act-status-${issue.id}`,
+          type: 'status_change',
+          actor: { id: issue.assignee?.id ?? 'system', name: issue.assignee?.name ?? 'System' },
+          target: { type: 'issue', id: issue.id, title: issue.title },
+          description: `将状态变更为 ${issue.status}`,
+          timestamp: issue.updatedAt,
+        })
+      }
+    }
+    return sortAndLimitActivities(activities, 50)
+  }, [issues])
 
   return (
     <div className={styles.page}>
@@ -115,13 +147,16 @@ export default function Dashboard() {
           {activeTab === 'decision' && currentUser?.role === 'PM' && (
             <DecisionView risks={risks} issues={issues} />
           )}
+
+          {/* Activity Feed — shows recent activities from sprint issues */}
+          <div style={{ marginTop: 20 }}>
+            <ActivityFeed activities={sampleActivities} />
+          </div>
         </>
       )}
     </div>
   )
 }
-
-import type { PlatformIssue } from '@/types/platform'
 
 // AI 决策视图
 function DecisionView({

@@ -14,6 +14,7 @@ const Roadmap = lazy(() => import('@/pages/Roadmap/Roadmap'))
 const Settings = lazy(() => import('@/pages/Settings/Settings'))
 const NotificationCenter = lazy(() => import('@/pages/NotificationCenter/NotificationCenter'))
 const AutomationRules = lazy(() => import('@/pages/AutomationRules/AutomationRules'))
+const AuditLog = lazy(() => import('@/pages/AuditLog/AuditLog'))
 
 function RoleGuard({
   children,
@@ -49,6 +50,7 @@ export default function App() {
           <Route path="settings" element={<Suspense fallback={null}><Settings /></Suspense>} />
           <Route path="notifications" element={<Suspense fallback={null}><NotificationCenter /></Suspense>} />
           <Route path="automation" element={<Suspense fallback={null}><AutomationRules /></Suspense>} />
+          <Route path="audit" element={<RoleGuard allowedRoles={['PM']}><Suspense fallback={null}><AuditLog /></Suspense></RoleGuard>} />
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Route>
       </Routes>

@@ -15,6 +15,7 @@ export default function Sidebar({ expanded, onClose }: { expanded?: boolean; onC
     { path: '/reports',      icon: '📈', labelKey: 'nav.reports',      roles: ['PM', 'DEV'] },
     { path: '/roadmap',      icon: '🗺️', labelKey: 'nav.roadmap',      roles: ['PM', 'DEV'] },
     { path: '/automation',   icon: '⚡', labelKey: 'nav.automation',   roles: ['PM'] },
+    { path: '/audit',        icon: '📜', labelKey: 'nav.audit',        roles: ['PM'] },
     { path: '/notifications',icon: '🔔', labelKey: 'nav.notifications',roles: ['PM', 'DEV'] },
     { path: '/settings',     icon: '⚙️', labelKey: 'nav.settings',     roles: ['PM', 'DEV'] },
   ] as const

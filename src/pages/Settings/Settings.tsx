@@ -214,18 +214,19 @@ function NotificationsTab() {
 
 function AppearanceTab() {
   const { theme, setTheme } = useTheme()
+  const { t } = useI18n()
 
-  const themeOptions: { value: 'light' | 'dark' | 'system'; label: string; icon: string }[] = [
-    { value: 'light', label: '浅色模式', icon: '☀️' },
-    { value: 'dark', label: '深色模式', icon: '🌙' },
-    { value: 'system', label: '跟随系统', icon: '💻' },
+  const themeOptions: { value: 'light' | 'dark' | 'system'; labelKey: 'settings.themeLight' | 'settings.themeDark' | 'settings.themeSystem'; icon: string }[] = [
+    { value: 'light', labelKey: 'settings.themeLight', icon: '☀️' },
+    { value: 'dark', labelKey: 'settings.themeDark', icon: '🌙' },
+    { value: 'system', labelKey: 'settings.themeSystem', icon: '💻' },
   ]
 
   return (
     <div className={styles.card}>
-      <div className={styles.cardTitle}>外观设置</div>
+      <div className={styles.cardTitle}>{t('settings.appearance')}</div>
       <div className={styles.formRow}>
-        <span className={styles.formLabel}>主题模式</span>
+        <span className={styles.formLabel}>{t('settings.themeMode')}</span>
         <div style={{ display: 'flex', gap: 8 }}>
           {themeOptions.map(opt => (
             <button
@@ -234,7 +235,7 @@ function AppearanceTab() {
               onClick={() => setTheme(opt.value)}
               style={{ minWidth: 90 }}
             >
-              {opt.icon} {opt.label}
+              {opt.icon} {t(opt.labelKey)}
             </button>
           ))}
         </div>
@@ -242,7 +243,7 @@ function AppearanceTab() {
       <div className={styles.formRow}>
         <span className={styles.formLabel} />
         <span className={styles.formValue} style={{ color: 'var(--text2)', fontSize: 13 }}>
-          选择"跟随系统"将自动匹配操作系统的深色/浅色偏好设置
+          {t('settings.themeDesc')}
         </span>
       </div>
     </div>
@@ -309,7 +310,7 @@ export default function Settings() {
     { key: 'project', label: t('settings.project') },
     { key: 'jira', label: t('settings.jira') },
     { key: 'notifications', label: t('settings.notifications') },
-    { key: 'appearance', label: '外观' },
+    { key: 'appearance', label: t('settings.appearance') },
     { key: 'permissions', label: t('settings.permissions') },
   ]
 

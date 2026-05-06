@@ -420,7 +420,7 @@ export default function GlobalView({ sprint, issues, risks, isLoading }: Props) 
 
       {/* 速度趋势图 (Velocity Chart) */}
       <div className={styles.card}>
-        <VelocityChart data={velocityChartData} title="Velocity Trend" />
+        <VelocityChart data={velocityChartData} title={t('chart.velocityTrend')} />
       </div>
 
       {/* 风险列表 */}

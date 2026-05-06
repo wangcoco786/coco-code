@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { SHORTCUT_REGISTRY } from './useShortcuts'
+import { useI18n } from '@/context/I18nContext'
 import styles from './ShortcutCheatSheet.module.css'
 
 interface Props {
@@ -24,6 +25,7 @@ function isMac(): boolean {
 }
 
 export default function ShortcutCheatSheet({ open, onClose }: Props) {
+  const { t } = useI18n()
   const dialogRef = useRef<HTMLDivElement>(null)
 
   // Close on Escape
@@ -58,18 +60,18 @@ export default function ShortcutCheatSheet({ open, onClose }: Props) {
   const listShortcuts = SHORTCUT_REGISTRY.filter(s => s.category === 'list')
 
   return (
-    <div className={styles.overlay} role="dialog" aria-modal="true" aria-label="快捷键速查表">
+    <div className={styles.overlay} role="dialog" aria-modal="true" aria-label={t('shortcut.title')}>
       <div className={styles.dialog} ref={dialogRef}>
         <div className={styles.header}>
-          <h2 className={styles.title}>⌨️ 快捷键速查表</h2>
-          <button className={styles.closeBtn} onClick={onClose} aria-label="关闭">
+          <h2 className={styles.title}>{t('shortcut.title')}</h2>
+          <button className={styles.closeBtn} onClick={onClose} aria-label={t('common.close')}>
             ✕
           </button>
         </div>
 
         <div className={styles.content}>
           <section className={styles.section}>
-            <h3 className={styles.sectionTitle}>操作</h3>
+            <h3 className={styles.sectionTitle}>{t('shortcut.actions')}</h3>
             {actionShortcuts.map(s => (
               <div key={s.action} className={styles.row}>
                 <span className={styles.description}>{s.description}</span>
@@ -79,7 +81,7 @@ export default function ShortcutCheatSheet({ open, onClose }: Props) {
           </section>
 
           <section className={styles.section}>
-            <h3 className={styles.sectionTitle}>导航</h3>
+            <h3 className={styles.sectionTitle}>{t('shortcut.navigation')}</h3>
             {navigationShortcuts.map(s => (
               <div key={s.action} className={styles.row}>
                 <span className={styles.description}>{s.description}</span>
@@ -89,7 +91,7 @@ export default function ShortcutCheatSheet({ open, onClose }: Props) {
           </section>
 
           <section className={styles.section}>
-            <h3 className={styles.sectionTitle}>列表</h3>
+            <h3 className={styles.sectionTitle}>{t('shortcut.list')}</h3>
             {listShortcuts.map(s => (
               <div key={s.action} className={styles.row}>
                 <span className={styles.description}>{s.description}</span>
@@ -100,7 +102,7 @@ export default function ShortcutCheatSheet({ open, onClose }: Props) {
         </div>
 
         <div className={styles.footer}>
-          按 <kbd className={styles.kbdSmall}>ESC</kbd> 或 <kbd className={styles.kbdSmall}>?</kbd> 关闭
+          {t('shortcut.footer')}
         </div>
       </div>
     </div>

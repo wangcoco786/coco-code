@@ -405,7 +405,7 @@ export default function ResourceTab({ issues }: ResourceTabProps) {
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', marginBottom: 8 }}>
             <TimeRangeSelector value={heatmapTimeRange} onChange={setHeatmapTimeRange} />
           </div>
-          <HeatmapChart data={heatmapData} title="Team Performance Heatmap" />
+          <HeatmapChart data={heatmapData} title={t('resource.teamPerformanceHeatmap')} />
         </div>
       )}
 

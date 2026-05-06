@@ -1,5 +1,6 @@
 import { useRef, useCallback, useMemo } from 'react'
 import type { HeatmapCell } from '@/types/platform'
+import { useI18n } from '@/context/I18nContext'
 import { exportChartToPng } from './exportChart'
 import styles from './Charts.module.css'
 
@@ -12,8 +13,11 @@ interface HeatmapChartProps {
  * Heatmap Chart — SVG grid showing team member workload intensity.
  * Members on Y-axis, time periods on X-axis, color intensity represents load.
  */
-export default function HeatmapChart({ data, title = 'Team Heatmap' }: HeatmapChartProps) {
+export default function HeatmapChart({ data, title }: HeatmapChartProps) {
+  const { t } = useI18n()
   const svgRef = useRef<SVGSVGElement>(null)
+
+  const resolvedTitle = title ?? t('chart.teamHeatmap')
 
   const handleExport = useCallback(() => {
     if (svgRef.current) {
@@ -41,9 +45,9 @@ export default function HeatmapChart({ data, title = 'Team Heatmap' }: HeatmapCh
     return (
       <div className={styles.chartContainer}>
         <div className={styles.chartHeader}>
-          <span className={styles.chartTitle}>{title}</span>
+          <span className={styles.chartTitle}>{resolvedTitle}</span>
         </div>
-        <div className={styles.emptyState}>No heatmap data available</div>
+        <div className={styles.emptyState}>{t('chart.noHeatmapData')}</div>
       </div>
     )
   }
@@ -82,9 +86,9 @@ export default function HeatmapChart({ data, title = 'Team Heatmap' }: HeatmapCh
   return (
     <div className={styles.chartContainer}>
       <div className={styles.chartHeader}>
-        <span className={styles.chartTitle}>{title}</span>
+        <span className={styles.chartTitle}>{resolvedTitle}</span>
         <button className={styles.exportBtn} onClick={handleExport} aria-label="Export chart as PNG">
-          ↓ PNG
+          {t('chart.exportPng')}
         </button>
       </div>
       <svg
@@ -152,9 +156,9 @@ export default function HeatmapChart({ data, title = 'Team Heatmap' }: HeatmapCh
 
       {/* Scale legend */}
       <div className={styles.heatmapScale}>
-        <span>Low</span>
+        <span>{t('chart.scaleLow')}</span>
         <span className={styles.scaleGradient} />
-        <span>High</span>
+        <span>{t('chart.scaleHigh')}</span>
       </div>
     </div>
   )

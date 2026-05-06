@@ -1,5 +1,6 @@
 import { useRef, useCallback } from 'react'
 import type { CFDDataPoint } from '@/types/platform'
+import { useI18n } from '@/context/I18nContext'
 import { exportChartToPng } from './exportChart'
 import styles from './Charts.module.css'
 
@@ -16,22 +17,25 @@ const STATUS_COLORS = {
   todo: 'var(--warning)',
 } as const
 
-const STATUS_LABELS = {
-  done: 'Done',
-  inTesting: 'Testing',
-  inReview: 'Review',
-  inProgress: 'In Progress',
-  todo: 'To Do',
-} as const
-
 type StatusKey = keyof typeof STATUS_COLORS
 
 /**
  * CFD Chart — Stacked area chart showing cumulative flow of issues
  * across statuses over time.
  */
-export default function CFDChart({ data, title = 'Cumulative Flow Diagram' }: CFDChartProps) {
+export default function CFDChart({ data, title }: CFDChartProps) {
+  const { t } = useI18n()
   const svgRef = useRef<SVGSVGElement>(null)
+
+  const resolvedTitle = title ?? t('chart.cumulativeFlowDiagram')
+
+  const STATUS_LABELS: Record<StatusKey, string> = {
+    done: t('chart.legend.done'),
+    inTesting: t('chart.legend.testing'),
+    inReview: t('chart.legend.review'),
+    inProgress: t('chart.legend.inProgress'),
+    todo: t('chart.legend.todo'),
+  }
 
   const handleExport = useCallback(() => {
     if (svgRef.current) {
@@ -43,9 +47,9 @@ export default function CFDChart({ data, title = 'Cumulative Flow Diagram' }: CF
     return (
       <div className={styles.chartContainer}>
         <div className={styles.chartHeader}>
-          <span className={styles.chartTitle}>{title}</span>
+          <span className={styles.chartTitle}>{resolvedTitle}</span>
         </div>
-        <div className={styles.emptyState}>No flow data available</div>
+        <div className={styles.emptyState}>{t('chart.noFlowData')}</div>
       </div>
     )
   }
@@ -117,9 +121,9 @@ export default function CFDChart({ data, title = 'Cumulative Flow Diagram' }: CF
   return (
     <div className={styles.chartContainer}>
       <div className={styles.chartHeader}>
-        <span className={styles.chartTitle}>{title}</span>
+        <span className={styles.chartTitle}>{resolvedTitle}</span>
         <button className={styles.exportBtn} onClick={handleExport} aria-label="Export chart as PNG">
-          ↓ PNG
+          {t('chart.exportPng')}
         </button>
       </div>
       <svg

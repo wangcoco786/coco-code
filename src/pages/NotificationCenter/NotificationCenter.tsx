@@ -1,19 +1,12 @@
 import { useState, useMemo, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useNotifications } from '@/context/NotificationContext'
+import { useI18n } from '@/context/I18nContext'
 import { filterNotifications } from '@/lib/notificationEngine'
 import type { NotificationType, PlatformNotification } from '@/types/platform'
 import styles from './NotificationCenter.module.css'
 
 type FilterCategory = NotificationType | 'all' | 'unread'
-
-const TABS: { key: FilterCategory; label: string }[] = [
-  { key: 'all', label: '全部' },
-  { key: 'unread', label: '未读' },
-  { key: 'risk', label: '风险' },
-  { key: 'task', label: '任务' },
-  { key: 'system', label: '系统' },
-]
 
 function getNotificationIcon(type: NotificationType): string {
   switch (type) {
@@ -26,28 +19,37 @@ function getNotificationIcon(type: NotificationType): string {
   }
 }
 
-function timeAgo(dateStr: string): string {
-  const now = Date.now()
-  const then = new Date(dateStr).getTime()
-  const diffMs = now - then
-  const diffMin = Math.floor(diffMs / 60000)
-  if (diffMin < 1) return '刚刚'
-  if (diffMin < 60) return `${diffMin} 分钟前`
-  const diffHours = Math.floor(diffMin / 60)
-  if (diffHours < 24) return `${diffHours} 小时前`
-  const diffDays = Math.floor(diffHours / 24)
-  if (diffDays < 30) return `${diffDays} 天前`
-  return new Date(dateStr).toLocaleDateString()
-}
-
 export default function NotificationCenter() {
   const navigate = useNavigate()
+  const { t } = useI18n()
   const {
     notifications,
     markAsRead,
     markAllAsRead,
     deleteNotifications,
   } = useNotifications()
+
+  const TABS: { key: FilterCategory; label: string }[] = [
+    { key: 'all', label: t('notification.all') },
+    { key: 'unread', label: t('notification.unread') },
+    { key: 'risk', label: t('notification.risk') },
+    { key: 'task', label: t('notification.task') },
+    { key: 'system', label: t('notification.system') },
+  ]
+
+  function timeAgo(dateStr: string): string {
+    const now = Date.now()
+    const then = new Date(dateStr).getTime()
+    const diffMs = now - then
+    const diffMin = Math.floor(diffMs / 60000)
+    if (diffMin < 1) return t('notification.justNow')
+    if (diffMin < 60) return `${diffMin} ${t('notification.minutesAgo')}`
+    const diffHours = Math.floor(diffMin / 60)
+    if (diffHours < 24) return `${diffHours} ${t('notification.hoursAgo')}`
+    const diffDays = Math.floor(diffHours / 24)
+    if (diffDays < 30) return `${diffDays} ${t('notification.daysAgo')}`
+    return new Date(dateStr).toLocaleDateString()
+  }
 
   const [activeTab, setActiveTab] = useState<FilterCategory>('all')
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
@@ -106,25 +108,25 @@ export default function NotificationCenter() {
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <h1 className={styles.title}>通知中心</h1>
+        <h1 className={styles.title}>{t('notification.title')}</h1>
         <div className={styles.actions}>
           {selectedIds.size > 0 && (
             <>
               <button className={styles.actionBtn} onClick={handleBatchMarkRead}>
-                标记已读 ({selectedIds.size})
+                {t('notification.markRead')} ({selectedIds.size})
               </button>
               <button className={styles.dangerBtn} onClick={handleBatchDelete}>
-                删除 ({selectedIds.size})
+                {t('notification.delete')} ({selectedIds.size})
               </button>
             </>
           )}
           <button className={styles.actionBtn} onClick={handleSelectAll}>
             {selectedIds.size === filteredNotifications.length && filteredNotifications.length > 0
-              ? '取消全选'
-              : '全选'}
+              ? t('notification.deselectAll')
+              : t('notification.selectAll')}
           </button>
           <button className={styles.actionBtn} onClick={markAllAsRead}>
-            全部标记已读
+            {t('notification.markAllRead')}
           </button>
         </div>
       </div>
@@ -145,7 +147,7 @@ export default function NotificationCenter() {
       {/* Notification List */}
       <div className={styles.list}>
         {filteredNotifications.length === 0 ? (
-          <div className={styles.empty}>暂无通知</div>
+          <div className={styles.empty}>{t('notification.empty')}</div>
         ) : (
           filteredNotifications.map((notification) => (
             <div
@@ -159,7 +161,7 @@ export default function NotificationCenter() {
                 checked={selectedIds.has(notification.id)}
                 onChange={(e) => { e.stopPropagation(); toggleSelect(notification.id) }}
                 onClick={(e) => e.stopPropagation()}
-                aria-label={`选择通知: ${notification.title}`}
+                aria-label={`${t('notification.selectAll')}: ${notification.title}`}
               />
               <div className={styles.icon}>
                 {getNotificationIcon(notification.type)}
@@ -174,7 +176,7 @@ export default function NotificationCenter() {
                   <button
                     className={styles.itemBtn}
                     onClick={(e) => { e.stopPropagation(); markAsRead([notification.id]) }}
-                    title="标记已读"
+                    title={t('notification.markRead')}
                   >
                     ✓
                   </button>
@@ -182,7 +184,7 @@ export default function NotificationCenter() {
                 <button
                   className={styles.itemBtn}
                   onClick={(e) => { e.stopPropagation(); deleteNotifications([notification.id]) }}
-                  title="删除"
+                  title={t('notification.delete')}
                 >
                   🗑
                 </button>

@@ -621,6 +621,7 @@ interface CFDSectionProps {
 }
 
 function CFDSection({ issues, sprint }: CFDSectionProps) {
+  const { t } = useI18n()
   const [timeRange, setTimeRange] = useState<TimeRange>('2w')
 
   const cfdData = useMemo(() => {
@@ -657,7 +658,7 @@ function CFDSection({ issues, sprint }: CFDSectionProps) {
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', marginBottom: 8 }}>
         <TimeRangeSelector value={timeRange} onChange={setTimeRange} />
       </div>
-      <CFDChart data={cfdData} title="Cumulative Flow Diagram" />
+      <CFDChart data={cfdData} title={t('chart.cumulativeFlowDiagram')} />
     </div>
   )
 }

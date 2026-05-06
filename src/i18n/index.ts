@@ -215,6 +215,30 @@ export type TranslationKey =
   | 'automation.actionTypes.generate_report'
   // AI Context
   | 'ai.contextSummary' | 'ai.suggestions'
+  // Charts
+  | 'chart.velocityTrend' | 'chart.cumulativeFlowDiagram' | 'chart.teamHeatmap'
+  | 'chart.noSprintData' | 'chart.noFlowData' | 'chart.noHeatmapData'
+  | 'chart.exportPng'
+  | 'chart.legend.done' | 'chart.legend.testing' | 'chart.legend.review'
+  | 'chart.legend.inProgress' | 'chart.legend.todo'
+  | 'chart.scaleLow' | 'chart.scaleHigh'
+  // Notification Center
+  | 'notification.title' | 'notification.all' | 'notification.unread'
+  | 'notification.risk' | 'notification.task' | 'notification.system'
+  | 'notification.empty' | 'notification.markRead' | 'notification.delete'
+  | 'notification.selectAll' | 'notification.deselectAll'
+  | 'notification.markAllRead'
+  | 'notification.justNow' | 'notification.minutesAgo' | 'notification.hoursAgo'
+  | 'notification.daysAgo'
+  // Shortcut Cheat Sheet
+  | 'shortcut.title' | 'shortcut.actions' | 'shortcut.navigation'
+  | 'shortcut.list' | 'shortcut.footer'
+  // Settings Appearance
+  | 'settings.appearance' | 'settings.themeMode'
+  | 'settings.themeLight' | 'settings.themeDark' | 'settings.themeSystem'
+  | 'settings.themeDesc'
+  // Resource tab heatmap
+  | 'resource.teamPerformanceHeatmap'
 
 type Translations = Record<TranslationKey, string>
 
@@ -511,6 +535,36 @@ const zh: Translations = {
   'automation.actionTypes.generate_report': '生成报告',
   // AI Context
   'ai.contextSummary': '当前页面上下文', 'ai.suggestions': '智能建议',
+  // Charts
+  'chart.velocityTrend': '速度趋势', 'chart.cumulativeFlowDiagram': '累积流图',
+  'chart.teamHeatmap': '团队热力图',
+  'chart.noSprintData': '暂无 Sprint 数据', 'chart.noFlowData': '暂无流量数据',
+  'chart.noHeatmapData': '暂无热力图数据',
+  'chart.exportPng': '↓ PNG',
+  'chart.legend.done': '已完成', 'chart.legend.testing': '测试中',
+  'chart.legend.review': '评审中', 'chart.legend.inProgress': '进行中',
+  'chart.legend.todo': '待办',
+  'chart.scaleLow': '低', 'chart.scaleHigh': '高',
+  // Notification Center
+  'notification.title': '通知中心', 'notification.all': '全部',
+  'notification.unread': '未读', 'notification.risk': '风险',
+  'notification.task': '任务', 'notification.system': '系统',
+  'notification.empty': '暂无通知', 'notification.markRead': '标记已读',
+  'notification.delete': '删除', 'notification.selectAll': '全选',
+  'notification.deselectAll': '取消全选', 'notification.markAllRead': '全部标记已读',
+  'notification.justNow': '刚刚', 'notification.minutesAgo': '分钟前',
+  'notification.hoursAgo': '小时前', 'notification.daysAgo': '天前',
+  // Shortcut Cheat Sheet
+  'shortcut.title': '⌨️ 快捷键速查表', 'shortcut.actions': '操作',
+  'shortcut.navigation': '导航', 'shortcut.list': '列表',
+  'shortcut.footer': '按 ESC 或 ? 关闭',
+  // Settings Appearance
+  'settings.appearance': '外观设置', 'settings.themeMode': '主题模式',
+  'settings.themeLight': '浅色模式', 'settings.themeDark': '深色模式',
+  'settings.themeSystem': '跟随系统',
+  'settings.themeDesc': '选择"跟随系统"将自动匹配操作系统的深色/浅色偏好设置',
+  // Resource tab heatmap
+  'resource.teamPerformanceHeatmap': '团队绩效热力图',
 }
 
 const en: Translations = {
@@ -806,6 +860,36 @@ const en: Translations = {
   'automation.actionTypes.generate_report': 'Generate Report',
   // AI Context
   'ai.contextSummary': 'Current Page Context', 'ai.suggestions': 'Smart Suggestions',
+  // Charts
+  'chart.velocityTrend': 'Velocity Trend', 'chart.cumulativeFlowDiagram': 'Cumulative Flow Diagram',
+  'chart.teamHeatmap': 'Team Heatmap',
+  'chart.noSprintData': 'No sprint data available', 'chart.noFlowData': 'No flow data available',
+  'chart.noHeatmapData': 'No heatmap data available',
+  'chart.exportPng': '↓ PNG',
+  'chart.legend.done': 'Done', 'chart.legend.testing': 'Testing',
+  'chart.legend.review': 'Review', 'chart.legend.inProgress': 'In Progress',
+  'chart.legend.todo': 'To Do',
+  'chart.scaleLow': 'Low', 'chart.scaleHigh': 'High',
+  // Notification Center
+  'notification.title': 'Notification Center', 'notification.all': 'All',
+  'notification.unread': 'Unread', 'notification.risk': 'Risk',
+  'notification.task': 'Task', 'notification.system': 'System',
+  'notification.empty': 'No notifications', 'notification.markRead': 'Mark as Read',
+  'notification.delete': 'Delete', 'notification.selectAll': 'Select All',
+  'notification.deselectAll': 'Deselect All', 'notification.markAllRead': 'Mark All as Read',
+  'notification.justNow': 'Just now', 'notification.minutesAgo': 'minutes ago',
+  'notification.hoursAgo': 'hours ago', 'notification.daysAgo': 'days ago',
+  // Shortcut Cheat Sheet
+  'shortcut.title': '⌨️ Keyboard Shortcuts', 'shortcut.actions': 'Actions',
+  'shortcut.navigation': 'Navigation', 'shortcut.list': 'List',
+  'shortcut.footer': 'Press ESC or ? to close',
+  // Settings Appearance
+  'settings.appearance': 'Appearance', 'settings.themeMode': 'Theme Mode',
+  'settings.themeLight': 'Light', 'settings.themeDark': 'Dark',
+  'settings.themeSystem': 'System',
+  'settings.themeDesc': 'Selecting "System" will automatically match your OS light/dark preference',
+  // Resource tab heatmap
+  'resource.teamPerformanceHeatmap': 'Team Performance Heatmap',
 }
 
 const ja: Translations = {
@@ -1101,6 +1185,36 @@ const ja: Translations = {
   'automation.actionTypes.generate_report': 'レポート生成',
   // AI Context
   'ai.contextSummary': '現在のページコンテキスト', 'ai.suggestions': 'スマート提案',
+  // Charts
+  'chart.velocityTrend': 'ベロシティトレンド', 'chart.cumulativeFlowDiagram': '累積フロー図',
+  'chart.teamHeatmap': 'チームヒートマップ',
+  'chart.noSprintData': 'スプリントデータがありません', 'chart.noFlowData': 'フローデータがありません',
+  'chart.noHeatmapData': 'ヒートマップデータがありません',
+  'chart.exportPng': '↓ PNG',
+  'chart.legend.done': '完了', 'chart.legend.testing': 'テスト中',
+  'chart.legend.review': 'レビュー中', 'chart.legend.inProgress': '進行中',
+  'chart.legend.todo': '未着手',
+  'chart.scaleLow': '低', 'chart.scaleHigh': '高',
+  // Notification Center
+  'notification.title': '通知センター', 'notification.all': 'すべて',
+  'notification.unread': '未読', 'notification.risk': 'リスク',
+  'notification.task': 'タスク', 'notification.system': 'システム',
+  'notification.empty': '通知はありません', 'notification.markRead': '既読にする',
+  'notification.delete': '削除', 'notification.selectAll': 'すべて選択',
+  'notification.deselectAll': '選択解除', 'notification.markAllRead': 'すべて既読にする',
+  'notification.justNow': 'たった今', 'notification.minutesAgo': '分前',
+  'notification.hoursAgo': '時間前', 'notification.daysAgo': '日前',
+  // Shortcut Cheat Sheet
+  'shortcut.title': '⌨️ キーボードショートカット', 'shortcut.actions': '操作',
+  'shortcut.navigation': 'ナビゲーション', 'shortcut.list': 'リスト',
+  'shortcut.footer': 'ESC または ? で閉じる',
+  // Settings Appearance
+  'settings.appearance': '外観設定', 'settings.themeMode': 'テーマモード',
+  'settings.themeLight': 'ライト', 'settings.themeDark': 'ダーク',
+  'settings.themeSystem': 'システム',
+  'settings.themeDesc': '「システム」を選択するとOSのライト/ダーク設定に自動的に合わせます',
+  // Resource tab heatmap
+  'resource.teamPerformanceHeatmap': 'チームパフォーマンスヒートマップ',
 }
 
 const es: Translations = {
@@ -1396,6 +1510,36 @@ const es: Translations = {
   'automation.actionTypes.generate_report': 'Generar Informe',
   // AI Context
   'ai.contextSummary': 'Contexto de Página Actual', 'ai.suggestions': 'Sugerencias Inteligentes',
+  // Charts
+  'chart.velocityTrend': 'Tendencia de Velocidad', 'chart.cumulativeFlowDiagram': 'Diagrama de Flujo Acumulado',
+  'chart.teamHeatmap': 'Mapa de Calor del Equipo',
+  'chart.noSprintData': 'Sin datos de sprint', 'chart.noFlowData': 'Sin datos de flujo',
+  'chart.noHeatmapData': 'Sin datos de mapa de calor',
+  'chart.exportPng': '↓ PNG',
+  'chart.legend.done': 'Completado', 'chart.legend.testing': 'Pruebas',
+  'chart.legend.review': 'Revisión', 'chart.legend.inProgress': 'En Progreso',
+  'chart.legend.todo': 'Por Hacer',
+  'chart.scaleLow': 'Bajo', 'chart.scaleHigh': 'Alto',
+  // Notification Center
+  'notification.title': 'Centro de Notificaciones', 'notification.all': 'Todos',
+  'notification.unread': 'No leídos', 'notification.risk': 'Riesgo',
+  'notification.task': 'Tarea', 'notification.system': 'Sistema',
+  'notification.empty': 'Sin notificaciones', 'notification.markRead': 'Marcar como leído',
+  'notification.delete': 'Eliminar', 'notification.selectAll': 'Seleccionar todo',
+  'notification.deselectAll': 'Deseleccionar todo', 'notification.markAllRead': 'Marcar todo como leído',
+  'notification.justNow': 'Ahora mismo', 'notification.minutesAgo': 'minutos atrás',
+  'notification.hoursAgo': 'horas atrás', 'notification.daysAgo': 'días atrás',
+  // Shortcut Cheat Sheet
+  'shortcut.title': '⌨️ Atajos de Teclado', 'shortcut.actions': 'Acciones',
+  'shortcut.navigation': 'Navegación', 'shortcut.list': 'Lista',
+  'shortcut.footer': 'Presione ESC o ? para cerrar',
+  // Settings Appearance
+  'settings.appearance': 'Apariencia', 'settings.themeMode': 'Modo de Tema',
+  'settings.themeLight': 'Claro', 'settings.themeDark': 'Oscuro',
+  'settings.themeSystem': 'Sistema',
+  'settings.themeDesc': 'Seleccionar "Sistema" se ajustará automáticamente a la preferencia de claro/oscuro de su SO',
+  // Resource tab heatmap
+  'resource.teamPerformanceHeatmap': 'Mapa de Calor del Rendimiento del Equipo',
 }
 
 export const translations: Record<Locale, Translations> = { zh, en, ja, es }

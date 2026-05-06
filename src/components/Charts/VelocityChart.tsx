@@ -1,5 +1,6 @@
 import { useRef, useCallback } from 'react'
 import type { VelocityChartData } from '@/types/platform'
+import { useI18n } from '@/context/I18nContext'
 import { exportChartToPng } from './exportChart'
 import styles from './Charts.module.css'
 
@@ -12,8 +13,11 @@ interface VelocityChartProps {
  * Velocity Chart — SVG bar chart showing completed story points
  * for the last N sprints with an average line overlay.
  */
-export default function VelocityChart({ data, title = 'Velocity Trend' }: VelocityChartProps) {
+export default function VelocityChart({ data, title }: VelocityChartProps) {
+  const { t } = useI18n()
   const svgRef = useRef<SVGSVGElement>(null)
+
+  const resolvedTitle = title ?? t('chart.velocityTrend')
 
   const handleExport = useCallback(() => {
     if (svgRef.current) {
@@ -25,9 +29,9 @@ export default function VelocityChart({ data, title = 'Velocity Trend' }: Veloci
     return (
       <div className={styles.chartContainer}>
         <div className={styles.chartHeader}>
-          <span className={styles.chartTitle}>{title}</span>
+          <span className={styles.chartTitle}>{resolvedTitle}</span>
         </div>
-        <div className={styles.emptyState}>No sprint data available</div>
+        <div className={styles.emptyState}>{t('chart.noSprintData')}</div>
       </div>
     )
   }
@@ -52,9 +56,9 @@ export default function VelocityChart({ data, title = 'Velocity Trend' }: Veloci
   return (
     <div className={styles.chartContainer}>
       <div className={styles.chartHeader}>
-        <span className={styles.chartTitle}>{title}</span>
+        <span className={styles.chartTitle}>{resolvedTitle}</span>
         <button className={styles.exportBtn} onClick={handleExport} aria-label="Export chart as PNG">
-          ↓ PNG
+          {t('chart.exportPng')}
         </button>
       </div>
       <svg

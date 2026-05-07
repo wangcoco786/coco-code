@@ -162,7 +162,6 @@ export function computeCFD(
 
   return dates.map((date) => {
     const dateEnd = new Date(date + 'T23:59:59.999Z')
-    const dateStart = new Date(date + 'T00:00:00.000Z')
 
     let todo = 0
     let inProgress = 0

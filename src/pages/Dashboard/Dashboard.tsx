@@ -131,6 +131,7 @@ export default function Dashboard() {
           {activeTab === 'global' && (
             <GlobalView
               sprint={sprint ?? null}
+              sprints={sprints}
               issues={issues}
               risks={risks}
               teamLoad={teamLoad}

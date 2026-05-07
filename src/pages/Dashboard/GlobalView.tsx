@@ -15,6 +15,7 @@ const JIRA_BASE_URL = import.meta.env.VITE_JIRA_BASE_URL || ''
 
 interface Props {
   sprint: JiraSprint | null
+  sprints?: JiraSprint[]
   issues: PlatformIssue[]
   risks: Risk[]
   teamLoad: TeamMemberLoad[]
@@ -155,7 +156,7 @@ function IssueDetail({ issues }: { issues: PlatformIssue[]; title?: string }) {
 
 type ModalType = 'risks' | 'unassigned' | 'inProgress' | 'todo' | 'done' | 'total' | null
 
-export default function GlobalView({ sprint, issues, risks, isLoading }: Props) {
+export default function GlobalView({ sprint, sprints = [], issues, risks, isLoading }: Props) {
   const { t } = useI18n()
   const { currentProjectKey } = useApp()
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -175,11 +176,11 @@ export default function GlobalView({ sprint, issues, risks, isLoading }: Props) 
   // Fetch closed sprints only from the current project's board (max 3)
   const { data: closedSprints = [] } = useJiraSprints(boardId, 'closed')
 
-  // Compute velocity records: last 3 closed sprints + current active sprint
+  // Compute velocity records from all active sprints + closed sprints from project board
   const velocityRecords: VelocityRecord[] = useMemo(() => {
     const records: VelocityRecord[] = []
 
-    // Add last 3 closed sprints
+    // Add closed sprints from project board (last 3)
     const recentClosed = closedSprints.slice(-3)
     for (const s of recentClosed) {
       const startDate = new Date(s.startDate)
@@ -197,23 +198,24 @@ export default function GlobalView({ sprint, issues, risks, isLoading }: Props) 
       })
     }
 
-    // Add current active sprint (from props)
-    if (sprint && issues.length > 0) {
+    // Add all active sprints
+    for (const s of sprints) {
       const completedCount = issues.filter(i => i.status === 'done').length
-      const startDate = new Date(sprint.startDate)
-      const endDate = new Date(sprint.endDate)
+      const totalCount = issues.length
+      const startDate = new Date(s.startDate)
+      const endDate = new Date(s.endDate)
       const durationDays = Math.max(1, Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)))
       records.push({
-        sprintId: sprint.id ?? 0,
-        sprintName: sprint.name + ' (当前)',
-        plannedPoints: issues.length,
+        sprintId: s.id,
+        sprintName: s.name,
+        plannedPoints: totalCount,
         completedPoints: completedCount,
         durationDays,
       })
     }
 
     return records
-  }, [closedSprints, sprint, issues])
+  }, [closedSprints, sprints, issues])
 
   const velocityChartData = useMemo(
     () => computeVelocityChart(velocityRecords, 6),

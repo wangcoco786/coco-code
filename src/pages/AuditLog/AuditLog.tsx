@@ -12,7 +12,13 @@ function loadAuditLogs(): AuditLogEntry[] {
   try {
     const stored = localStorage.getItem(AUDIT_STORAGE_KEY)
     if (stored) {
-      return JSON.parse(stored) as AuditLogEntry[]
+      const logs = JSON.parse(stored) as AuditLogEntry[]
+      // Remove legacy seed data (IDs starting with 'audit-00')
+      const cleaned = logs.filter(l => !l.id.startsWith('audit-00'))
+      if (cleaned.length !== logs.length) {
+        localStorage.setItem(AUDIT_STORAGE_KEY, JSON.stringify(cleaned))
+      }
+      return cleaned
     }
   } catch { /* ignore parse errors */ }
   return []

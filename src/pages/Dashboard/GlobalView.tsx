@@ -165,7 +165,7 @@ export default function GlobalView({ sprint, issues, risks, isLoading }: Props) 
   // Fetch boards to find the scrum board for this project
   const { data: boards = [] } = useJiraBoards()
   const projectBoard = useMemo(
-    () => boards.find((b) => b.location?.projectKey === currentProjectKey && b.type === 'scrum') ?? boards[0] ?? null,
+    () => boards.find((b) => b.location?.projectKey === currentProjectKey && b.type === 'scrum') ?? null,
     [boards, currentProjectKey],
   )
   const boardId = projectBoard?.id ?? null
@@ -191,24 +191,13 @@ export default function GlobalView({ sprint, issues, risks, isLoading }: Props) 
       const estimatedPlanned = Math.max(estimatedCompleted, Math.round(baselineIssues * (0.9 + variance * 0.5)))
       return {
         sprintId: s.id,
-        sprintName: extractSprintLabel(s.name, index),
+        sprintName: s.name,
         plannedPoints: estimatedPlanned,
         completedPoints: estimatedCompleted,
         durationDays,
       }
     })
   }, [closedSprints, issues.length])
-
-  function extractSprintLabel(name: string, index: number): string {
-    // Try to extract sprint number from name (e.g. "FMS Support Sprint 23" → "S23")
-    const numMatch = name.match(/(\d+)\s*$/)
-    if (numMatch) return `S${numMatch[1]}`
-    // Try to find "Sprint N" pattern
-    const sprintMatch = name.match(/sprint\s*(\d+)/i)
-    if (sprintMatch) return `S${sprintMatch[1]}`
-    // Fallback: use index
-    return `S${index + 1}`
-  }
 
   const velocityChartData = useMemo(
     () => computeVelocityChart(velocityRecords, 6),

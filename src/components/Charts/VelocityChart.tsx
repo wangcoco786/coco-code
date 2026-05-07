@@ -38,8 +38,8 @@ export default function VelocityChart({ data, title }: VelocityChartProps) {
 
   // Chart dimensions
   const width = 400
-  const height = 200
-  const padding = { top: 20, right: 20, bottom: 40, left: 40 }
+  const height = 240
+  const padding = { top: 20, right: 20, bottom: 70, left: 40 }
   const chartWidth = width - padding.left - padding.right
   const chartHeight = height - padding.top - padding.bottom
 
@@ -126,14 +126,16 @@ export default function VelocityChart({ data, title }: VelocityChartProps) {
               >
                 {sprint.velocity}
               </text>
-              {/* Sprint name on x-axis */}
+              {/* Sprint name on x-axis — rotated for long names */}
               <text
                 x={x + barWidth / 2}
-                y={padding.top + chartHeight + 14}
+                y={padding.top + chartHeight + 12}
                 className={styles.axisLabel}
-                textAnchor="middle"
+                textAnchor="end"
+                fontSize="9"
+                transform={`rotate(-30, ${x + barWidth / 2}, ${padding.top + chartHeight + 12})`}
               >
-                {sprint.name.length > 8 ? sprint.name.slice(0, 8) + '…' : sprint.name}
+                {sprint.name}
               </text>
             </g>
           )

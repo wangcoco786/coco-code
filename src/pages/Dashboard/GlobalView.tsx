@@ -165,7 +165,11 @@ export default function GlobalView({ sprint, issues, risks, isLoading }: Props) 
   // Fetch boards to find the scrum board for this project
   const { data: boards = [] } = useJiraBoards()
   const projectBoard = useMemo(
-    () => boards.find((b) => b.location?.projectKey === currentProjectKey && b.type === 'scrum') ?? null,
+    () => boards.find((b) => b.location?.projectKey === currentProjectKey && b.type === 'scrum')
+      ?? boards.find((b) => b.location?.projectKey === currentProjectKey)
+      ?? boards.find((b) => b.type === 'scrum')
+      ?? boards[0]
+      ?? null,
     [boards, currentProjectKey],
   )
   const boardId = projectBoard?.id ?? null

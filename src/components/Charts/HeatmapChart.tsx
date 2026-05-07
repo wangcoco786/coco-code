@@ -1,7 +1,8 @@
 import { useRef, useCallback, useMemo } from 'react'
+import ReactECharts from 'echarts-for-react'
+import type { ECharts } from 'echarts'
 import type { HeatmapCell } from '@/types/platform'
 import { useI18n } from '@/context/I18nContext'
-import { exportChartToPng } from './exportChart'
 import styles from './Charts.module.css'
 
 interface HeatmapChartProps {
@@ -10,34 +11,41 @@ interface HeatmapChartProps {
 }
 
 /**
- * Heatmap Chart — SVG grid showing team member workload intensity.
+ * Heatmap Chart — ECharts heatmap grid showing team member workload intensity.
  * Members on Y-axis, time periods on X-axis, color intensity represents load.
  */
 export default function HeatmapChart({ data, title }: HeatmapChartProps) {
   const { t } = useI18n()
-  const svgRef = useRef<SVGSVGElement>(null)
+  const echartRef = useRef<ReactECharts>(null)
 
   const resolvedTitle = title ?? t('chart.teamHeatmap')
 
   const handleExport = useCallback(() => {
-    if (svgRef.current) {
-      exportChartToPng(svgRef.current, 'heatmap-chart')
-    }
+    const instance = echartRef.current?.getEchartsInstance() as ECharts | undefined
+    if (!instance) return
+    const url = instance.getDataURL({ type: 'png', pixelRatio: 2, backgroundColor: '#fff' })
+    const link = document.createElement('a')
+    link.download = 'heatmap-chart.png'
+    link.href = url
+    link.click()
   }, [])
 
   // Derive unique members and periods from data
-  const { members, periods } = useMemo(() => {
+  const { members, periods, maxTaskCount } = useMemo(() => {
     const memberMap = new Map<string, string>()
     const periodSet = new Set<string>()
+    let maxCount = 0
 
     for (const cell of data) {
       memberMap.set(cell.memberId, cell.memberName)
       periodSet.add(cell.period)
+      if (cell.taskCount > maxCount) maxCount = cell.taskCount
     }
 
     return {
       members: Array.from(memberMap.entries()).map(([id, name]) => ({ id, name })),
       periods: Array.from(periodSet),
+      maxTaskCount: maxCount,
     }
   }, [data])
 
@@ -52,35 +60,89 @@ export default function HeatmapChart({ data, title }: HeatmapChartProps) {
     )
   }
 
-  // Build a lookup map for quick cell access
-  const cellMap = useMemo(() => {
-    const map = new Map<string, HeatmapCell>()
+  // Build heatmap data: [periodIndex, memberIndex, value]
+  const heatmapData = useMemo(() => {
+    const result: [number, number, number][] = []
+    const memberIndexMap = new Map(members.map((m, i) => [m.id, i]))
+    const periodIndexMap = new Map(periods.map((p, i) => [p, i]))
+
     for (const cell of data) {
-      map.set(`${cell.memberId}::${cell.period}`, cell)
+      const mIdx = memberIndexMap.get(cell.memberId)
+      const pIdx = periodIndexMap.get(cell.period)
+      if (mIdx !== undefined && pIdx !== undefined) {
+        result.push([pIdx, mIdx, cell.taskCount])
+      }
     }
-    return map
-  }, [data])
+    return result
+  }, [data, members, periods])
 
-  // Chart dimensions
-  const cellSize = 28
-  const labelWidth = 80
-  const headerHeight = 30
-  const padding = { top: 10, right: 10, bottom: 10, left: 10 }
-
-  const gridWidth = periods.length * cellSize
-  const gridHeight = members.length * cellSize
-  const width = padding.left + labelWidth + gridWidth + padding.right
-  const height = padding.top + headerHeight + gridHeight + padding.bottom
-
-  /**
-   * Compute cell fill color based on intensity (0-1).
-   * Uses primary color with varying opacity.
-   */
-  function getCellColor(intensity: number): string {
-    if (intensity === 0) return 'var(--bg)'
-    // Map intensity to opacity range [0.15, 1.0]
-    const opacity = 0.15 + intensity * 0.85
-    return `rgba(22, 119, 255, ${opacity.toFixed(2)})`
+  const option = {
+    tooltip: {
+      position: 'top' as const,
+      formatter: (params: any) => {
+        const [pIdx, mIdx, value] = params.data
+        const memberName = members[mIdx]?.name ?? ''
+        const period = periods[pIdx] ?? ''
+        return `<strong>${memberName}</strong><br/>${period}<br/>Tasks: ${value}`
+      },
+    },
+    grid: {
+      left: 90,
+      right: 40,
+      top: 10,
+      bottom: 50,
+      containLabel: false,
+    },
+    xAxis: {
+      type: 'category' as const,
+      data: periods.map((p) => (p.length > 5 ? p.slice(0, 5) : p)),
+      axisLabel: { fontSize: 10, color: '#999' },
+      axisLine: { lineStyle: { color: '#e8e8e8' } },
+      axisTick: { show: false },
+      splitArea: { show: false },
+    },
+    yAxis: {
+      type: 'category' as const,
+      data: members.map((m) => (m.name.length > 10 ? m.name.slice(0, 10) + '…' : m.name)),
+      axisLabel: { fontSize: 11, color: '#666' },
+      axisLine: { show: false },
+      axisTick: { show: false },
+      splitArea: { show: false },
+    },
+    visualMap: {
+      min: 0,
+      max: maxTaskCount || 1,
+      calculable: false,
+      orient: 'horizontal' as const,
+      left: 'center' as const,
+      bottom: 0,
+      itemWidth: 12,
+      itemHeight: 80,
+      textStyle: { fontSize: 10, color: '#999' },
+      text: [t('chart.scaleHigh'), t('chart.scaleLow')],
+      inRange: {
+        color: ['#e6f4ff', '#91caff', '#4096ff', '#1677ff', '#0958d9'],
+      },
+    },
+    series: [
+      {
+        type: 'heatmap',
+        data: heatmapData,
+        itemStyle: {
+          borderColor: '#fff',
+          borderWidth: 2,
+          borderRadius: 3,
+        },
+        emphasis: {
+          itemStyle: {
+            shadowBlur: 6,
+            shadowColor: 'rgba(0, 0, 0, 0.2)',
+          },
+        },
+      },
+    ],
+    animationDuration: 600,
+    animationEasing: 'cubicOut',
   }
 
   return (
@@ -91,75 +153,13 @@ export default function HeatmapChart({ data, title }: HeatmapChartProps) {
           {t('chart.exportPng')}
         </button>
       </div>
-      <svg
-        ref={svgRef}
-        className={styles.chartSvg}
-        viewBox={`0 0 ${width} ${height}`}
-        role="img"
-        aria-label={`Team heatmap with ${members.length} members and ${periods.length} periods`}
-      >
-        {/* Period headers (X-axis) */}
-        {periods.map((period, i) => (
-          <text
-            key={period}
-            x={padding.left + labelWidth + i * cellSize + cellSize / 2}
-            y={padding.top + headerHeight - 6}
-            textAnchor="middle"
-            className={styles.axisLabel}
-            fontSize="9"
-          >
-            {period.length > 5 ? period.slice(0, 5) : period}
-          </text>
-        ))}
-
-        {/* Member labels (Y-axis) and cells */}
-        {members.map((member, rowIdx) => {
-          const y = padding.top + headerHeight + rowIdx * cellSize
-          return (
-            <g key={member.id}>
-              {/* Member name */}
-              <text
-                x={padding.left + labelWidth - 6}
-                y={y + cellSize / 2 + 4}
-                textAnchor="end"
-                className={styles.heatmapLabel}
-              >
-                {member.name.length > 8 ? member.name.slice(0, 8) + '…' : member.name}
-              </text>
-
-              {/* Cells for each period */}
-              {periods.map((period, colIdx) => {
-                const cell = cellMap.get(`${member.id}::${period}`)
-                const intensity = cell?.intensity ?? 0
-                const taskCount = cell?.taskCount ?? 0
-                const x = padding.left + labelWidth + colIdx * cellSize
-
-                return (
-                  <rect
-                    key={`${member.id}-${period}`}
-                    x={x + 2}
-                    y={y + 2}
-                    width={cellSize - 4}
-                    height={cellSize - 4}
-                    fill={getCellColor(intensity)}
-                    className={styles.heatmapCell}
-                    aria-label={`${member.name}, ${period}: ${taskCount} tasks (${Math.round(intensity * 100)}%)`}
-                  >
-                    <title>{`${member.name} - ${period}: ${taskCount} tasks`}</title>
-                  </rect>
-                )
-              })}
-            </g>
-          )
-        })}
-      </svg>
-
-      {/* Scale legend */}
-      <div className={styles.heatmapScale}>
-        <span>{t('chart.scaleLow')}</span>
-        <span className={styles.scaleGradient} />
-        <span>{t('chart.scaleHigh')}</span>
-      </div>
+      <ReactECharts
+        ref={echartRef}
+        option={option}
+        style={{ height: 300 }}
+        notMerge={true}
+        lazyUpdate={true}
+      />
     </div>
   )
 }

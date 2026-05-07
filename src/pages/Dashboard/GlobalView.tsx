@@ -188,20 +188,19 @@ export default function GlobalView({ sprint, sprints = [], issues, risks, isLoad
     })
   }, [sprints, sprint, issues])
 
-  /** Shorten sprint name: remove date ranges, keep the meaningful part */
+  /** Shorten sprint name: remove all date/number patterns, keep only the meaningful prefix */
   function shortenSprintName(name: string): string {
-    let short = name
-    // Remove various date patterns:
-    // "2026.04/24-05/14", ".2026.04/24-05/14", ".2026.04/", "2026.04/24-05/14"
-    short = short.replace(/\.?\d{4}\.\d{2}\/\d{2}-\d{2}\/\d{2}/, '')
-    short = short.replace(/\.?\d{4}\.\d{2}\/\d{2}-\d{2}\/\d{2}/, '')
-    // Match "AIAGBJ.2026.04/" pattern — remove ".YYYY.MM/" or ".YYYY.MM/DD"
-    short = short.replace(/\.\d{4}\.\d{2}\/\d{0,2}/, '')
-    // Remove trailing dots, slashes, dashes
-    short = short.replace(/[.\-\/]+$/, '').trim()
-    // If still too long, take first 15 chars
-    if (short.length > 15) short = short.slice(0, 15)
-    return short || name.slice(0, 10)
+    // Strategy: take everything before the first digit-dot-digit or digit-slash pattern
+    const match = name.match(/^([A-Za-z\s]+)/)
+    if (match && match[1].trim().length >= 3) {
+      return match[1].trim().slice(0, 15)
+    }
+    // Fallback: remove all date-like patterns (digits, dots, slashes, dashes)
+    const cleaned = name.replace(/[\d.\-\/]+/g, ' ').trim().replace(/\s+/g, ' ')
+    if (cleaned.length >= 3) {
+      return cleaned.slice(0, 15)
+    }
+    return name.slice(0, 10)
   }
 
   const velocityChartData = useMemo(

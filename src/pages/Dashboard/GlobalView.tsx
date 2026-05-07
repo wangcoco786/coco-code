@@ -191,13 +191,24 @@ export default function GlobalView({ sprint, issues, risks, isLoading }: Props) 
       const estimatedPlanned = Math.max(estimatedCompleted, Math.round(baselineIssues * (0.9 + variance * 0.5)))
       return {
         sprintId: s.id,
-        sprintName: s.name.length > 12 ? s.name.slice(0, 12) : s.name,
+        sprintName: extractSprintLabel(s.name, index),
         plannedPoints: estimatedPlanned,
         completedPoints: estimatedCompleted,
         durationDays,
       }
     })
   }, [closedSprints, issues.length])
+
+  function extractSprintLabel(name: string, index: number): string {
+    // Try to extract sprint number from name (e.g. "FMS Support Sprint 23" → "S23")
+    const numMatch = name.match(/(\d+)\s*$/)
+    if (numMatch) return `S${numMatch[1]}`
+    // Try to find "Sprint N" pattern
+    const sprintMatch = name.match(/sprint\s*(\d+)/i)
+    if (sprintMatch) return `S${sprintMatch[1]}`
+    // Fallback: use index
+    return `S${index + 1}`
+  }
 
   const velocityChartData = useMemo(
     () => computeVelocityChart(velocityRecords, 6),

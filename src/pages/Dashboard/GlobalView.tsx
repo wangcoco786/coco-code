@@ -180,13 +180,24 @@ export default function GlobalView({ sprint, sprints = [], issues, risks, isLoad
 
       return {
         sprintId: s.id,
-        sprintName: s.name,
+        sprintName: shortenSprintName(s.name),
         plannedPoints: totalCount,
         completedPoints: completedCount,
         durationDays,
       }
     })
   }, [sprints, sprint, issues])
+
+  /** Shorten sprint name: remove date ranges, keep the meaningful part */
+  function shortenSprintName(name: string): string {
+    // Remove date patterns like "2026.04/24-05/14" or ".2026.04/24-05/14"
+    let short = name.replace(/\.?\d{4}\.\d{2}\/\d{2}-\d{2}\/\d{2}/, '').trim()
+    // Remove trailing dots
+    short = short.replace(/\.$/, '').trim()
+    // If still too long, take first 15 chars
+    if (short.length > 15) short = short.slice(0, 15)
+    return short || name.slice(0, 15)
+  }
 
   const velocityChartData = useMemo(
     () => computeVelocityChart(velocityRecords, 6),

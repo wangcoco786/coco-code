@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useRef } from 'react'
 import { useI18n } from '@/context/I18nContext'
 import { useNotifications } from '@/context/NotificationContext'
 import { validateRule, getPresetTemplates } from '@/lib/automationEngine'
@@ -98,6 +98,55 @@ export default function AutomationRules() {
 
   const handleDeleteRule = (ruleId: string) => {
     updateRules(rules.filter(r => r.id !== ruleId))
+  }
+
+  const testingRuleRef = useRef<string | null>(null)
+
+  const handleTestExecute = async (rule: AutomationRule) => {
+    if (testingRuleRef.current === rule.id) return
+    testingRuleRef.current = rule.id
+    try {
+      const res = await fetch('/api/wecom/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: {
+            msgtype: 'text',
+            text: { content: `[AI-PM 自动化] 规则 "${rule.name}" 已触发` },
+          },
+        }),
+      })
+      if (res.ok) {
+        addNotification({
+          type: 'system',
+          title: '测试执行成功',
+          message: `规则 "${rule.name}" 已成功推送到企业微信`,
+          priority: 'normal',
+        })
+        updateRules(rules.map(r =>
+          r.id === rule.id
+            ? { ...r, executionCount: r.executionCount + 1, lastTriggeredAt: new Date().toISOString() }
+            : r
+        ))
+      } else {
+        const body = await res.json().catch(() => ({ error: `HTTP ${res.status}` }))
+        addNotification({
+          type: 'system',
+          title: '测试执行失败',
+          message: body.error ?? `HTTP ${res.status}`,
+          priority: 'high',
+        })
+      }
+    } catch (err: any) {
+      addNotification({
+        type: 'system',
+        title: '测试执行失败',
+        message: err.message ?? '网络错误',
+        priority: 'high',
+      })
+    } finally {
+      testingRuleRef.current = null
+    }
   }
 
   return (
@@ -218,6 +267,17 @@ export default function AutomationRules() {
               <div style={{ fontSize: 12, color: 'var(--text2)', minWidth: 60, textAlign: 'center' }}>
                 {t('automation.execCount')}: {rule.executionCount}
               </div>
+              {rule.enabled && (
+                <button
+                  onClick={() => handleTestExecute(rule)}
+                  style={{
+                    padding: '4px 10px', background: 'var(--primary)', border: 'none',
+                    color: '#fff', borderRadius: 4, cursor: 'pointer', fontSize: 12,
+                  }}
+                >
+                  测试执行
+                </button>
+              )}
               <button
                 onClick={() => handleDeleteRule(rule.id)}
                 style={{

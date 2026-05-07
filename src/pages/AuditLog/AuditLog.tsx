@@ -8,54 +8,6 @@ import styles from './AuditLog.module.css'
 
 const AUDIT_STORAGE_KEY = 'ai-pm-audit-logs'
 
-const SEED_AUDIT_LOGS: AuditLogEntry[] = [
-  {
-    id: 'audit-001',
-    operationType: 'config_modify',
-    operator: { id: 'u1', name: '张三', role: 'PM' },
-    timestamp: new Date(Date.now() - 3600000).toISOString(),
-    target: { type: 'config', id: 'jira-integration', name: 'Jira 集成配置' },
-    changes: [{ field: 'jiraUrl', oldValue: 'https://old.jira.com', newValue: 'https://new.jira.com' }],
-    priority: 'high',
-  },
-  {
-    id: 'audit-002',
-    operationType: 'permission_change',
-    operator: { id: 'u1', name: '张三', role: 'PM' },
-    timestamp: new Date(Date.now() - 7200000).toISOString(),
-    target: { type: 'user', id: 'u2', name: '李四' },
-    changes: [{ field: 'role', oldValue: 'DEV', newValue: 'PM' }],
-    priority: 'high',
-  },
-  {
-    id: 'audit-003',
-    operationType: 'status_change',
-    operator: { id: 'u2', name: '李四', role: 'DEV' },
-    timestamp: new Date(Date.now() - 86400000).toISOString(),
-    target: { type: 'issue', id: 'DTS-123', name: '用户登录功能' },
-    changes: [{ field: 'status', oldValue: 'in_progress', newValue: 'done' }],
-    priority: 'normal',
-  },
-  {
-    id: 'audit-004',
-    operationType: 'assignee_change',
-    operator: { id: 'u1', name: '张三', role: 'PM' },
-    timestamp: new Date(Date.now() - 172800000).toISOString(),
-    target: { type: 'issue', id: 'DTS-456', name: '数据导出功能' },
-    changes: [{ field: 'assignee', oldValue: '王五', newValue: '李四' }],
-    priority: 'normal',
-  },
-  {
-    id: 'audit-005',
-    operationType: 'bulk_delete',
-    operator: { id: 'u1', name: '张三', role: 'PM' },
-    timestamp: new Date(Date.now() - 259200000).toISOString(),
-    target: { type: 'issues', id: 'batch-001', name: '批量删除过期任务' },
-    changes: [{ field: 'count', oldValue: 5, newValue: 0 }],
-    priority: 'high',
-  },
-]
-
 function loadAuditLogs(): AuditLogEntry[] {
   try {
     const stored = localStorage.getItem(AUDIT_STORAGE_KEY)
@@ -63,9 +15,7 @@ function loadAuditLogs(): AuditLogEntry[] {
       return JSON.parse(stored) as AuditLogEntry[]
     }
   } catch { /* ignore parse errors */ }
-  // Seed with initial data on first load
-  localStorage.setItem(AUDIT_STORAGE_KEY, JSON.stringify(SEED_AUDIT_LOGS))
-  return SEED_AUDIT_LOGS
+  return []
 }
 
 function saveAuditLogs(logs: AuditLogEntry[]): void {

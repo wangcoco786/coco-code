@@ -1,5 +1,6 @@
-﻿import { useState, useMemo } from 'react'
+﻿import { useState, useMemo, useEffect, useRef } from 'react'
 import { useApp } from '@/context/AppContext'
+import { useNotifications } from '@/context/NotificationContext'
 import { useActiveSprintIssuesByProject, useActiveSprintsByProject } from '@/hooks/useProjectIssues'
 import { analyzeRisks, calculateTeamLoad } from '@/lib/riskEngine'
 import { useI18n } from '@/context/I18nContext'
@@ -15,6 +16,7 @@ type DashTab = 'global' | 'personal' | 'decision'
 
 export default function Dashboard() {
   const { currentUser, currentProjectKey } = useApp()
+  const { addNotification } = useNotifications()
   const { t } = useI18n()
   const [activeTab, setActiveTab] = useState<DashTab>(
     currentUser?.role === 'DEV' ? 'personal' : 'global'
@@ -27,6 +29,27 @@ export default function Dashboard() {
 
   const risks = analyzeRisks(issues)
   const teamLoad = calculateTeamLoad(issues, {})
+
+  // Track which risks have already been notified to avoid duplicates
+  const notifiedRisksRef = useRef<Set<string>>(new Set())
+
+  useEffect(() => {
+    const highRisks = risks.filter(r => r.level === 'high')
+    for (const risk of highRisks) {
+      // Use relatedIssueId + type as stable key (risk.id contains Date.now() so it changes)
+      const stableKey = `${risk.type}-${risk.relatedIssueId ?? 'global'}`
+      if (!notifiedRisksRef.current.has(stableKey)) {
+        notifiedRisksRef.current.add(stableKey)
+        addNotification({
+          type: 'risk',
+          title: '高危风险预警',
+          message: risk.description,
+          priority: 'high',
+          actionUrl: '/risk',
+        })
+      }
+    }
+  }, [risks, addNotification])
 
   // Generate sample activities from sprint issues
   const sampleActivities: ActivityItem[] = useMemo(() => {

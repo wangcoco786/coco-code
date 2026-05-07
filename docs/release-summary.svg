@@ -1,0 +1,181 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1600" width="1200" height="1600">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0f0c29"/>
+      <stop offset="50%" style="stop-color:#302b63"/>
+      <stop offset="100%" style="stop-color:#24243e"/>
+    </linearGradient>
+    <linearGradient id="title-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#667eea"/>
+      <stop offset="50%" style="stop-color:#764ba2"/>
+      <stop offset="100%" style="stop-color:#f093fb"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="1600" fill="url(#bg)"/>
+
+  <!-- Title -->
+  <text x="600" y="70" text-anchor="middle" font-family="PingFang SC, Microsoft YaHei, sans-serif" font-size="38" font-weight="800" fill="url(#title-grad)">🤖 AI-PM Platform v2.0</text>
+  <text x="600" y="100" text-anchor="middle" font-family="PingFang SC, sans-serif" font-size="14" fill="#a0a0a0">AI 自动化项目管理平台 · 功能升级汇总</text>
+
+  <!-- Stats Row -->
+  <rect x="80" y="130" width="180" height="70" rx="10" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.1)"/>
+  <text x="170" y="162" text-anchor="middle" font-family="sans-serif" font-size="28" font-weight="800" fill="#667eea">15</text>
+  <text x="170" y="182" text-anchor="middle" font-family="PingFang SC, sans-serif" font-size="11" fill="#a0a0a0">新增功能模块</text>
+
+  <rect x="280" y="130" width="180" height="70" rx="10" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.1)"/>
+  <text x="370" y="162" text-anchor="middle" font-family="sans-serif" font-size="28" font-weight="800" fill="#667eea">10</text>
+  <text x="370" y="182" text-anchor="middle" font-family="PingFang SC, sans-serif" font-size="11" fill="#a0a0a0">AI 计算引擎</text>
+
+  <rect x="480" y="130" width="180" height="70" rx="10" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.1)"/>
+  <text x="570" y="162" text-anchor="middle" font-family="sans-serif" font-size="28" font-weight="800" fill="#667eea">299</text>
+  <text x="570" y="182" text-anchor="middle" font-family="PingFang SC, sans-serif" font-size="11" fill="#a0a0a0">单元测试通过</text>
+
+  <rect x="680" y="130" width="180" height="70" rx="10" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.1)"/>
+  <text x="770" y="162" text-anchor="middle" font-family="sans-serif" font-size="28" font-weight="800" fill="#667eea">4</text>
+  <text x="770" y="182" text-anchor="middle" font-family="PingFang SC, sans-serif" font-size="11" fill="#a0a0a0">语言支持</text>
+
+  <rect x="880" y="130" width="180" height="70" rx="10" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.1)"/>
+  <text x="970" y="162" text-anchor="middle" font-family="sans-serif" font-size="28" font-weight="800" fill="#667eea">6</text>
+  <text x="970" y="182" text-anchor="middle" font-family="PingFang SC, sans-serif" font-size="11" fill="#a0a0a0">借鉴顶级平台</text>
+
+  <!-- Section: AI 智能化 -->
+  <rect x="60" y="230" width="4" height="22" rx="2" fill="#667eea"/>
+  <text x="76" y="248" font-family="PingFang SC, sans-serif" font-size="18" font-weight="700" fill="#fff">🧠 AI 智能化</text>
+
+  <rect x="80" y="265" width="250" height="100" rx="10" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.08)"/>
+  <text x="100" y="290" font-family="PingFang SC, sans-serif" font-size="13" font-weight="600" fill="#fff">📊 交付预测引擎</text>
+  <text x="100" y="310" font-family="PingFang SC, sans-serif" font-size="11" fill="#a0a0a0">Sprint 完成概率实时计算</text>
+  <text x="100" y="328" font-family="PingFang SC, sans-serif" font-size="11" fill="#a0a0a0">概率 &lt;60% 自动预警通知</text>
+  <rect x="100" y="340" width="52" height="16" rx="3" fill="rgba(255,99,132,0.2)"/>
+  <text x="108" y="352" font-family="sans-serif" font-size="9" font-weight="600" fill="#ff6384">Asana AI</text>
+
+  <rect x="350" y="265" width="250" height="100" rx="10" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.08)"/>
+  <text x="370" y="290" font-family="PingFang SC, sans-serif" font-size="13" font-weight="600" fill="#fff">🤖 AI 智能任务分配</text>
+  <text x="370" y="310" font-family="PingFang SC, sans-serif" font-size="11" fill="#a0a0a0">技能匹配40% + 负载30%</text>
+  <text x="370" y="328" font-family="PingFang SC, sans-serif" font-size="11" fill="#a0a0a0">+ 历史完成率30%</text>
+  <rect x="370" y="340" width="52" height="16" rx="3" fill="rgba(255,99,132,0.2)"/>
+  <text x="378" y="352" font-family="sans-serif" font-size="9" font-weight="600" fill="#ff6384">Asana AI</text>
+
+  <rect x="620" y="265" width="250" height="100" rx="10" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.08)"/>
+  <text x="640" y="290" font-family="PingFang SC, sans-serif" font-size="13" font-weight="600" fill="#fff">💡 AI 助手上下文感知</text>
+  <text x="640" y="310" font-family="PingFang SC, sans-serif" font-size="11" fill="#a0a0a0">自动识别当前页面数据</text>
+  <text x="640" y="328" font-family="PingFang SC, sans-serif" font-size="11" fill="#a0a0a0">提供3条可操作建议</text>
+  <rect x="640" y="340" width="56" height="16" rx="3" fill="rgba(0,200,150,0.2)"/>
+  <text x="648" y="352" font-family="sans-serif" font-size="9" font-weight="600" fill="#4dd0a0">Height AI</text>
+
+  <rect x="890" y="265" width="250" height="100" rx="10" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.08)"/>
+  <text x="910" y="290" font-family="PingFang SC, sans-serif" font-size="13" font-weight="600" fill="#fff">🔍 重复 Issue 检测</text>
+  <text x="910" y="310" font-family="PingFang SC, sans-serif" font-size="11" fill="#a0a0a0">Bigram Jaccard 相似度</text>
+  <text x="910" y="328" font-family="PingFang SC, sans-serif" font-size="11" fill="#a0a0a0">自动识别重复需求</text>
+  <rect x="910" y="340" width="42" height="16" rx="3" fill="rgba(88,101,242,0.2)"/>
+  <text x="918" y="352" font-family="sans-serif" font-size="9" font-weight="600" fill="#7c8aff">Linear</text>
+
+  <!-- Section: 数据可视化 -->
+  <rect x="60" y="400" width="4" height="22" rx="2" fill="#667eea"/>
+  <text x="76" y="418" font-family="PingFang SC, sans-serif" font-size="18" font-weight="700" fill="#fff">📈 数据可视化</text>
+
+  <rect x="80" y="435" width="340" height="90" rx="10" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.08)"/>
+  <text x="100" y="460" font-family="PingFang SC, sans-serif" font-size="13" font-weight="600" fill="#fff">📶 速度趋势图 (Velocity Chart)</text>
+  <text x="100" y="480" font-family="PingFang SC, sans-serif" font-size="11" fill="#a0a0a0">SVG 柱状图 · 各 Sprint 完成任务数对比 · 平均线</text>
+  <rect x="100" y="495" width="72" height="16" rx="3" fill="rgba(0,130,255,0.2)"/>
+  <text x="108" y="507" font-family="sans-serif" font-size="9" font-weight="600" fill="#64b5f6">Jira Advanced</text>
+
+  <rect x="440" y="435" width="340" height="90" rx="10" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.08)"/>
+  <text x="460" y="460" font-family="PingFang SC, sans-serif" font-size="13" font-weight="600" fill="#fff">🌊 累积流图 (CFD)</text>
+  <text x="460" y="480" font-family="PingFang SC, sans-serif" font-size="11" fill="#a0a0a0">堆叠面积图 · 任务状态随时间流动 · 时间筛选</text>
+  <rect x="460" y="495" width="72" height="16" rx="3" fill="rgba(0,130,255,0.2)"/>
+  <text x="468" y="507" font-family="sans-serif" font-size="9" font-weight="600" fill="#64b5f6">Jira Advanced</text>
+
+  <rect x="800" y="435" width="340" height="90" rx="10" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.08)"/>
+  <text x="820" y="460" font-family="PingFang SC, sans-serif" font-size="13" font-weight="600" fill="#fff">🔥 团队效能热力图</text>
+  <text x="820" y="480" font-family="PingFang SC, sans-serif" font-size="11" fill="#a0a0a0">SVG 网格 · 颜色深浅展示负载 · PNG 导出</text>
+  <rect x="820" y="495" width="62" height="16" rx="3" fill="rgba(255,159,64,0.2)"/>
+  <text x="828" y="507" font-family="sans-serif" font-size="9" font-weight="600" fill="#ffb74d">Monday</text>
+
+  <!-- Section: 自动化与规则 -->
+  <rect x="60" y="560" width="4" height="22" rx="2" fill="#667eea"/>
+  <text x="76" y="578" font-family="PingFang SC, sans-serif" font-size="18" font-weight="700" fill="#fff">⚡ 自动化与规则</text>
+
+  <rect x="80" y="595" width="340" height="90" rx="10" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.08)"/>
+  <text x="100" y="620" font-family="PingFang SC, sans-serif" font-size="13" font-weight="600" fill="#fff">⚙️ 自动化规则引擎</text>
+  <text x="100" y="640" font-family="PingFang SC, sans-serif" font-size="11" fill="#a0a0a0">条件+动作模式 · 5种触发 × 5种执行</text>
+  <text x="100" y="658" font-family="PingFang SC, sans-serif" font-size="11" fill="#a0a0a0">预置模板一键启用</text>
+  <rect x="100" y="668" width="50" height="16" rx="3" fill="rgba(123,104,238,0.2)"/>
+  <text x="108" y="680" font-family="sans-serif" font-size="9" font-weight="600" fill="#b39ddb">ClickUp</text>
+
+  <rect x="440" y="595" width="340" height="90" rx="10" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.08)"/>
+  <text x="460" y="620" font-family="PingFang SC, sans-serif" font-size="13" font-weight="600" fill="#fff">📋 Sprint 回顾自动生成</text>
+  <text x="460" y="640" font-family="PingFang SC, sans-serif" font-size="11" fill="#a0a0a0">完成率 · 速度对比 · 风险回顾</text>
+  <text x="460" y="658" font-family="PingFang SC, sans-serif" font-size="11" fill="#a0a0a0">团队贡献 · ≥3条改进建议</text>
+  <rect x="460" y="668" width="30" height="16" rx="3" fill="rgba(0,130,255,0.2)"/>
+  <text x="466" y="680" font-family="sans-serif" font-size="9" font-weight="600" fill="#64b5f6">Jira</text>
+
+  <rect x="800" y="595" width="340" height="90" rx="10" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.08)"/>
+  <text x="820" y="620" font-family="PingFang SC, sans-serif" font-size="13" font-weight="600" fill="#fff">📊 增强报告中心</text>
+  <text x="820" y="640" font-family="PingFang SC, sans-serif" font-size="11" fill="#a0a0a0">月度汇总 · 跨团队协作报告</text>
+  <text x="820" y="658" font-family="PingFang SC, sans-serif" font-size="11" fill="#a0a0a0">Sprint 指标对比 · 企微推送</text>
+  <rect x="820" y="668" width="62" height="16" rx="3" fill="rgba(255,159,64,0.2)"/>
+  <text x="828" y="680" font-family="sans-serif" font-size="9" font-weight="600" fill="#ffb74d">Monday</text>
+
+  <!-- Section: 协作与体验 -->
+  <rect x="60" y="720" width="4" height="22" rx="2" fill="#667eea"/>
+  <text x="76" y="738" font-family="PingFang SC, sans-serif" font-size="18" font-weight="700" fill="#fff">✨ 协作与体验</text>
+
+  <rect x="80" y="755" width="250" height="85" rx="10" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.08)"/>
+  <text x="100" y="780" font-family="PingFang SC, sans-serif" font-size="13" font-weight="600" fill="#fff">🔔 统一通知中心</text>
+  <text x="100" y="800" font-family="PingFang SC, sans-serif" font-size="11" fill="#a0a0a0">聚合风险/任务/系统通知</text>
+  <text x="100" y="818" font-family="PingFang SC, sans-serif" font-size="11" fill="#a0a0a0">分类筛选 · 批量操作</text>
+
+  <rect x="350" y="755" width="250" height="85" rx="10" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.08)"/>
+  <text x="370" y="780" font-family="PingFang SC, sans-serif" font-size="13" font-weight="600" fill="#fff">🌙 暗色主题</text>
+  <text x="370" y="800" font-family="PingFang SC, sans-serif" font-size="11" fill="#a0a0a0">Light / Dark / System</text>
+  <text x="370" y="818" font-family="PingFang SC, sans-serif" font-size="11" fill="#a0a0a0">CSS 变量即时切换无闪烁</text>
+
+  <rect x="620" y="755" width="250" height="85" rx="10" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.08)"/>
+  <text x="640" y="780" font-family="PingFang SC, sans-serif" font-size="13" font-weight="600" fill="#fff">⌨️ 快捷键系统</text>
+  <text x="640" y="800" font-family="PingFang SC, sans-serif" font-size="11" fill="#a0a0a0">Cmd+K · G+D/S/R · J/K · ?</text>
+  <rect x="640" y="812" width="42" height="16" rx="3" fill="rgba(88,101,242,0.2)"/>
+  <text x="648" y="824" font-family="sans-serif" font-size="9" font-weight="600" fill="#7c8aff">Linear</text>
+
+  <rect x="890" y="755" width="250" height="85" rx="10" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.08)"/>
+  <text x="910" y="780" font-family="PingFang SC, sans-serif" font-size="13" font-weight="600" fill="#fff">📜 审计日志</text>
+  <text x="910" y="800" font-family="PingFang SC, sans-serif" font-size="11" fill="#a0a0a0">关键操作记录 · 敏感操作高亮</text>
+  <text x="910" y="818" font-family="PingFang SC, sans-serif" font-size="11" fill="#a0a0a0">筛选查询 · CSV 导出</text>
+
+  <!-- Section: 借鉴平台 -->
+  <rect x="60" y="880" width="4" height="22" rx="2" fill="#667eea"/>
+  <text x="76" y="898" font-family="PingFang SC, sans-serif" font-size="18" font-weight="700" fill="#fff">🏆 借鉴的前沿平台</text>
+
+  <!-- Table header -->
+  <text x="100" y="930" font-family="PingFang SC, sans-serif" font-size="12" font-weight="600" fill="#a0a0a0">平台</text>
+  <text x="280" y="930" font-family="PingFang SC, sans-serif" font-size="12" font-weight="600" fill="#a0a0a0">借鉴的核心能力</text>
+  <line x1="80" y1="940" x2="1120" y2="940" stroke="rgba(255,255,255,0.1)"/>
+
+  <text x="100" y="965" font-family="sans-serif" font-size="13" font-weight="700" fill="#7c8aff">Linear</text>
+  <text x="280" y="965" font-family="PingFang SC, sans-serif" font-size="12" fill="#e0e0e0">快捷键优先交互、重复 Issue 检测、极简 UI</text>
+  <line x1="80" y1="978" x2="1120" y2="978" stroke="rgba(255,255,255,0.05)"/>
+
+  <text x="100" y="1003" font-family="sans-serif" font-size="13" font-weight="700" fill="#b39ddb">ClickUp AI</text>
+  <text x="280" y="1003" font-family="PingFang SC, sans-serif" font-size="12" fill="#e0e0e0">自动化规则引擎（条件+动作）、预置模板</text>
+  <line x1="80" y1="1016" x2="1120" y2="1016" stroke="rgba(255,255,255,0.05)"/>
+
+  <text x="100" y="1041" font-family="sans-serif" font-size="13" font-weight="700" fill="#ff6384">Asana AI</text>
+  <text x="280" y="1041" font-family="PingFang SC, sans-serif" font-size="12" fill="#e0e0e0">AI 智能任务分配、交付预测与完成概率</text>
+  <line x1="80" y1="1054" x2="1120" y2="1054" stroke="rgba(255,255,255,0.05)"/>
+
+  <text x="100" y="1079" font-family="sans-serif" font-size="13" font-weight="700" fill="#ffb74d">Monday.com</text>
+  <text x="280" y="1079" font-family="PingFang SC, sans-serif" font-size="12" fill="#e0e0e0">可视化数据面板（速度图、热力图）、通知中心聚合</text>
+  <line x1="80" y1="1092" x2="1120" y2="1092" stroke="rgba(255,255,255,0.05)"/>
+
+  <text x="100" y="1117" font-family="sans-serif" font-size="13" font-weight="700" fill="#4dd0a0">Height AI</text>
+  <text x="280" y="1117" font-family="PingFang SC, sans-serif" font-size="12" fill="#e0e0e0">AI 助手上下文感知、主动建议</text>
+  <line x1="80" y1="1130" x2="1120" y2="1130" stroke="rgba(255,255,255,0.05)"/>
+
+  <text x="100" y="1155" font-family="sans-serif" font-size="13" font-weight="700" fill="#64b5f6">Jira Advanced</text>
+  <text x="280" y="1155" font-family="PingFang SC, sans-serif" font-size="12" fill="#e0e0e0">Sprint 回顾报告、速度趋势、累积流图</text>
+
+  <!-- Footer -->
+  <text x="600" y="1220" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#666">AI-PM Platform v2.0 · 2025 · Powered by React + TypeScript + Vite</text>
+</svg>

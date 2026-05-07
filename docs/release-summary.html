@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI-PM Platform v2.0 — 功能升级汇总</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif; background: linear-gradient(135deg, #0f0c29, #302b63, #24243e); color: #e8e8e8; min-height: 100vh; padding: 60px 40px; }
+.container { max-width: 1100px; margin: 0 auto; }
+h1 { font-size: 42px; font-weight: 800; text-align: center; margin-bottom: 8px; background: linear-gradient(90deg, #667eea, #764ba2, #f093fb); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.subtitle { text-align: center; font-size: 16px; color: #a0a0a0; margin-bottom: 50px; }
+.section { margin-bottom: 40px; }
+.section-title { font-size: 20px; font-weight: 700; margin-bottom: 16px; padding-left: 12px; border-left: 4px solid #667eea; color: #fff; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+.card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 20px; backdrop-filter: blur(10px); transition: transform 0.2s, box-shadow 0.2s; }
+.card:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(102, 126, 234, 0.2); }
+.card-icon { font-size: 28px; margin-bottom: 8px; }
+.card-title { font-size: 15px; font-weight: 600; color: #fff; margin-bottom: 6px; }
+.card-desc { font-size: 13px; color: #a0a0a0; line-height: 1.6; }
+.badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; margin-right: 6px; }
+.badge-linear { background: rgba(88, 101, 242, 0.2); color: #7c8aff; }
+.badge-clickup { background: rgba(123, 104, 238, 0.2); color: #b39ddb; }
+.badge-asana { background: rgba(255, 99, 132, 0.2); color: #ff6384; }
+.badge-monday { background: rgba(255, 159, 64, 0.2); color: #ffb74d; }
+.badge-height { background: rgba(0, 200, 150, 0.2); color: #4dd0a0; }
+.badge-jira { background: rgba(0, 130, 255, 0.2); color: #64b5f6; }
+.ref-table { width: 100%; border-collapse: collapse; margin-top: 16px; }
+.ref-table th, .ref-table td { padding: 12px 16px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.08); }
+.ref-table th { font-size: 13px; color: #a0a0a0; font-weight: 600; }
+.ref-table td { font-size: 13px; color: #e0e0e0; }
+.ref-table tr:hover { background: rgba(255,255,255,0.03); }
+.stats { display: flex; gap: 24px; justify-content: center; margin: 40px 0; flex-wrap: wrap; }
+.stat { text-align: center; padding: 20px 30px; background: rgba(255,255,255,0.05); border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); min-width: 140px; }
+.stat-value { font-size: 36px; font-weight: 800; background: linear-gradient(90deg, #667eea, #764ba2); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.stat-label { font-size: 12px; color: #a0a0a0; margin-top: 4px; }
+.footer { text-align: center; margin-top: 50px; font-size: 12px; color: #666; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>🤖 AI-PM Platform v2.0</h1>
+  <p class="subtitle">AI 自动化项目管理平台 · 功能升级汇总</p>
+
+  <div class="stats">
+    <div class="stat"><div class="stat-value">15</div><div class="stat-label">新增功能模块</div></div>
+    <div class="stat"><div class="stat-value">10</div><div class="stat-label">AI 计算引擎</div></div>
+    <div class="stat"><div class="stat-value">299</div><div class="stat-label">单元测试通过</div></div>
+    <div class="stat"><div class="stat-value">4</div><div class="stat-label">语言支持</div></div>
+    <div class="stat"><div class="stat-value">6</div><div class="stat-label">借鉴顶级平台</div></div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">🧠 AI 智能化</div>
+    <div class="grid">
+      <div class="card">
+        <div class="card-icon">📊</div>
+        <div class="card-title">交付预测引擎</div>
+        <div class="card-desc">Sprint 完成概率实时计算，置信区间（乐观/最可能/悲观），概率 &lt;60% 自动预警通知</div>
+        <div style="margin-top:8px"><span class="badge badge-asana">Asana AI</span></div>
+      </div>
+      <div class="card">
+        <div class="card-icon">🤖</div>
+        <div class="card-title">AI 智能任务分配</div>
+        <div class="card-desc">基于技能匹配(40%)、工作负载(30%)、历史完成率(30%)推荐前3名候选人</div>
+        <div style="margin-top:8px"><span class="badge badge-asana">Asana AI</span><span class="badge badge-clickup">ClickUp</span></div>
+      </div>
+      <div class="card">
+        <div class="card-icon">💡</div>
+        <div class="card-title">AI 助手上下文感知</div>
+        <div class="card-desc">自动识别当前页面数据，提供3条可操作建议，支持自然语言指令</div>
+        <div style="margin-top:8px"><span class="badge badge-height">Height AI</span></div>
+      </div>
+      <div class="card">
+        <div class="card-icon">🔍</div>
+        <div class="card-title">重复 Issue 检测</div>
+        <div class="card-desc">基于文本 Bigram Jaccard 相似度算法，自动识别重复需求</div>
+        <div style="margin-top:8px"><span class="badge badge-linear">Linear</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">📈 数据可视化</div>
+    <div class="grid">
+      <div class="card">
+        <div class="card-icon">📶</div>
+        <div class="card-title">速度趋势图</div>
+        <div class="card-desc">SVG 柱状图展示各 Sprint 完成任务数，含平均线和趋势分析</div>
+        <div style="margin-top:8px"><span class="badge badge-jira">Jira Advanced</span></div>
+      </div>
+      <div class="card">
+        <div class="card-icon">🌊</div>
+        <div class="card-title">累积流图 (CFD)</div>
+        <div class="card-desc">堆叠面积图展示任务状态随时间的流动变化，支持时间范围筛选</div>
+        <div style="margin-top:8px"><span class="badge badge-jira">Jira Advanced</span><span class="badge badge-monday">Monday</span></div>
+      </div>
+      <div class="card">
+        <div class="card-icon">🔥</div>
+        <div class="card-title">团队效能热力图</div>
+        <div class="card-desc">SVG 网格以颜色深浅展示成员工作负载分布，支持 PNG 导出</div>
+        <div style="margin-top:8px"><span class="badge badge-monday">Monday.com</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">⚡ 自动化与规则</div>
+    <div class="grid">
+      <div class="card">
+        <div class="card-icon">⚙️</div>
+        <div class="card-title">自动化规则引擎</div>
+        <div class="card-desc">条件+动作模式，5种触发条件 × 5种执行动作，预置模板一键启用</div>
+        <div style="margin-top:8px"><span class="badge badge-clickup">ClickUp AI</span><span class="badge badge-monday">Monday</span></div>
+      </div>
+      <div class="card">
+        <div class="card-icon">📋</div>
+        <div class="card-title">Sprint 回顾自动生成</div>
+        <div class="card-desc">完成率分析、速度对比、风险回顾、团队贡献、≥3条改进建议</div>
+        <div style="margin-top:8px"><span class="badge badge-jira">Jira</span><span class="badge badge-asana">Asana</span></div>
+      </div>
+      <div class="card">
+        <div class="card-icon">📊</div>
+        <div class="card-title">增强报告中心</div>
+        <div class="card-desc">月度汇总报告、跨团队协作报告、Sprint 指标对比、企微推送</div>
+        <div style="margin-top:8px"><span class="badge badge-monday">Monday.com</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">✨ 协作与体验</div>
+    <div class="grid">
+      <div class="card">
+        <div class="card-icon">🔔</div>
+        <div class="card-title">统一通知中心</div>
+        <div class="card-desc">聚合风险/任务/系统通知，分类筛选，批量标记已读/删除</div>
+      </div>
+      <div class="card">
+        <div class="card-icon">🌙</div>
+        <div class="card-title">暗色主题</div>
+        <div class="card-desc">Light / Dark / System 三种模式，CSS 变量实现即时切换无闪烁</div>
+      </div>
+      <div class="card">
+        <div class="card-icon">⌨️</div>
+        <div class="card-title">快捷键系统</div>
+        <div class="card-desc">Cmd+K 搜索、G+D/G+S/G+R 导航、J/K 列表、? 速查表</div>
+        <div style="margin-top:8px"><span class="badge badge-linear">Linear</span></div>
+      </div>
+      <div class="card">
+        <div class="card-icon">📜</div>
+        <div class="card-title">审计日志</div>
+        <div class="card-desc">记录所有关键操作，敏感操作高亮，支持筛选和 CSV 导出</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">🏆 借鉴的前沿平台</div>
+    <table class="ref-table">
+      <thead><tr><th>平台</th><th>借鉴的核心能力</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Linear</strong></td><td>快捷键优先交互、重复 Issue 检测、极简 UI</td></tr>
+        <tr><td><strong>ClickUp AI</strong></td><td>自动化规则引擎（条件+动作）、预置模板</td></tr>
+        <tr><td><strong>Asana AI</strong></td><td>AI 智能任务分配、交付预测与完成概率</td></tr>
+        <tr><td><strong>Monday.com</strong></td><td>可视化数据面板、通知中心聚合</td></tr>
+        <tr><td><strong>Height AI</strong></td><td>AI 助手上下文感知、主动建议</td></tr>
+        <tr><td><strong>Jira Advanced</strong></td><td>Sprint 回顾报告、速度趋势、累积流图</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="footer">AI-PM Platform v2.0 · 2025 · Powered by React + TypeScript + Vite</div>
+</div>
+</body>
+</html>

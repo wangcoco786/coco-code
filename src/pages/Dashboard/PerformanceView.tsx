@@ -103,7 +103,7 @@ function SingleProjectPerformance({ projectKey }: { projectKey: string }) {
   )
 }
 
-/** 项目列表视图 — 只显示有活跃 Sprint 的项目 */
+/** 项目列表视图 — 只显示有活跃 Sprint 的项目，按绩效分排序 */
 function ProjectListView() {
   const { data: projects, isLoading } = useJiraProjects()
   const [selectedProject, setSelectedProject] = useState<string | null>(null)
@@ -146,20 +146,11 @@ function ProjectListView() {
 
   return (
     <div>
-      <div style={{ marginBottom: 24 }}>
-        <h2 style={{ fontSize: 18, fontWeight: 700, color: 'var(--text)', margin: 0 }}>
-          部门绩效排行
-        </h2>
-        <p style={{ fontSize: 13, color: 'var(--text2)', marginTop: 4 }}>
-          基于 SPACE + DORA 框架的五维度综合评估，点击部门查看详情
-        </p>
-      </div>
       <div className={styles.perfList}>
-        {projects.map((project, index) => (
+        {projects.map(project => (
           <ProjectScoreRow
             key={project.key}
             project={project}
-            rank={index + 1}
             onClick={() => setSelectedProject(project.key)}
           />
         ))}
@@ -168,10 +159,9 @@ function ProjectListView() {
   )
 }
 
-/** 项目绩效行 — 只显示有数据的 */
-function ProjectScoreRow({ project, rank, onClick }: {
+/** 项目绩效行 — 只显示有数据的，按分数排序由 CSS order 控制 */
+function ProjectScoreRow({ project, onClick }: {
   project: { id: string; key: string; name: string }
-  rank: number
   onClick: () => void
 }) {
   const { data, isLoading } = usePerformanceData(project.key)
@@ -185,11 +175,11 @@ function ProjectScoreRow({ project, rank, onClick }: {
   const memberCount = data?.members.length ?? 0
   const completedTasks = data?.totalCompletedTasks ?? 0
 
+  // 用 CSS order 实现按分数从高到低排序（分数越高 order 越小）
+  const orderValue = data ? Math.round((100 - score) * 10) : 99999
+
   return (
-    <div className={styles.perfRow} onClick={onClick}>
-      <div className={styles.perfRank} style={{ color: rank <= 3 ? gradeColor : 'var(--text2)' }}>
-        {rank <= 3 ? ['🥇', '🥈', '🥉'][rank - 1] : rank}
-      </div>
+    <div className={styles.perfRow} onClick={onClick} style={{ order: orderValue }}>
       <div className={styles.perfInfo}>
         <div className={styles.perfName}>{project.name}</div>
         <div className={styles.perfMeta}>

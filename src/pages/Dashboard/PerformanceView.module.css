@@ -629,6 +629,7 @@
 .perfList {
   display: flex;
   flex-direction: column;
+  flex-wrap: wrap;
   gap: 1px;
   background: var(--border);
   border-radius: var(--radius-md);
@@ -644,6 +645,7 @@
   background: var(--card);
   cursor: pointer;
   transition: background 0.15s;
+  width: 100%;
 }
 
 .perfRow:hover {

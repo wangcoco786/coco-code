@@ -101,7 +101,9 @@ export default function Dashboard() {
         <div>
           <h1 className={styles.title}>{t('dashboard.title')}</h1>
           <p className={styles.subtitle}>
-            {sprints.length > 0
+            {activeTab === 'performance'
+              ? '各部门综合绩效评估'
+              : sprints.length > 0
               ? sprints.length === 1
                 ? `${sprint!.name} · ${sprint!.startDate?.slice(0, 10)} ~ ${sprint!.endDate?.slice(0, 10)} · ${issues.length} ${t('dashboard.subtitle.tasks')}`
                 : `${sprints.length} ${t('dashboard.subtitle.activeSprints')} · ${issues.length} ${t('dashboard.subtitle.tasks')}`

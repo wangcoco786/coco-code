@@ -5,7 +5,6 @@ import { calculateDepartmentPerformance } from '@/lib/performanceEngine'
 import type { PerformanceIssue, StatusTransition, IssueComment, DepartmentPerformance } from '@/lib/performanceEngine'
 import type { JiraSprint } from '@/types/jira'
 import { useActiveSprintByProject } from '@/hooks/useProjectIssues'
-import { useJiraProjects } from '@/hooks/useJiraBoard'
 
 // ============================================================
 // Jira 扩展字段列表（绩效计算所需）
@@ -257,14 +256,8 @@ export interface UsePerformanceDataResult {
  * @param projectKey - 项目 Key（如 "DTS"）
  */
 export function usePerformanceData(projectKey: string | null): UsePerformanceDataResult {
-  // 获取所有项目列表（用于全局模式）
-  const { data: allProjects } = useJiraProjects()
-
   // 获取活跃 Sprint
   const { data: sprint, isLoading: isSprintLoading } = useActiveSprintByProject(projectKey)
-
-  // 构建全局模式的项目 key 列表
-  const allProjectKeys = allProjects?.map(p => p.key) ?? []
 
   // 获取含扩展字段的 Sprint Issues
   const {
@@ -272,7 +265,7 @@ export function usePerformanceData(projectKey: string | null): UsePerformanceDat
     isLoading: isIssuesLoading,
     error: issuesError,
   } = useQuery({
-    queryKey: ['performance-issues', projectKey ?? 'all', sprint?.id, allProjectKeys.join(',')],
+    queryKey: ['performance-issues', projectKey ?? 'all', sprint?.id],
     queryFn: async () => {
       let jql: string
       if (projectKey) {
@@ -280,12 +273,8 @@ export function usePerformanceData(projectKey: string | null): UsePerformanceDat
           ? `project = ${projectKey} AND sprint = ${sprint.id} ORDER BY priority ASC, updated DESC`
           : `project = ${projectKey} AND sprint in openSprints() ORDER BY priority ASC, updated DESC`
       } else {
-        // 全局模式：用所有项目 key 查询
-        if (allProjectKeys.length === 0) {
-          return { issues: [] }
-        }
-        const projectFilter = allProjectKeys.map(k => `project = ${k}`).join(' OR ')
-        jql = `(${projectFilter}) AND sprint in openSprints() ORDER BY priority ASC, updated DESC`
+        // 全局模式：直接查所有活跃 Sprint 的 issues（Jira 会按权限过滤）
+        jql = `sprint in openSprints() ORDER BY project ASC, priority ASC, updated DESC`
       }
 
       const fieldsStr = PERFORMANCE_FIELDS.join(',')
@@ -311,7 +300,7 @@ export function usePerformanceData(projectKey: string | null): UsePerformanceDat
       const data = await response.json()
       return data
     },
-    enabled: !!projectKey || allProjectKeys.length > 0,
+    enabled: true,
     staleTime: 5 * 60 * 1000, // 5 分钟
     retry: (failureCount, error) => {
       if (

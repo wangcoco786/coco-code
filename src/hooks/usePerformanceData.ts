@@ -5,7 +5,6 @@ import { calculateDepartmentPerformance } from '@/lib/performanceEngine'
 import type { PerformanceIssue, StatusTransition, IssueComment, DepartmentPerformance } from '@/lib/performanceEngine'
 import type { JiraSprint } from '@/types/jira'
 import { useActiveSprintByProject } from '@/hooks/useProjectIssues'
-import { useJiraProjects } from '@/hooks/useJiraBoard'
 
 // ============================================================
 // Jira 扩展字段列表（绩效计算所需）
@@ -239,28 +238,17 @@ function transformToPerformanceIssue(issue: any): PerformanceIssue {
 
 export interface UsePerformanceDataResult {
   data: DepartmentPerformance | null
-  /** 按项目（部门）分组的绩效数据 */
-  departments: { projectKey: string; projectName: string; performance: DepartmentPerformance }[]
   isLoading: boolean
   error: Error | null
   sprint: JiraSprint | null
 }
 
 /**
- * 获取绩效数据的 Hook。
- *
- * 1. 获取当前活跃 Sprint 信息
- * 2. 查询 Sprint Issues（含扩展字段：subtasks、issuelinks、comment、changelog）
- * 3. 将 Jira 原始数据转换为 PerformanceIssue[] 格式
- * 4. 调用 calculateDepartmentPerformance 返回计算结果
- *
- * @param projectKey - 项目 Key（如 "DTS"）
+ * 获取单个项目的绩效数据。
+ * @param projectKey - 项目 Key（如 "DTS"），必须非 null
  */
 export function usePerformanceData(projectKey: string | null): UsePerformanceDataResult {
-  // 获取所有项目（用于全局模式）
-  const { data: allProjects } = useJiraProjects()
-
-  // 获取活跃 Sprint（仅单项目模式使用）
+  // 获取活跃 Sprint
   const { data: sprint, isLoading: isSprintLoading } = useActiveSprintByProject(projectKey)
 
   // 获取含扩展字段的 Sprint Issues
@@ -269,42 +257,13 @@ export function usePerformanceData(projectKey: string | null): UsePerformanceDat
     isLoading: isIssuesLoading,
     error: issuesError,
   } = useQuery({
-    queryKey: ['performance-issues', projectKey ?? 'all-projects', sprint?.id],
+    queryKey: ['performance-issues', projectKey, sprint?.id],
     queryFn: async () => {
-      let jql: string
-      if (projectKey) {
-        jql = sprint?.id
-          ? `project = ${projectKey} AND sprint = ${sprint.id} ORDER BY priority ASC, updated DESC`
-          : `project = ${projectKey} AND sprint in openSprints() ORDER BY priority ASC, updated DESC`
-      } else {
-        // 全局模式：逐个项目查询有 active sprint 的数据
-        if (!allProjects || allProjects.length === 0) {
-          return { issues: [] }
-        }
+      if (!projectKey) throw new Error('Project key is required')
 
-        // 逐个项目尝试查询，收集所有有数据的 issues
-        const allIssues: unknown[] = []
-        const fieldsStr = PERFORMANCE_FIELDS.join(',')
-
-        for (const project of allProjects) {
-          try {
-            const url = `rest/api/2/search?jql=${encodeURIComponent(`project = ${project.key} AND sprint in openSprints() ORDER BY priority ASC, updated DESC`)}&fields=${fieldsStr}&expand=changelog&maxResults=200`
-            const response = await authFetch(`/api/jira/${url}`, {
-              headers: { 'Content-Type': 'application/json' },
-            })
-            if (response.ok) {
-              const data = await response.json()
-              if (data.issues && data.issues.length > 0) {
-                allIssues.push(...data.issues)
-              }
-            }
-          } catch {
-            // 跳过查询失败的项目
-          }
-        }
-
-        return { issues: allIssues }
-      }
+      const jql = sprint?.id
+        ? `project = ${projectKey} AND sprint = ${sprint.id} ORDER BY priority ASC, updated DESC`
+        : `project = ${projectKey} AND sprint in openSprints() ORDER BY priority ASC, updated DESC`
 
       const fieldsStr = PERFORMANCE_FIELDS.join(',')
       const url = `rest/api/2/search?jql=${encodeURIComponent(jql)}&fields=${fieldsStr}&expand=changelog&maxResults=200`
@@ -329,8 +288,8 @@ export function usePerformanceData(projectKey: string | null): UsePerformanceDat
       const data = await response.json()
       return data
     },
-    enabled: !!projectKey || (allProjects != null && allProjects.length > 0),
-    staleTime: 5 * 60 * 1000, // 5 分钟
+    enabled: !!projectKey,
+    staleTime: 5 * 60 * 1000,
     retry: (failureCount, error) => {
       if (
         error instanceof Error &&
@@ -346,49 +305,23 @@ export function usePerformanceData(projectKey: string | null): UsePerformanceDat
         const issues: any[] = data?.issues ?? []
         const performanceIssues: PerformanceIssue[] = issues.map(transformToPerformanceIssue)
 
-        // 确定 Sprint 日期范围
         const sprintDates = {
           startDate: sprint?.startDate ?? new Date().toISOString(),
           endDate: sprint?.endDate ?? new Date().toISOString(),
         }
 
-        if (performanceIssues.length === 0) {
-          return { overall: null, departments: [] }
-        }
+        if (performanceIssues.length === 0) return null
 
-        // 整体绩效
-        const overall = calculateDepartmentPerformance(performanceIssues, sprintDates)
-
-        // 按项目（部门）分组计算绩效
-        const projectGroups = new Map<string, { name: string; issues: PerformanceIssue[] }>()
-        for (const issue of performanceIssues) {
-          const key = issue.projectKey
-          if (!projectGroups.has(key)) {
-            projectGroups.set(key, { name: issue.projectName, issues: [] })
-          }
-          projectGroups.get(key)!.issues.push(issue)
-        }
-
-        const departments = Array.from(projectGroups.entries()).map(([projectKey, group]) => ({
-          projectKey,
-          projectName: group.name,
-          performance: calculateDepartmentPerformance(group.issues, sprintDates),
-        }))
-
-        // 按平均绩效分降序排列
-        departments.sort((a, b) => b.performance.averageScore - a.performance.averageScore)
-
-        return { overall, departments }
+        return calculateDepartmentPerformance(performanceIssues, sprintDates)
       } catch (e) {
         console.error('[PerformanceEngine] select error:', e)
-        return { overall: null, departments: [] }
+        return null
       }
     },
   })
 
   return {
-    data: performanceData?.overall ?? null,
-    departments: performanceData?.departments ?? [],
+    data: performanceData ?? null,
     isLoading: isSprintLoading || isIssuesLoading,
     error: issuesError as Error | null,
     sprint: sprint ?? null,

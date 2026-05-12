@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, Component, type ReactNode } from 'react'
 import { usePerformanceData } from '@/hooks/usePerformanceData'
 import { getPerformanceGrade, getGradeColor } from '@/lib/performanceEngine'
 import type { DepartmentPerformance } from '@/lib/performanceEngine'
@@ -6,13 +6,51 @@ import DepartmentOverview from './DepartmentOverview'
 import IndividualPerformance from './IndividualPerformance'
 import styles from './PerformanceView.module.css'
 
+/** Error Boundary 防止绩效组件崩溃导致整个页面白屏 */
+class PerformanceErrorBoundary extends Component<{ children: ReactNode }, { error: Error | null }> {
+  state = { error: null as Error | null }
+  static getDerivedStateFromError(error: Error) { return { error } }
+  render() {
+    if (this.state.error) {
+      return (
+        <div style={{ padding: 40, textAlign: 'center', color: '#f5222d' }}>
+          <p style={{ fontSize: 16, fontWeight: 600 }}>绩效模块加载出错</p>
+          <p style={{ fontSize: 13, color: '#999', marginTop: 8 }}>{this.state.error.message}</p>
+          <button onClick={() => this.setState({ error: null })} style={{ marginTop: 12, padding: '6px 16px', cursor: 'pointer' }}>
+            重试
+          </button>
+        </div>
+      )
+    }
+    return this.props.children
+  }
+}
+
 interface Props {
   projectKey: string | null
 }
 
 export default function PerformanceView({ projectKey }: Props) {
+  return (
+    <PerformanceErrorBoundary>
+      <PerformanceViewInner projectKey={projectKey} />
+    </PerformanceErrorBoundary>
+  )
+}
+
+function PerformanceViewInner({ projectKey }: Props) {
   const [expandedDept, setExpandedDept] = useState<string | null>(null)
-  const { data, departments, isLoading } = usePerformanceData(projectKey)
+  const { data, departments, isLoading, error } = usePerformanceData(projectKey)
+
+  // 错误状态
+  if (error) {
+    return (
+      <div style={{ padding: 40, textAlign: 'center', color: '#f5222d' }}>
+        <p style={{ fontSize: 16, fontWeight: 600 }}>数据加载失败</p>
+        <p style={{ fontSize: 13, color: '#999', marginTop: 8 }}>{error.message}</p>
+      </div>
+    )
+  }
 
   // 加载状态（骨架屏）
   if (isLoading) {

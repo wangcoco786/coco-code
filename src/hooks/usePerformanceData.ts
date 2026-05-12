@@ -11,7 +11,7 @@ import { useActiveSprintByProject } from '@/hooks/useProjectIssues'
 // ============================================================
 const PERFORMANCE_FIELDS = [
   'summary', 'status', 'priority', 'assignee',
-  'labels', 'created', 'updated',
+  'labels', 'created', 'updated', 'project',
   'subtasks',       // 子任务列表
   'issuelinks',    // 关联 issue
   'comment',       // 评论
@@ -227,6 +227,8 @@ function transformToPerformanceIssue(issue: any): PerformanceIssue {
     linkedBugCount,
     statusTransitions,
     comments,
+    projectKey: (issue.key ?? '').split('-')[0] || 'UNKNOWN',
+    projectName: fields.project?.name ?? (issue.key ?? '').split('-')[0] ?? 'Unknown',
   }
 }
 
@@ -236,6 +238,8 @@ function transformToPerformanceIssue(issue: any): PerformanceIssue {
 
 export interface UsePerformanceDataResult {
   data: DepartmentPerformance | null
+  /** 按项目（部门）分组的绩效数据 */
+  departments: { projectKey: string; projectName: string; performance: DepartmentPerformance }[]
   isLoading: boolean
   error: Error | null
   sprint: JiraSprint | null
@@ -319,17 +323,39 @@ export function usePerformanceData(projectKey: string | null): UsePerformanceDat
         endDate: sprint?.endDate ?? new Date().toISOString(),
       }
 
-      // 计算部门绩效
       if (performanceIssues.length === 0) {
-        return null
+        return { overall: null, departments: [] }
       }
 
-      return calculateDepartmentPerformance(performanceIssues, sprintDates)
+      // 整体绩效
+      const overall = calculateDepartmentPerformance(performanceIssues, sprintDates)
+
+      // 按项目（部门）分组计算绩效
+      const projectGroups = new Map<string, { name: string; issues: PerformanceIssue[] }>()
+      for (const issue of performanceIssues) {
+        const key = issue.projectKey
+        if (!projectGroups.has(key)) {
+          projectGroups.set(key, { name: issue.projectName, issues: [] })
+        }
+        projectGroups.get(key)!.issues.push(issue)
+      }
+
+      const departments = Array.from(projectGroups.entries()).map(([projectKey, group]) => ({
+        projectKey,
+        projectName: group.name,
+        performance: calculateDepartmentPerformance(group.issues, sprintDates),
+      }))
+
+      // 按平均绩效分降序排列
+      departments.sort((a, b) => b.performance.averageScore - a.performance.averageScore)
+
+      return { overall, departments }
     },
   })
 
   return {
-    data: performanceData ?? null,
+    data: performanceData?.overall ?? null,
+    departments: performanceData?.departments ?? [],
     isLoading: isSprintLoading || isIssuesLoading,
     error: issuesError as Error | null,
     sprint: sprint ?? null,

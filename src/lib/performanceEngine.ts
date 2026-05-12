@@ -33,6 +33,8 @@ export interface PerformanceIssue extends Omit<PlatformIssue, 'priority'> {
   linkedBugCount: number // 关联的 Bug 类型 issue 数量
   statusTransitions: StatusTransition[] // 状态变更历史
   comments: IssueComment[] // 评论列表（含作者信息）
+  projectKey: string // 所属项目 Key（如 "DTS"）
+  projectName: string // 所属项目名称
 }
 
 /** 复杂度因子计算输入 */

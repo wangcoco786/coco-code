@@ -36,6 +36,8 @@ function makePerformanceIssue(overrides: Partial<PerformanceIssue> = {}): Perfor
     linkedBugCount: 0,
     statusTransitions: [],
     comments: [],
+    projectKey: 'DTS',
+    projectName: 'Test Project',
     ...overrides,
   }
 }

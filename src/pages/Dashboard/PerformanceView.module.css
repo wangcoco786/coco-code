@@ -1,0 +1,626 @@
+/* PerformanceView 绩效视图样式 */
+
+/* ─── 子 Tab 切换 ─── */
+.subTabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.subTab {
+  padding: 6px 16px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--card);
+  cursor: pointer;
+  font-size: 13px;
+  transition: var(--transition);
+  color: var(--text2);
+}
+
+.subTab:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.subTab.active {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+}
+
+/* ─── 指标卡片网格 ─── */
+.metricsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.metricCard {
+  background: var(--card);
+  border-radius: var(--radius-md);
+  padding: 16px 20px;
+  box-shadow: var(--shadow-sm);
+  border-left: 4px solid var(--primary);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.metricCard:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.metricLabel {
+  font-size: 13px;
+  color: var(--text2);
+  margin-bottom: 8px;
+}
+
+.metricValue {
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.metricSub {
+  font-size: 12px;
+  color: var(--text2);
+  margin-top: 4px;
+}
+
+/* 指标卡片颜色指示器 */
+.metricCard.excellent {
+  border-left-color: #52c41a;
+}
+
+.metricCard.good {
+  border-left-color: #1677ff;
+}
+
+.metricCard.average {
+  border-left-color: #fa8c16;
+}
+
+.metricCard.needsImprovement {
+  border-left-color: #f5222d;
+}
+
+/* ─── 雷达图容器 ─── */
+.radarContainer {
+  background: var(--card);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.radarChart {
+  width: 100%;
+  max-width: 480px;
+  height: 360px;
+}
+
+/* ─── 排行列表 ─── */
+.rankingSection {
+  background: var(--card);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 20px;
+}
+
+.rankingTitle {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.rankingTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.rankingTable th,
+.rankingTable td {
+  padding: 10px 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+
+.rankingTable th {
+  background: #fafafa;
+  font-weight: 600;
+  color: var(--text2);
+}
+
+.rankingTable tr:hover {
+  background: #f0f5ff;
+}
+
+.rankNumber {
+  font-weight: 700;
+  color: var(--text2);
+  width: 32px;
+  text-align: center;
+}
+
+.memberName {
+  font-weight: 500;
+  color: var(--text);
+}
+
+.dimensionScore {
+  font-size: 13px;
+  font-weight: 500;
+}
+
+/* ─── 进度条 ─── */
+.progressBar {
+  height: 8px;
+  background: #f0f0f0;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-top: 6px;
+}
+
+.progressFill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.5s;
+  background: var(--primary);
+}
+
+.progressFill.excellent {
+  background: #52c41a;
+}
+
+.progressFill.good {
+  background: #1677ff;
+}
+
+.progressFill.average {
+  background: #fa8c16;
+}
+
+.progressFill.needsImprovement {
+  background: #f5222d;
+}
+
+/* ─── 颜色编码 ─── */
+.excellent {
+  color: #52c41a;
+}
+
+.good {
+  color: #1677ff;
+}
+
+.average {
+  color: #fa8c16;
+}
+
+.needsImprovement {
+  color: #f5222d;
+}
+
+/* ─── 等级标签 (Grade Badge) ─── */
+.gradeBadge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.gradeBadge.excellent {
+  background: #f6ffed;
+  color: #52c41a;
+}
+
+.gradeBadge.good {
+  background: #e6f4ff;
+  color: #1677ff;
+}
+
+.gradeBadge.average {
+  background: #fff7e6;
+  color: #fa8c16;
+}
+
+.gradeBadge.needsImprovement {
+  background: #fff2f0;
+  color: #f5222d;
+}
+
+/* ─── 成员卡片网格 ─── */
+.memberGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+/* ─── 成员卡片 ─── */
+.memberCard {
+  background: var(--card);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.memberCard:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+}
+
+.memberCard.expanded {
+  grid-column: 1 / -1;
+}
+
+.memberCardHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.memberAvatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #e6f4ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--primary);
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.memberAvatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.memberInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.memberCardName {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.memberCardScore {
+  font-size: 20px;
+  font-weight: 700;
+  margin-top: 2px;
+}
+
+.memberCardRadar {
+  width: 100%;
+  height: 200px;
+  margin: 8px 0;
+}
+
+.memberDimensions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.dimensionRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.dimensionLabel {
+  width: 56px;
+  color: var(--text2);
+  flex-shrink: 0;
+}
+
+.dimensionBar {
+  flex: 1;
+  height: 6px;
+  background: #f0f0f0;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.dimensionBarFill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.5s;
+}
+
+.dimensionValue {
+  width: 32px;
+  text-align: right;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+/* ─── 成员详情展开区 ─── */
+.memberDetails {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+
+.detailsTitle {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text2);
+  margin-bottom: 8px;
+}
+
+.taskList {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.taskList th,
+.taskList td {
+  padding: 8px 10px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+  font-size: 12px;
+}
+
+.taskList th {
+  background: #fafafa;
+  font-weight: 600;
+  color: var(--text2);
+}
+
+.taskList tr:hover {
+  background: #f0f5ff;
+}
+
+.complexityBadge {
+  display: inline-block;
+  padding: 1px 6px;
+  border-radius: var(--radius-sm);
+  font-size: 11px;
+  font-weight: 500;
+  background: #f5f5f5;
+  color: var(--text2);
+}
+
+/* ─── 排序控件 ─── */
+.sortControls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.sortLabel {
+  font-size: 13px;
+  color: var(--text2);
+}
+
+.sortSelect {
+  padding: 5px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--card);
+  font-size: 13px;
+  color: var(--text);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.sortSelect:hover {
+  border-color: var(--primary);
+}
+
+.sortSelect:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(22, 119, 255, 0.1);
+}
+
+.sortBtn {
+  padding: 5px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--card);
+  font-size: 12px;
+  cursor: pointer;
+  transition: var(--transition);
+  color: var(--text2);
+}
+
+.sortBtn:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.sortBtn.active {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+}
+
+/* ─── 空状态 ─── */
+.emptyState {
+  text-align: center;
+  padding: 80px 20px;
+  color: var(--text2);
+}
+
+.emptyIcon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.emptyTitle {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+
+.emptyDesc {
+  font-size: 14px;
+}
+
+/* ─── 骨架屏 ─── */
+.skeletonGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.skeletonCard {
+  background: var(--card);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  box-shadow: var(--shadow-sm);
+}
+
+.skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: var(--radius-sm);
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ─── 占位符 ─── */
+.placeholder {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text2);
+  font-size: 14px;
+  background: var(--card);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+
+/* ─── 分布图容器 ─── */
+.distributionContainer {
+  background: var(--card);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 20px;
+}
+
+.distributionTitle {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.distributionChart {
+  width: 100%;
+  height: 240px;
+}
+
+/* ─── 两列布局 ─── */
+.twoCol {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+/* ─── 通用卡片 ─── */
+.card {
+  background: var(--card);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 16px;
+}
+
+.cardTitle {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* ─── 无任务数据提示 ─── */
+.noData {
+  text-align: center;
+  padding: 24px 12px;
+  color: var(--text2);
+  font-size: 13px;
+}
+
+/* ─── 响应式布局 ─── */
+@media (max-width: 1200px) {
+  .metricsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .memberGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 900px) {
+  .metricsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .memberGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .skeletonGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .twoCol {
+    grid-template-columns: 1fr;
+  }
+
+  .radarChart {
+    height: 280px;
+  }
+
+  .rankingTable th:nth-child(n+4),
+  .rankingTable td:nth-child(n+4) {
+    display: none;
+  }
+
+  .sortControls {
+    flex-wrap: wrap;
+  }
+
+  .memberCard.expanded {
+    grid-column: 1;
+  }
+}

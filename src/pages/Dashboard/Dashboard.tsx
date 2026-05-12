@@ -9,18 +9,33 @@ import AIInsight from '@/components/AIInsight/AIInsight'
 import ActivityFeed from '@/components/ActivityFeed/ActivityFeed'
 import GlobalView from './GlobalView'
 import PersonalView from './PersonalView'
+import PerformanceView from './PerformanceView'
 import styles from './Dashboard.module.css'
 import type { PlatformIssue, ActivityItem } from '@/types/platform'
 
-type DashTab = 'global' | 'personal' | 'decision'
+type DashTab = 'global' | 'personal' | 'decision' | 'performance'
 
 export default function Dashboard() {
   const { currentUser, currentProjectKey } = useApp()
   const { addNotification } = useNotifications()
   const { t } = useI18n()
-  const [activeTab, setActiveTab] = useState<DashTab>(
-    currentUser?.role === 'DEV' ? 'personal' : 'global'
-  )
+
+  // 读取 URL 参数确定初始 Tab
+  const getInitialTab = (): DashTab => {
+    const params = new URLSearchParams(window.location.search)
+    const tabParam = params.get('tab')
+    if (tabParam === 'performance' || tabParam === 'global' || tabParam === 'personal' || tabParam === 'decision') {
+      return tabParam
+    }
+    // 未选择项目时默认显示绩效页面
+    return 'performance'
+  }
+
+  const [activeTab, setActiveTab] = useState<DashTab>(getInitialTab)
+
+  const handleTabChange = (tab: DashTab) => {
+    setActiveTab(tab)
+  }
 
   const { data: sprints = [] } = useActiveSprintsByProject(currentProjectKey)
   const sprint = sprints[0] ?? null  // Dashboard 显示第一个 Sprint
@@ -98,16 +113,20 @@ export default function Dashboard() {
         <div className={styles.tabs}>
           <button
             className={`${styles.tab} ${activeTab === 'global' ? styles.active : ''}`}
-            onClick={() => setActiveTab('global')}
+            onClick={() => handleTabChange('global')}
           >{t('dashboard.globalView')}</button>
           <button
             className={`${styles.tab} ${activeTab === 'personal' ? styles.active : ''}`}
-            onClick={() => setActiveTab('personal')}
+            onClick={() => handleTabChange('personal')}
           >{t('dashboard.personalView')}</button>
+          <button
+            className={`${styles.tab} ${activeTab === 'performance' ? styles.active : ''}`}
+            onClick={() => handleTabChange('performance')}
+          >部门绩效</button>
           {currentUser?.role === 'PM' && (
             <button
               className={`${styles.tab} ${activeTab === 'decision' ? styles.active : ''}`}
-              onClick={() => setActiveTab('decision')}
+              onClick={() => handleTabChange('decision')}
             >{t('dashboard.aiDecision')}</button>
           )}
         </div>
@@ -132,13 +151,9 @@ export default function Dashboard() {
         />
       )}
 
-      {/* 未选择项目 */}
-      {!currentProjectKey && (
-        <div className={styles.emptyState}>
-          <div className={styles.emptyIcon}>📊</div>
-          <div className={styles.emptyTitle}>{t('common.selectProjectFirst')}</div>
-          <div className={styles.emptyDesc}>{t('common.selectProjectHint')}</div>
-        </div>
+      {/* 未选择项目时也显示绩效视图 */}
+      {!currentProjectKey && activeTab === 'performance' && (
+        <PerformanceView projectKey={null} />
       )}
 
       {/* 错误 */}
@@ -149,9 +164,9 @@ export default function Dashboard() {
       )}
 
       {/* 内容区 */}
-      {currentProjectKey && !error && (
+      {(currentProjectKey || activeTab === 'performance') && !error && (
         <>
-          {activeTab === 'global' && (
+          {activeTab === 'global' && currentProjectKey && (
             <GlobalView
               sprint={sprint ?? null}
               sprints={sprints}
@@ -161,14 +176,17 @@ export default function Dashboard() {
               isLoading={isLoading}
             />
           )}
-          {activeTab === 'personal' && (
+          {activeTab === 'personal' && currentProjectKey && (
             <PersonalView
               issues={issues}
               currentUser={currentUser}
               isLoading={isLoading}
             />
           )}
-          {activeTab === 'decision' && currentUser?.role === 'PM' && (
+          {activeTab === 'performance' && (
+            <PerformanceView projectKey={currentProjectKey} />
+          )}
+          {activeTab === 'decision' && currentUser?.role === 'PM' && currentProjectKey && (
             <DecisionView risks={risks} issues={issues} />
           )}
 

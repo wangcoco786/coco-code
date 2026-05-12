@@ -164,45 +164,14 @@ function ProjectScoreRow({ project, onClick }: {
   project: { id: string; key: string; name: string }
   onClick: () => void
 }) {
-  const { data, isLoading } = usePerformanceData(project.key)
-
-  // 无活跃 Sprint 的项目不显示
-  if (!isLoading && !data) return null
-
-  const score = data?.averageScore ?? 0
-  const gradeColor = score >= 80 ? '#52c41a' : score >= 60 ? '#1677ff' : score >= 40 ? '#fa8c16' : '#f5222d'
-  const gradeLabel = score >= 80 ? '优秀' : score >= 60 ? '良好' : score >= 40 ? '一般' : '需改进'
-  const memberCount = data?.members.length ?? 0
-  const completedTasks = data?.totalCompletedTasks ?? 0
-
-  // 用 CSS order 实现按分数从高到低排序（分数越高 order 越小）
-  const orderValue = data ? Math.round((100 - score) * 10) : 99999
-
   return (
-    <div className={styles.perfRow} onClick={onClick} style={{ order: orderValue }}>
+    <div className={styles.perfRow} onClick={onClick}>
       <div className={styles.perfInfo}>
         <div className={styles.perfName}>{project.name}</div>
-        <div className={styles.perfMeta}>
-          {isLoading ? (
-            <span style={{ color: 'var(--text2)' }}>加载中...</span>
-          ) : (
-            <>{memberCount} 人 · {completedTasks} 个任务完成</>
-          )}
-        </div>
+        <div className={styles.perfMeta}>{project.key}</div>
       </div>
       <div className={styles.perfScore}>
-        {isLoading ? (
-          <div className={styles.skeleton} style={{ width: 48, height: 24, borderRadius: 4 }} />
-        ) : (
-          <>
-            <span className={styles.perfScoreValue} style={{ color: gradeColor }}>
-              {score.toFixed(1)}
-            </span>
-            <span className={styles.perfGrade} style={{ background: gradeColor + '12', color: gradeColor }}>
-              {gradeLabel}
-            </span>
-          </>
-        )}
+        <span style={{ fontSize: 13, color: 'var(--primary)' }}>查看绩效 →</span>
       </div>
     </div>
   )

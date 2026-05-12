@@ -1,4 +1,4 @@
-﻿import { useState, useMemo, useEffect, useRef } from 'react'
+﻿import { useState, useMemo, useEffect, useRef, lazy, Suspense } from 'react'
 import { useApp } from '@/context/AppContext'
 import { useNotifications } from '@/context/NotificationContext'
 import { useActiveSprintIssuesByProject, useActiveSprintsByProject } from '@/hooks/useProjectIssues'
@@ -9,9 +9,10 @@ import AIInsight from '@/components/AIInsight/AIInsight'
 import ActivityFeed from '@/components/ActivityFeed/ActivityFeed'
 import GlobalView from './GlobalView'
 import PersonalView from './PersonalView'
-import PerformanceView from './PerformanceView'
 import styles from './Dashboard.module.css'
 import type { PlatformIssue, ActivityItem } from '@/types/platform'
+
+const PerformanceView = lazy(() => import('./PerformanceView'))
 
 type DashTab = 'global' | 'personal' | 'decision' | 'performance'
 
@@ -20,18 +21,9 @@ export default function Dashboard() {
   const { addNotification } = useNotifications()
   const { t } = useI18n()
 
-  // 读取 URL 参数确定初始 Tab
-  const getInitialTab = (): DashTab => {
-    const params = new URLSearchParams(window.location.search)
-    const tabParam = params.get('tab')
-    if (tabParam === 'performance' || tabParam === 'global' || tabParam === 'personal' || tabParam === 'decision') {
-      return tabParam
-    }
-    // 未选择项目时默认显示绩效页面
-    return 'performance'
-  }
-
-  const [activeTab, setActiveTab] = useState<DashTab>(getInitialTab)
+  const [activeTab, setActiveTab] = useState<DashTab>(
+    currentProjectKey ? (currentUser?.role === 'DEV' ? 'personal' : 'global') : 'performance'
+  )
 
   const handleTabChange = (tab: DashTab) => {
     setActiveTab(tab)
@@ -181,7 +173,9 @@ export default function Dashboard() {
             />
           )}
           {activeTab === 'performance' && (
-            <PerformanceView projectKey={currentProjectKey} />
+            <Suspense fallback={<div style={{ padding: 40, textAlign: 'center', color: 'var(--text2)' }}>加载绩效模块...</div>}>
+              <PerformanceView projectKey={currentProjectKey} />
+            </Suspense>
           )}
           {activeTab === 'decision' && currentUser?.role === 'PM' && currentProjectKey && (
             <DecisionView risks={risks} issues={issues} />

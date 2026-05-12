@@ -1,0 +1,1 @@
+import{o as e}from"./useProjectIssues-D1VTfTws.js";import{t}from"./jiraClient-k7aMJ5kQ.js";function n(){return e({queryKey:[`projects`],queryFn:()=>t.getProjects(),staleTime:600*1e3,select:e=>[...e].sort((e,t)=>e.name.localeCompare(t.name))})}export{n as t};

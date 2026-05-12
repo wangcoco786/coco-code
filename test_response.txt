@@ -1,0 +1,27 @@
+﻿<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI-PM 流程管理平台</title>
+    <script type="module" crossorigin src="/assets/index-Dc5Yx58p.js"></script>
+    <link rel="modulepreload" crossorigin href="/assets/jsx-runtime-D57Vegw5.js">
+    <link rel="modulepreload" crossorigin href="/assets/dist-CDQhAogZ.js">
+    <link rel="modulepreload" crossorigin href="/assets/tokenManager-tF0fi7R5.js">
+    <link rel="modulepreload" crossorigin href="/assets/jiraClient-k7aMJ5kQ.js">
+    <link rel="modulepreload" crossorigin href="/assets/statusMapper-BUDeUwRb.js">
+    <link rel="modulepreload" crossorigin href="/assets/useProjectIssues-DHjzwlTT.js">
+    <link rel="modulepreload" crossorigin href="/assets/mutation-C0kZBiX1.js">
+    <link rel="modulepreload" crossorigin href="/assets/AppContext-vaLQX57m.js">
+    <link rel="modulepreload" crossorigin href="/assets/I18nContext-DQbnxJhT.js">
+    <link rel="modulepreload" crossorigin href="/assets/NotificationContext-CUj3ItAl.js">
+    <link rel="modulepreload" crossorigin href="/assets/ThemeContext-B6paipDj.js">
+    <link rel="modulepreload" crossorigin href="/assets/ToastContext-DVQHBfuR.js">
+    <link rel="stylesheet" crossorigin href="/assets/index-BnDgD8VB.css">
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>
+

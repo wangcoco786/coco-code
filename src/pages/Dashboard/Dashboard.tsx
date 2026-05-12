@@ -151,11 +151,6 @@ export default function Dashboard() {
         />
       )}
 
-      {/* 未选择项目时也显示绩效视图 */}
-      {!currentProjectKey && activeTab === 'performance' && (
-        <PerformanceView projectKey={null} />
-      )}
-
       {/* 错误 */}
       {error && currentProjectKey && (
         <div className={styles.errorBanner}>

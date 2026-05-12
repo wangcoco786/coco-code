@@ -313,43 +313,48 @@ export function usePerformanceData(projectKey: string | null): UsePerformanceDat
       return failureCount < 3
     },
     select: (data) => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const issues: any[] = data?.issues ?? []
-      const performanceIssues: PerformanceIssue[] = issues.map(transformToPerformanceIssue)
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const issues: any[] = data?.issues ?? []
+        const performanceIssues: PerformanceIssue[] = issues.map(transformToPerformanceIssue)
 
-      // 确定 Sprint 日期范围
-      const sprintDates = {
-        startDate: sprint?.startDate ?? new Date().toISOString(),
-        endDate: sprint?.endDate ?? new Date().toISOString(),
-      }
+        // 确定 Sprint 日期范围
+        const sprintDates = {
+          startDate: sprint?.startDate ?? new Date().toISOString(),
+          endDate: sprint?.endDate ?? new Date().toISOString(),
+        }
 
-      if (performanceIssues.length === 0) {
+        if (performanceIssues.length === 0) {
+          return { overall: null, departments: [] }
+        }
+
+        // 整体绩效
+        const overall = calculateDepartmentPerformance(performanceIssues, sprintDates)
+
+        // 按项目（部门）分组计算绩效
+        const projectGroups = new Map<string, { name: string; issues: PerformanceIssue[] }>()
+        for (const issue of performanceIssues) {
+          const key = issue.projectKey
+          if (!projectGroups.has(key)) {
+            projectGroups.set(key, { name: issue.projectName, issues: [] })
+          }
+          projectGroups.get(key)!.issues.push(issue)
+        }
+
+        const departments = Array.from(projectGroups.entries()).map(([projectKey, group]) => ({
+          projectKey,
+          projectName: group.name,
+          performance: calculateDepartmentPerformance(group.issues, sprintDates),
+        }))
+
+        // 按平均绩效分降序排列
+        departments.sort((a, b) => b.performance.averageScore - a.performance.averageScore)
+
+        return { overall, departments }
+      } catch (e) {
+        console.error('[PerformanceEngine] select error:', e)
         return { overall: null, departments: [] }
       }
-
-      // 整体绩效
-      const overall = calculateDepartmentPerformance(performanceIssues, sprintDates)
-
-      // 按项目（部门）分组计算绩效
-      const projectGroups = new Map<string, { name: string; issues: PerformanceIssue[] }>()
-      for (const issue of performanceIssues) {
-        const key = issue.projectKey
-        if (!projectGroups.has(key)) {
-          projectGroups.set(key, { name: issue.projectName, issues: [] })
-        }
-        projectGroups.get(key)!.issues.push(issue)
-      }
-
-      const departments = Array.from(projectGroups.entries()).map(([projectKey, group]) => ({
-        projectKey,
-        projectName: group.name,
-        performance: calculateDepartmentPerformance(group.issues, sprintDates),
-      }))
-
-      // 按平均绩效分降序排列
-      departments.sort((a, b) => b.performance.averageScore - a.performance.averageScore)
-
-      return { overall, departments }
     },
   })
 

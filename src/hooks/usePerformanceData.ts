@@ -5,6 +5,7 @@ import { calculateDepartmentPerformance } from '@/lib/performanceEngine'
 import type { PerformanceIssue, StatusTransition, IssueComment, DepartmentPerformance } from '@/lib/performanceEngine'
 import type { JiraSprint } from '@/types/jira'
 import { useActiveSprintByProject } from '@/hooks/useProjectIssues'
+import { useJiraProjects } from '@/hooks/useJiraBoard'
 
 // ============================================================
 // Jira 扩展字段列表（绩效计算所需）
@@ -256,7 +257,10 @@ export interface UsePerformanceDataResult {
  * @param projectKey - 项目 Key（如 "DTS"）
  */
 export function usePerformanceData(projectKey: string | null): UsePerformanceDataResult {
-  // 获取活跃 Sprint
+  // 获取所有项目（用于全局模式）
+  const { data: allProjects } = useJiraProjects()
+
+  // 获取活跃 Sprint（仅单项目模式使用）
   const { data: sprint, isLoading: isSprintLoading } = useActiveSprintByProject(projectKey)
 
   // 获取含扩展字段的 Sprint Issues
@@ -265,7 +269,7 @@ export function usePerformanceData(projectKey: string | null): UsePerformanceDat
     isLoading: isIssuesLoading,
     error: issuesError,
   } = useQuery({
-    queryKey: ['performance-issues', projectKey ?? 'all', sprint?.id],
+    queryKey: ['performance-issues', projectKey ?? 'all-projects', sprint?.id],
     queryFn: async () => {
       let jql: string
       if (projectKey) {
@@ -273,8 +277,33 @@ export function usePerformanceData(projectKey: string | null): UsePerformanceDat
           ? `project = ${projectKey} AND sprint = ${sprint.id} ORDER BY priority ASC, updated DESC`
           : `project = ${projectKey} AND sprint in openSprints() ORDER BY priority ASC, updated DESC`
       } else {
-        // 全局模式：直接查所有活跃 Sprint 的 issues（Jira 会按权限过滤）
-        jql = `sprint in openSprints() ORDER BY project ASC, priority ASC, updated DESC`
+        // 全局模式：逐个项目查询有 active sprint 的数据
+        if (!allProjects || allProjects.length === 0) {
+          return { issues: [] }
+        }
+
+        // 逐个项目尝试查询，收集所有有数据的 issues
+        const allIssues: unknown[] = []
+        const fieldsStr = PERFORMANCE_FIELDS.join(',')
+
+        for (const project of allProjects) {
+          try {
+            const url = `rest/api/2/search?jql=${encodeURIComponent(`project = ${project.key} AND sprint in openSprints() ORDER BY priority ASC, updated DESC`)}&fields=${fieldsStr}&expand=changelog&maxResults=200`
+            const response = await authFetch(`/api/jira/${url}`, {
+              headers: { 'Content-Type': 'application/json' },
+            })
+            if (response.ok) {
+              const data = await response.json()
+              if (data.issues && data.issues.length > 0) {
+                allIssues.push(...data.issues)
+              }
+            }
+          } catch {
+            // 跳过查询失败的项目
+          }
+        }
+
+        return { issues: allIssues }
       }
 
       const fieldsStr = PERFORMANCE_FIELDS.join(',')
@@ -300,7 +329,7 @@ export function usePerformanceData(projectKey: string | null): UsePerformanceDat
       const data = await response.json()
       return data
     },
-    enabled: true,
+    enabled: !!projectKey || (allProjects != null && allProjects.length > 0),
     staleTime: 5 * 60 * 1000, // 5 分钟
     retry: (failureCount, error) => {
       if (

@@ -151,33 +151,69 @@ function ProjectListView() {
   return (
     <div>
       <h2 style={{ fontSize: 16, fontWeight: 600, marginBottom: 16, color: 'var(--text)' }}>
-        选择部门查看绩效（点击项目名称）
+        部门绩效排行（点击查看详情）
       </h2>
-      <div className={styles.memberGrid}>
-        {projects.map(project => (
-          <div
-            key={project.key}
-            className={styles.memberCard}
-            onClick={() => setSelectedProject(project.key)}
-            role="button"
-            tabIndex={0}
-            onKeyDown={e => { if (e.key === 'Enter') setSelectedProject(project.key) }}
-          >
-            <div className={styles.memberCardHeader}>
-              <div className={styles.memberAvatar} style={{ background: '#1677ff22', color: '#1677ff' }}>
-                {project.key.charAt(0)}
-              </div>
-              <div className={styles.memberInfo}>
-                <div className={styles.memberCardName}>{project.name}</div>
-                <div style={{ fontSize: 12, color: 'var(--text2)' }}>{project.key}</div>
-              </div>
-            </div>
-            <div style={{ marginTop: 12, fontSize: 13, color: 'var(--primary)', textAlign: 'center' }}>
-              点击查看绩效 →
-            </div>
-          </div>
-        ))}
+      <div className={styles.rankingSection}>
+        <table className={styles.rankingTable}>
+          <thead>
+            <tr>
+              <th style={{ width: 50 }}>#</th>
+              <th>部门</th>
+              <th style={{ width: 80 }}>项目 Key</th>
+              <th style={{ width: 120, textAlign: 'right' }}>综合绩效</th>
+            </tr>
+          </thead>
+          <tbody>
+            {projects.map((project, index) => (
+              <ProjectRow
+                key={project.key}
+                project={project}
+                rank={index + 1}
+                onClick={() => setSelectedProject(project.key)}
+              />
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
+  )
+}
+
+/** 单个项目行（异步加载绩效分数） */
+function ProjectRow({ project, rank, onClick }: {
+  project: { id: string; key: string; name: string }
+  rank: number
+  onClick: () => void
+}) {
+  const { data, isLoading } = usePerformanceData(project.key)
+
+  const score = data?.averageScore ?? null
+  const gradeLabel = score !== null
+    ? score >= 80 ? '优秀' : score >= 60 ? '良好' : score >= 40 ? '一般' : '需改进'
+    : null
+  const gradeColor = score !== null
+    ? score >= 80 ? '#52c41a' : score >= 60 ? '#1677ff' : score >= 40 ? '#fa8c16' : '#f5222d'
+    : '#999'
+
+  return (
+    <tr onClick={onClick} style={{ cursor: 'pointer' }}>
+      <td className={styles.rankNumber}>{rank}</td>
+      <td className={styles.memberName}>{project.name}</td>
+      <td style={{ color: 'var(--text2)', fontSize: 12 }}>{project.key}</td>
+      <td style={{ textAlign: 'right' }}>
+        {isLoading ? (
+          <span style={{ color: '#999', fontSize: 12 }}>加载中...</span>
+        ) : score !== null ? (
+          <span style={{ fontWeight: 700, fontSize: 16, color: gradeColor }}>
+            {score.toFixed(1)}
+            <span style={{ fontSize: 11, fontWeight: 400, marginLeft: 6, padding: '1px 6px', borderRadius: 8, background: gradeColor + '15', color: gradeColor }}>
+              {gradeLabel}
+            </span>
+          </span>
+        ) : (
+          <span style={{ color: '#999', fontSize: 12 }}>无活跃 Sprint</span>
+        )}
+      </td>
+    </tr>
   )
 }

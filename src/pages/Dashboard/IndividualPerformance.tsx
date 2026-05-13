@@ -80,9 +80,26 @@ export default function IndividualPerformance({ memberPerformances }: Individual
   const [sortKey, setSortKey] = useState<SortKey>('performanceScore')
   const [expandedMemberId, setExpandedMemberId] = useState<string | null>(null)
 
-  // 按选定维度降序排序
-  const sortedMembers = useMemo(() => {
-    return [...memberPerformances].sort((a, b) => b[sortKey] - a[sortKey])
+  // 按角色分组
+  const { developers, reporters, qas } = useMemo(() => {
+    const devs: MemberPerformance[] = []
+    const reps: MemberPerformance[] = []
+    const qas: MemberPerformance[] = []
+
+    for (const member of memberPerformances) {
+      const roles = member.roles ?? []
+      if (roles.includes('Developer')) devs.push(member)
+      if (roles.includes('Reporter')) reps.push(member)
+      if (roles.includes('QA')) qas.push(member)
+      // 如果没有明确角色，归入 Developer
+      if (roles.length === 0 || (roles.length === 1 && roles[0] === 'Assignee')) {
+        devs.push(member)
+      }
+    }
+
+    // 各组按选定维度排序
+    const sort = (arr: MemberPerformance[]) => [...arr].sort((a, b) => b[sortKey] - a[sortKey])
+    return { developers: sort(devs), reporters: sort(reps), qas: sort(qas) }
   }, [memberPerformances, sortKey])
 
   const handleCardClick = (memberId: string) => {
@@ -105,14 +122,61 @@ export default function IndividualPerformance({ memberPerformances }: Individual
         </select>
       </div>
 
-      {/* 成员卡片网格 */}
+      {/* Developer 组 */}
+      {developers.length > 0 && (
+        <RoleSection
+          title="👨‍💻 Developer"
+          members={developers}
+          expandedMemberId={expandedMemberId}
+          onCardClick={handleCardClick}
+        />
+      )}
+
+      {/* Reporter 组 */}
+      {reporters.length > 0 && (
+        <RoleSection
+          title="📝 Reporter"
+          members={reporters}
+          expandedMemberId={expandedMemberId}
+          onCardClick={handleCardClick}
+        />
+      )}
+
+      {/* QA 组 */}
+      {qas.length > 0 && (
+        <RoleSection
+          title="🧪 QA"
+          members={qas}
+          expandedMemberId={expandedMemberId}
+          onCardClick={handleCardClick}
+        />
+      )}
+    </div>
+  )
+}
+
+/** 角色分组区块 */
+function RoleSection({ title, members, expandedMemberId, onCardClick }: {
+  title: string
+  members: MemberPerformance[]
+  expandedMemberId: string | null
+  onCardClick: (id: string) => void
+}) {
+  return (
+    <div style={{ marginBottom: 32 }}>
+      <h3 style={{ fontSize: 16, fontWeight: 700, color: 'var(--text)', marginBottom: 12, paddingBottom: 8, borderBottom: '2px solid var(--border)' }}>
+        {title}
+        <span style={{ fontSize: 13, fontWeight: 400, color: 'var(--text2)', marginLeft: 8 }}>
+          ({members.length} 人)
+        </span>
+      </h3>
       <div className={styles.memberGrid}>
-        {sortedMembers.map(member => (
+        {members.map(member => (
           <MemberCard
             key={member.memberId}
             member={member}
             isExpanded={expandedMemberId === member.memberId}
-            onClick={() => handleCardClick(member.memberId)}
+            onClick={() => onCardClick(member.memberId)}
           />
         ))}
       </div>

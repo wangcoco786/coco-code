@@ -38,6 +38,8 @@ function makePerformanceIssue(overrides: Partial<PerformanceIssue> = {}): Perfor
     comments: [],
     projectKey: 'DTS',
     projectName: 'Test Project',
+    reporter: { id: 'reporter-1', name: 'Reporter' },
+    qaUser: null,
     ...overrides,
   }
 }

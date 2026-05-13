@@ -35,6 +35,8 @@ export interface PerformanceIssue extends Omit<PlatformIssue, 'priority'> {
   comments: IssueComment[] // 评论列表（含作者信息）
   projectKey: string // 所属项目 Key（如 "DTS"）
   projectName: string // 所属项目名称
+  reporter: { id: string; name: string } | null // Reporter
+  qaUser: { id: string; name: string } | null // QA 人员
 }
 
 /** 复杂度因子计算输入 */
@@ -669,9 +671,22 @@ export function calculateDepartmentPerformance(
   sprint: { startDate: string; endDate: string },
   weights?: PerformanceWeights
 ): DepartmentPerformance {
-  // 按 assignee 分组
+  // 收集有效成员：只包含 assignee、reporter、QA 角色的人
+  // 按 assignee 分组 issues（绩效基于 assignee 的任务）
   const memberGroups = groupIssuesByAssignee(issues)
-  const memberIds = Object.keys(memberGroups)
+
+  // 收集所有有效角色的人员 ID（reporter、assignee、QA）
+  const validMemberIds = new Set<string>()
+  for (const issue of issues) {
+    if (issue.assignee?.id) validMemberIds.add(issue.assignee.id)
+    if (issue.reporter?.id) validMemberIds.add(issue.reporter.id)
+    if (issue.qaUser?.id) validMemberIds.add(issue.qaUser.id)
+  }
+
+  // 过滤：只保留有效角色的成员，排除 'unassigned'
+  const memberIds = Object.keys(memberGroups).filter(id =>
+    id !== 'unassigned' && validMemberIds.has(id)
+  )
 
   // 若无成员，返回空结果
   if (memberIds.length === 0) {

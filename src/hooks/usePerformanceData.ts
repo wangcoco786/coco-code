@@ -10,11 +10,12 @@ import { useActiveSprintByProject } from '@/hooks/useProjectIssues'
 // Jira 扩展字段列表（绩效计算所需）
 // ============================================================
 const PERFORMANCE_FIELDS = [
-  'summary', 'status', 'priority', 'assignee',
+  'summary', 'status', 'priority', 'assignee', 'reporter',
   'labels', 'created', 'updated', 'project',
   'subtasks',       // 子任务列表
   'issuelinks',    // 关联 issue
   'comment',       // 评论
+  'customfield_10104', // QA 字段（常见 ID，可能需要调整）
 ]
 
 // ============================================================
@@ -229,6 +230,23 @@ function transformToPerformanceIssue(issue: any): PerformanceIssue {
     comments,
     projectKey: (issue.key ?? '').split('-')[0] || 'UNKNOWN',
     projectName: fields.project?.name ?? (issue.key ?? '').split('-')[0] ?? 'Unknown',
+    reporter: fields.reporter
+      ? {
+          id: fields.reporter.accountId || fields.reporter.key || fields.reporter.name || fields.reporter.displayName || 'unknown',
+          name: formatDisplayName(fields.reporter.displayName ?? ''),
+        }
+      : null,
+    qaUser: (() => {
+      // QA 字段 — 尝试常见的自定义字段 ID
+      const qa = fields.customfield_10104 ?? fields.customfield_10105 ?? fields.customfield_10003 ?? null
+      if (!qa || typeof qa !== 'object') return null
+      const qaObj = qa as { accountId?: string; key?: string; name?: string; displayName?: string; active?: boolean }
+      if (qaObj.active === false) return null // inactive QA 不计入
+      return {
+        id: qaObj.accountId || qaObj.key || qaObj.name || qaObj.displayName || 'unknown',
+        name: formatDisplayName(qaObj.displayName ?? ''),
+      }
+    })(),
   }
 }
 

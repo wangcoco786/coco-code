@@ -238,14 +238,17 @@ function transformToPerformanceIssue(issue: any): PerformanceIssue {
         }
       : null,
     qaUser: (() => {
-      // QA 字段: customfield_11102
+      // QA 字段: customfield_11102 — 返回的是用户数组
       const qa = fields.customfield_11102 ?? null
-      if (!qa || typeof qa !== 'object') return null
-      const qaObj = qa as { accountId?: string; key?: string; name?: string; displayName?: string; active?: boolean }
-      if (qaObj.active === false) return null
+      if (!qa) return null
+      // 可能是数组或单个对象
+      const qaObj = Array.isArray(qa) ? qa[0] : qa
+      if (!qaObj || typeof qaObj !== 'object') return null
+      const q = qaObj as { accountId?: string; key?: string; name?: string; displayName?: string; active?: boolean }
+      if (q.active === false) return null
       return {
-        id: qaObj.accountId || qaObj.key || qaObj.name || qaObj.displayName || 'unknown',
-        name: formatDisplayName(qaObj.displayName ?? ''),
+        id: q.accountId || q.key || q.name || q.displayName || 'unknown',
+        name: formatDisplayName(q.displayName ?? ''),
       }
     })(),
     developerUser: (() => {

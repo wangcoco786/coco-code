@@ -644,18 +644,20 @@ export function calculateMemberPerformance(
     crossTeamTaskRatio: collaboration.crossTeamTaskRatio,
   }
 
-  // 计算成员角色（基于 ticket 中的字段，不是 assignee）
+  // 计算成员角色（基于 ticket 中的字段）
   const roles: string[] = []
   const isDeveloper = allIssues.some(i => i.developerUser?.id === memberId)
   const isReporter = allIssues.some(i => i.reporter?.id === memberId)
   const isQA = allIssues.some(i => i.qaUser?.id === memberId)
+  const isAssignee = memberIssues.some(i => i.assignee?.id === memberId)
+
   if (isDeveloper) roles.push('Developer')
   if (isReporter) roles.push('Reporter')
   if (isQA) roles.push('QA')
-  if (roles.length === 0) {
-    // 如果在任何字段中都没找到角色，检查是否是 assignee
-    const isAssignee = memberIssues.some(i => i.assignee?.id === memberId)
-    if (isAssignee) roles.push('Assignee')
+
+  // 如果 Developer 字段为空但是 assignee，且不是纯 Reporter/QA，则视为 Developer
+  if (!isDeveloper && isAssignee && !isQA) {
+    roles.push('Developer')
   }
 
   return {

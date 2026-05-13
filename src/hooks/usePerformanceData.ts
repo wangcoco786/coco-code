@@ -15,9 +15,8 @@ const PERFORMANCE_FIELDS = [
   'subtasks',       // 子任务列表
   'issuelinks',    // 关联 issue
   'comment',       // 评论
-  'customfield_10104', // QA 字段
-  'customfield_10101', // Developer 字段（常见 ID）
-  'customfield_10102', // Developer 字段（备选 ID）
+  'customfield_11102', // QA 字段
+  'customfield_11000', // Developer(single) 字段
 ]
 
 // ============================================================
@@ -239,21 +238,20 @@ function transformToPerformanceIssue(issue: any): PerformanceIssue {
         }
       : null,
     qaUser: (() => {
-      // QA 字段 — 尝试常见的自定义字段 ID
-      const qa = fields.customfield_10104 ?? fields.customfield_10105 ?? fields.customfield_10003 ?? null
+      // QA 字段: customfield_11102
+      const qa = fields.customfield_11102 ?? null
       if (!qa || typeof qa !== 'object') return null
       const qaObj = qa as { accountId?: string; key?: string; name?: string; displayName?: string; active?: boolean }
-      if (qaObj.active === false) return null // inactive QA 不计入
+      if (qaObj.active === false) return null
       return {
         id: qaObj.accountId || qaObj.key || qaObj.name || qaObj.displayName || 'unknown',
         name: formatDisplayName(qaObj.displayName ?? ''),
       }
     })(),
     developerUser: (() => {
-      // Developer 自定义字段
-      const dev = fields.customfield_10101 ?? fields.customfield_10102 ?? fields.customfield_10100 ?? null
+      // Developer(single) 字段: customfield_11000
+      const dev = fields.customfield_11000 ?? null
       if (!dev || typeof dev !== 'object') return null
-      // Developer 字段可能是单个用户或用户数组，取第一个
       const devObj = Array.isArray(dev) ? dev[0] : dev
       if (!devObj || typeof devObj !== 'object') return null
       const d = devObj as { accountId?: string; key?: string; name?: string; displayName?: string; active?: boolean }

@@ -1,4 +1,4 @@
-﻿import { useState, useMemo, useEffect, useRef, lazy, Suspense } from 'react'
+﻿import { useState, useMemo, useEffect, useRef } from 'react'
 import { useApp } from '@/context/AppContext'
 import { useNotifications } from '@/context/NotificationContext'
 import { useActiveSprintIssuesByProject, useActiveSprintsByProject } from '@/hooks/useProjectIssues'
@@ -9,10 +9,9 @@ import AIInsight from '@/components/AIInsight/AIInsight'
 import ActivityFeed from '@/components/ActivityFeed/ActivityFeed'
 import GlobalView from './GlobalView'
 import PersonalView from './PersonalView'
+import PerformanceView from './PerformanceView'
 import styles from './Dashboard.module.css'
 import type { PlatformIssue, ActivityItem } from '@/types/platform'
-
-const PerformanceView = lazy(() => import('./PerformanceView'))
 
 type DashTab = 'global' | 'personal' | 'decision' | 'performance'
 
@@ -21,9 +20,19 @@ export default function Dashboard() {
   const { addNotification } = useNotifications()
   const { t } = useI18n()
 
-  const [activeTab, setActiveTab] = useState<DashTab>(
-    currentProjectKey ? (currentUser?.role === 'DEV' ? 'personal' : 'global') : 'performance'
-  )
+  // 读取 URL 参数确定初始 Tab
+  const getInitialTab = (): DashTab => {
+    const params = new URLSearchParams(window.location.search)
+    const tabParam = params.get('tab')
+    if (tabParam === 'performance' || tabParam === 'global' || tabParam === 'personal' || tabParam === 'decision') {
+      return tabParam
+    }
+    // Default: PM → global, DEV → personal
+    if (currentUser?.role === 'PM') return 'global'
+    return 'personal'
+  }
+
+  const [activeTab, setActiveTab] = useState<DashTab>(getInitialTab)
 
   const handleTabChange = (tab: DashTab) => {
     setActiveTab(tab)
@@ -87,21 +96,32 @@ export default function Dashboard() {
     return sortAndLimitActivities(activities, 50)
   }, [issues])
 
+  // 未选择项目时，直接显示绩效视图
+  if (!currentProjectKey) {
+    return (
+      <div className={styles.page}>
+        <div className={styles.header}>
+          <div>
+            <h1 className={styles.title}>{t('dashboard.title')}</h1>
+            <p className={styles.subtitle}>{t('dashboard.selectProjectHint')}</p>
+          </div>
+        </div>
+        <PerformanceView projectKey={null} />
+      </div>
+    )
+  }
+
   return (
     <div className={styles.page}>
       <div className={styles.header}>
         <div>
           <h1 className={styles.title}>{t('dashboard.title')}</h1>
           <p className={styles.subtitle}>
-            {activeTab === 'performance'
-              ? '各部门综合绩效评估'
-              : sprints.length > 0
+            {sprints.length > 0
               ? sprints.length === 1
                 ? `${sprint!.name} · ${sprint!.startDate?.slice(0, 10)} ~ ${sprint!.endDate?.slice(0, 10)} · ${issues.length} ${t('dashboard.subtitle.tasks')}`
                 : `${sprints.length} ${t('dashboard.subtitle.activeSprints')} · ${issues.length} ${t('dashboard.subtitle.tasks')}`
-              : currentProjectKey
-              ? isLoading ? t('common.loading') : t('dashboard.noActiveSprint')
-              : t('dashboard.selectProjectHint')}
+              : isLoading ? t('common.loading') : t('dashboard.noActiveSprint')}
           </p>
         </div>
         <div className={styles.tabs}>
@@ -127,7 +147,7 @@ export default function Dashboard() {
       </div>
 
       {/* AI 分析 */}
-      {currentProjectKey && issues.length > 0 && (
+      {issues.length > 0 && (
         <AIInsight
           title={t('ai.insight')}
           buildPrompt={() => {
@@ -146,16 +166,16 @@ export default function Dashboard() {
       )}
 
       {/* 错误 */}
-      {error && currentProjectKey && (
+      {error && (
         <div className={styles.errorBanner}>
           ⚠️ {t('dashboard.errorLoad')}：{(error as Error).message}
         </div>
       )}
 
       {/* 内容区 */}
-      {(currentProjectKey || activeTab === 'performance') && !error && (
+      {!error && (
         <>
-          {activeTab === 'global' && currentProjectKey && (
+          {activeTab === 'global' && (
             <GlobalView
               sprint={sprint ?? null}
               sprints={sprints}
@@ -165,7 +185,7 @@ export default function Dashboard() {
               isLoading={isLoading}
             />
           )}
-          {activeTab === 'personal' && currentProjectKey && (
+          {activeTab === 'personal' && (
             <PersonalView
               issues={issues}
               currentUser={currentUser}
@@ -173,11 +193,9 @@ export default function Dashboard() {
             />
           )}
           {activeTab === 'performance' && (
-            <Suspense fallback={<div style={{ padding: 40, textAlign: 'center', color: 'var(--text2)' }}>加载绩效模块...</div>}>
-              <PerformanceView projectKey={currentProjectKey} />
-            </Suspense>
+            <PerformanceView projectKey={currentProjectKey} />
           )}
-          {activeTab === 'decision' && currentUser?.role === 'PM' && currentProjectKey && (
+          {activeTab === 'decision' && currentUser?.role === 'PM' && (
             <DecisionView risks={risks} issues={issues} />
           )}
 

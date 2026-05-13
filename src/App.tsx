@@ -5,7 +5,7 @@ import { useApp } from '@/context/AppContext'
 
 const Login = lazy(() => import('@/pages/Login/Login'))
 const AuthCallback = lazy(() => import('@/pages/Login/AuthCallback'))
-const Dashboard = lazy(() => import('@/pages/Dashboard/Dashboard'))
+import Dashboard from '@/pages/Dashboard/Dashboard'
 const Requirements = lazy(() => import('@/pages/Requirements/Requirements'))
 const Sprint = lazy(() => import('@/pages/Sprint/Sprint'))
 const Risk = lazy(() => import('@/pages/Risk/Risk'))
@@ -41,7 +41,7 @@ export default function App() {
         {/* All routes — no auth guard for now */}
         <Route path="/" element={<Layout />}>
           <Route index element={<Navigate to="/dashboard" replace />} />
-          <Route path="dashboard" element={<Suspense fallback={null}><Dashboard /></Suspense>} />
+          <Route path="dashboard" element={<Dashboard />} />
           <Route path="requirements" element={<Suspense fallback={null}><Requirements /></Suspense>} />
           <Route path="sprint" element={<Suspense fallback={null}><Sprint /></Suspense>} />
           <Route path="risk" element={<RoleGuard allowedRoles={['PM']}><Suspense fallback={null}><Risk /></Suspense></RoleGuard>} />

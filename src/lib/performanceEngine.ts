@@ -78,6 +78,7 @@ export interface MemberPerformance {
   memberId: string
   memberName: string
   avatarUrl: string | null
+  roles: string[] // 角色列表：'Developer' | 'Reporter' | 'QA'
   performanceScore: number // 综合绩效分 0-100
   throughputScore: number // 吞吐量 0-100
   efficiencyScore: number // 效率 0-100
@@ -642,10 +643,21 @@ export function calculateMemberPerformance(
     crossTeamTaskRatio: collaboration.crossTeamTaskRatio,
   }
 
+  // 计算成员角色
+  const roles: string[] = []
+  const isAssignee = memberIssues.some(i => i.assignee?.id === memberId)
+  const isReporter = allIssues.some(i => i.reporter?.id === memberId)
+  const isQA = allIssues.some(i => i.qaUser?.id === memberId)
+  if (isAssignee) roles.push('Developer')
+  if (isReporter) roles.push('Reporter')
+  if (isQA) roles.push('QA')
+  if (roles.length === 0) roles.push('Developer') // 默认
+
   return {
     memberId,
     memberName,
     avatarUrl,
+    roles,
     performanceScore,
     throughputScore: throughput.score,
     efficiencyScore: efficiency.score,

@@ -266,22 +266,21 @@ export interface UsePerformanceDataResult {
  * @param projectKey - 项目 Key（如 "DTS"），必须非 null
  */
 export function usePerformanceData(projectKey: string | null): UsePerformanceDataResult {
-  // 获取活跃 Sprint
+  // 获取活跃 Sprint（用于显示 Sprint 信息）
   const { data: sprint, isLoading: isSprintLoading } = useActiveSprintByProject(projectKey)
 
-  // 获取含扩展字段的 Sprint Issues
+  // 获取所有活跃 Sprint 的 Issues（不限制单个 Sprint）
   const {
     data: performanceData,
     isLoading: isIssuesLoading,
     error: issuesError,
   } = useQuery({
-    queryKey: ['performance-issues', projectKey, sprint?.id],
+    queryKey: ['performance-issues', projectKey],
     queryFn: async () => {
       if (!projectKey) throw new Error('Project key is required')
 
-      const jql = sprint?.id
-        ? `project = ${projectKey} AND sprint = ${sprint.id} ORDER BY priority ASC, updated DESC`
-        : `project = ${projectKey} AND sprint in openSprints() ORDER BY priority ASC, updated DESC`
+      // 使用 openSprints() 获取所有活跃 Sprint 的 issues
+      const jql = `project = ${projectKey} AND sprint in openSprints() ORDER BY priority ASC, updated DESC`
 
       const fieldsStr = PERFORMANCE_FIELDS.join(',')
       const url = `rest/api/2/search?jql=${encodeURIComponent(jql)}&fields=${fieldsStr}&expand=changelog&maxResults=200`

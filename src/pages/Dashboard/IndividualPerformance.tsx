@@ -200,7 +200,14 @@ function MemberCard({
           )}
         </div>
         <div className={styles.memberInfo}>
-          <div className={styles.memberCardName}>{member.memberName}</div>
+          <div className={styles.memberCardName}>
+            {member.memberName}
+            {member.roles && member.roles.length > 0 && (
+              <span style={{ fontSize: 11, fontWeight: 400, color: 'var(--text2)', marginLeft: 6 }}>
+                ({member.roles.join(', ')})
+              </span>
+            )}
+          </div>
           <div className={styles.memberCardScore} style={{ color: getGradeColor(grade) }}>
             {member.performanceScore.toFixed(1)}
             <span className={`${styles.gradeBadge} ${gradeClass}`} style={{ marginLeft: 8 }}>

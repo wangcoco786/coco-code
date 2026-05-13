@@ -15,7 +15,9 @@ const PERFORMANCE_FIELDS = [
   'subtasks',       // 子任务列表
   'issuelinks',    // 关联 issue
   'comment',       // 评论
-  'customfield_10104', // QA 字段（常见 ID，可能需要调整）
+  'customfield_10104', // QA 字段
+  'customfield_10101', // Developer 字段（常见 ID）
+  'customfield_10102', // Developer 字段（备选 ID）
 ]
 
 // ============================================================
@@ -245,6 +247,20 @@ function transformToPerformanceIssue(issue: any): PerformanceIssue {
       return {
         id: qaObj.accountId || qaObj.key || qaObj.name || qaObj.displayName || 'unknown',
         name: formatDisplayName(qaObj.displayName ?? ''),
+      }
+    })(),
+    developerUser: (() => {
+      // Developer 自定义字段
+      const dev = fields.customfield_10101 ?? fields.customfield_10102 ?? fields.customfield_10100 ?? null
+      if (!dev || typeof dev !== 'object') return null
+      // Developer 字段可能是单个用户或用户数组，取第一个
+      const devObj = Array.isArray(dev) ? dev[0] : dev
+      if (!devObj || typeof devObj !== 'object') return null
+      const d = devObj as { accountId?: string; key?: string; name?: string; displayName?: string; active?: boolean }
+      if (d.active === false) return null
+      return {
+        id: d.accountId || d.key || d.name || d.displayName || 'unknown',
+        name: formatDisplayName(d.displayName ?? ''),
       }
     })(),
   }

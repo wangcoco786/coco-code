@@ -40,6 +40,7 @@ function makePerformanceIssue(overrides: Partial<PerformanceIssue> = {}): Perfor
     projectName: 'Test Project',
     reporter: { id: 'reporter-1', name: 'Reporter' },
     qaUser: null,
+    developerUser: { id: 'user-1', name: 'Alice' },
     ...overrides,
   }
 }

@@ -37,6 +37,7 @@ export interface PerformanceIssue extends Omit<PlatformIssue, 'priority'> {
   projectName: string // 所属项目名称
   reporter: { id: string; name: string } | null // Reporter
   qaUser: { id: string; name: string } | null // QA 人员
+  developerUser: { id: string; name: string } | null // Developer（自定义字段）
 }
 
 /** 复杂度因子计算输入 */
@@ -643,15 +644,19 @@ export function calculateMemberPerformance(
     crossTeamTaskRatio: collaboration.crossTeamTaskRatio,
   }
 
-  // 计算成员角色
+  // 计算成员角色（基于 ticket 中的字段，不是 assignee）
   const roles: string[] = []
-  const isAssignee = memberIssues.some(i => i.assignee?.id === memberId)
+  const isDeveloper = allIssues.some(i => i.developerUser?.id === memberId)
   const isReporter = allIssues.some(i => i.reporter?.id === memberId)
   const isQA = allIssues.some(i => i.qaUser?.id === memberId)
-  if (isAssignee) roles.push('Developer')
+  if (isDeveloper) roles.push('Developer')
   if (isReporter) roles.push('Reporter')
   if (isQA) roles.push('QA')
-  if (roles.length === 0) roles.push('Developer') // 默认
+  if (roles.length === 0) {
+    // 如果在任何字段中都没找到角色，检查是否是 assignee
+    const isAssignee = memberIssues.some(i => i.assignee?.id === memberId)
+    if (isAssignee) roles.push('Assignee')
+  }
 
   return {
     memberId,
@@ -683,16 +688,17 @@ export function calculateDepartmentPerformance(
   sprint: { startDate: string; endDate: string },
   weights?: PerformanceWeights
 ): DepartmentPerformance {
-  // 收集有效成员：只包含 assignee、reporter、QA 角色的人
+  // 收集有效成员：只包含 assignee、reporter、QA、Developer 角色的人
   // 按 assignee 分组 issues（绩效基于 assignee 的任务）
   const memberGroups = groupIssuesByAssignee(issues)
 
-  // 收集所有有效角色的人员 ID（reporter、assignee、QA）
+  // 收集所有有效角色的人员 ID（developer、reporter、QA）
   const validMemberIds = new Set<string>()
   for (const issue of issues) {
-    if (issue.assignee?.id) validMemberIds.add(issue.assignee.id)
+    if (issue.developerUser?.id) validMemberIds.add(issue.developerUser.id)
     if (issue.reporter?.id) validMemberIds.add(issue.reporter.id)
     if (issue.qaUser?.id) validMemberIds.add(issue.qaUser.id)
+    if (issue.assignee?.id) validMemberIds.add(issue.assignee.id)
   }
 
   // 过滤：只保留有效角色的成员，排除 'unassigned'

@@ -415,10 +415,14 @@ export function usePerformanceData(projectKey: string | null): UsePerformanceDat
 
       // DEBUG: 对比 developer IDs 和 assignee IDs
       const assigneeIds = [...new Set(performanceIssues.map(i => i.assignee?.id).filter(Boolean))]
+      const assigneeNames = [...new Set(performanceIssues.map(i => i.assignee?.name).filter(Boolean))]
       const intersection = assigneeIds.filter(id => knownDevIds.has(id!))
-      console.log('[PerformanceData] DEBUG assignee IDs sample:', assigneeIds.slice(0, 3))
-      console.log('[PerformanceData] DEBUG knownDevIds sample:', [...knownDevIds].slice(0, 3))
-      console.log('[PerformanceData] DEBUG intersection:', intersection.length, intersection.slice(0, 3))
+      const nameIntersection = assigneeNames.filter(name => knownDevIds.has(name!))
+      console.log('[PerformanceData] DEBUG ALL assignee IDs:', assigneeIds)
+      console.log('[PerformanceData] DEBUG ALL assignee names:', assigneeNames)
+      console.log('[PerformanceData] DEBUG knownDevIds sample:', [...knownDevIds].slice(0, 20))
+      console.log('[PerformanceData] DEBUG ID intersection:', intersection.length, intersection)
+      console.log('[PerformanceData] DEBUG name intersection:', nameIntersection.length, nameIntersection)
 
       return calculateDepartmentPerformance(performanceIssues, sprintDates, undefined, knownDevIds)
     } catch (e) {

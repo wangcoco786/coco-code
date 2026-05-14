@@ -296,36 +296,47 @@ export function usePerformanceData(projectKey: string | null): UsePerformanceDat
     queryFn: async () => {
       if (!projectKey) throw new Error('Project key is required')
 
-      // 搜索所有项目中 Developer(single) 字段非空的 ticket（不限当前项目）
+      // 搜索所有项目中 Developer(single) 字段非空的 ticket（分页获取全部）
       const jql = `"Developer(single)" is not EMPTY`
-      const url = `rest/api/2/search?jql=${encodeURIComponent(jql)}&fields=customfield_11000&maxResults=1000`
-
-      const response = await authFetch(`/api/jira/${url}`, {
-        headers: { 'Content-Type': 'application/json' },
-      })
-
-      if (!response.ok) {
-        console.warn('[PerformanceData] Developer search failed, status:', response.status)
-        return []
-      }
-
-      const data = await response.json()
       const devIds = new Set<string>()
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      for (const issue of (data?.issues ?? []) as any[]) {
-        const dev = issue?.fields?.customfield_11000
-        if (!dev) continue
-        const devObj = Array.isArray(dev) ? dev[0] : dev
-        if (!devObj || typeof devObj !== 'object') continue
-        // 收集所有可能的 ID 格式
-        const d = devObj as { accountId?: string; key?: string; name?: string; displayName?: string; emailAddress?: string }
-        if (d.accountId) devIds.add(d.accountId)
-        if (d.key) devIds.add(d.key)
-        if (d.name) devIds.add(d.name)
-        if (d.emailAddress) devIds.add(d.emailAddress)
+      let startAt = 0
+      const pageSize = 200
+      let total = Infinity
+
+      while (startAt < total) {
+        const url = `rest/api/2/search?jql=${encodeURIComponent(jql)}&fields=customfield_11000&maxResults=${pageSize}&startAt=${startAt}`
+        const response = await authFetch(`/api/jira/${url}`, {
+          headers: { 'Content-Type': 'application/json' },
+        })
+
+        if (!response.ok) {
+          console.warn('[PerformanceData] Developer search failed at startAt:', startAt, 'status:', response.status)
+          break
+        }
+
+        const data = await response.json()
+        total = data.total ?? 0
+
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        for (const issue of (data?.issues ?? []) as any[]) {
+          const dev = issue?.fields?.customfield_11000
+          if (!dev) continue
+          const devObj = Array.isArray(dev) ? dev[0] : dev
+          if (!devObj || typeof devObj !== 'object') continue
+          const d = devObj as { accountId?: string; key?: string; name?: string; displayName?: string; emailAddress?: string }
+          // 收集所有可能的 ID 格式
+          if (d.accountId) devIds.add(d.accountId)
+          if (d.key) devIds.add(d.key)
+          if (d.name) devIds.add(d.name)
+          if (d.emailAddress) devIds.add(d.emailAddress)
+        }
+
+        startAt += pageSize
+        if (!data.issues?.length) break
       }
+
       const result = [...devIds]
-      console.log('[PerformanceData] Known developer IDs:', result.length, result.slice(0, 5))
+      console.log('[PerformanceData] Known developer IDs (total tickets searched):', total, 'unique IDs:', result.length, 'sample:', result.slice(0, 5))
       return result
     },
     enabled: !!projectKey,

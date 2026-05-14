@@ -289,9 +289,9 @@ export function usePerformanceData(projectKey: string | null): UsePerformanceDat
 
   // 大范围搜索：获取项目中所有 developer 字段非空的 ticket，收集 developer ID 集合
   const {
-    data: knownDeveloperIds,
+    data: knownDeveloperIdList,
     isLoading: isDevLoading,
-  } = useQuery({
+  } = useQuery<string[]>({
     queryKey: ['known-developers', projectKey],
     queryFn: async () => {
       if (!projectKey) throw new Error('Project key is required')
@@ -306,7 +306,7 @@ export function usePerformanceData(projectKey: string | null): UsePerformanceDat
 
       if (!response.ok) {
         console.warn('[PerformanceData] Developer search failed, status:', response.status)
-        return new Set<string>()
+        return []
       }
 
       const data = await response.json()
@@ -317,11 +317,16 @@ export function usePerformanceData(projectKey: string | null): UsePerformanceDat
         if (!dev) continue
         const devObj = Array.isArray(dev) ? dev[0] : dev
         if (!devObj || typeof devObj !== 'object') continue
-        const id = devObj.accountId || devObj.key || devObj.name || devObj.displayName
-        if (id) devIds.add(id)
+        // 收集所有可能的 ID 格式
+        const d = devObj as { accountId?: string; key?: string; name?: string; displayName?: string; emailAddress?: string }
+        if (d.accountId) devIds.add(d.accountId)
+        if (d.key) devIds.add(d.key)
+        if (d.name) devIds.add(d.name)
+        if (d.emailAddress) devIds.add(d.emailAddress)
       }
-      console.log('[PerformanceData] Known developer IDs:', devIds.size, [...devIds])
-      return devIds
+      const result = [...devIds]
+      console.log('[PerformanceData] Known developer IDs:', result.length, result.slice(0, 5))
+      return result
     },
     enabled: !!projectKey,
     staleTime: 10 * 60 * 1000, // 10 分钟缓存
@@ -379,6 +384,8 @@ export function usePerformanceData(projectKey: string | null): UsePerformanceDat
   // 使用 useMemo 在所有数据就绪后计算绩效（确保 knownDeveloperIds 被正确使用）
   const performanceData = useMemo(() => {
     if (!rawIssuesData) return null
+    // 等待 developer 数据加载完成
+    if (!knownDeveloperIdList) return null
     try {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const issues: any[] = rawIssuesData?.issues ?? []
@@ -391,18 +398,22 @@ export function usePerformanceData(projectKey: string | null): UsePerformanceDat
 
       if (performanceIssues.length === 0) return null
 
-      // DEBUG: 对比 developer IDs 和 assignee IDs
-      const assigneeIds = new Set(performanceIssues.map(i => i.assignee?.id).filter(Boolean))
-      console.log('[PerformanceData] DEBUG assignee IDs in sprint:', [...assigneeIds].slice(0, 5))
-      console.log('[PerformanceData] DEBUG knownDeveloperIds:', knownDeveloperIds ? [...knownDeveloperIds].slice(0, 5) : 'undefined')
-      console.log('[PerformanceData] DEBUG intersection:', [...assigneeIds].filter(id => knownDeveloperIds?.has(id!)).slice(0, 5))
+      // 构建 developer ID Set（包含所有可能的 ID 格式）
+      const knownDevIds = new Set(knownDeveloperIdList)
 
-      return calculateDepartmentPerformance(performanceIssues, sprintDates, undefined, knownDeveloperIds ?? undefined)
+      // DEBUG: 对比 developer IDs 和 assignee IDs
+      const assigneeIds = [...new Set(performanceIssues.map(i => i.assignee?.id).filter(Boolean))]
+      const intersection = assigneeIds.filter(id => knownDevIds.has(id!))
+      console.log('[PerformanceData] DEBUG assignee IDs sample:', assigneeIds.slice(0, 3))
+      console.log('[PerformanceData] DEBUG knownDevIds sample:', [...knownDevIds].slice(0, 3))
+      console.log('[PerformanceData] DEBUG intersection:', intersection.length, intersection.slice(0, 3))
+
+      return calculateDepartmentPerformance(performanceIssues, sprintDates, undefined, knownDevIds)
     } catch (e) {
       console.error('[PerformanceEngine] calculation error:', e)
       return null
     }
-  }, [rawIssuesData, sprint, knownDeveloperIds])
+  }, [rawIssuesData, sprint, knownDeveloperIdList])
 
   return {
     data: performanceData,

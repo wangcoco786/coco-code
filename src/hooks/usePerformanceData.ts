@@ -391,6 +391,12 @@ export function usePerformanceData(projectKey: string | null): UsePerformanceDat
 
       if (performanceIssues.length === 0) return null
 
+      // DEBUG: 对比 developer IDs 和 assignee IDs
+      const assigneeIds = new Set(performanceIssues.map(i => i.assignee?.id).filter(Boolean))
+      console.log('[PerformanceData] DEBUG assignee IDs in sprint:', [...assigneeIds].slice(0, 5))
+      console.log('[PerformanceData] DEBUG knownDeveloperIds:', knownDeveloperIds ? [...knownDeveloperIds].slice(0, 5) : 'undefined')
+      console.log('[PerformanceData] DEBUG intersection:', [...assigneeIds].filter(id => knownDeveloperIds?.has(id!)).slice(0, 5))
+
       return calculateDepartmentPerformance(performanceIssues, sprintDates, undefined, knownDeveloperIds ?? undefined)
     } catch (e) {
       console.error('[PerformanceEngine] calculation error:', e)

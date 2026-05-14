@@ -308,13 +308,12 @@ export function usePerformanceData(projectKey: string | null): UsePerformanceDat
     data: knownDeveloperIdList,
     isLoading: isDevLoading,
   } = useQuery<string[]>({
-    queryKey: ['known-developers-global'],
+    queryKey: ['known-developers', projectKey],
     queryFn: async () => {
       if (!projectKey) throw new Error('Project key is required')
 
-      // 搜索所有项目中 Developer 字段非空的 ticket（分页获取全部）
-      // 注意：有两个 Developer 字段：customfield_11000 (Developer(single)) 和 customfield_11103 (Developer, multi)
-      const jql = `"Developer(single)" is not EMPTY OR "Developer" is not EMPTY`
+      // 只搜索当前项目中 Developer 字段非空的 ticket（分页获取全部）
+      const jql = `project = ${projectKey} AND ("Developer(single)" is not EMPTY OR "Developer" is not EMPTY)`
       const devIds = new Set<string>()
       let startAt = 0
       const pageSize = 200

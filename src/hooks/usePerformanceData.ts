@@ -286,6 +286,42 @@ export function usePerformanceData(projectKey: string | null): UsePerformanceDat
   // 获取活跃 Sprint（用于显示 Sprint 信息）
   const { data: sprint, isLoading: isSprintLoading } = useActiveSprintByProject(projectKey)
 
+  // 大范围搜索：获取项目中所有 developer 字段非空的 ticket，收集 developer ID 集合
+  const {
+    data: knownDeveloperIds,
+    isLoading: isDevLoading,
+  } = useQuery({
+    queryKey: ['known-developers', projectKey],
+    queryFn: async () => {
+      if (!projectKey) throw new Error('Project key is required')
+
+      // 搜索项目中所有 customfield_11000 非空的 ticket
+      const jql = `project = ${projectKey} AND cf[11000] is not EMPTY`
+      const url = `rest/api/2/search?jql=${encodeURIComponent(jql)}&fields=customfield_11000&maxResults=500`
+
+      const response = await authFetch(`/api/jira/${url}`, {
+        headers: { 'Content-Type': 'application/json' },
+      })
+
+      if (!response.ok) return new Set<string>()
+
+      const data = await response.json()
+      const devIds = new Set<string>()
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      for (const issue of (data?.issues ?? []) as any[]) {
+        const dev = issue?.fields?.customfield_11000
+        if (!dev) continue
+        const devObj = Array.isArray(dev) ? dev[0] : dev
+        if (!devObj || typeof devObj !== 'object') continue
+        const id = devObj.accountId || devObj.key || devObj.name || devObj.displayName
+        if (id) devIds.add(id)
+      }
+      return devIds
+    },
+    enabled: !!projectKey,
+    staleTime: 10 * 60 * 1000, // 10 分钟缓存
+  })
+
   // 获取所有活跃 Sprint 的 Issues（不限制单个 Sprint）
   const {
     data: performanceData,
@@ -346,7 +382,7 @@ export function usePerformanceData(projectKey: string | null): UsePerformanceDat
 
         if (performanceIssues.length === 0) return null
 
-        return calculateDepartmentPerformance(performanceIssues, sprintDates)
+        return calculateDepartmentPerformance(performanceIssues, sprintDates, undefined, knownDeveloperIds ?? undefined)
       } catch (e) {
         console.error('[PerformanceEngine] select error:', e)
         return null
@@ -356,7 +392,7 @@ export function usePerformanceData(projectKey: string | null): UsePerformanceDat
 
   return {
     data: performanceData ?? null,
-    isLoading: isSprintLoading || isIssuesLoading,
+    isLoading: isSprintLoading || isDevLoading || isIssuesLoading,
     error: issuesError as Error | null,
     sprint: sprint ?? null,
   }

@@ -596,7 +596,8 @@ export function calculateMemberPerformance(
   memberIssues: PerformanceIssue[],
   allIssues: PerformanceIssue[],
   sprint: { startDate: string; endDate: string },
-  weights?: PerformanceWeights
+  weights?: PerformanceWeights,
+  knownDeveloperIds?: Set<string>
 ): MemberPerformance {
   const w = weights ?? DEFAULT_WEIGHTS
 
@@ -644,13 +645,13 @@ export function calculateMemberPerformance(
     crossTeamTaskRatio: collaboration.crossTeamTaskRatio,
   }
 
-  // 计算成员角色（严格基于 Jira 自定义字段）
-  // 规则：只有在 developer 字段（customfield_11000）出现过才是 Developer
-  //       只有在 QA 字段（customfield_11102）出现过才是 QA
-  //       在 reporter 字段出现过标记为 Reporter
+  // 计算成员角色（大范围搜索 + 当前 sprint 数据）
+  // 规则：只要在项目任何 ticket 的 developer 字段出现过就是 Developer
+  //       只有在 QA 字段出现过才是 QA
+  //       在 reporter 字段出现过且不是 Developer 标记为 Reporter
   //       纯 assignee 不标记任何角色
   const roles: string[] = []
-  const isDeveloper = allIssues.some(i => i.developerUser?.id === memberId)
+  const isDeveloper = (knownDeveloperIds?.has(memberId)) || allIssues.some(i => i.developerUser?.id === memberId)
   const isReporter = allIssues.some(i => i.reporter?.id === memberId)
   const isQA = allIssues.some(i => i.qaUser?.id === memberId)
 
@@ -686,7 +687,8 @@ export function calculateMemberPerformance(
 export function calculateDepartmentPerformance(
   issues: PerformanceIssue[],
   sprint: { startDate: string; endDate: string },
-  weights?: PerformanceWeights
+  weights?: PerformanceWeights,
+  knownDeveloperIds?: Set<string>
 ): DepartmentPerformance {
   // 收集有效成员：在 developer、reporter 或 QA 字段中出现过的人才纳入绩效评估
   // 纯 assignee 不纳入
@@ -694,7 +696,11 @@ export function calculateDepartmentPerformance(
   const memberGroups = groupIssuesByAssignee(issues)
 
   // 收集 developer、reporter、QA 字段中出现过的人员 ID
+  // knownDeveloperIds 来自大范围搜索（整个项目所有 ticket 的 developer 字段）
   const validMemberIds = new Set<string>()
+  if (knownDeveloperIds) {
+    for (const id of knownDeveloperIds) validMemberIds.add(id)
+  }
   for (const issue of issues) {
     if (issue.developerUser?.id) validMemberIds.add(issue.developerUser.id)
     if (issue.reporter?.id) validMemberIds.add(issue.reporter.id)
@@ -725,7 +731,7 @@ export function calculateDepartmentPerformance(
   // 计算每个成员的绩效
   const members: MemberPerformance[] = memberIds.map(memberId => {
     const memberIssues = memberGroups[memberId]
-    return calculateMemberPerformance(memberIssues, issues, sprint, weights)
+    return calculateMemberPerformance(memberIssues, issues, sprint, weights, knownDeveloperIds)
   })
 
   // 聚合指标

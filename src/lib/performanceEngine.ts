@@ -733,13 +733,18 @@ export function calculateDepartmentPerformance(
     return false
   })
 
-  // 收集纯 reporter（在 reporter 字段出现但不在 assignee 组中的人）
+  // 收集纯 reporter（在 reporter 字段出现但不在 assignee 组中，且不是 Developer/QA 的人）
   const assigneeIdSet = new Set(memberIds)
   const pureReporterIds: string[] = []
   for (const issue of issues) {
     if (issue.reporter?.id && !assigneeIdSet.has(issue.reporter.id)) {
-      if (!pureReporterIds.includes(issue.reporter.id)) {
-        pureReporterIds.push(issue.reporter.id)
+      const rid = issue.reporter.id
+      // 排除已经是 Developer 或 QA 的人
+      const isDevByField = (knownDeveloperIds?.has(rid)) || issues.some(i => i.developerUser?.id === rid)
+      const isDevByName = issue.reporter.name && knownDeveloperIds?.has(issue.reporter.name)
+      const isQaByField = issues.some(i => i.qaUser?.id === rid)
+      if (!isDevByField && !isDevByName && !isQaByField && !pureReporterIds.includes(rid)) {
+        pureReporterIds.push(rid)
       }
     }
   }

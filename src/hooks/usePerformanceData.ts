@@ -287,7 +287,7 @@ export function usePerformanceData(projectKey: string | null): UsePerformanceDat
   // 获取活跃 Sprint（用于显示 Sprint 信息）
   const { data: sprint, isLoading: isSprintLoading } = useActiveSprintByProject(projectKey)
 
-  // 大范围搜索：获取项目中所有 developer 字段非空的 ticket，收集 developer ID 集合
+  // 大范围搜索：获取所有项目中 developer 字段非空的 ticket，收集 developer ID 集合
   const {
     data: knownDeveloperIdList,
     isLoading: isDevLoading,
@@ -324,11 +324,12 @@ export function usePerformanceData(projectKey: string | null): UsePerformanceDat
           const devObj = Array.isArray(dev) ? dev[0] : dev
           if (!devObj || typeof devObj !== 'object') continue
           const d = devObj as { accountId?: string; key?: string; name?: string; displayName?: string; emailAddress?: string }
-          // 收集所有可能的 ID 格式
+          // 收集所有可能的 ID 格式（与 transformToPerformanceIssue 中 assignee ID 提取逻辑一致）
           if (d.accountId) devIds.add(d.accountId)
           if (d.key) devIds.add(d.key)
           if (d.name) devIds.add(d.name)
           if (d.emailAddress) devIds.add(d.emailAddress)
+          if (d.displayName) devIds.add(d.displayName)
         }
 
         startAt += pageSize
@@ -336,7 +337,7 @@ export function usePerformanceData(projectKey: string | null): UsePerformanceDat
       }
 
       const result = [...devIds]
-      console.log('[PerformanceData] Known developer IDs (total tickets searched):', total, 'unique IDs:', result.length, 'sample:', result.slice(0, 5))
+      console.log('[PerformanceData] Known developer IDs (total tickets):', total, 'unique IDs:', result.length, 'sample:', result.slice(0, 10))
       return result
     },
     enabled: !!projectKey,

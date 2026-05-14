@@ -645,19 +645,21 @@ export function calculateMemberPerformance(
     crossTeamTaskRatio: collaboration.crossTeamTaskRatio,
   }
 
-  // 计算成员角色（大范围搜索 + 当前 sprint 数据）
-  // 规则：只要在项目任何 ticket 的 developer 字段出现过就是 Developer
-  //       只有在 QA 字段出现过才是 QA
-  //       在 reporter 字段出现过且不是 Developer 标记为 Reporter
-  //       纯 assignee 不标记任何角色
+  // 计算成员角色（严格逻辑）
+  // 1. Developer：在全局任何 ticket 的 customfield_11000 出现过 → Developer
+  // 2. QA：在当前 sprint ticket 的 customfield_11102 出现过 → QA
+  // 3. Reporter：在当前 sprint ticket 的 reporter 字段出现过，且不是 Developer 也不是 QA → Reporter
   const roles: string[] = []
-  const isDeveloper = (knownDeveloperIds?.has(memberId)) || allIssues.some(i => i.developerUser?.id === memberId)
-  const isReporter = allIssues.some(i => i.reporter?.id === memberId)
+  // 检查 memberId 和 memberName 是否在 knownDeveloperIds 中（因为 ID 格式可能不一致）
+  const isDeveloper = (knownDeveloperIds?.has(memberId)) ||
+    (knownDeveloperIds?.has(memberName)) ||
+    allIssues.some(i => i.developerUser?.id === memberId)
   const isQA = allIssues.some(i => i.qaUser?.id === memberId)
+  const isReporter = allIssues.some(i => i.reporter?.id === memberId)
 
   if (isDeveloper) roles.push('Developer')
-  if (isReporter && !isDeveloper) roles.push('Reporter')
   if (isQA) roles.push('QA')
+  if (isReporter && !isDeveloper && !isQA) roles.push('Reporter')
 
   return {
     memberId,
@@ -691,12 +693,11 @@ export function calculateDepartmentPerformance(
   knownDeveloperIds?: Set<string>
 ): DepartmentPerformance {
   // 收集有效成员：在 developer、reporter 或 QA 字段中出现过的人才纳入绩效评估
-  // 纯 assignee 不纳入
   // 按 assignee 分组 issues（绩效基于 assignee 的任务）
   const memberGroups = groupIssuesByAssignee(issues)
 
   // 收集 developer、reporter、QA 字段中出现过的人员 ID
-  // knownDeveloperIds 来自大范围搜索（整个项目所有 ticket 的 developer 字段）
+  // knownDeveloperIds 来自大范围搜索（包含所有可能的 ID 格式：key, name, email, displayName）
   const validMemberIds = new Set<string>()
   if (knownDeveloperIds) {
     for (const id of knownDeveloperIds) validMemberIds.add(id)
@@ -707,10 +708,25 @@ export function calculateDepartmentPerformance(
     if (issue.qaUser?.id) validMemberIds.add(issue.qaUser.id)
   }
 
+  // 也把 assignee 的 name 加入检查（因为 knownDeveloperIds 中可能包含 displayName）
+  // 构建 assigneeId → assigneeName 映射，用于双向匹配
+  const assigneeNameMap = new Map<string, string>()
+  for (const issue of issues) {
+    if (issue.assignee?.id && issue.assignee?.name) {
+      assigneeNameMap.set(issue.assignee.id, issue.assignee.name)
+    }
+  }
+
   // 过滤：只保留 developer/reporter/QA 角色的成员，排除 'unassigned'
-  const memberIds = Object.keys(memberGroups).filter(id =>
-    id !== 'unassigned' && validMemberIds.has(id)
-  )
+  // 同时检查 assignee 的 name（displayName）是否在 validMemberIds 中
+  const memberIds = Object.keys(memberGroups).filter(id => {
+    if (id === 'unassigned') return false
+    if (validMemberIds.has(id)) return true
+    // 也检查 assignee 的 displayName 是否匹配
+    const name = assigneeNameMap.get(id)
+    if (name && validMemberIds.has(name)) return true
+    return false
+  })
 
   // 若无成员，返回空结果
   if (memberIds.length === 0) {

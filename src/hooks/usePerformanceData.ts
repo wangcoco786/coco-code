@@ -18,6 +18,7 @@ const PERFORMANCE_FIELDS = [
   'comment',       // 评论
   'customfield_11102', // QA 字段
   'customfield_11000', // Developer(single) 字段
+  'customfield_11103', // Developer (multi) 字段
 ]
 
 // ============================================================
@@ -255,15 +256,30 @@ function transformToPerformanceIssue(issue: any): PerformanceIssue {
     developerUser: (() => {
       // Developer(single) 字段: customfield_11000
       const dev = fields.customfield_11000 ?? null
-      if (!dev || typeof dev !== 'object') return null
-      const devObj = Array.isArray(dev) ? dev[0] : dev
-      if (!devObj || typeof devObj !== 'object') return null
-      const d = devObj as { accountId?: string; key?: string; name?: string; displayName?: string; active?: boolean }
-      if (d.active === false) return null
-      return {
-        id: d.accountId || d.key || d.name || d.displayName || 'unknown',
-        name: formatDisplayName(d.displayName ?? ''),
+      if (dev && typeof dev === 'object') {
+        const devObj = Array.isArray(dev) ? dev[0] : dev
+        if (devObj && typeof devObj === 'object') {
+          const d = devObj as { accountId?: string; key?: string; name?: string; displayName?: string; active?: boolean }
+          if (d.active !== false) {
+            return {
+              id: d.accountId || d.key || d.name || d.displayName || 'unknown',
+              name: formatDisplayName(d.displayName ?? ''),
+            }
+          }
+        }
       }
+      // Developer (multi) 字段: customfield_11103
+      const devMulti = fields.customfield_11103 ?? null
+      if (Array.isArray(devMulti) && devMulti.length > 0) {
+        const d = devMulti[0] as { accountId?: string; key?: string; name?: string; displayName?: string; active?: boolean }
+        if (d && typeof d === 'object' && d.active !== false) {
+          return {
+            id: d.accountId || d.key || d.name || d.displayName || 'unknown',
+            name: formatDisplayName(d.displayName ?? ''),
+          }
+        }
+      }
+      return null
     })(),
   }
 }
@@ -296,15 +312,16 @@ export function usePerformanceData(projectKey: string | null): UsePerformanceDat
     queryFn: async () => {
       if (!projectKey) throw new Error('Project key is required')
 
-      // 搜索所有项目中 Developer(single) 字段非空的 ticket（分页获取全部）
-      const jql = `"Developer(single)" is not EMPTY`
+      // 搜索所有项目中 Developer 字段非空的 ticket（分页获取全部）
+      // 注意：有两个 Developer 字段：customfield_11000 (Developer(single)) 和 customfield_11103 (Developer, multi)
+      const jql = `"Developer(single)" is not EMPTY OR "Developer" is not EMPTY`
       const devIds = new Set<string>()
       let startAt = 0
       const pageSize = 200
       let total = Infinity
 
       while (startAt < total) {
-        const url = `rest/api/2/search?jql=${encodeURIComponent(jql)}&fields=customfield_11000&maxResults=${pageSize}&startAt=${startAt}`
+        const url = `rest/api/2/search?jql=${encodeURIComponent(jql)}&fields=customfield_11000,customfield_11103&maxResults=${pageSize}&startAt=${startAt}`
         const response = await authFetch(`/api/jira/${url}`, {
           headers: { 'Content-Type': 'application/json' },
         })
@@ -319,17 +336,32 @@ export function usePerformanceData(projectKey: string | null): UsePerformanceDat
 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         for (const issue of (data?.issues ?? []) as any[]) {
-          const dev = issue?.fields?.customfield_11000
-          if (!dev) continue
-          const devObj = Array.isArray(dev) ? dev[0] : dev
-          if (!devObj || typeof devObj !== 'object') continue
-          const d = devObj as { accountId?: string; key?: string; name?: string; displayName?: string; emailAddress?: string }
-          // 收集所有可能的 ID 格式（与 transformToPerformanceIssue 中 assignee ID 提取逻辑一致）
-          if (d.accountId) devIds.add(d.accountId)
-          if (d.key) devIds.add(d.key)
-          if (d.name) devIds.add(d.name)
-          if (d.emailAddress) devIds.add(d.emailAddress)
-          if (d.displayName) devIds.add(d.displayName)
+          // customfield_11000: Developer(single) — 单用户
+          const dev11000 = issue?.fields?.customfield_11000
+          if (dev11000 && typeof dev11000 === 'object') {
+            const d = (Array.isArray(dev11000) ? dev11000[0] : dev11000) as { accountId?: string; key?: string; name?: string; displayName?: string; emailAddress?: string }
+            if (d) {
+              if (d.accountId) devIds.add(d.accountId)
+              if (d.key) devIds.add(d.key)
+              if (d.name) devIds.add(d.name)
+              if (d.emailAddress) devIds.add(d.emailAddress)
+              if (d.displayName) devIds.add(d.displayName)
+            }
+          }
+
+          // customfield_11103: Developer (multi) — 多用户数组
+          const dev11103 = issue?.fields?.customfield_11103
+          if (Array.isArray(dev11103)) {
+            for (const devUser of dev11103) {
+              if (!devUser || typeof devUser !== 'object') continue
+              const d = devUser as { accountId?: string; key?: string; name?: string; displayName?: string; emailAddress?: string }
+              if (d.accountId) devIds.add(d.accountId)
+              if (d.key) devIds.add(d.key)
+              if (d.name) devIds.add(d.name)
+              if (d.emailAddress) devIds.add(d.emailAddress)
+              if (d.displayName) devIds.add(d.displayName)
+            }
+          }
         }
 
         startAt += pageSize

@@ -646,15 +646,16 @@ export function calculateMemberPerformance(
   }
 
   // 计算成员角色（严格逻辑）
-  // 1. Developer：在全局任何 ticket 的 customfield_11000 出现过 → Developer
-  // 2. QA：在当前 sprint ticket 的 customfield_11102 出现过 → QA
-  // 3. Reporter：在当前 sprint ticket 的 reporter 字段出现过，且不是 Developer 也不是 QA → Reporter
+  // 1. QA：在当前 sprint ticket 的 customfield_11102 出现过 → QA（优先级最高）
+  // 2. Developer：在项目 developer 字段出现过，且不是 QA → Developer
+  // 3. Reporter：在 reporter 字段出现过，且不是 Developer 也不是 QA → Reporter
   const roles: string[] = []
-  // 检查 memberId 和 memberName 是否在 knownDeveloperIds 中（因为 ID 格式可能不一致）
-  const isDeveloper = (knownDeveloperIds?.has(memberId)) ||
+  const isQA = allIssues.some(i => i.qaUser?.id === memberId)
+  const isDeveloper = !isQA && (
+    (knownDeveloperIds?.has(memberId)) ||
     (knownDeveloperIds?.has(memberName)) ||
     allIssues.some(i => i.developerUser?.id === memberId)
-  const isQA = allIssues.some(i => i.qaUser?.id === memberId)
+  )
   const isReporter = allIssues.some(i => i.reporter?.id === memberId)
 
   if (isDeveloper) roles.push('Developer')
@@ -749,8 +750,9 @@ export function calculateDepartmentPerformance(
     }
   }
 
-  // 合并所有成员 ID
-  const allMemberIds = [...memberIds, ...pureReporterIds]
+  // 合并所有成员 ID（去重）
+  const allMemberIdSet = new Set([...memberIds, ...pureReporterIds])
+  const allMemberIds = [...allMemberIdSet]
 
   // 若无成员，返回空结果
   if (allMemberIds.length === 0) {
@@ -768,12 +770,18 @@ export function calculateDepartmentPerformance(
     }
   }
 
-  // 计算每个成员的绩效
-  const members: MemberPerformance[] = allMemberIds.map(memberId => {
-    // 优先用 assignee 分组的 issues，如果没有则用 reporter 分组的 issues
+  // 计算每个成员的绩效（去重：同一个人可能因为 ID 格式不同出现多次）
+  const seenNames = new Set<string>()
+  const members: MemberPerformance[] = []
+  for (const memberId of allMemberIds) {
     const memberIssues = memberGroups[memberId] ?? reporterGroups[memberId] ?? []
-    return calculateMemberPerformance(memberIssues, issues, sprint, weights, knownDeveloperIds)
-  })
+    if (memberIssues.length === 0) continue
+    const perf = calculateMemberPerformance(memberIssues, issues, sprint, weights, knownDeveloperIds)
+    // 按 memberName 去重
+    if (seenNames.has(perf.memberName)) continue
+    seenNames.add(perf.memberName)
+    members.push(perf)
+  }
 
   // 聚合指标
   const n = members.length

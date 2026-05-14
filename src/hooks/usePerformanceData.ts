@@ -296,8 +296,8 @@ export function usePerformanceData(projectKey: string | null): UsePerformanceDat
     queryFn: async () => {
       if (!projectKey) throw new Error('Project key is required')
 
-      // 搜索项目中所有 customfield_11000 非空的 ticket
-      const jql = `project = ${projectKey} AND cf[11000] is not EMPTY`
+      // 搜索项目中所有 Developer(single) 字段非空的 ticket
+      const jql = `project = ${projectKey} AND "Developer(single)" is not EMPTY`
       const url = `rest/api/2/search?jql=${encodeURIComponent(jql)}&fields=customfield_11000&maxResults=500`
 
       const response = await authFetch(`/api/jira/${url}`, {

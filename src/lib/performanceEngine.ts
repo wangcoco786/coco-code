@@ -645,22 +645,20 @@ export function calculateMemberPerformance(
     crossTeamTaskRatio: collaboration.crossTeamTaskRatio,
   }
 
-  // 计算成员角色（严格逻辑）
-  // 1. QA：在当前 sprint ticket 的 customfield_11102 出现过 → QA（优先级最高）
-  // 2. Developer：在项目 developer 字段出现过，且不是 QA → Developer
+  // 计算成员角色（严格逻辑，优先级：Developer > QA > Reporter）
+  // 1. Developer：在项目 developer 字段出现过 → Developer（最高优先级）
+  // 2. QA：在当前 sprint ticket 的 QA 字段出现过，且不是 Developer → QA
   // 3. Reporter：在 reporter 字段出现过，且不是 Developer 也不是 QA → Reporter
   const roles: string[] = []
-  const isQA = allIssues.some(i => i.qaUser?.id === memberId)
-  const isDeveloper = !isQA && (
-    (knownDeveloperIds?.has(memberId)) ||
+  const isDeveloper = (knownDeveloperIds?.has(memberId)) ||
     (knownDeveloperIds?.has(memberName)) ||
     allIssues.some(i => i.developerUser?.id === memberId)
-  )
+  const isQA = allIssues.some(i => i.qaUser?.id === memberId)
   const isReporter = allIssues.some(i => i.reporter?.id === memberId)
 
   if (isDeveloper) roles.push('Developer')
-  if (isQA) roles.push('QA')
-  if (isReporter && !isDeveloper && !isQA) roles.push('Reporter')
+  else if (isQA) roles.push('QA')
+  else if (isReporter) roles.push('Reporter')
 
   return {
     memberId,
@@ -740,11 +738,12 @@ export function calculateDepartmentPerformance(
   for (const issue of issues) {
     if (issue.reporter?.id && !assigneeIdSet.has(issue.reporter.id)) {
       const rid = issue.reporter.id
-      // 排除已经是 Developer 或 QA 的人
-      const isDevByField = (knownDeveloperIds?.has(rid)) || issues.some(i => i.developerUser?.id === rid)
-      const isDevByName = issue.reporter.name && knownDeveloperIds?.has(issue.reporter.name)
+      const rname = issue.reporter.name ?? ''
+      // 排除已经是 Developer 的人（Developer 优先级最高）
+      const isDevByField = (knownDeveloperIds?.has(rid)) || (knownDeveloperIds?.has(rname)) || issues.some(i => i.developerUser?.id === rid)
+      // 排除已经是 QA 的人
       const isQaByField = issues.some(i => i.qaUser?.id === rid)
-      if (!isDevByField && !isDevByName && !isQaByField && !pureReporterIds.includes(rid)) {
+      if (!isDevByField && !isQaByField && !pureReporterIds.includes(rid)) {
         pureReporterIds.push(rid)
       }
     }

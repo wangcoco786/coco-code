@@ -92,7 +92,7 @@ export default function IndividualPerformance({ memberPerformances }: Individual
       if (roles.includes('Reporter')) reps.push(member)
       if (roles.includes('QA')) qas.push(member)
       // 如果没有明确角色，归入 Developer
-      if (roles.length === 0 || (roles.length === 1 && roles[0] === 'Assignee')) {
+      if (roles.length === 0) {
         devs.push(member)
       }
     }

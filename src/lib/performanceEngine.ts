@@ -645,20 +645,20 @@ export function calculateMemberPerformance(
   }
 
   // 计算成员角色（基于 ticket 中的字段）
+  // 规则：只要在任何 ticket 的 developer 字段中出现过，角色就是 Developer
+  //       assignee 如果不是纯 QA，也统一归为 Developer（不显示 "Assignee" 标签）
   const roles: string[] = []
   const isDeveloper = allIssues.some(i => i.developerUser?.id === memberId)
   const isReporter = allIssues.some(i => i.reporter?.id === memberId)
   const isQA = allIssues.some(i => i.qaUser?.id === memberId)
   const isAssignee = memberIssues.some(i => i.assignee?.id === memberId)
 
-  if (isDeveloper) roles.push('Developer')
-  if (isReporter) roles.push('Reporter')
-  if (isQA) roles.push('QA')
-
-  // 如果 Developer 字段为空但是 assignee，且不是纯 Reporter/QA，则视为 Developer
-  if (!isDeveloper && isAssignee && !isQA) {
+  // Developer 判定：developer 字段出现过，或者是 assignee 且不是纯 QA
+  if (isDeveloper || (isAssignee && !isQA)) {
     roles.push('Developer')
   }
+  if (isReporter) roles.push('Reporter')
+  if (isQA) roles.push('QA')
 
   return {
     memberId,

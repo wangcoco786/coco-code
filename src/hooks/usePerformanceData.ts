@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { authFetch } from '@/lib/authFetch'
 import { mapJiraStatus, mapJiraPriority, formatDisplayName } from '@/lib/statusMapper'
@@ -303,7 +304,10 @@ export function usePerformanceData(projectKey: string | null): UsePerformanceDat
         headers: { 'Content-Type': 'application/json' },
       })
 
-      if (!response.ok) return new Set<string>()
+      if (!response.ok) {
+        console.warn('[PerformanceData] Developer search failed, status:', response.status)
+        return new Set<string>()
+      }
 
       const data = await response.json()
       const devIds = new Set<string>()
@@ -316,6 +320,7 @@ export function usePerformanceData(projectKey: string | null): UsePerformanceDat
         const id = devObj.accountId || devObj.key || devObj.name || devObj.displayName
         if (id) devIds.add(id)
       }
+      console.log('[PerformanceData] Known developer IDs:', devIds.size, [...devIds])
       return devIds
     },
     enabled: !!projectKey,
@@ -324,7 +329,7 @@ export function usePerformanceData(projectKey: string | null): UsePerformanceDat
 
   // 获取所有活跃 Sprint 的 Issues（不限制单个 Sprint）
   const {
-    data: performanceData,
+    data: rawIssuesData,
     isLoading: isIssuesLoading,
     error: issuesError,
   } = useQuery({
@@ -369,29 +374,32 @@ export function usePerformanceData(projectKey: string | null): UsePerformanceDat
       ) return false
       return failureCount < 3
     },
-    select: (data) => {
-      try {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const issues: any[] = data?.issues ?? []
-        const performanceIssues: PerformanceIssue[] = issues.map(transformToPerformanceIssue)
-
-        const sprintDates = {
-          startDate: sprint?.startDate ?? new Date().toISOString(),
-          endDate: sprint?.endDate ?? new Date().toISOString(),
-        }
-
-        if (performanceIssues.length === 0) return null
-
-        return calculateDepartmentPerformance(performanceIssues, sprintDates, undefined, knownDeveloperIds ?? undefined)
-      } catch (e) {
-        console.error('[PerformanceEngine] select error:', e)
-        return null
-      }
-    },
   })
 
+  // 使用 useMemo 在所有数据就绪后计算绩效（确保 knownDeveloperIds 被正确使用）
+  const performanceData = useMemo(() => {
+    if (!rawIssuesData) return null
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const issues: any[] = rawIssuesData?.issues ?? []
+      const performanceIssues: PerformanceIssue[] = issues.map(transformToPerformanceIssue)
+
+      const sprintDates = {
+        startDate: sprint?.startDate ?? new Date().toISOString(),
+        endDate: sprint?.endDate ?? new Date().toISOString(),
+      }
+
+      if (performanceIssues.length === 0) return null
+
+      return calculateDepartmentPerformance(performanceIssues, sprintDates, undefined, knownDeveloperIds ?? undefined)
+    } catch (e) {
+      console.error('[PerformanceEngine] calculation error:', e)
+      return null
+    }
+  }, [rawIssuesData, sprint, knownDeveloperIds])
+
   return {
-    data: performanceData ?? null,
+    data: performanceData,
     isLoading: isSprintLoading || isDevLoading || isIssuesLoading,
     error: issuesError as Error | null,
     sprint: sprint ?? null,

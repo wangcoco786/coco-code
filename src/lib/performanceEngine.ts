@@ -644,20 +644,15 @@ export function calculateMemberPerformance(
     crossTeamTaskRatio: collaboration.crossTeamTaskRatio,
   }
 
-  // 计算成员角色（基于 ticket 中的字段）
-  // 规则：只要在任何 ticket 的 developer 字段中出现过，角色就是 Developer
-  //       assignee 如果不是纯 QA，也统一归为 Developer（不显示 "Assignee" 标签）
+  // 计算成员角色（严格基于 Jira 自定义字段）
+  // 规则：只有在 developer 字段（customfield_11000）出现过才是 Developer
+  //       只有在 QA 字段（customfield_11102）出现过才是 QA
+  //       不标记 Reporter，不把纯 assignee 当作 Developer
   const roles: string[] = []
   const isDeveloper = allIssues.some(i => i.developerUser?.id === memberId)
-  const isReporter = allIssues.some(i => i.reporter?.id === memberId)
   const isQA = allIssues.some(i => i.qaUser?.id === memberId)
-  const isAssignee = memberIssues.some(i => i.assignee?.id === memberId)
 
-  // Developer 判定：developer 字段出现过，或者是 assignee 且不是纯 QA
-  if (isDeveloper || (isAssignee && !isQA)) {
-    roles.push('Developer')
-  }
-  if (isReporter) roles.push('Reporter')
+  if (isDeveloper) roles.push('Developer')
   if (isQA) roles.push('QA')
 
   return {
@@ -690,20 +685,18 @@ export function calculateDepartmentPerformance(
   sprint: { startDate: string; endDate: string },
   weights?: PerformanceWeights
 ): DepartmentPerformance {
-  // 收集有效成员：只包含 assignee、reporter、QA、Developer 角色的人
+  // 收集有效成员：只有在 developer 字段或 QA 字段中出现过的人才纳入绩效评估
   // 按 assignee 分组 issues（绩效基于 assignee 的任务）
   const memberGroups = groupIssuesByAssignee(issues)
 
-  // 收集所有有效角色的人员 ID（developer、reporter、QA）
+  // 只收集 developer 字段和 QA 字段中出现过的人员 ID
   const validMemberIds = new Set<string>()
   for (const issue of issues) {
     if (issue.developerUser?.id) validMemberIds.add(issue.developerUser.id)
-    if (issue.reporter?.id) validMemberIds.add(issue.reporter.id)
     if (issue.qaUser?.id) validMemberIds.add(issue.qaUser.id)
-    if (issue.assignee?.id) validMemberIds.add(issue.assignee.id)
   }
 
-  // 过滤：只保留有效角色的成员，排除 'unassigned'
+  // 过滤：只保留 developer/QA 角色的成员，排除 'unassigned'
   const memberIds = Object.keys(memberGroups).filter(id =>
     id !== 'unassigned' && validMemberIds.has(id)
   )

@@ -601,10 +601,10 @@ export function calculateMemberPerformance(
 ): MemberPerformance {
   const w = weights ?? DEFAULT_WEIGHTS
 
-  // 获取成员信息
+  // 获取成员信息（优先从 assignee 取，如果不是 assignee 则从 reporter 取）
   const firstIssue = memberIssues[0]
-  const memberId = firstIssue?.assignee?.id ?? 'unknown'
-  const memberName = firstIssue?.assignee?.name ?? 'unknown'
+  const memberId = firstIssue?.assignee?.id ?? firstIssue?.reporter?.id ?? 'unknown'
+  const memberName = firstIssue?.assignee?.name ?? firstIssue?.reporter?.name ?? 'unknown'
   const avatarUrl = firstIssue?.assignee?.avatarUrl ?? null
 
   // 预计算所有成员的吞吐量统计（用于相对排名）
@@ -692,12 +692,20 @@ export function calculateDepartmentPerformance(
   weights?: PerformanceWeights,
   knownDeveloperIds?: Set<string>
 ): DepartmentPerformance {
-  // 收集有效成员：在 developer、reporter 或 QA 字段中出现过的人才纳入绩效评估
   // 按 assignee 分组 issues（绩效基于 assignee 的任务）
   const memberGroups = groupIssuesByAssignee(issues)
 
+  // 也按 reporter 分组（用于纯 reporter 的绩效计算）
+  const reporterGroups: Record<string, PerformanceIssue[]> = {}
+  for (const issue of issues) {
+    if (issue.reporter?.id) {
+      const rid = issue.reporter.id
+      if (!reporterGroups[rid]) reporterGroups[rid] = []
+      reporterGroups[rid].push(issue)
+    }
+  }
+
   // 收集 developer、reporter、QA 字段中出现过的人员 ID
-  // knownDeveloperIds 来自大范围搜索（包含所有可能的 ID 格式：key, name, email, displayName）
   const validMemberIds = new Set<string>()
   if (knownDeveloperIds) {
     for (const id of knownDeveloperIds) validMemberIds.add(id)
@@ -708,8 +716,7 @@ export function calculateDepartmentPerformance(
     if (issue.qaUser?.id) validMemberIds.add(issue.qaUser.id)
   }
 
-  // 也把 assignee 的 name 加入检查（因为 knownDeveloperIds 中可能包含 displayName）
-  // 构建 assigneeId → assigneeName 映射，用于双向匹配
+  // 构建 assigneeId → assigneeName 映射
   const assigneeNameMap = new Map<string, string>()
   for (const issue of issues) {
     if (issue.assignee?.id && issue.assignee?.name) {
@@ -717,19 +724,31 @@ export function calculateDepartmentPerformance(
     }
   }
 
-  // 过滤：只保留 developer/reporter/QA 角色的成员，排除 'unassigned'
-  // 同时检查 assignee 的 name（displayName）是否在 validMemberIds 中
+  // 过滤 assignee 组：只保留 developer/reporter/QA 角色的成员
   const memberIds = Object.keys(memberGroups).filter(id => {
     if (id === 'unassigned') return false
     if (validMemberIds.has(id)) return true
-    // 也检查 assignee 的 displayName 是否匹配
     const name = assigneeNameMap.get(id)
     if (name && validMemberIds.has(name)) return true
     return false
   })
 
+  // 收集纯 reporter（在 reporter 字段出现但不在 assignee 组中的人）
+  const assigneeIdSet = new Set(memberIds)
+  const pureReporterIds: string[] = []
+  for (const issue of issues) {
+    if (issue.reporter?.id && !assigneeIdSet.has(issue.reporter.id)) {
+      if (!pureReporterIds.includes(issue.reporter.id)) {
+        pureReporterIds.push(issue.reporter.id)
+      }
+    }
+  }
+
+  // 合并所有成员 ID
+  const allMemberIds = [...memberIds, ...pureReporterIds]
+
   // 若无成员，返回空结果
-  if (memberIds.length === 0) {
+  if (allMemberIds.length === 0) {
     return {
       averageScore: 0,
       averageThroughput: 0,
@@ -745,8 +764,9 @@ export function calculateDepartmentPerformance(
   }
 
   // 计算每个成员的绩效
-  const members: MemberPerformance[] = memberIds.map(memberId => {
-    const memberIssues = memberGroups[memberId]
+  const members: MemberPerformance[] = allMemberIds.map(memberId => {
+    // 优先用 assignee 分组的 issues，如果没有则用 reporter 分组的 issues
+    const memberIssues = memberGroups[memberId] ?? reporterGroups[memberId] ?? []
     return calculateMemberPerformance(memberIssues, issues, sprint, weights, knownDeveloperIds)
   })
 

@@ -648,17 +648,15 @@ export function calculateMemberPerformance(
   // 计算成员角色（严格逻辑，优先级：Developer > QA > Reporter）
   // 1. Developer：在项目 developer 字段出现过 → Developer（最高优先级）
   // 2. QA：在当前 sprint ticket 的 QA 字段出现过，且不是 Developer → QA
-  // 3. Reporter：在 reporter 字段出现过，且不是 Developer 也不是 QA → Reporter
+  // 3. Reporter：其他人 → Reporter
   const roles: string[] = []
   const isDeveloper = (knownDeveloperIds?.has(memberId)) ||
-    (knownDeveloperIds?.has(memberName)) ||
     allIssues.some(i => i.developerUser?.id === memberId)
   const isQA = allIssues.some(i => i.qaUser?.id === memberId)
-  const isReporter = allIssues.some(i => i.reporter?.id === memberId)
 
   if (isDeveloper) roles.push('Developer')
   else if (isQA) roles.push('QA')
-  else if (isReporter) roles.push('Reporter')
+  else roles.push('Reporter')
 
   return {
     memberId,
@@ -732,18 +730,14 @@ export function calculateDepartmentPerformance(
     return false
   })
 
-  // 收集纯 reporter（在 reporter 字段出现但不在 assignee 组中，且不是 Developer/QA 的人）
+  // 收集纯 reporter（在 reporter 字段出现但不在 assignee 组中的人）
+  // 不在这里排除 developer/QA，让角色判定逻辑统一处理
   const assigneeIdSet = new Set(memberIds)
   const pureReporterIds: string[] = []
   for (const issue of issues) {
     if (issue.reporter?.id && !assigneeIdSet.has(issue.reporter.id)) {
       const rid = issue.reporter.id
-      const rname = issue.reporter.name ?? ''
-      // 排除已经是 Developer 的人（Developer 优先级最高）
-      const isDevByField = (knownDeveloperIds?.has(rid)) || (knownDeveloperIds?.has(rname)) || issues.some(i => i.developerUser?.id === rid)
-      // 排除已经是 QA 的人
-      const isQaByField = issues.some(i => i.qaUser?.id === rid)
-      if (!isDevByField && !isQaByField && !pureReporterIds.includes(rid)) {
+      if (!pureReporterIds.includes(rid)) {
         pureReporterIds.push(rid)
       }
     }

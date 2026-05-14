@@ -647,12 +647,15 @@ export function calculateMemberPerformance(
   // 计算成员角色（严格基于 Jira 自定义字段）
   // 规则：只有在 developer 字段（customfield_11000）出现过才是 Developer
   //       只有在 QA 字段（customfield_11102）出现过才是 QA
-  //       不标记 Reporter，不把纯 assignee 当作 Developer
+  //       在 reporter 字段出现过标记为 Reporter
+  //       纯 assignee 不标记任何角色
   const roles: string[] = []
   const isDeveloper = allIssues.some(i => i.developerUser?.id === memberId)
+  const isReporter = allIssues.some(i => i.reporter?.id === memberId)
   const isQA = allIssues.some(i => i.qaUser?.id === memberId)
 
   if (isDeveloper) roles.push('Developer')
+  if (isReporter && !isDeveloper) roles.push('Reporter')
   if (isQA) roles.push('QA')
 
   return {
@@ -685,18 +688,20 @@ export function calculateDepartmentPerformance(
   sprint: { startDate: string; endDate: string },
   weights?: PerformanceWeights
 ): DepartmentPerformance {
-  // 收集有效成员：只有在 developer 字段或 QA 字段中出现过的人才纳入绩效评估
+  // 收集有效成员：在 developer、reporter 或 QA 字段中出现过的人才纳入绩效评估
+  // 纯 assignee 不纳入
   // 按 assignee 分组 issues（绩效基于 assignee 的任务）
   const memberGroups = groupIssuesByAssignee(issues)
 
-  // 只收集 developer 字段和 QA 字段中出现过的人员 ID
+  // 收集 developer、reporter、QA 字段中出现过的人员 ID
   const validMemberIds = new Set<string>()
   for (const issue of issues) {
     if (issue.developerUser?.id) validMemberIds.add(issue.developerUser.id)
+    if (issue.reporter?.id) validMemberIds.add(issue.reporter.id)
     if (issue.qaUser?.id) validMemberIds.add(issue.qaUser.id)
   }
 
-  // 过滤：只保留 developer/QA 角色的成员，排除 'unassigned'
+  // 过滤：只保留 developer/reporter/QA 角色的成员，排除 'unassigned'
   const memberIds = Object.keys(memberGroups).filter(id =>
     id !== 'unassigned' && validMemberIds.has(id)
   )

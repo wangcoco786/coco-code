@@ -81,13 +81,15 @@ export default function IndividualPerformance({ memberPerformances }: Individual
   const [expandedMemberId, setExpandedMemberId] = useState<string | null>(null)
 
   // 按角色分组
-  const { developers, qas } = useMemo(() => {
+  const { developers, reporters, qas } = useMemo(() => {
     const devs: MemberPerformance[] = []
+    const reps: MemberPerformance[] = []
     const qas: MemberPerformance[] = []
 
     for (const member of memberPerformances) {
       const roles = member.roles ?? []
       if (roles.includes('Developer')) devs.push(member)
+      if (roles.includes('Reporter')) reps.push(member)
       if (roles.includes('QA')) qas.push(member)
       // 如果没有明确角色，归入 Developer
       if (roles.length === 0) {
@@ -97,7 +99,7 @@ export default function IndividualPerformance({ memberPerformances }: Individual
 
     // 各组按选定维度排序
     const sort = (arr: MemberPerformance[]) => [...arr].sort((a, b) => b[sortKey] - a[sortKey])
-    return { developers: sort(devs), qas: sort(qas) }
+    return { developers: sort(devs), reporters: sort(reps), qas: sort(qas) }
   }, [memberPerformances, sortKey])
 
   const handleCardClick = (memberId: string) => {
@@ -125,6 +127,16 @@ export default function IndividualPerformance({ memberPerformances }: Individual
         <RoleSection
           title="👨‍💻 Developer"
           members={developers}
+          expandedMemberId={expandedMemberId}
+          onCardClick={handleCardClick}
+        />
+      )}
+
+      {/* Reporter 组 */}
+      {reporters.length > 0 && (
+        <RoleSection
+          title="📝 Reporter"
+          members={reporters}
           expandedMemberId={expandedMemberId}
           onCardClick={handleCardClick}
         />

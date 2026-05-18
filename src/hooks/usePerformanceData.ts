@@ -338,13 +338,13 @@ export function usePerformanceData(projectKey: string | null): UsePerformanceDat
           // customfield_11000: Developer(single) — 单用户
           const dev11000 = issue?.fields?.customfield_11000
           if (dev11000 && typeof dev11000 === 'object') {
-            const d = (Array.isArray(dev11000) ? dev11000[0] : dev11000) as { accountId?: string; key?: string; name?: string; displayName?: string; emailAddress?: string }
+            const d = (Array.isArray(dev11000) ? dev11000[0] : dev11000) as { accountId?: string; key?: string; name?: string; emailAddress?: string }
             if (d) {
+              // 只收集精确 ID（不收集 displayName，避免误匹配）
               if (d.accountId) devIds.add(d.accountId)
               if (d.key) devIds.add(d.key)
               if (d.name) devIds.add(d.name)
               if (d.emailAddress) devIds.add(d.emailAddress)
-              if (d.displayName) devIds.add(d.displayName)
             }
           }
 
@@ -353,12 +353,12 @@ export function usePerformanceData(projectKey: string | null): UsePerformanceDat
           if (Array.isArray(dev11103)) {
             for (const devUser of dev11103) {
               if (!devUser || typeof devUser !== 'object') continue
-              const d = devUser as { accountId?: string; key?: string; name?: string; displayName?: string; emailAddress?: string }
+              const d = devUser as { accountId?: string; key?: string; name?: string; emailAddress?: string }
+              // 只收集精确 ID（不收集 displayName，避免误匹配）
               if (d.accountId) devIds.add(d.accountId)
               if (d.key) devIds.add(d.key)
               if (d.name) devIds.add(d.name)
               if (d.emailAddress) devIds.add(d.emailAddress)
-              if (d.displayName) devIds.add(d.displayName)
             }
           }
         }

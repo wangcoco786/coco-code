@@ -597,15 +597,30 @@ export function calculateMemberPerformance(
   allIssues: PerformanceIssue[],
   sprint: { startDate: string; endDate: string },
   weights?: PerformanceWeights,
-  knownDeveloperIds?: Set<string>
+  knownDeveloperIds?: Set<string>,
+  explicitMemberId?: string
 ): MemberPerformance {
   const w = weights ?? DEFAULT_WEIGHTS
 
-  // 获取成员信息（优先从 assignee 取，如果不是 assignee 则从 reporter 取）
+  // 获取成员信息
   const firstIssue = memberIssues[0]
-  const memberId = firstIssue?.assignee?.id ?? firstIssue?.reporter?.id ?? 'unknown'
-  const memberName = firstIssue?.assignee?.name ?? firstIssue?.reporter?.name ?? 'unknown'
-  const avatarUrl = firstIssue?.assignee?.avatarUrl ?? null
+  let memberId: string
+  let memberName: string
+  let avatarUrl: string | null
+
+  if (explicitMemberId) {
+    // 使用显式传入的 memberId（用于纯 reporter 等场景）
+    memberId = explicitMemberId
+    // 从 issues 中找到这个人的名字
+    const asAssignee = allIssues.find(i => i.assignee?.id === explicitMemberId)
+    const asReporter = allIssues.find(i => i.reporter?.id === explicitMemberId)
+    memberName = asAssignee?.assignee?.name ?? asReporter?.reporter?.name ?? 'unknown'
+    avatarUrl = asAssignee?.assignee?.avatarUrl ?? null
+  } else {
+    memberId = firstIssue?.assignee?.id ?? firstIssue?.reporter?.id ?? 'unknown'
+    memberName = firstIssue?.assignee?.name ?? firstIssue?.reporter?.name ?? 'unknown'
+    avatarUrl = firstIssue?.assignee?.avatarUrl ?? null
+  }
 
   // 预计算所有成员的吞吐量统计（用于相对排名）
   const memberGroups = groupIssuesByAssignee(allIssues)
@@ -766,10 +781,10 @@ export function calculateDepartmentPerformance(
   // 计算每个成员的绩效（去重：同一个人可能因为 ID 格式不同出现多次）
   const seenNames = new Set<string>()
   const members: MemberPerformance[] = []
-  for (const memberId of allMemberIds) {
-    const memberIssues = memberGroups[memberId] ?? reporterGroups[memberId] ?? []
+  for (const mid of allMemberIds) {
+    const memberIssues = memberGroups[mid] ?? reporterGroups[mid] ?? []
     if (memberIssues.length === 0) continue
-    const perf = calculateMemberPerformance(memberIssues, issues, sprint, weights, knownDeveloperIds)
+    const perf = calculateMemberPerformance(memberIssues, issues, sprint, weights, knownDeveloperIds, mid)
     // 按 memberName 去重
     if (seenNames.has(perf.memberName)) continue
     seenNames.add(perf.memberName)

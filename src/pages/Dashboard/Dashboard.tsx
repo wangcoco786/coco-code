@@ -10,10 +10,11 @@ import ActivityFeed from '@/components/ActivityFeed/ActivityFeed'
 import GlobalView from './GlobalView'
 import PersonalView from './PersonalView'
 import PerformanceView from './PerformanceView'
+import ReleaseNotesTab from './ReleaseNotesTab'
 import styles from './Dashboard.module.css'
 import type { PlatformIssue, ActivityItem } from '@/types/platform'
 
-type DashTab = 'global' | 'personal' | 'decision' | 'performance'
+type DashTab = 'global' | 'personal' | 'decision' | 'performance' | 'release-notes'
 
 export default function Dashboard() {
   const { currentUser, currentProjectKey } = useApp()
@@ -24,7 +25,7 @@ export default function Dashboard() {
   const getInitialTab = (): DashTab => {
     const params = new URLSearchParams(window.location.search)
     const tabParam = params.get('tab')
-    if (tabParam === 'performance' || tabParam === 'global' || tabParam === 'personal' || tabParam === 'decision') {
+    if (tabParam === 'performance' || tabParam === 'global' || tabParam === 'personal' || tabParam === 'decision' || tabParam === 'release-notes') {
       return tabParam
     }
     // Default: PM → global, DEV → personal
@@ -137,6 +138,12 @@ export default function Dashboard() {
             className={`${styles.tab} ${activeTab === 'performance' ? styles.active : ''}`}
             onClick={() => handleTabChange('performance')}
           >部门绩效</button>
+          {sprint && (
+            <button
+              className={`${styles.tab} ${activeTab === 'release-notes' ? styles.active : ''}`}
+              onClick={() => handleTabChange('release-notes')}
+            >Release Notes</button>
+          )}
           {currentUser?.role === 'PM' && (
             <button
               className={`${styles.tab} ${activeTab === 'decision' ? styles.active : ''}`}
@@ -194,6 +201,9 @@ export default function Dashboard() {
           )}
           {activeTab === 'performance' && (
             <PerformanceView projectKey={currentProjectKey} />
+          )}
+          {activeTab === 'release-notes' && sprint && (
+            <ReleaseNotesTab projectKey={currentProjectKey} />
           )}
           {activeTab === 'decision' && currentUser?.role === 'PM' && (
             <DecisionView risks={risks} issues={issues} />

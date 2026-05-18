@@ -441,3 +441,85 @@ export interface ActivityItem {
   timestamp: string
   metadata?: Record<string, unknown>
 }
+
+// ─── Release Notes Types ────────────────────────────────────
+
+/** Issue 分类枚举 */
+export type IssueCategory = 'feature' | 'bug_fix' | 'hot_fix' | 'improvement' | 'other'
+
+/** 分类后的 Issue */
+export interface ClassifiedIssue extends PlatformIssue {
+  category: IssueCategory
+  isUnplanned: boolean        // 是否为插队 Issue（createdAt > sprint startDate）
+  isStaleStatus: boolean      // 是否状态待更新（Sprint 临近结束但状态未完成）
+}
+
+/** 按分类分组的结果 */
+export interface CategorizedIssues {
+  feature: ClassifiedIssue[]
+  bug_fix: ClassifiedIssue[]
+  hot_fix: ClassifiedIssue[]
+  improvement: ClassifiedIssue[]
+  other: ClassifiedIssue[]
+}
+
+/** Release Notes 完成度统计 */
+export interface ReleaseNotesSummary {
+  totalCount: number
+  completedCount: number
+  completionRate: number          // 0-100
+  hotFixCount: number
+  baselineCount: number           // 计划内 Issue 数
+  unplannedCount: number          // 插队 Issue 数
+  isCompletionWarning: boolean    // completionRate < 80
+}
+
+/** Release Notes 完整数据（用于渲染和导出） */
+export interface ReleaseNotesData {
+  sprintName: string
+  sprintStartDate: string
+  sprintEndDate: string
+  projectKey: string
+  summary: ReleaseNotesSummary
+  categorizedIssues: CategorizedIssues
+  staleIssues: ClassifiedIssue[]
+  generatedAt: string             // ISO 8601 生成时间戳
+}
+
+/** 导出格式 */
+export type ExportFormat = 'markdown' | 'html'
+
+/** 导出选项 */
+export interface ExportOptions {
+  format: ExportFormat
+  projectKey: string
+  sprintName: string
+}
+
+/** 分类规则（优先级从高到低） */
+export const CATEGORY_RULES: Array<{
+  category: IssueCategory
+  labelPatterns: RegExp[]
+  issueTypes: string[]
+}> = [
+  {
+    category: 'hot_fix',
+    labelPatterns: [/hotfix/i, /hot-fix/i, /hot_fix/i],
+    issueTypes: [],
+  },
+  {
+    category: 'bug_fix',
+    labelPatterns: [/bug/i],
+    issueTypes: ['Bug'],
+  },
+  {
+    category: 'feature',
+    labelPatterns: [/feature/i, /story/i],
+    issueTypes: ['Story'],
+  },
+  {
+    category: 'improvement',
+    labelPatterns: [/improvement/i, /enhancement/i],
+    issueTypes: [],
+  },
+]

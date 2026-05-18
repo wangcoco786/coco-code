@@ -51,15 +51,19 @@ export function useReleaseNotes(projectKey: string | null): UseReleaseNotesResul
   const sprint = sprints[0] ?? null
 
   // 使用 sprintId 精确过滤，只获取当前迭代的 Issue
+  // 只有当 sprint 数据加载完成后才发起 issues 查询
   const {
     data: issues = [],
     isLoading: isIssuesLoading,
     error: issuesError,
     refetch: refetchIssues,
-  } = useActiveSprintIssuesByProject(projectKey, sprint?.id ?? null)
+  } = useActiveSprintIssuesByProject(
+    sprint?.id ? projectKey : null,
+    sprint?.id ?? null,
+  )
 
   // ─── 加载和错误状态 ───────────────────────────────────────
-  const isLoading = (isSprintsLoading || isIssuesLoading) && !!projectKey
+  const isLoading = (isSprintsLoading || (!!sprint?.id && isIssuesLoading)) && !!projectKey
   const error = issuesError as Error | null
 
   // ─── 计算 Release Notes 数据 ─────────────────────────────

@@ -1,6 +1,10 @@
+import { useState } from 'react'
 import { useReleaseNotes } from '@/hooks/useReleaseNotes'
 import type { ReleaseNotesData, ReleaseNotesSummary, ClassifiedIssue, IssueCategory, CategorizedIssues } from '@/types/platform'
 import styles from './ReleaseNotesTab.module.css'
+
+/** 明细弹窗的筛选类型 */
+type DetailFilter = 'all' | 'completed' | 'incomplete' | 'hotfix' | 'unplanned' | 'stale' | null
 
 interface ReleaseNotesTabProps {
   projectKey: string
@@ -25,6 +29,9 @@ export default function ReleaseNotesTab({ projectKey }: ReleaseNotesTabProps) {
     toggleShowOnlyStale,
     filteredIssues,
   } = useReleaseNotes(projectKey)
+
+  // 明细弹窗状态
+  const [detailFilter, setDetailFilter] = useState<DetailFilter>(null)
 
   // ─── Loading State ────────────────────────────────────────
   if (isLoading) {
@@ -84,6 +91,7 @@ export default function ReleaseNotesTab({ projectKey }: ReleaseNotesTabProps) {
       <CompletionSummary
         summary={releaseNotesData.summary}
         staleWarningCount={releaseNotesData.staleIssues.length}
+        onMetricClick={setDetailFilter}
       />
 
       {/* Filter Bar */}
@@ -113,6 +121,15 @@ export default function ReleaseNotesTab({ projectKey }: ReleaseNotesTabProps) {
           },
         )}
       </div>
+
+      {/* Detail Modal */}
+      {detailFilter && releaseNotesData && (
+        <DetailModal
+          filter={detailFilter}
+          releaseNotesData={releaseNotesData}
+          onClose={() => setDetailFilter(null)}
+        />
+      )}
     </div>
   )
 }
@@ -190,21 +207,23 @@ function LoadingSkeleton() {
 function CompletionSummary({
   summary,
   staleWarningCount,
+  onMetricClick,
 }: {
   summary: ReleaseNotesSummary
   staleWarningCount: number
+  onMetricClick: (filter: DetailFilter) => void
 }) {
   return (
     <div className={styles.summaryContainer}>
       <div className={styles.summaryGrid}>
         {/* 总计 */}
-        <div className={styles.metricCard}>
+        <div className={`${styles.metricCard} ${styles.metricClickable}`} onClick={() => onMetricClick('all')}>
           <span className={styles.metricLabel}>总计</span>
           <span className={styles.metricValue}>{summary.totalCount}</span>
         </div>
 
         {/* 已完成 */}
-        <div className={styles.metricCard}>
+        <div className={`${styles.metricCard} ${styles.metricClickable}`} onClick={() => onMetricClick('completed')}>
           <span className={styles.metricLabel}>已完成</span>
           <span className={`${styles.metricValue} ${styles.metricValueSuccess}`}>
             {summary.completedCount}
@@ -212,7 +231,7 @@ function CompletionSummary({
         </div>
 
         {/* 完成率 */}
-        <div className={styles.metricCard}>
+        <div className={`${styles.metricCard} ${styles.metricClickable}`} onClick={() => onMetricClick('incomplete')}>
           <span className={styles.metricLabel}>完成率</span>
           <span
             className={`${styles.metricValue} ${
@@ -229,7 +248,7 @@ function CompletionSummary({
         </div>
 
         {/* Hot Fix */}
-        <div className={styles.metricCard}>
+        <div className={`${styles.metricCard} ${styles.metricClickable}`} onClick={() => onMetricClick('hotfix')}>
           <span className={styles.metricLabel}>🔥 Hot Fix</span>
           <span className={`${styles.metricValue} ${styles.metricValueWarning}`}>
             {summary.hotFixCount}
@@ -237,7 +256,7 @@ function CompletionSummary({
         </div>
 
         {/* 计划内 vs 插队 */}
-        <div className={styles.metricCard}>
+        <div className={`${styles.metricCard} ${styles.metricClickable}`} onClick={() => onMetricClick('unplanned')}>
           <span className={styles.metricLabel}>计划内 / 插队</span>
           <span className={`${styles.metricValue} ${styles.metricValueSmall}`}>
             计划内: {summary.baselineCount}, 插队: {summary.unplannedCount}
@@ -247,7 +266,7 @@ function CompletionSummary({
 
       {/* 状态待更新提醒 */}
       {staleWarningCount > 0 && (
-        <div className={styles.staleWarning}>
+        <div className={`${styles.staleWarning} ${styles.metricClickable}`} onClick={() => onMetricClick('stale')}>
           <span className={styles.staleWarningIcon}>⚠️</span>
           <span>有 {staleWarningCount} 个 Issue 状态可能未及时更新</span>
         </div>
@@ -362,6 +381,86 @@ function IssueRow({ issue }: { issue: ClassifiedIssue }) {
       <span className={styles.issueAssignee}>
         {issue.assignee?.name || '未分配'}
       </span>
+    </div>
+  )
+}
+
+// ============================================================
+// DetailModal — 点击统计数字后展示的明细弹窗
+// ============================================================
+
+const DETAIL_FILTER_LABELS: Record<Exclude<DetailFilter, null>, string> = {
+  all: '全部 Issue',
+  completed: '已完成 Issue',
+  incomplete: '未完成 Issue',
+  hotfix: 'Hot Fix Issue',
+  unplanned: '插队 Issue',
+  stale: '状态待更新 Issue',
+}
+
+function DetailModal({
+  filter,
+  releaseNotesData,
+  onClose,
+}: {
+  filter: Exclude<DetailFilter, null>
+  releaseNotesData: ReleaseNotesData
+  onClose: () => void
+}) {
+  // 根据 filter 类型筛选 Issue
+  const allIssues: ClassifiedIssue[] = [
+    ...releaseNotesData.categorizedIssues.feature,
+    ...releaseNotesData.categorizedIssues.bug_fix,
+    ...releaseNotesData.categorizedIssues.hot_fix,
+    ...releaseNotesData.categorizedIssues.improvement,
+    ...releaseNotesData.categorizedIssues.other,
+  ]
+
+  let detailIssues: ClassifiedIssue[]
+  switch (filter) {
+    case 'all':
+      detailIssues = allIssues
+      break
+    case 'completed':
+      detailIssues = allIssues.filter((i) => i.status === 'done')
+      break
+    case 'incomplete':
+      detailIssues = allIssues.filter((i) => i.status !== 'done')
+      break
+    case 'hotfix':
+      detailIssues = releaseNotesData.categorizedIssues.hot_fix
+      break
+    case 'unplanned':
+      detailIssues = allIssues.filter((i) => i.isUnplanned)
+      break
+    case 'stale':
+      detailIssues = releaseNotesData.staleIssues
+      break
+    default:
+      detailIssues = allIssues
+  }
+
+  return (
+    <div className={styles.modalOverlay} onClick={onClose}>
+      <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+        <div className={styles.modalHeader}>
+          <h3 className={styles.modalTitle}>
+            {DETAIL_FILTER_LABELS[filter]} ({detailIssues.length})
+          </h3>
+          <button className={styles.modalClose} onClick={onClose}>✕</button>
+        </div>
+        <div className={styles.modalBody}>
+          {detailIssues.length === 0 ? (
+            <p style={{ textAlign: 'center', color: 'var(--text2)', padding: 20 }}>暂无数据</p>
+          ) : (
+            <div className={styles.issueList}>
+              {detailIssues.map((issue) => (
+                <IssueRow key={issue.id} issue={issue} />
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   )
 }

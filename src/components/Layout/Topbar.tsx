@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useApp } from '@/context/AppContext'
 import { useI18n } from '@/context/I18nContext'
@@ -51,21 +51,14 @@ export default function Topbar({ onMenuToggle }: { onMenuToggle?: () => void }) 
         )}
         <div className={styles.logo}>🤖 AI-PM</div>
 
-        {/* 项目选择器 */}
-        <select
-          className={styles.projectSelect}
-          value={currentProjectKey ?? ''}
-          onChange={(e) => setCurrentProjectKey(e.target.value || null)}
-          aria-label={t('topbar.selectBoard')}
-          disabled={isLoading}
-        >
-          <option value="">{isLoading ? t('common.loading') : t('common.selectProject')}</option>
-          {projects?.map((p) => (
-            <option key={p.key} value={p.key}>
-              [{p.key}] {p.name}
-            </option>
-          ))}
-        </select>
+        {/* 项目选择器（支持搜索） */}
+        <ProjectSearchSelect
+          projects={projects ?? []}
+          isLoading={isLoading}
+          value={currentProjectKey}
+          onChange={setCurrentProjectKey}
+          placeholder={isLoading ? t('common.loading') : t('common.selectProject')}
+        />
       </div>
 
       <div className={styles.center}>
@@ -143,5 +136,145 @@ export default function Topbar({ onMenuToggle }: { onMenuToggle?: () => void }) 
         </div>
       </div>
     </header>
+  )
+}
+
+// ============================================================
+// ProjectSearchSelect — 支持搜索的项目选择器
+// ============================================================
+
+interface ProjectSearchSelectProps {
+  projects: { key: string; name: string }[]
+  isLoading: boolean
+  value: string | null
+  onChange: (key: string | null) => void
+  placeholder: string
+}
+
+function ProjectSearchSelect({ projects, isLoading, value, onChange, placeholder }: ProjectSearchSelectProps) {
+  const [open, setOpen] = useState(false)
+  const [search, setSearch] = useState('')
+  const containerRef = useRef<HTMLDivElement>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  // 点击外部关闭
+  useEffect(() => {
+    if (!open) return
+    function handleClick(e: MouseEvent) {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [open])
+
+  // 打开时聚焦输入框
+  useEffect(() => {
+    if (open && inputRef.current) {
+      inputRef.current.focus()
+    }
+  }, [open])
+
+  // 过滤项目
+  const filtered = useMemo(() => {
+    if (!search) return projects
+    const kw = search.toLowerCase()
+    return projects.filter(p =>
+      p.key.toLowerCase().includes(kw) || p.name.toLowerCase().includes(kw)
+    )
+  }, [projects, search])
+
+  // 当前选中项目的显示文本
+  const selectedProject = projects.find(p => p.key === value)
+  const displayText = selectedProject ? `[${selectedProject.key}] ${selectedProject.name}` : placeholder
+
+  return (
+    <div ref={containerRef} style={{ position: 'relative' }}>
+      {/* 触发按钮 */}
+      <button
+        className={styles.projectSelect}
+        onClick={() => { setOpen(v => !v); setSearch('') }}
+        disabled={isLoading}
+        style={{ cursor: 'pointer', textAlign: 'left', display: 'flex', alignItems: 'center', gap: 6 }}
+      >
+        <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          {displayText}
+        </span>
+        <span style={{ fontSize: 10, opacity: 0.6 }}>▼</span>
+      </button>
+
+      {/* 下拉面板 */}
+      {open && (
+        <div style={{
+          position: 'absolute',
+          top: '100%',
+          left: 0,
+          marginTop: 4,
+          width: '100%',
+          minWidth: 260,
+          background: 'var(--card, #fff)',
+          border: '1px solid var(--border, #e0e0e0)',
+          borderRadius: 'var(--radius-md, 8px)',
+          boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
+          zIndex: 1000,
+          overflow: 'hidden',
+        }}>
+          {/* 搜索框 */}
+          <div style={{ padding: '8px 10px', borderBottom: '1px solid var(--border, #f0f0f0)' }}>
+            <input
+              ref={inputRef}
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="🔍 搜索项目..."
+              style={{
+                width: '100%',
+                padding: '6px 10px',
+                border: '1px solid var(--border, #e0e0e0)',
+                borderRadius: 'var(--radius-sm, 4px)',
+                fontSize: 13,
+                outline: 'none',
+                background: 'var(--bg, #f8f9fa)',
+                color: 'var(--text, #333)',
+              }}
+            />
+          </div>
+
+          {/* 项目列表 */}
+          <div style={{ maxHeight: 240, overflowY: 'auto' }}>
+            {filtered.length === 0 ? (
+              <div style={{ padding: '12px 14px', fontSize: 13, color: 'var(--text2, #999)', textAlign: 'center' }}>
+                无匹配项目
+              </div>
+            ) : (
+              filtered.map(p => (
+                <button
+                  key={p.key}
+                  onClick={() => { onChange(p.key); setOpen(false); setSearch('') }}
+                  style={{
+                    display: 'block',
+                    width: '100%',
+                    padding: '8px 14px',
+                    border: 'none',
+                    background: value === p.key ? 'var(--primary-light, #e6f0ff)' : 'none',
+                    textAlign: 'left',
+                    fontSize: 13,
+                    cursor: 'pointer',
+                    color: 'var(--text, #333)',
+                    transition: 'background 0.15s',
+                  }}
+                  onMouseEnter={(e) => { if (value !== p.key) e.currentTarget.style.background = 'var(--bg, #f8f9fa)' }}
+                  onMouseLeave={(e) => { if (value !== p.key) e.currentTarget.style.background = 'none' }}
+                >
+                  <span style={{ fontWeight: 600, color: 'var(--primary, #667eea)' }}>[{p.key}]</span>{' '}
+                  {p.name}
+                </button>
+              ))
+            )}
+          </div>
+        </div>
+      )}
+    </div>
   )
 }

@@ -1,10 +1,90 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import { useApp } from '@/context/AppContext'
 import { jiraClient } from '@/lib/jiraClient'
 import { buildPageContext } from '@/lib/aiContextBuilder'
 import type { PageType, AIContext } from '@/types/platform'
 import styles from './AIAssistant.module.css'
+
+// ============================================================
+// LinkifiedText — 将文本中的 URL 和 Jira ticket ID 转为可点击链接
+// ============================================================
+
+const JIRA_BASE_URL = import.meta.env.VITE_JIRA_BASE_URL || ''
+
+// 匹配 URL 或 Jira ticket key (如 DTS-1234, AIAGBJ-567)
+const LINK_REGEX = /(https?:\/\/[^\s<]+)|(\b[A-Z][A-Z0-9]+-\d+\b)/g
+
+function LinkifiedText({ text }: { text: string }) {
+  const parts: (string | React.ReactElement)[] = []
+  let lastIndex = 0
+  let match: RegExpExecArray | null
+
+  const regex = new RegExp(LINK_REGEX.source, 'g')
+
+  while ((match = regex.exec(text)) !== null) {
+    // Add text before match
+    if (match.index > lastIndex) {
+      parts.push(text.slice(lastIndex, match.index))
+    }
+
+    const [fullMatch, url, ticketKey] = match
+
+    if (url) {
+      parts.push(
+        <a
+          key={match.index}
+          href={url}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ color: '#667eea', textDecoration: 'underline', wordBreak: 'break-all' }}
+        >
+          {url}
+        </a>
+      )
+    } else if (ticketKey) {
+      const href = JIRA_BASE_URL ? `${JIRA_BASE_URL}/browse/${ticketKey}` : ''
+      if (href) {
+        parts.push(
+          <a
+            key={match.index}
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ color: '#667eea', fontWeight: 600, textDecoration: 'none', borderBottom: '1px dashed #667eea' }}
+          >
+            {ticketKey}
+          </a>
+        )
+      } else {
+        parts.push(fullMatch)
+      }
+    }
+
+    lastIndex = match.index + fullMatch.length
+  }
+
+  // Add remaining text
+  if (lastIndex < text.length) {
+    parts.push(text.slice(lastIndex))
+  }
+
+  // Handle newlines
+  const result: (string | React.ReactElement)[] = []
+  parts.forEach((part, i) => {
+    if (typeof part === 'string') {
+      const lines = part.split('\n')
+      lines.forEach((line, j) => {
+        if (j > 0) result.push(<br key={`br-${i}-${j}`} />)
+        if (line) result.push(line)
+      })
+    } else {
+      result.push(part)
+    }
+  })
+
+  return <>{result}</>
+}
 
 // ============================================================
 // AgentForce WebSocket AI 助手
@@ -329,7 +409,9 @@ export default function AIAssistant() {
                     </div>
                   )}
                   <div className={styles.bubble}>
-                    {msg.content || (msg.isStreaming ? <span className={styles.cursor} /> : '')}
+                    {msg.content
+                      ? <LinkifiedText text={msg.content} />
+                      : (msg.isStreaming ? <span className={styles.cursor} /> : '')}
                   </div>
                 </div>
               </div>

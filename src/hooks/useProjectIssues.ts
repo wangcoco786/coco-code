@@ -23,7 +23,6 @@ export function useActiveSprintIssuesByProject(
     },
     enabled: !!projectKey,
     staleTime: 5 * 60 * 1000,
-    placeholderData: keepPreviousData,
     select: (data) => data.issues.map(mapJiraIssueToPlatform) as PlatformIssue[],
     retry: (failureCount, error) => {
       if (

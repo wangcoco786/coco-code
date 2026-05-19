@@ -12,75 +12,109 @@ import styles from './AIAssistant.module.css'
 
 const JIRA_BASE_URL = import.meta.env.VITE_JIRA_BASE_URL || ''
 
-// 匹配 URL 或 Jira ticket key (如 DTS-1234, AIAGBJ-567)
-const LINK_REGEX = /(https?:\/\/[^\s<]+)|(\b[A-Z][A-Z0-9]+-\d+\b)/g
+// 匹配：Markdown 链接 [text](url)、裸 URL、Jira ticket key
+const MARKDOWN_LINK_REGEX = /\[([^\]]+)\]\((https?:\/\/[^)]+)\)/g
 
 function LinkifiedText({ text }: { text: string }) {
-  const parts: (string | React.ReactElement)[] = []
-  let lastIndex = 0
-  let match: RegExpExecArray | null
+  // Step 1: 处理 Markdown 加粗 **text** → 去掉星号（简单处理）
+  let processed = text
 
-  const regex = new RegExp(LINK_REGEX.source, 'g')
+  // Step 2: 先提取 Markdown 链接 [text](url)，替换为占位符
+  const mdLinks: { placeholder: string; label: string; url: string }[] = []
+  processed = processed.replace(MARKDOWN_LINK_REGEX, (_match, label, url) => {
+    const placeholder = `__MDLINK_${mdLinks.length}__`
+    mdLinks.push({ placeholder, label, url })
+    return placeholder
+  })
 
-  while ((match = regex.exec(text)) !== null) {
-    // Add text before match
-    if (match.index > lastIndex) {
-      parts.push(text.slice(lastIndex, match.index))
-    }
+  // Step 3: 去掉 Markdown 加粗标记
+  processed = processed.replace(/\*\*([^*]+)\*\*/g, '$1')
+  processed = processed.replace(/\*([^*]+)\*/g, '$1')
 
-    const [fullMatch, url, ticketKey] = match
+  // Step 4: 按行和占位符拆分，处理裸 URL 和 ticket key
+  const lines = processed.split('\n')
+  const result: React.ReactNode[] = []
 
-    if (url) {
-      parts.push(
-        <a
-          key={match.index}
-          href={url}
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{ color: '#667eea', textDecoration: 'underline', wordBreak: 'break-all' }}
-        >
-          {url}
-        </a>
-      )
-    } else if (ticketKey) {
-      const href = JIRA_BASE_URL ? `${JIRA_BASE_URL}/browse/${ticketKey}` : ''
-      if (href) {
-        parts.push(
+  lines.forEach((line, lineIdx) => {
+    if (lineIdx > 0) result.push(<br key={`br-${lineIdx}`} />)
+
+    // 拆分占位符
+    const segments = line.split(/(__MDLINK_\d+__)/g)
+
+    segments.forEach((segment, segIdx) => {
+      // 检查是否是 Markdown 链接占位符
+      const mdMatch = mdLinks.find(l => l.placeholder === segment)
+      if (mdMatch) {
+        result.push(
           <a
-            key={match.index}
-            href={href}
+            key={`md-${lineIdx}-${segIdx}`}
+            href={mdMatch.url}
             target="_blank"
             rel="noopener noreferrer"
-            style={{ color: '#667eea', fontWeight: 600, textDecoration: 'none', borderBottom: '1px dashed #667eea' }}
+            style={{ color: '#667eea', fontWeight: 600, textDecoration: 'underline', wordBreak: 'break-all' }}
           >
-            {ticketKey}
+            {mdMatch.label}
           </a>
         )
-      } else {
-        parts.push(fullMatch)
+        return
       }
-    }
 
-    lastIndex = match.index + fullMatch.length
-  }
+      // 处理裸 URL 和 ticket key
+      let lastIdx = 0
+      const combinedRegex = new RegExp(`(https?:\\/\\/[^\\s<)\\]]+)|(\\b[A-Z][A-Z0-9]+-\\d+\\b)`, 'g')
+      let m: RegExpExecArray | null
 
-  // Add remaining text
-  if (lastIndex < text.length) {
-    parts.push(text.slice(lastIndex))
-  }
+      while ((m = combinedRegex.exec(segment)) !== null) {
+        if (m.index > lastIdx) {
+          result.push(segment.slice(lastIdx, m.index))
+        }
 
-  // Handle newlines
-  const result: (string | React.ReactElement)[] = []
-  parts.forEach((part, i) => {
-    if (typeof part === 'string') {
-      const lines = part.split('\n')
-      lines.forEach((line, j) => {
-        if (j > 0) result.push(<br key={`br-${i}-${j}`} />)
-        if (line) result.push(line)
-      })
-    } else {
-      result.push(part)
-    }
+        const [, rawUrl, ticketKey] = m
+
+        if (rawUrl) {
+          // 去掉尾部的 ) 如果不匹配
+          const cleanUrl = rawUrl.replace(/[)]+$/, '')
+          result.push(
+            <a
+              key={`url-${lineIdx}-${segIdx}-${m.index}`}
+              href={cleanUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ color: '#667eea', textDecoration: 'underline', wordBreak: 'break-all' }}
+            >
+              {cleanUrl}
+            </a>
+          )
+          // If we stripped trailing ), add it back as text
+          if (cleanUrl.length < rawUrl.length) {
+            result.push(rawUrl.slice(cleanUrl.length))
+          }
+        } else if (ticketKey) {
+          const href = JIRA_BASE_URL ? `${JIRA_BASE_URL}/browse/${ticketKey}` : ''
+          if (href) {
+            result.push(
+              <a
+                key={`ticket-${lineIdx}-${segIdx}-${m.index}`}
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ color: '#667eea', fontWeight: 600, textDecoration: 'none', borderBottom: '1px dashed #667eea' }}
+              >
+                {ticketKey}
+              </a>
+            )
+          } else {
+            result.push(ticketKey)
+          }
+        }
+
+        lastIdx = m.index + m[0].length
+      }
+
+      if (lastIdx < segment.length) {
+        result.push(segment.slice(lastIdx))
+      }
+    })
   })
 
   return <>{result}</>

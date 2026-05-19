@@ -13,23 +13,18 @@ import styles from './AIAssistant.module.css'
 const JIRA_BASE_URL = import.meta.env.VITE_JIRA_BASE_URL || ''
 
 // 匹配：Markdown 链接 [text](url)、裸 URL、Jira ticket key
-const MARKDOWN_LINK_REGEX = /\[([^\]]+)\]\((https?:\/\/[^)]+)\)/g
 
 function LinkifiedText({ text }: { text: string }) {
-  // Step 1: 处理 Markdown 加粗 **text** → 去掉星号（简单处理）
-  let processed = text
+  // Step 1: 先去掉 Markdown 加粗标记（**text** 和 *text*）
+  let processed = text.replace(/\*\*([^*]+)\*\*/g, '$1').replace(/\*([^*]+)\*/g, '$1')
 
-  // Step 2: 先提取 Markdown 链接 [text](url)，替换为占位符
+  // Step 2: 提取 Markdown 链接 [text](url)，替换为占位符
   const mdLinks: { placeholder: string; label: string; url: string }[] = []
-  processed = processed.replace(MARKDOWN_LINK_REGEX, (_match, label, url) => {
+  processed = processed.replace(/\[([^\]]+)\]\((https?:\/\/[^)]+)\)/g, (_match, label, url) => {
     const placeholder = `__MDLINK_${mdLinks.length}__`
     mdLinks.push({ placeholder, label, url })
     return placeholder
   })
-
-  // Step 3: 去掉 Markdown 加粗标记
-  processed = processed.replace(/\*\*([^*]+)\*\*/g, '$1')
-  processed = processed.replace(/\*([^*]+)\*/g, '$1')
 
   // Step 4: 按行和占位符拆分，处理裸 URL 和 ticket key
   const lines = processed.split('\n')

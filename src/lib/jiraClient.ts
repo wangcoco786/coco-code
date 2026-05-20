@@ -104,7 +104,7 @@ export const jiraClient = {
       'summary', 'status', 'priority', 'assignee',
       'labels', 'fixVersions', 'created', 'updated',
       'timeoriginalestimate', 'timespent',
-      'customfield_10016', 'customfield_10004',
+      'customfield_10016', 'customfield_10004', 'customfield_11000',
     ].join(',')
     return jiraFetch<JiraSearchResponse>(
       `rest/api/2/search?jql=${encodeURIComponent(jql)}&fields=${fields}&maxResults=200`

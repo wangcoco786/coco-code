@@ -64,8 +64,8 @@ export function sortTasks(tasks: PlatformIssue[]): PlatformIssue[] {
 // ─── computeDeveloperProfiles ───────────────────────────────
 
 /**
- * Group issues by assignee and build a DeveloperProfile per unique assignee.
- * - Skips issues with null assignee.
+ * Group issues by developer field (fallback to assignee if no developer).
+ * - Skips issues with neither developer nor assignee.
  * - Formats name: if it looks like an email, take the part before '@'.
  * - Extracts deduplicated skill tags from all labels across the developer's issues.
  */
@@ -83,9 +83,11 @@ export function computeDeveloperProfiles(
   >()
 
   for (const issue of issues) {
-    if (issue.assignee === null) continue
+    // 优先使用 developer 字段，fallback 到 assignee
+    const person = issue.developer ?? issue.assignee
+    if (person === null) continue
 
-    const { id, name, avatarUrl } = issue.assignee
+    const { id, name, avatarUrl } = person
     let entry = profileMap.get(id)
 
     if (!entry) {

@@ -131,6 +131,17 @@ export function mapJiraIssueToPlatform(issue: JiraIssue): PlatformIssue {
     (l) => l.toLowerCase() === 'baseline'
   )
 
+  // Developer(single) 字段：customfield_11000
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const developerRaw = (fields as any).customfield_11000 as { key?: string; name?: string; displayName?: string; accountId?: string; avatarUrls?: { '48x48': string } } | null
+  const developer = developerRaw
+    ? {
+        id: developerRaw.accountId || developerRaw.key || developerRaw.name || developerRaw.displayName || '',
+        name: formatDisplayName(developerRaw.displayName || developerRaw.name || ''),
+        avatarUrl: developerRaw.avatarUrls?.['48x48'] ?? '',
+      }
+    : null
+
   return {
     id: issue.key,
     jiraId: issue.id,
@@ -144,6 +155,7 @@ export function mapJiraIssueToPlatform(issue: JiraIssue): PlatformIssue {
           avatarUrl: fields.assignee.avatarUrls['48x48'],
         }
       : null,
+    developer,
     storyPoints,
     labels: fields.labels,
     isBaseline,

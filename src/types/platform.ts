@@ -25,6 +25,11 @@ export interface PlatformIssue {
     name: string
     avatarUrl: string
   } | null
+  developer?: {
+    id: string
+    name: string
+    avatarUrl: string
+  } | null // Developer(single) 自定义字段
   storyPoints: number
   labels: string[]
   isBaseline: boolean // 是否为基线需求（通过 label 标记）

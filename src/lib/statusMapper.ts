@@ -9,24 +9,36 @@ export const STATUS_MAP: Record<string, IssueStatus> = {
   'To Do': 'todo',
   'Backlog': 'todo',
   'Open': 'todo',
+  'New': 'todo',
   'Reopened': 'todo',
   'Selected for Development': 'todo',
   'In Progress': 'in_progress',
   'In Development': 'in_progress',
   'Development': 'in_progress',
+  'Active': 'in_progress',
+  'In Dev': 'in_progress',
+  'Doing': 'in_progress',
   'In Review': 'in_review',
   'Code Review': 'in_review',
   'Peer Review': 'in_review',
   'Review': 'in_review',
+  'Ready for PO Review': 'in_review',
+  'Ready for Review': 'in_review',
+  'PO Review': 'in_review',
+  'Pending': 'in_review',
   'In Testing': 'in_testing',
   'QA': 'in_testing',
   'Testing': 'in_testing',
   'UAT': 'in_testing',
+  'Ready for QA': 'in_testing',
+  'Ready for Testing': 'in_testing',
   'Done': 'done',
   'Closed': 'done',
   'Resolved': 'done',
   'Released': 'done',
   'Completed': 'done',
+  'Cancelled': 'done',
+  'Canceled': 'done',
   // 中文状态（部分 Jira 实例）
   '待办': 'todo',
   '待开始': 'todo',
@@ -62,9 +74,11 @@ export function mapJiraStatus(jiraStatusName: string, statusCategory?: { key: st
 
   // 4. 模糊匹配关键词
   if (lowerName.includes('progress') || lowerName.includes('dev') || lowerName.includes('active') || lowerName.includes('doing')) return 'in_progress'
-  if (lowerName.includes('review') || lowerName.includes('pr')) return 'in_review'
-  if (lowerName.includes('test') || lowerName.includes('qa') || lowerName.includes('uat')) return 'in_testing'
-  if (lowerName.includes('done') || lowerName.includes('close') || lowerName.includes('resolve') || lowerName.includes('complete') || lowerName.includes('release')) return 'done'
+  if (lowerName.includes('review') || lowerName.includes('pr') || lowerName.includes('pending') || lowerName.includes('ready for po') || lowerName.includes('ready for pm')) return 'in_review'
+  if (lowerName.includes('test') || lowerName.includes('qa') || lowerName.includes('uat') || lowerName.includes('ready for qa') || lowerName.includes('ready for test')) return 'in_testing'
+  if (lowerName.includes('done') || lowerName.includes('close') || lowerName.includes('resolve') || lowerName.includes('complete') || lowerName.includes('release') || lowerName.includes('cancel')) return 'done'
+  // "Ready for X" 通常意味着已经完成上一阶段，属于进行中
+  if (lowerName.includes('ready for') || lowerName.includes('ready to')) return 'in_progress'
 
   return 'todo'
 }

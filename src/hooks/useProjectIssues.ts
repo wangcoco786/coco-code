@@ -10,15 +10,21 @@ import type { JiraSprint } from '@/types/jira'
 // ============================================================
 export function useActiveSprintIssuesByProject(
   projectKey: string | null,
-  sprintId?: number | null
+  sprintId?: number | null,
+  sprintName?: string | null
 ) {
   return useQuery({
-    queryKey: ['issues', 'active-sprint', projectKey, sprintId ?? 'all'],
+    queryKey: ['issues', 'active-sprint', projectKey, sprintId ?? sprintName ?? 'all'],
     queryFn: () => {
-      // 如果指定了 sprintId，只查该 Sprint；否则查所有活跃 Sprint
-      const jql = sprintId
-        ? `project = ${projectKey!} AND sprint = ${sprintId} ORDER BY priority ASC, updated DESC`
-        : `project = ${projectKey!} AND sprint in openSprints() ORDER BY priority ASC, updated DESC`
+      // 优先用 sprint name 查询（更可靠），其次用 sprintId，最后 fallback 到 openSprints()
+      let jql: string
+      if (sprintName) {
+        jql = `project = ${projectKey!} AND sprint = "${sprintName}" ORDER BY priority ASC, updated DESC`
+      } else if (sprintId) {
+        jql = `project = ${projectKey!} AND sprint = ${sprintId} ORDER BY priority ASC, updated DESC`
+      } else {
+        jql = `project = ${projectKey!} AND sprint in openSprints() ORDER BY priority ASC, updated DESC`
+      }
       return jiraClient.getActiveSprintIssues(projectKey!, jql)
     },
     enabled: !!projectKey,

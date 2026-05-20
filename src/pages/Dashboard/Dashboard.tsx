@@ -42,8 +42,9 @@ export default function Dashboard() {
   const { data: sprints = [] } = useActiveSprintsByProject(currentProjectKey)
   const sprint = sprints[0] ?? null  // Dashboard 显示第一个 Sprint
   const { data: issues = [], isLoading: rawLoading, error } = useActiveSprintIssuesByProject(
-    sprint?.id ? currentProjectKey : null,
+    sprint?.name ? currentProjectKey : null,
     sprint?.id ?? null,
+    sprint?.name ?? null,
   )
   const isLoading = (rawLoading && !!currentProjectKey) || (!sprint && !!currentProjectKey)
 

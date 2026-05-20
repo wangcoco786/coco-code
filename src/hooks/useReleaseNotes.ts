@@ -50,7 +50,7 @@ export function useReleaseNotes(projectKey: string | null): UseReleaseNotesResul
   const { data: sprints = [], isLoading: isSprintsLoading } = useActiveSprintsByProject(projectKey)
   const sprint = sprints[0] ?? null
 
-  // 使用 sprintId 精确过滤，只获取当前迭代的 Issue
+  // 使用 sprint name 精确过滤，只获取当前迭代的 Issue
   // 只有当 sprint 数据加载完成后才发起 issues 查询
   const {
     data: issues = [],
@@ -58,8 +58,9 @@ export function useReleaseNotes(projectKey: string | null): UseReleaseNotesResul
     error: issuesError,
     refetch: refetchIssues,
   } = useActiveSprintIssuesByProject(
-    sprint?.id ? projectKey : null,
+    sprint?.name ? projectKey : null,
     sprint?.id ?? null,
+    sprint?.name ?? null,
   )
 
   // ─── 加载和错误状态 ───────────────────────────────────────

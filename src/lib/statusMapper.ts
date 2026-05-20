@@ -131,9 +131,12 @@ export function mapJiraIssueToPlatform(issue: JiraIssue): PlatformIssue {
     (l) => l.toLowerCase() === 'baseline'
   )
 
-  // Developer(single) 字段：customfield_11000
+  // Developer(single) 字段：customfield_11000 或 Developer(multi) 字段：customfield_11103
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const developerRaw = (fields as any).customfield_11000 as { key?: string; name?: string; displayName?: string; accountId?: string; avatarUrls?: { '48x48': string } } | null
+  const fieldsAny = fields as any
+  const devSingle = fieldsAny.customfield_11000 as { key?: string; name?: string; displayName?: string; accountId?: string; avatarUrls?: { '48x48': string } } | null
+  const devMulti = fieldsAny.customfield_11103 as Array<{ key?: string; name?: string; displayName?: string; accountId?: string; avatarUrls?: { '48x48': string } }> | null
+  const developerRaw = devSingle ?? (devMulti && devMulti.length > 0 ? devMulti[0] : null)
   const developer = developerRaw
     ? {
         id: developerRaw.accountId || developerRaw.key || developerRaw.name || developerRaw.displayName || '',

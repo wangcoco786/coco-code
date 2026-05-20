@@ -40,8 +40,33 @@ export const STATUS_MAP: Record<string, IssueStatus> = {
   '已解决': 'done',
 }
 
-export function mapJiraStatus(jiraStatusName: string): IssueStatus {
-  return STATUS_MAP[jiraStatusName] ?? 'todo'
+export function mapJiraStatus(jiraStatusName: string, statusCategory?: { key: string }): IssueStatus {
+  // 1. 先尝试精确匹配
+  const mapped = STATUS_MAP[jiraStatusName]
+  if (mapped) return mapped
+
+  // 2. 尝试不区分大小写匹配
+  const lowerName = jiraStatusName.toLowerCase()
+  for (const [key, value] of Object.entries(STATUS_MAP)) {
+    if (key.toLowerCase() === lowerName) return value
+  }
+
+  // 3. 使用 Jira statusCategory 作为 fallback（更可靠）
+  if (statusCategory?.key) {
+    switch (statusCategory.key) {
+      case 'new': return 'todo'
+      case 'indeterminate': return 'in_progress'
+      case 'done': return 'done'
+    }
+  }
+
+  // 4. 模糊匹配关键词
+  if (lowerName.includes('progress') || lowerName.includes('dev') || lowerName.includes('active') || lowerName.includes('doing')) return 'in_progress'
+  if (lowerName.includes('review') || lowerName.includes('pr')) return 'in_review'
+  if (lowerName.includes('test') || lowerName.includes('qa') || lowerName.includes('uat')) return 'in_testing'
+  if (lowerName.includes('done') || lowerName.includes('close') || lowerName.includes('resolve') || lowerName.includes('complete') || lowerName.includes('release')) return 'done'
+
+  return 'todo'
 }
 
 // ============================================================
@@ -96,7 +121,7 @@ export function mapJiraIssueToPlatform(issue: JiraIssue): PlatformIssue {
     id: issue.key,
     jiraId: issue.id,
     title: fields.summary,
-    status: mapJiraStatus(fields.status.name),
+    status: mapJiraStatus(fields.status.name, fields.status.statusCategory),
     priority: mapJiraPriority(fields.priority.name),
     assignee: fields.assignee
       ? {

@@ -100,6 +100,8 @@ export const jiraClient = {
   // 获取项目的活跃 Sprint Issue（支持自定义 JQL）
   async getActiveSprintIssues(projectKey: string, customJql?: string): Promise<JiraSearchResponse> {
     const jql = customJql ?? `project = ${projectKey} AND sprint in openSprints() ORDER BY priority ASC, updated DESC`
+    // 排除子任务（Sub-task），只显示主任务
+    const finalJql = jql.includes('issuetype') ? jql : jql.replace(/ ORDER BY/, ' AND issuetype != Sub-task ORDER BY')
     const fields = [
       'summary', 'status', 'priority', 'assignee',
       'labels', 'fixVersions', 'created', 'updated',
@@ -107,7 +109,7 @@ export const jiraClient = {
       'customfield_10016', 'customfield_10004', 'customfield_11000', 'customfield_11103',
     ].join(',')
     return jiraFetch<JiraSearchResponse>(
-      `rest/api/2/search?jql=${encodeURIComponent(jql)}&fields=${fields}&maxResults=200`
+      `rest/api/2/search?jql=${encodeURIComponent(finalJql)}&fields=${fields}&maxResults=200`
     )
   },
 

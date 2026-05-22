@@ -465,27 +465,48 @@ function DetailModal({
   )
 }
 
-/** ExportDropdown — 导出按钮组件 (stub, Task 6.4) */
+/** ExportDropdown — 导出按钮组件 */
 function ExportDropdown({
-  releaseNotesData: _releaseNotesData,
-  projectKey: _projectKey,
-  sprintName: _sprintName,
+  releaseNotesData,
+  projectKey,
+  sprintName,
 }: {
   releaseNotesData: ReleaseNotesData
   projectKey: string
   sprintName: string
 }) {
+  const handleExport = () => {
+    try {
+      // 直接导入并导出 HTML 格式
+      import('@/lib/releaseNotesExporter').then(({ generateHTML, triggerDownload, sanitizeFilename }) => {
+        const html = generateHTML(releaseNotesData)
+        const filename = `release-notes-${projectKey}-${sanitizeFilename(sprintName)}.html`
+        triggerDownload(html, filename, 'text/html;charset=utf-8')
+      }).catch(err => {
+        alert('导出失败: ' + err.message)
+      })
+    } catch (err) {
+      alert('导出失败')
+    }
+  }
+
   return (
-    <button style={{
-      padding: '6px 16px',
-      borderRadius: 'var(--radius-sm)',
-      border: '1px solid var(--border)',
-      background: 'var(--card)',
-      cursor: 'pointer',
-      fontSize: 13,
-      color: 'var(--text2)',
-    }}>
-      📥 导出
+    <button
+      onClick={handleExport}
+      style={{
+        padding: '8px 20px',
+        borderRadius: 'var(--radius-sm)',
+        border: '1px solid var(--border)',
+        background: 'var(--card)',
+        cursor: 'pointer',
+        fontSize: 13,
+        color: 'var(--text2)',
+        display: 'flex',
+        alignItems: 'center',
+        gap: 6,
+      }}
+    >
+      📥 导出 Release Notes
     </button>
   )
 }

@@ -476,18 +476,49 @@ function ExportDropdown({
   sprintName: string
 }) {
   const handleExport = () => {
-    try {
-      // 直接导入并导出 HTML 格式
-      import('@/lib/releaseNotesExporter').then(({ generateHTML, triggerDownload, sanitizeFilename }) => {
-        const html = generateHTML(releaseNotesData)
-        const filename = `release-notes-${projectKey}-${sanitizeFilename(sprintName)}.html`
-        triggerDownload(html, filename, 'text/html;charset=utf-8')
-      }).catch(err => {
-        alert('导出失败: ' + err.message)
-      })
-    } catch (err) {
-      alert('导出失败')
+    // 生成简单的 HTML release notes 并下载
+    const categories: IssueCategory[] = ['feature', 'bug_fix', 'hot_fix', 'improvement', 'other']
+    const categoryNames: Record<IssueCategory, string> = {
+      feature: '🚀 新功能',
+      bug_fix: '🐛 Bug 修复',
+      hot_fix: '🔥 紧急修复',
+      improvement: '⚡ 优化改进',
+      other: '📋 其他',
     }
+
+    let html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Release Notes - ${sprintName}</title>
+<style>body{font-family:-apple-system,sans-serif;max-width:800px;margin:40px auto;padding:20px;color:#333}
+h1{color:#667eea}h2{margin-top:24px;border-bottom:2px solid #eee;padding-bottom:8px}
+table{width:100%;border-collapse:collapse;margin:16px 0}th,td{padding:8px 12px;border:1px solid #eee;text-align:left}
+th{background:#f8f9fa}tr:hover{background:#f5f5ff}.done{color:#52c41a}.badge{font-size:11px;padding:2px 8px;border-radius:4px;background:#e6f7ff;color:#1890ff}
+</style></head><body>`
+    html += `<h1>Release Notes: ${sprintName}</h1>`
+    html += `<p><strong>项目:</strong> ${projectKey} | <strong>周期:</strong> ${releaseNotesData.sprintStartDate} ~ ${releaseNotesData.sprintEndDate}</p>`
+    html += `<p><strong>总计:</strong> ${releaseNotesData.summary.totalCount} | <strong>已完成:</strong> ${releaseNotesData.summary.completedCount} | <strong>完成率:</strong> ${releaseNotesData.summary.completionRate}%</p>`
+
+    for (const cat of categories) {
+      const issues = releaseNotesData.categorizedIssues[cat]
+      if (issues.length === 0) continue
+      html += `<h2>${categoryNames[cat]} (${issues.length})</h2>`
+      html += `<table><tr><th>ID</th><th>标题</th><th>状态</th><th>负责人</th></tr>`
+      for (const issue of issues) {
+        const statusClass = issue.status === 'done' ? ' class="done"' : ''
+        html += `<tr><td>${issue.id}</td><td>${issue.title}</td><td${statusClass}>${issue.status}</td><td>${issue.assignee?.name ?? '-'}</td></tr>`
+      }
+      html += `</table>`
+    }
+    html += `<p style="margin-top:32px;color:#999;font-size:12px">Generated at ${new Date().toISOString()}</p></body></html>`
+
+    // 触发下载
+    const blob = new Blob([html], { type: 'text/html;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `release-notes-${projectKey}-${sprintName.replace(/[^a-zA-Z0-9\u4e00-\u9fff-]/g, '-')}.html`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    setTimeout(() => URL.revokeObjectURL(url), 1000)
   }
 
   return (
@@ -506,7 +537,7 @@ function ExportDropdown({
         gap: 6,
       }}
     >
-      📥 导出 Release Notes
+      📥 导出
     </button>
   )
 }

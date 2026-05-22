@@ -70,32 +70,39 @@ export function generateMarkdown(data: ReleaseNotesData): string {
   lines.push(`**生成时间:** ${data.generatedAt}`)
   lines.push('')
 
-  // Completion Summary
-  lines.push('## 📊 完成度摘要')
-  lines.push('')
-  lines.push(`| 指标 | 数值 |`)
-  lines.push(`| --- | --- |`)
-  lines.push(`| 总 Issue 数 | ${data.summary.totalCount} |`)
-  lines.push(`| 已完成 | ${data.summary.completedCount} |`)
-  lines.push(`| 完成率 | ${data.summary.completionRate}% |`)
-  lines.push(`| Hot Fix 数 | ${data.summary.hotFixCount} |`)
-  lines.push(`| 计划内 | ${data.summary.baselineCount} |`)
-  lines.push(`| 插队 | ${data.summary.unplannedCount} |`)
-  lines.push('')
-
-  if (data.summary.isCompletionWarning) {
-    lines.push('> ⚠️ **警告:** 完成率低于 80%，请关注未完成 Issue。')
-    lines.push('')
-  }
-
-  // Categorized Issues
-  lines.push('## 📋 变更详情')
-  lines.push('')
-
+  // 只统计已完成的任务
   const categories: IssueCategory[] = ['feature', 'bug_fix', 'hot_fix', 'improvement', 'other']
+  const completedByCategory: Record<IssueCategory, ClassifiedIssue[]> = {
+    feature: data.categorizedIssues.feature.filter(i => i.status === 'done'),
+    bug_fix: data.categorizedIssues.bug_fix.filter(i => i.status === 'done'),
+    hot_fix: data.categorizedIssues.hot_fix.filter(i => i.status === 'done'),
+    improvement: data.categorizedIssues.improvement.filter(i => i.status === 'done'),
+    other: data.categorizedIssues.other.filter(i => i.status === 'done'),
+  }
+  const totalCompleted = Object.values(completedByCategory).reduce((sum, arr) => sum + arr.length, 0)
+
+  // Completion Summary
+  lines.push('## 📊 本迭代完成汇总')
+  lines.push('')
+  lines.push(`| 分类 | 完成数 |`)
+  lines.push(`| --- | --- |`)
+  for (const category of categories) {
+    const count = completedByCategory[category].length
+    if (count > 0) {
+      lines.push(`| ${CATEGORY_LABELS[category]} | ${count} |`)
+    }
+  }
+  lines.push(`| **合计** | **${totalCompleted}** |`)
+  lines.push('')
+  lines.push(`> Sprint 总任务 ${data.summary.totalCount}，已完成 ${data.summary.completedCount}，完成率 ${data.summary.completionRate}%`)
+  lines.push('')
+
+  // Categorized Completed Issues
+  lines.push('## 📋 已完成任务明细')
+  lines.push('')
 
   for (const category of categories) {
-    const issues = data.categorizedIssues[category]
+    const issues = completedByCategory[category]
     if (issues.length === 0) continue
 
     lines.push(`### ${CATEGORY_LABELS[category]} (${issues.length})`)
@@ -104,14 +111,13 @@ export function generateMarkdown(data: ReleaseNotesData): string {
     lines.push('')
   }
 
-  // Stale Issues Warning
-  if (data.staleIssues.length > 0) {
-    lines.push('## ⚠️ 状态待更新')
+  // 未完成任务简要列表（供参考）
+  const allIncomplete = categories.flatMap(c => data.categorizedIssues[c].filter(i => i.status !== 'done'))
+  if (allIncomplete.length > 0) {
+    lines.push('## 🔲 未完成任务（供参考）')
     lines.push('')
-    lines.push(`以下 ${data.staleIssues.length} 个 Issue 状态可能未及时更新：`)
-    lines.push('')
-    for (const issue of data.staleIssues) {
-      lines.push(`- **${issue.id}** ${issue.title} — 当前状态: ${formatStatus(issue.status)}`)
+    for (const issue of allIncomplete) {
+      lines.push(`- **${issue.id}** ${issue.title} — 状态: ${formatStatus(issue.status)}`)
     }
     lines.push('')
   }
@@ -131,8 +137,16 @@ export function generateMarkdown(data: ReleaseNotesData): string {
  * Follows the visual style of release-note-v1.1.0.html.
  */
 export function generateHTML(data: ReleaseNotesData): string {
-  const categorySections = generateCategorySectionsHTML(data.categorizedIssues)
-  const staleSectionHTML = generateStaleSectionHTML(data.staleIssues)
+  // 只导出已完成的任务
+  const completedIssues: CategorizedIssues = {
+    feature: data.categorizedIssues.feature.filter(i => i.status === 'done'),
+    bug_fix: data.categorizedIssues.bug_fix.filter(i => i.status === 'done'),
+    hot_fix: data.categorizedIssues.hot_fix.filter(i => i.status === 'done'),
+    improvement: data.categorizedIssues.improvement.filter(i => i.status === 'done'),
+    other: data.categorizedIssues.other.filter(i => i.status === 'done'),
+  }
+  const categorySections = generateCategorySectionsHTML(completedIssues)
+  const totalCompleted = Object.values(completedIssues).reduce((sum, arr) => sum + arr.length, 0)
 
   return `<!DOCTYPE html>
 <html lang="zh">
@@ -317,7 +331,10 @@ body { background: #f0f2f5; font-family: -apple-system, 'PingFang SC', 'Microsof
 
 ${categorySections}
 
-${staleSectionHTML}
+<div class="section">
+  <div class="section-title"><span class="emoji">📊</span> 本迭代完成汇总</div>
+  <p style="font-size:14px;color:#666;margin-top:8px;">Sprint 总任务 ${data.summary.totalCount}，已完成 ${totalCompleted}，完成率 ${data.summary.completionRate}%</p>
+</div>
 
 <div class="footer">
   Generated at ${escapeHTML(data.generatedAt)}
@@ -455,24 +472,3 @@ ${issueItems}
   return sections.join('\n\n')
 }
 
-function generateStaleSectionHTML(staleIssues: ClassifiedIssue[]): string {
-  if (staleIssues.length === 0) return ''
-
-  const items = staleIssues
-    .map(
-      (issue) => `    <div class="issue-item">
-      <span class="issue-key">${escapeHTML(issue.id)}</span>
-      <span class="issue-title">${escapeHTML(issue.title)}</span>
-      <span class="issue-status status-${issue.status}">${formatStatus(issue.status)}</span>
-      <span class="badge badge-stale">状态待更新</span>
-    </div>`,
-    )
-    .join('\n')
-
-  return `<div class="section stale-section">
-  <div class="section-title"><span class="emoji">⚠️</span> 状态待更新 (${staleIssues.length})</div>
-  <div class="issue-list">
-${items}
-  </div>
-</div>`
-}

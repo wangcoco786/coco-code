@@ -497,13 +497,12 @@ th{background:#f8f9fa}tr:hover{background:#f5f5ff}.done{color:#52c41a}.badge{fon
     html += `<p><strong>总计:</strong> ${releaseNotesData.summary.totalCount} | <strong>已完成:</strong> ${releaseNotesData.summary.completedCount} | <strong>完成率:</strong> ${releaseNotesData.summary.completionRate}%</p>`
 
     for (const cat of categories) {
-      const issues = releaseNotesData.categorizedIssues[cat]
+      const issues = releaseNotesData.categorizedIssues[cat].filter(i => i.status === 'done')
       if (issues.length === 0) continue
       html += `<h2>${categoryNames[cat]} (${issues.length})</h2>`
-      html += `<table><tr><th>ID</th><th>标题</th><th>状态</th><th>负责人</th></tr>`
+      html += `<table><tr><th>ID</th><th>标题</th><th>负责人</th></tr>`
       for (const issue of issues) {
-        const statusClass = issue.status === 'done' ? ' class="done"' : ''
-        html += `<tr><td>${issue.id}</td><td>${issue.title}</td><td${statusClass}>${issue.status}</td><td>${issue.assignee?.name ?? '-'}</td></tr>`
+        html += `<tr><td>${issue.id}</td><td>${issue.title}</td><td>${issue.assignee?.name ?? '-'}</td></tr>`
       }
       html += `</table>`
     }

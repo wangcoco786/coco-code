@@ -464,7 +464,14 @@ export function usePerformanceData(projectKey: string | null): UsePerformanceDat
         return !excludedNames.has(assigneeName) && !excludedNames.has(devName)
       })
 
-      return calculateDepartmentPerformance(filteredIssues, sprintDates, undefined, knownDevIds)
+      const result = calculateDepartmentPerformance(filteredIssues, sprintDates, undefined, knownDevIds)
+
+      // 再次过滤结果中的成员（可能通过 reporter 等字段被发现）
+      if (result) {
+        result.members = result.members.filter(m => !excludedNames.has(m.memberName.toLowerCase()))
+      }
+
+      return result
     } catch (e) {
       console.error('[PerformanceEngine] calculation error:', e)
       return null

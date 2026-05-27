@@ -4,11 +4,12 @@ import { useToast } from '@/context/ToastContext'
 import { useI18n } from '@/context/I18nContext'
 import { useTheme } from '@/context/ThemeContext'
 import { jiraClient } from '@/lib/jiraClient'
+import { getHardcodedExcluded, getStoredExcludedUsers, addExcludedUser, removeExcludedUser } from '@/lib/excludedUsers'
 import styles from './Settings.module.css'
 
 // ─── helpers ────────────────────────────────────────────────
 
-type SettingsTab = 'project' | 'jira' | 'notifications' | 'appearance' | 'permissions'
+type SettingsTab = 'project' | 'jira' | 'notifications' | 'appearance' | 'permissions' | 'excluded'
 
 const LS_NOTIF_HIGH = 'ai_pm_notif_high_risk'
 const LS_NOTIF_DAILY = 'ai_pm_notif_daily'
@@ -344,6 +345,7 @@ export default function Settings() {
     { key: 'notifications', label: t('settings.notifications') },
     { key: 'appearance', label: t('settings.appearance') },
     { key: 'permissions', label: t('settings.permissions') },
+    { key: 'excluded', label: '排除人员' },
   ]
 
   return (
@@ -374,6 +376,140 @@ export default function Settings() {
       {activeTab === 'notifications' && <NotificationsTab />}
       {activeTab === 'appearance' && <AppearanceTab />}
       {activeTab === 'permissions' && <PermissionsTab />}
+      {activeTab === 'excluded' && <ExcludedUsersTab />}
+    </div>
+  )
+}
+
+// ─── Excluded Users Tab ─────────────────────────────────────
+
+function ExcludedUsersTab() {
+  const [storedUsers, setStoredUsers] = useState<string[]>(getStoredExcludedUsers())
+  const [inputValue, setInputValue] = useState('')
+  const hardcoded = getHardcodedExcluded()
+
+  const handleAdd = () => {
+    const name = inputValue.trim()
+    if (!name) return
+    addExcludedUser(name)
+    setStoredUsers(getStoredExcludedUsers())
+    setInputValue('')
+  }
+
+  const handleRemove = (name: string) => {
+    removeExcludedUser(name)
+    setStoredUsers(getStoredExcludedUsers())
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') handleAdd()
+  }
+
+  return (
+    <div className={styles.card}>
+      <div className={styles.cardTitle}>排除人员管理</div>
+      <p style={{ fontSize: 13, color: 'var(--text2)', marginBottom: 16 }}>
+        已排除的人员不会出现在资源视图和绩效页面中。输入人员姓名（与 Jira 显示一致）添加。
+      </p>
+
+      {/* 添加输入框 */}
+      <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
+        <input
+          type="text"
+          value={inputValue}
+          onChange={(e) => setInputValue(e.target.value)}
+          onKeyDown={handleKeyDown}
+          placeholder="输入要排除的人员姓名..."
+          style={{
+            flex: 1,
+            padding: '8px 12px',
+            border: '1px solid var(--border)',
+            borderRadius: 'var(--radius-sm)',
+            fontSize: 13,
+            outline: 'none',
+            background: 'var(--bg)',
+            color: 'var(--text)',
+          }}
+        />
+        <button
+          onClick={handleAdd}
+          disabled={!inputValue.trim()}
+          style={{
+            padding: '8px 16px',
+            borderRadius: 'var(--radius-sm)',
+            border: 'none',
+            background: 'var(--primary)',
+            color: '#fff',
+            cursor: inputValue.trim() ? 'pointer' : 'not-allowed',
+            fontSize: 13,
+            opacity: inputValue.trim() ? 1 : 0.5,
+          }}
+        >
+          添加
+        </button>
+      </div>
+
+      {/* 系统默认排除 */}
+      {hardcoded.length > 0 && (
+        <div style={{ marginBottom: 16 }}>
+          <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text2)', marginBottom: 8 }}>系统默认排除</div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+            {hardcoded.map(name => (
+              <span key={name} style={{
+                padding: '4px 12px',
+                borderRadius: 16,
+                background: 'var(--bg)',
+                border: '1px solid var(--border)',
+                fontSize: 12,
+                color: 'var(--text2)',
+              }}>
+                {name} <span style={{ opacity: 0.5 }}>(内置)</span>
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* 用户自定义排除 */}
+      <div>
+        <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text2)', marginBottom: 8 }}>自定义排除</div>
+        {storedUsers.length === 0 ? (
+          <p style={{ fontSize: 13, color: 'var(--text2)' }}>暂无自定义排除人员</p>
+        ) : (
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+            {storedUsers.map(name => (
+              <span key={name} style={{
+                padding: '4px 12px',
+                borderRadius: 16,
+                background: 'var(--danger-light)',
+                border: '1px solid var(--danger-border)',
+                fontSize: 12,
+                color: 'var(--danger)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 6,
+              }}>
+                {name}
+                <button
+                  onClick={() => handleRemove(name)}
+                  style={{
+                    border: 'none',
+                    background: 'none',
+                    cursor: 'pointer',
+                    fontSize: 14,
+                    color: 'var(--danger)',
+                    padding: 0,
+                    lineHeight: 1,
+                  }}
+                  title="移除"
+                >
+                  ×
+                </button>
+              </span>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   )
 }

@@ -86,6 +86,8 @@ export function computeDeveloperProfiles(
     // 优先使用 developer 字段，fallback 到 assignee
     const person = issue.developer ?? issue.assignee
     if (person === null) continue
+    // 跳过 inactive 用户
+    if (person.active === false) continue
 
     const { id, name, avatarUrl } = person
     let entry = profileMap.get(id)

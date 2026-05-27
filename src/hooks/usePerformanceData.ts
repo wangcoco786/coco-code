@@ -187,7 +187,7 @@ function transformToPerformanceIssue(issue: any): PerformanceIssue {
   const labels: string[] = fields.labels ?? []
   const isBaseline = labels.some((l: string) => l.toLowerCase() === 'baseline')
 
-  const assignee = fields.assignee
+  const assignee = (fields.assignee && fields.assignee.active !== false)
     ? {
         id: fields.assignee.accountId || fields.assignee.key || fields.assignee.name || fields.assignee.emailAddress || fields.assignee.displayName || 'unknown',
         name: formatDisplayName(fields.assignee.displayName ?? ''),

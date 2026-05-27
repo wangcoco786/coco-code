@@ -24,11 +24,13 @@ export interface PlatformIssue {
     id: string
     name: string
     avatarUrl: string
+    active?: boolean
   } | null
   developer?: {
     id: string
     name: string
     avatarUrl: string
+    active?: boolean
   } | null // Developer(single) 自定义字段
   storyPoints: number
   labels: string[]

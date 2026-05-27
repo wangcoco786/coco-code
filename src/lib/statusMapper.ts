@@ -156,6 +156,7 @@ export function mapJiraIssueToPlatform(issue: JiraIssue): PlatformIssue {
           id: fields.assignee.accountId || fields.assignee.key || fields.assignee.name || fields.assignee.emailAddress || fields.assignee.displayName,
           name: formatDisplayName(fields.assignee.displayName),
           avatarUrl: fields.assignee.avatarUrls['48x48'],
+          active: fields.assignee.active,
         }
       : null,
     developer,

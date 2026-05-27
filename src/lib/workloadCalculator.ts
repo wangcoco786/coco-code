@@ -6,6 +6,7 @@ import type {
   WorkloadInfo,
   TeamSummary,
 } from '@/types/platform'
+import { getExcludedUsers } from '@/lib/excludedUsers'
 
 // ============================================================
 // Workload Calculator — pure functions for Resource Tab
@@ -88,6 +89,9 @@ export function computeDeveloperProfiles(
     if (person === null) continue
     // 跳过 inactive 用户
     if (person.active === false) continue
+    // 跳过排除名单中的用户
+    const excludedNames = getExcludedUsers()
+    if (excludedNames.has(person.name.toLowerCase())) continue
 
     const { id, name, avatarUrl } = person
     let entry = profileMap.get(id)

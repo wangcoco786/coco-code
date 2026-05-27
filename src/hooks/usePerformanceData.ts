@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import { authFetch } from '@/lib/authFetch'
 import { mapJiraStatus, mapJiraPriority, formatDisplayName } from '@/lib/statusMapper'
 import { calculateDepartmentPerformance } from '@/lib/performanceEngine'
+import { getExcludedUsers } from '@/lib/excludedUsers'
 import type { PerformanceIssue, StatusTransition, IssueComment, DepartmentPerformance } from '@/lib/performanceEngine'
 import type { JiraSprint } from '@/types/jira'
 import { useActiveSprintByProject } from '@/hooks/useProjectIssues'
@@ -455,7 +456,15 @@ export function usePerformanceData(projectKey: string | null): UsePerformanceDat
       console.log('[PerformanceData] DEBUG ID intersection:', intersection.length, intersection)
       console.log('[PerformanceData] DEBUG name intersection:', nameIntersection.length, nameIntersection)
 
-      return calculateDepartmentPerformance(performanceIssues, sprintDates, undefined, knownDevIds)
+      // 过滤掉已离职/排除的人员
+      const excludedNames = getExcludedUsers()
+      const filteredIssues = performanceIssues.filter(issue => {
+        const assigneeName = issue.assignee?.name?.toLowerCase() ?? ''
+        const devName = issue.developerUser?.name?.toLowerCase() ?? ''
+        return !excludedNames.has(assigneeName) && !excludedNames.has(devName)
+      })
+
+      return calculateDepartmentPerformance(filteredIssues, sprintDates, undefined, knownDevIds)
     } catch (e) {
       console.error('[PerformanceEngine] calculation error:', e)
       return null

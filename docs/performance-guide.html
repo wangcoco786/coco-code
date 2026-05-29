@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI-PM 绩效评估指南</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,'PingFang SC','Microsoft YaHei',sans-serif;background:#f8f9fa;color:#1a1a2e;line-height:1.7}
+.page{max-width:900px;margin:0 auto;padding:40px 24px}
+.hero{text-align:center;padding:50px 30px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);border-radius:20px;color:#fff;margin-bottom:32px}
+.hero h1{font-size:32px;font-weight:800;margin-bottom:8px}
+.hero p{font-size:15px;opacity:0.9}
+.formula-box{background:#1a1a2e;color:#fff;border-radius:12px;padding:20px 24px;text-align:center;font-family:monospace;font-size:15px;margin:20px 0;letter-spacing:0.5px}
+.section{background:#fff;border-radius:16px;padding:28px;margin-bottom:20px;box-shadow:0 2px 12px rgba(0,0,0,0.04)}
+.section h2{font-size:20px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:10px}
+.section h3{font-size:15px;font-weight:600;margin:16px 0 10px;color:#333}
+.badge{display:inline-block;padding:3px 10px;border-radius:12px;font-size:12px;font-weight:600}
+.badge-green{background:#f6ffed;color:#52c41a}.badge-blue{background:#e6f7ff;color:#1890ff}
+.badge-orange{background:#fff7e6;color:#fa8c16}.badge-red{background:#fff1f0;color:#f5222d}
+table{width:100%;border-collapse:collapse;margin:12px 0;font-size:13px}
+th{background:#f0f2f8;padding:8px 12px;text-align:left;font-weight:600}
+td{padding:8px 12px;border-bottom:1px solid #f0f0f0}
+.tip-box{background:#f0f7ff;border-left:4px solid #667eea;padding:16px 20px;border-radius:0 8px 8px 0;margin:12px 0}
+.tip-box h4{font-size:14px;margin-bottom:8px;color:#667eea}
+.tip-box ul{padding-left:20px;font-size:13px}
+.tip-box li{margin:4px 0}
+.action-table{margin:16px 0}
+.action-table td:first-child{font-size:16px;text-align:center;width:60px}
+.grade-row{display:flex;gap:12px;flex-wrap:wrap;margin:12px 0}
+.grade-item{padding:6px 16px;border-radius:20px;font-size:13px;font-weight:600}
+.faq{margin:12px 0}
+.faq dt{font-weight:600;font-size:14px;margin-top:12px;color:#333}
+.faq dd{font-size:13px;color:#555;margin:4px 0 0 16px}
+.footer{text-align:center;padding:24px;color:#999;font-size:12px}
+@media print{body{background:#fff}.section{box-shadow:none;border:1px solid #eee}}
+</style>
+</head>
+<body>
+<div class="page">
+
+<div class="hero">
+<h1>AI-PM 绩效评估指南</h1>
+<p>五维度评估模型 · 如何提升你的绩效分</p>
+</div>
+
+<div class="section">
+<h2>📊 综合绩效公式</h2>
+<div class="formula-box">绩效分 = 吞吐量×20% + 效率×25% + 质量×25% + 影响力×15% + 协作×15%</div>
+<div class="grade-row">
+<span class="grade-item badge-green">🟢 80-100 Excellent</span>
+<span class="grade-item badge-blue">🔵 60-79 Good</span>
+<span class="grade-item badge-orange">🟠 40-59 Average</span>
+<span class="grade-item badge-red">🔴 0-39 Needs Improvement</span>
+</div>
+</div>
+
+<!-- 吞吐量 -->
+<div class="section">
+<h2>1️⃣ 吞吐量（20%）— 你完成了多少</h2>
+<h3>计算方式</h3>
+<p style="font-size:13px;color:#555">统计 Sprint 内完成的任务数 × 复杂度因子，在团队中算百分位排名。</p>
+<table>
+<tr><th>复杂度加分条件</th><th>加分</th><th>说明</th></tr>
+<tr><td>子任务 >3</td><td>+0.5</td><td>任务拆分多</td></tr>
+<tr><td>子任务 >6</td><td>+1.0</td><td>大型任务</td></tr>
+<tr><td>关联 issue >2</td><td>+0.3</td><td>跨模块</td></tr>
+<tr><td>关联 issue >5</td><td>+0.6</td><td>高度关联</td></tr>
+<tr><td>评论 >5 条</td><td>+0.3</td><td>有讨论</td></tr>
+<tr><td>评论 >10 条</td><td>+0.6</td><td>复杂讨论</td></tr>
+<tr><td>跨 Sprint</td><td>+0.3/次</td><td>持续大任务</td></tr>
+</table>
+<div class="tip-box">
+<h4>💡 如何提升</h4>
+<ul>
+<li>在 Sprint 内尽量多完成 Jira ticket</li>
+<li>接复杂任务（多子任务/多关联），权重更高</li>
+<li>不要只做简单低复杂度任务</li>
+<li>确保任务 status 移到 Done（只有 Done 才算完成）</li>
+</ul>
+</div>
+</div>
+
+<!-- 效率 -->
+<div class="section">
+<h2>2️⃣ 效率（25%）— 你完成得多快</h2>
+<h3>计算方式</h3>
+<p style="font-size:13px;color:#555">Cycle Time（In Progress → Done 天数）+ Sprint 内按时完成比例，各占 50%。</p>
+<p style="font-size:13px;color:#555;margin-top:8px"><strong>Cycle Time 分量</strong> = max(0, 100 - 平均天数×5)。意味着 20 天以上=0 分，4 天=80 分，0 天=100 分。</p>
+<div class="tip-box">
+<h4>💡 如何提升</h4>
+<ul>
+<li><strong>及时更新 Jira 状态</strong>：开始做就移到 In Progress，做完立刻移到 Done</li>
+<li>减少等待时间（及时找人 review，不要卡着）</li>
+<li>小批量交付，不要积攒到 Sprint 最后一天</li>
+<li>拆分大任务（20 天的任务 Cycle Time 得分为 0）</li>
+<li>Sprint 结束前完成承诺的任务（Delivery Rate）</li>
+</ul>
+</div>
+</div>
+
+<!-- 质量 -->
+<div class="section">
+<h2>3️⃣ 质量（25%）— 你做得多好</h2>
+<h3>计算方式</h3>
+<p style="font-size:13px;color:#555">返工率（被 Reopen 次数）+ Bug 引入率（你完成的任务关联了 Bug 的比例）</p>
+<p style="font-size:13px;color:#555;margin-top:8px"><strong>返工率 0 + Bug 引入率 0 = 质量满分 100</strong></p>
+<div class="tip-box">
+<h4>💡 如何提升</h4>
+<ul>
+<li><strong>一次做对</strong>：减少被 Reopen 的次数</li>
+<li>开发前理解清楚需求，有疑问先确认</li>
+<li>自测充分再提交（覆盖边界情况）</li>
+<li>Code Review 前自查代码</li>
+<li>写单元测试，减少 Bug 引入</li>
+</ul>
+</div>
+</div>
+
+<!-- 影响力 -->
+<div class="section">
+<h2>4️⃣ 影响力（15%）— 你做的事有多重要</h2>
+<h3>计算方式</h3>
+<p style="font-size:13px;color:#555">高优先级（P0/P1）任务完成占比 × 60% + 阻塞解决速度 × 40%</p>
+<div class="tip-box">
+<h4>💡 如何提升</h4>
+<ul>
+<li><strong>主动接 P0/P1 任务</strong>：高优任务占总分的 60%</li>
+<li>快速解决阻塞性问题（如果你的任务 block 了别人）</li>
+<li>不要只挑 P3 简单任务</li>
+<li>帮团队解决卡点和紧急问题</li>
+</ul>
+</div>
+</div>
+
+<!-- 协作 -->
+<div class="section">
+<h2>5️⃣ 协作（15%）— 你帮助团队多少</h2>
+<h3>计算方式</h3>
+<p style="font-size:13px;color:#555">跨团队评论数（在别人任务上发评论）+ 你参与了多少别人的任务</p>
+<p style="font-size:13px;color:#555;margin-top:8px"><strong>10 条跨团队评论即可评论分量满分</strong></p>
+<div class="tip-box">
+<h4>💡 如何提升（最容易提分的维度）</h4>
+<ul>
+<li><strong>在别人的 Jira ticket 上留评论</strong>（Code Review、建议、问题讨论）</li>
+<li>10 条跨团队评论 = 评论分量满分</li>
+<li>参与更多不同同事的任务（覆盖面比深度重要）</li>
+<li>积极参与 Code Review</li>
+<li>帮助同事排查问题并留下记录</li>
+</ul>
+</div>
+</div>
+
+<!-- 快速提分 -->
+<div class="section">
+<h2>🚀 快速提分行动清单</h2>
+<table class="action-table">
+<tr><th>优先级</th><th>行动</th><th>影响维度</th><th>预期提升</th></tr>
+<tr><td>⭐⭐⭐</td><td>及时更新 Jira 状态（In Progress/Done）</td><td>效率</td><td>+20~30</td></tr>
+<tr><td>⭐⭐⭐</td><td>Sprint 内完成承诺的任务</td><td>效率+吞吐量</td><td>+15~25</td></tr>
+<tr><td>⭐⭐⭐</td><td>减少 Reopen（一次做对）</td><td>质量</td><td>+10~25</td></tr>
+<tr><td>⭐⭐</td><td>在他人任务上留 10 条评论</td><td>协作</td><td>+50（满分）</td></tr>
+<tr><td>⭐⭐</td><td>主动接 P0/P1 任务</td><td>影响力</td><td>+20~40</td></tr>
+<tr><td>⭐⭐</td><td>接复杂任务（多子任务/多关联）</td><td>吞吐量</td><td>+10~20</td></tr>
+<tr><td>⭐</td><td>拆分大任务，缩短 Cycle Time</td><td>效率</td><td>+10~15</td></tr>
+</table>
+</div>
+
+<!-- FAQ -->
+<div class="section">
+<h2>❓ 常见问题</h2>
+<dl class="faq">
+<dt>Q: 为什么我完成了很多任务但吞吐量分不高？</dt>
+<dd>吞吐量是团队内相对排名。如果别人完成得更多，你的百分位就低。另外简单任务复杂度因子只有 1.0，大任务可以到 5.0。</dd>
+
+<dt>Q: 我的效率分为什么是 0？</dt>
+<dd>检查 Jira 状态更新。如果你没有把任务移到 In Progress 就直接 Done，系统无法计算 Cycle Time，会用 createdAt → updatedAt 作为 fallback（通常很长）。</dd>
+
+<dt>Q: 怎样让质量满分？</dt>
+<dd>不被 Reopen + 你完成的任务没有关联 Bug = 100 分。</dd>
+
+<dt>Q: 协作分怎么快速提升？</dt>
+<dd>最简单：在 10 个不同同事的 Jira ticket 上各留一条有价值的评论。</dd>
+
+<dt>Q: 为什么影响力分很低？</dt>
+<dd>如果你只做 P2/P3 任务，高优完成比为 0，影响力最多 20 分。主动接 P0/P1 任务是关键。</dd>
+</dl>
+</div>
+
+<div class="footer">AI-PM Performance Guide · 2026</div>
+</div>
+</body>
+</html>

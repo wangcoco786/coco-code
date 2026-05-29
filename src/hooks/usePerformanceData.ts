@@ -445,6 +445,14 @@ export function usePerformanceData(projectKey: string | null): UsePerformanceDat
       // 构建 developer ID Set（包含所有可能的 ID 格式）
       const knownDevIds = new Set(knownDeveloperIdList)
 
+      // 如果没有 developer 字段数据，将所有 assignee 视为 developer
+      if (knownDevIds.size === 0) {
+        for (const issue of performanceIssues) {
+          if (issue.assignee?.id) knownDevIds.add(issue.assignee.id)
+          if (issue.assignee?.name) knownDevIds.add(issue.assignee.name)
+        }
+      }
+
       // DEBUG: 对比 developer IDs 和 assignee IDs
       const assigneeIds = [...new Set(performanceIssues.map(i => i.assignee?.id).filter(Boolean))]
       const assigneeNames = [...new Set(performanceIssues.map(i => i.assignee?.name).filter(Boolean))]

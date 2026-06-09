@@ -1,16 +1,22 @@
+import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import styles from './Login.module.css'
 
-/**
- * SSO Login Page
- * - 仅显示平台 Logo/名称 + "SSO 登录"按钮
- * - 点击按钮跳转到 /api/auth/sso/login 发起 SSO 流程
- * - 不提供任何本地用户名/密码输入字段或注册入口
- * Requirements: 1.1, 1.4, 2.7
- */
+const ACCESS_CODE = '123456'
+
 export default function Login() {
-  const handleSSOLogin = () => {
-    // 跳转到后端 SSO 登录发起端点，由 OIDC Client 构造 Authorization URL 并 302 重定向到 IAM
-    window.location.href = '/api/auth/sso/login'
+  const [password, setPassword] = useState('')
+  const [error, setError] = useState('')
+  const navigate = useNavigate()
+
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (password === ACCESS_CODE) {
+      sessionStorage.setItem('ai-pm-auth', 'true')
+      navigate('/dashboard', { replace: true })
+    } else {
+      setError('密码错误')
+    }
   }
 
   return (
@@ -22,14 +28,21 @@ export default function Login() {
           className={styles.logo}
         />
         <h1 className={styles.title}>AI-PM Platform</h1>
-        <p className={styles.subtitle}>企业统一身份认证登录</p>
-        <button
-          type="button"
-          className={styles.ssoButton}
-          onClick={handleSSOLogin}
-        >
-          SSO 登录
-        </button>
+        <p className={styles.subtitle}>AI 驱动的智能项目管理平台</p>
+        <form onSubmit={handleLogin} className={styles.form}>
+          <input
+            type="password"
+            className={styles.input}
+            placeholder="请输入访问密码"
+            value={password}
+            onChange={e => { setPassword(e.target.value); setError('') }}
+            autoFocus
+          />
+          {error && <p className={styles.errorText}>{error}</p>}
+          <button type="submit" className={styles.ssoButton}>
+            登 录
+          </button>
+        </form>
       </div>
     </div>
   )

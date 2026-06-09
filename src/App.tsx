@@ -16,6 +16,17 @@ const NotificationCenter = lazy(() => import('@/pages/NotificationCenter/Notific
 const AutomationRules = lazy(() => import('@/pages/AutomationRules/AutomationRules'))
 const AuditLog = lazy(() => import('@/pages/AuditLog/AuditLog'))
 
+function isAuthenticated() {
+  return sessionStorage.getItem('ai-pm-auth') === 'true'
+}
+
+function AuthGuard({ children }: { children: React.ReactNode }) {
+  if (!isAuthenticated()) {
+    return <Navigate to="/login" replace />
+  }
+  return <>{children}</>
+}
+
 function RoleGuard({
   children,
   allowedRoles,
@@ -38,8 +49,8 @@ export default function App() {
         <Route path="/login" element={<Suspense fallback={null}><Login /></Suspense>} />
         <Route path="/auth/callback" element={<Suspense fallback={null}><AuthCallback /></Suspense>} />
 
-        {/* All routes — no auth guard for now */}
-        <Route path="/" element={<Layout />}>
+        {/* All routes — auth guard enabled */}
+        <Route path="/" element={<AuthGuard><Layout /></AuthGuard>}>
           <Route index element={<Navigate to="/dashboard" replace />} />
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="requirements" element={<Suspense fallback={null}><Requirements /></Suspense>} />

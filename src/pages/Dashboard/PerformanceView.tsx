@@ -161,39 +161,9 @@ function DepartmentRankingView() {
 function DepartmentScoreCard({ projectKey, onClick }: { projectKey: string; onClick: () => void }) {
   const { data, isLoading, error } = usePerformanceData(projectKey)
 
-  // No data / error → show placeholder card
+  // No data / error → hide
   if (!isLoading && (error || !data)) {
-    return (
-      <div
-        className={styles.deptCard}
-        style={{ order: 9999 }}
-        onClick={onClick}
-        role="button"
-        tabIndex={0}
-        onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') onClick() }}
-      >
-        <div className={styles.deptCardInner} style={{ borderTopColor: '#ccc' }}>
-          <div className={styles.deptScoreBadge} style={{ background: '#ccc' }}>
-            -
-          </div>
-          <div className={styles.deptName}>{projectKey}</div>
-          <div className={styles.deptGrade} style={{ color: '#999' }}>
-            暂无活跃 Sprint
-          </div>
-          <div className={styles.deptStats}>
-            <div className={styles.deptStat}>
-              <span className={styles.deptStatValue}>-</span>
-              <span className={styles.deptStatLabel}>成员</span>
-            </div>
-            <div className={styles.deptStatDivider} />
-            <div className={styles.deptStat}>
-              <span className={styles.deptStatValue}>-</span>
-              <span className={styles.deptStatLabel}>已完成</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    )
+    return null
   }
 
   // Loading state

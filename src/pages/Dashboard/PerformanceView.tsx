@@ -139,7 +139,7 @@ function DepartmentRankingView() {
           部门绩效排行榜
         </div>
         <div className={styles.rankingPageSubtitle}>
-          基于活跃 Sprint 数据 · 实时更新 · {DEPARTMENT_KEYS.length} 个部门
+          基于活跃 Sprint 数据 · 实时更新
         </div>
       </div>
 

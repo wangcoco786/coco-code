@@ -67,6 +67,15 @@ app.post('/api/auth/logout', (req, res) => {
 // ============================================================
 // Jira API 代理  /api/jira/...
 // ============================================================
+
+// Simple in-memory cache for Jira API responses (5 min TTL)
+const jiraCache = new Map()
+const CACHE_TTL = 5 * 60 * 1000 // 5 minutes
+
+function getCacheKey(method, url) {
+  return `${method}:${url}`
+}
+
 app.use('/api/jira', async (req, res) => {
   const { JIRA_BASE_URL, JIRA_USERNAME, JIRA_PASSWORD, JIRA_PAT } = process.env
 
@@ -84,6 +93,16 @@ app.use('/api/jira', async (req, res) => {
   // req.url 在 use 中是相对路径（去掉了 /api/jira 前缀）
   const jiraPath = req.url.replace(/^\//, '')
   const targetUrl = `${JIRA_BASE_URL.replace(/\/$/, '')}/${jiraPath}`
+
+  // Check cache for GET requests
+  if (req.method === 'GET') {
+    const cacheKey = getCacheKey(req.method, targetUrl)
+    const cached = jiraCache.get(cacheKey)
+    if (cached && Date.now() - cached.time < CACHE_TTL) {
+      res.setHeader('X-Cache', 'HIT')
+      return res.status(200).json(cached.data)
+    }
+  }
 
   try {
     const options = {
@@ -108,6 +127,14 @@ app.use('/api/jira', async (req, res) => {
     }
 
     const data = await jiraRes.json()
+    
+    // Cache GET responses
+    if (req.method === 'GET') {
+      const cacheKey = getCacheKey(req.method, targetUrl)
+      jiraCache.set(cacheKey, { data, time: Date.now() })
+      res.setHeader('X-Cache', 'MISS')
+    }
+    
     return res.status(200).json(data)
   } catch (err) {
     console.error('[Jira]', err.message)
@@ -154,7 +181,15 @@ app.post('/api/wecom/send', async (req, res) => {
 // 前端静态文件 + SPA fallback
 // ============================================================
 const distPath = path.join(__dirname, 'dist')
-app.use(express.static(distPath))
+app.use(express.static(distPath, {
+  maxAge: '1y',
+  immutable: true,
+  setHeaders: (res, filePath) => {
+    if (filePath.endsWith('.html')) {
+      res.setHeader('Cache-Control', 'no-cache')
+    }
+  }
+}))
 
 app.use((_req, res) => {
   res.sendFile(path.join(distPath, 'index.html'))

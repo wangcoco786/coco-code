@@ -78,7 +78,7 @@ function getPriorityLabel(priority: string | null | undefined): string {
 
 export default function IndividualPerformance({ memberPerformances }: IndividualPerformanceProps) {
   const [sortKey, setSortKey] = useState<SortKey>('performanceScore')
-  const [expandedMemberId, setExpandedMemberId] = useState<string | null>(null)
+  const [selectedMemberId, setSelectedMemberId] = useState<string | null>(null)
 
   // 按角色分组
   const { developers, reporters, qas } = useMemo(() => {
@@ -102,8 +102,26 @@ export default function IndividualPerformance({ memberPerformances }: Individual
     return { developers: sort(devs), reporters: sort(reps), qas: sort(qas) }
   }, [memberPerformances, sortKey])
 
-  const handleCardClick = (memberId: string) => {
-    setExpandedMemberId(prev => prev === memberId ? null : memberId)
+  // 如果选中了某人，显示该人的详情视图
+  if (selectedMemberId) {
+    const selectedMember = memberPerformances.find(m => m.memberId === selectedMemberId)
+    if (selectedMember) {
+      return (
+        <div>
+          <button
+            className={styles.backButton}
+            onClick={() => setSelectedMemberId(null)}
+          >
+            ← 返回列表
+          </button>
+          <MemberCard
+            member={selectedMember}
+            isExpanded={true}
+            onClick={() => setSelectedMemberId(null)}
+          />
+        </div>
+      )
+    }
   }
 
   return (
@@ -127,8 +145,7 @@ export default function IndividualPerformance({ memberPerformances }: Individual
         <RoleSection
           title="👨‍💻 Developer"
           members={developers}
-          expandedMemberId={expandedMemberId}
-          onCardClick={handleCardClick}
+          onCardClick={setSelectedMemberId}
         />
       )}
 
@@ -137,8 +154,7 @@ export default function IndividualPerformance({ memberPerformances }: Individual
         <RoleSection
           title="📝 Reporter"
           members={reporters}
-          expandedMemberId={expandedMemberId}
-          onCardClick={handleCardClick}
+          onCardClick={setSelectedMemberId}
         />
       )}
 
@@ -147,8 +163,7 @@ export default function IndividualPerformance({ memberPerformances }: Individual
         <RoleSection
           title="🧪 QA"
           members={qas}
-          expandedMemberId={expandedMemberId}
-          onCardClick={handleCardClick}
+          onCardClick={setSelectedMemberId}
         />
       )}
     </div>
@@ -156,10 +171,9 @@ export default function IndividualPerformance({ memberPerformances }: Individual
 }
 
 /** 角色分组区块 */
-function RoleSection({ title, members, expandedMemberId, onCardClick }: {
+function RoleSection({ title, members, onCardClick }: {
   title: string
   members: MemberPerformance[]
-  expandedMemberId: string | null
   onCardClick: (id: string) => void
 }) {
   return (
@@ -175,7 +189,7 @@ function RoleSection({ title, members, expandedMemberId, onCardClick }: {
           <MemberCard
             key={member.memberId}
             member={member}
-            isExpanded={expandedMemberId === member.memberId}
+            isExpanded={false}
             onClick={() => onCardClick(member.memberId)}
           />
         ))}
@@ -248,7 +262,7 @@ function MemberCard({
   return (
     <div
       className={`${styles.memberCard} ${isExpanded ? styles.expanded : ''}`}
-      onClick={onClick}
+      onClick={!isExpanded ? onClick : undefined}
       role="button"
       tabIndex={0}
       onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') onClick() }}
@@ -281,47 +295,50 @@ function MemberCard({
         </div>
       </div>
 
-      {/* 个人雷达图 */}
-      <div className={styles.memberCardRadar}>
-        <ReactECharts
-          option={radarOption}
-          style={{ width: '100%', height: '100%' }}
-          notMerge={true}
-          lazyUpdate={true}
-        />
-      </div>
-
-      {/* 五维度进度条 */}
-      <div className={styles.memberDimensions}>
-        {DIMENSION_LABELS.map(dim => {
-          const score = member[dim.key]
-          const dimGrade = getPerformanceGrade(score)
-          return (
-            <div key={dim.key} className={styles.dimensionRow}>
-              <span className={styles.dimensionLabel}>{dim.label}</span>
-              <div className={styles.dimensionBar}>
-                <div
-                  className={styles.dimensionBarFill}
-                  style={{
-                    width: `${Math.min(100, score)}%`,
-                    background: getGradeColor(dimGrade),
-                  }}
-                />
-              </div>
-              <span className={styles.dimensionValue} style={{ color: getGradeColor(dimGrade) }}>
-                {score.toFixed(0)}
-              </span>
-            </div>
-          )
-        })}
-      </div>
-
-      {/* 展开区域：详细任务列表 */}
+      {/* 以下内容仅在展开（详情视图）时显示 */}
       {isExpanded && (
-        <div className={styles.memberDetails}>
-          <div className={styles.detailsTitle}>任务列表</div>
-          <TaskListTable tasks={member.tasks} />
-        </div>
+        <>
+          {/* 个人雷达图 */}
+          <div className={styles.memberCardRadar}>
+            <ReactECharts
+              option={radarOption}
+              style={{ width: '100%', height: '100%' }}
+              notMerge={true}
+              lazyUpdate={true}
+            />
+          </div>
+
+          {/* 五维度进度条 */}
+          <div className={styles.memberDimensions}>
+            {DIMENSION_LABELS.map(dim => {
+              const score = member[dim.key]
+              const dimGrade = getPerformanceGrade(score)
+              return (
+                <div key={dim.key} className={styles.dimensionRow}>
+                  <span className={styles.dimensionLabel}>{dim.label}</span>
+                  <div className={styles.dimensionBar}>
+                    <div
+                      className={styles.dimensionBarFill}
+                      style={{
+                        width: `${Math.min(100, score)}%`,
+                        background: getGradeColor(dimGrade),
+                      }}
+                    />
+                  </div>
+                  <span className={styles.dimensionValue} style={{ color: getGradeColor(dimGrade) }}>
+                    {score.toFixed(0)}
+                  </span>
+                </div>
+              )
+            })}
+          </div>
+
+          {/* 任务列表 */}
+          <div className={styles.memberDetails} onClick={e => e.stopPropagation()}>
+            <div className={styles.detailsTitle}>任务列表</div>
+            <TaskListTable tasks={member.tasks} />
+          </div>
+        </>
       )}
     </div>
   )

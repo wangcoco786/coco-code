@@ -119,19 +119,19 @@ export interface DepartmentPerformance {
 
 /** 维度权重配置 */
 export interface PerformanceWeights {
-  throughput: number // 默认 0.20
-  efficiency: number // 默认 0.25
+  throughput: number // 默认 0.25
+  efficiency: number // 默认 0.30
   quality: number // 默认 0.25
-  impact: number // 默认 0.15
-  collaboration: number // 默认 0.15
+  impact: number // 默认 0.10
+  collaboration: number // 默认 0.10
 }
 
 export const DEFAULT_WEIGHTS: PerformanceWeights = {
-  throughput: 0.20,
-  efficiency: 0.25,
+  throughput: 0.25,
+  efficiency: 0.30,
   quality: 0.25,
-  impact: 0.15,
-  collaboration: 0.15,
+  impact: 0.10,
+  collaboration: 0.10,
 }
 
 // ────────────────────────────────────────────────────────────

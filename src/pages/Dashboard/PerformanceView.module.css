@@ -363,17 +363,51 @@
 }
 
 /* ─── 成员详情展开区 ─── */
+.collapseBar {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border, #e8e8e8);
+}
+
+.backButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--primary, #1677ff);
+  background: var(--bg, #f5f7fa);
+  border: 1px solid var(--border, #e0e0e0);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.backButton:hover {
+  background: var(--primary, #1677ff);
+  color: #fff;
+}
+
 .memberDetails {
   margin-top: 16px;
   padding-top: 16px;
   border-top: 1px solid var(--border);
 }
 
+.detailsHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
 .detailsTitle {
   font-size: 13px;
   font-weight: 600;
   color: var(--text2);
-  margin-bottom: 8px;
 }
 
 .taskList {

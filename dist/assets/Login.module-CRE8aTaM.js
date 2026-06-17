@@ -1,1 +1,0 @@
-var e={page:`_page_1p01r_5`,card:`_card_1p01r_21`,logo:`_logo_1p01r_47`,title:`_title_1p01r_57`,subtitle:`_subtitle_1p01r_69`,ssoButton:`_ssoButton_1p01r_83`,loading:`_loading_1p01r_137`,error:`_error_1p01r_159`,errorText:`_errorText_1p01r_177`,retryButton:`_retryButton_1p01r_187`};export{e as t};

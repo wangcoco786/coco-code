@@ -332,12 +332,16 @@ async function sendDailyStaleAlert() {
   }
 }
 
-// 每小时检查一次，到设定的小时则执行推送（防止服务器重启错过）
+// 每分钟检查一次，工作日到设定的小时则执行推送
 let lastPushDate = ''
 setInterval(() => {
   const now = new Date()
   const todayStr = now.toISOString().slice(0, 10)
   const hour = now.getHours()
+  const dayOfWeek = now.getDay() // 0=周日, 6=周六
+
+  // 只在工作日（周一到周五）推送
+  if (dayOfWeek === 0 || dayOfWeek === 6) return
 
   if (hour === DAILY_PUSH_HOUR && lastPushDate !== todayStr) {
     lastPushDate = todayStr

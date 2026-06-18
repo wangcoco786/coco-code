@@ -211,7 +211,7 @@ app.use((_req, res) => {
 // 每日定时推送：2天无更新的 ticket 报警推送到企微群
 // ============================================================
 const DAILY_PUSH_HOUR = parseInt(process.env.DAILY_PUSH_HOUR || '9', 10) // 默认早上9点
-const DAILY_PUSH_PROJECTS = (process.env.DAILY_PUSH_PROJECTS || 'RP').split(',').map(s => s.trim())
+const DAILY_PUSH_PROJECTS = (process.env.DAILY_PUSH_PROJECTS || 'RP,TRF,APS').split(',').map(s => s.trim())
 const STALE_THRESHOLD_HOURS = 48 // 2天
 
 async function fetchStaleIssuesForProject(projectKey) {
@@ -249,59 +249,72 @@ async function fetchStaleIssuesForProject(projectKey) {
 }
 
 async function sendDailyStaleAlert() {
-  const { WECOM_WEBHOOK_URL } = process.env
-  if (!WECOM_WEBHOOK_URL) {
-    console.warn('[定时推送] WECOM_WEBHOOK_URL 未配置，跳过')
+  const webhookUrl = process.env.DAILY_PUSH_WEBHOOK_URL || process.env.WECOM_WEBHOOK_URL
+  if (!webhookUrl) {
+    console.warn('[定时推送] DAILY_PUSH_WEBHOOK_URL 和 WECOM_WEBHOOK_URL 都未配置，跳过')
     return
   }
 
+  // 汇总所有项目的停滞 ticket
+  const allStaleByProject = []
+  let totalCount = 0
+
   for (const projectKey of DAILY_PUSH_PROJECTS) {
     const staleIssues = await fetchStaleIssuesForProject(projectKey)
-    if (staleIssues.length === 0) {
-      console.log(`[定时推送] ${projectKey}: 无超期未更新任务`)
-      continue
+    if (staleIssues.length > 0) {
+      allStaleByProject.push({ projectKey, issues: staleIssues })
+      totalCount += staleIssues.length
     }
+  }
 
-    const now = new Date()
-    const lines = [
-      `## 🚨 AI-PM · ${projectKey} 项目停滞预警`,
-      '',
-      `> ${now.toLocaleDateString('zh-CN')} 定时巡检 · 以下 **${staleIssues.length}** 个任务超过2天无更新：`,
-      '',
-    ]
+  if (totalCount === 0) {
+    console.log(`[定时推送] 所有项目无超期未更新任务`)
+    return
+  }
 
-    for (const issue of staleIssues.slice(0, 15)) {
+  // 构建汇总消息
+  const now = new Date()
+  const lines = [
+    `## 🚨 AI-PM · 每日停滞预警`,
+    '',
+    `> ${now.toLocaleDateString('zh-CN')} 09:00 定时巡检 · 共 **${totalCount}** 个任务超过2天无更新`,
+    '',
+  ]
+
+  for (const { projectKey, issues } of allStaleByProject) {
+    lines.push(`### 📌 ${projectKey}（${issues.length} 个）`)
+    lines.push('')
+    for (const issue of issues.slice(0, 10)) {
       const daysSinceUpdate = Math.floor((Date.now() - new Date(issue.updatedAt).getTime()) / (1000 * 60 * 60 * 24))
       lines.push(`> 🔴 **${issue.key}** ${issue.summary}`)
-      lines.push(`> 负责人: ${issue.assignee} · 已 ${daysSinceUpdate} 天无更新 · 状态: ${issue.status}`)
+      lines.push(`> 负责人: ${issue.assignee} · ${daysSinceUpdate}天未更新 · ${issue.status}`)
       lines.push('')
     }
-
-    if (staleIssues.length > 15) {
-      lines.push(`> ... 还有 ${staleIssues.length - 15} 个任务未列出`)
+    if (issues.length > 10) {
+      lines.push(`> ... 还有 ${issues.length - 10} 个未列出`)
       lines.push('')
     }
+  }
 
-    lines.push('---')
-    lines.push('> 请相关负责人及时更新任务状态或评论说明进展')
+  lines.push('---')
+  lines.push('> 请相关负责人及时更新任务状态或评论说明进展')
 
-    const message = { msgtype: 'markdown', markdown: { content: lines.join('\n') } }
+  const message = { msgtype: 'markdown', markdown: { content: lines.join('\n') } }
 
-    try {
-      const res = await fetch(WECOM_WEBHOOK_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(message),
-      })
-      const result = await res.json()
-      if (result.errcode === 0) {
-        console.log(`[定时推送] ${projectKey}: 成功推送 ${staleIssues.length} 条预警`)
-      } else {
-        console.error(`[定时推送] ${projectKey}: 企微推送失败`, result.errmsg)
-      }
-    } catch (err) {
-      console.error(`[定时推送] ${projectKey}: 发送失败`, err.message)
+  try {
+    const res = await fetch(webhookUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(message),
+    })
+    const result = await res.json()
+    if (result.errcode === 0) {
+      console.log(`[定时推送] 成功推送汇总预警，共 ${totalCount} 条`)
+    } else {
+      console.error(`[定时推送] 企微推送失败`, result.errmsg)
     }
+  } catch (err) {
+    console.error(`[定时推送] 发送失败`, err.message)
   }
 }
 

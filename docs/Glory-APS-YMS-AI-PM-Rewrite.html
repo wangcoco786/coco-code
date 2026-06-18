@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Glory / APS / YMS — AI-PM 转型视角</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: #f0f2f5;
+            color: #333;
+        }
+        .slide {
+            width: 1200px;
+            margin: 40px auto;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.1);
+            padding: 48px 56px;
+            position: relative;
+            overflow: hidden;
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+        .slide::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 6px;
+            background: linear-gradient(90deg, #1a237e, #00bcd4);
+        }
+        .slide-header {
+            background: linear-gradient(135deg, #1a237e 0%, #283593 100%);
+            color: #fff;
+            padding: 16px 24px;
+            border-radius: 8px;
+            margin-bottom: 32px;
+        }
+        .slide-header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        .slide-header .subtitle {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.95);
+            margin-top: 6px;
+            font-weight: 500;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            text-rendering: optimizeLegibility;
+        }
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-top: 20px;
+        }
+        .card {
+            border-radius: 8px;
+            padding: 20px 24px;
+            border: 2px solid #e0e0e0;
+        }
+        .card-teal { border-color: #00bcd4; background: #e0f7fa; }
+        .card-pink { border-color: #e91e63; background: #fce4ec; }
+        .card-blue { border-color: #1565c0; background: #e3f2fd; }
+        .card-purple { border-color: #7b1fa2; background: #f3e5f5; }
+        .card-green { border-color: #2e7d32; background: #e8f5e9; }
+        .card-orange { border-color: #e65100; background: #fff3e0; }
+        .card h3 {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .card-teal h3 { color: #00695c; }
+        .card-pink h3 { color: #c2185b; }
+        .card-blue h3 { color: #1565c0; }
+        .card-purple h3 { color: #6a1b9a; }
+        .card-green h3 { color: #1b5e20; }
+        .card-orange h3 { color: #e65100; }
+        .card ul { list-style: none; padding: 0; }
+        .card li {
+            padding: 4px 0;
+            font-size: 14px;
+            line-height: 1.6;
+            position: relative;
+            padding-left: 16px;
+        }
+        .card li::before {
+            content: '•';
+            position: absolute;
+            left: 0;
+            color: #666;
+            font-weight: bold;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            margin-top: 16px;
+        }
+        th {
+            background: #1a237e;
+            color: #fff;
+            padding: 10px 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+        td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #e0e0e0;
+            vertical-align: top;
+        }
+        tr:nth-child(even) td { background: #fafafa; }
+        .highlight-box {
+            background: linear-gradient(135deg, #e8eaf6, #e3f2fd);
+            border-left: 4px solid #1a237e;
+            padding: 16px 20px;
+            border-radius: 0 8px 8px 0;
+            margin: 20px 0;
+            font-size: 14px;
+            line-height: 1.7;
+        }
+        .highlight-box strong { color: #1a237e; }
+        .flow-diagram {
+            background: #f5f5f5;
+            border-radius: 8px;
+            padding: 24px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .flow-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            margin: 12px 0;
+            flex-wrap: wrap;
+        }
+        .flow-box {
+            padding: 10px 18px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            text-align: center;
+            min-width: 120px;
+        }
+        .flow-ax { background: #1a237e; color: #fff; }
+        .flow-edi { background: #bbdefb; color: #1565c0; border: 2px solid #1565c0; }
+        .flow-oms { background: #00bcd4; color: #fff; }
+        .flow-wms { background: #e91e63; color: #fff; }
+        .flow-arrow { font-size: 20px; color: #666; }
+        .badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-right: 6px;
+        }
+        .badge-ai { background: #e8eaf6; color: #1a237e; }
+        .badge-new { background: #e8f5e9; color: #2e7d32; }
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1a237e;
+            margin: 24px 0 12px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #e0e0e0;
+            page-break-after: avoid;
+            break-after: avoid;
+        }
+        .tag-row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin: 12px 0;
+        }
+        .tag {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .tag-teal { background: #00bcd4; color: #fff; }
+        .tag-purple { background: #7b1fa2; color: #fff; }
+        .tag-blue { background: #1565c0; color: #fff; }
+        .tag-green { background: #2e7d32; color: #fff; }
+        .page-num {
+            position: absolute;
+            bottom: 20px;
+            right: 32px;
+            font-size: 12px;
+            color: #999;
+        }
+        @media print {
+            body { background: #fff; margin: 0; padding: 0; }
+            .slide {
+                box-shadow: none;
+                margin: 0 auto 20px;
+                border-radius: 0;
+                width: 100%;
+                padding: 30px 40px;
+                page-break-inside: avoid;
+                break-inside: avoid;
+            }
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+                color-adjust: exact !important;
+            }
+            .card, .highlight-box, .flow-diagram, table, .two-col, .section-title {
+                page-break-inside: avoid;
+                break-inside: avoid;
+            }
+            .slide-header {
+                background: linear-gradient(135deg, #1a237e 0%, #283593 100%) !important;
+                color: #fff !important;
+            }
+            .slide::before {
+                background: linear-gradient(90deg, #1a237e, #00bcd4) !important;
+            }
+            .card-teal { border-color: #00bcd4 !important; background: #e0f7fa !important; }
+            .card-pink { border-color: #e91e63 !important; background: #fce4ec !important; }
+            .card-blue { border-color: #1565c0 !important; background: #e3f2fd !important; }
+            .card-purple { border-color: #7b1fa2 !important; background: #f3e5f5 !important; }
+            .card-green { border-color: #2e7d32 !important; background: #e8f5e9 !important; }
+            .card-orange { border-color: #e65100 !important; background: #fff3e0 !important; }
+            .highlight-box {
+                background: linear-gradient(135deg, #e8eaf6, #e3f2fd) !important;
+                border-left: 4px solid #1a237e !important;
+            }
+            .flow-diagram { background: #f5f5f5 !important; }
+            .flow-ax { background: #1a237e !important; color: #fff !important; }
+            .flow-edi { background: #bbdefb !important; }
+            .flow-oms { background: #00bcd4 !important; color: #fff !important; }
+            .flow-wms { background: #e91e63 !important; color: #fff !important; }
+            th { background: #1a237e !important; color: #fff !important; }
+            .badge-ai { background: #e8eaf6 !important; color: #1a237e !important; }
+            .badge-new { background: #e8f5e9 !important; color: #2e7d32 !important; }
+            .tag-teal { background: #00bcd4 !important; color: #fff !important; }
+            .tag-purple { background: #7b1fa2 !important; color: #fff !important; }
+            .tag-blue { background: #1565c0 !important; color: #fff !important; }
+            .tag-green { background: #2e7d32 !important; color: #fff !important; }
+            tr:nth-child(even) td { background: #fafafa !important; }
+            td[style*="background"] { 
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+            div[style*="background"] {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Slide 1: Glory 客户概览 -->
+<div class="slide">
+    <div class="slide-header">
+        <h1>Glory 客户 — 全球供应链与系统重构 (Henan Factory)</h1>
+        <div class="subtitle">AI-PM 转型视角 · 对外交付型 PM 如何赋能跨国供应链项目</div>
+    </div>
+
+    <div class="highlight-box">
+        <strong>业务背景：</strong>河南工厂作为全球皮料供应商，涉及原材料粗加工与成品生产。材料采用双单位管理（平方英尺/公斤 + 序列号追踪），成品带有全球唯一 UPC 码。<br>
+        <strong>核心诉求：</strong>支持复杂的跨国供应链路由（直发、规避关税的中转、海外前置仓），实现 AX/EDI/OMS/WMS 核心链路重构。
+    </div>
+
+    <div class="two-col">
+        <div class="card card-teal">
+            <h3>🔄 核心履约场景与系统规则</h3>
+            <ul>
+                <li><strong>四种路由场景（OMS 自动化分配）：</strong></li>
+                <li>1. 直发客户 (Direct)：如 Costco 订单直发</li>
+                <li>2. 关税规避中转：成品运至泰国深加工，以"Made in Thailand"名义出口至美国</li>
+                <li>3. 跨国前置仓：发往欧洲、日本等地备货</li>
+                <li>4. 纯中转：中转工厂处理流程</li>
+                <li style="margin-top:8px"><strong>异构系统协同：</strong></li>
+                <li>• 美国仓使用标准 WMS</li>
+                <li>• 泰国/河南工厂使用 Vendor Portal（简化进销存）</li>
+                <li style="margin-top:8px"><strong>双单位/SN 管理：</strong>材料出库需换算（如18.5尺需匹配多张皮料SN），成品走UPC管理</li>
+            </ul>
+        </div>
+        <div class="card card-pink">
+            <h3>🚀 AI-PM 转型后的核心职责</h3>
+            <ul>
+                <li><span class="badge badge-ai">AI赋能</span><strong>跨国业务需求澄清：</strong>直接参与客户会议，拉通美国运营、河南/泰国工厂，AI + Ontology 快速理解供应链数据模型</li>
+                <li><span class="badge badge-ai">AI赋能</span><strong>异构系统联调统筹：</strong>AI-PM 平台自动跟踪 AX/EDI/OMS/WMS 数据流转测试进度，异常自动推送</li>
+                <li><span class="badge badge-ai">AI赋能</span><strong>异常场景闭环：</strong>AI 辅助识别内调单拦截、Partial Shipment、多 SN 匹配等边缘场景，自动生成测试用例</li>
+                <li><span class="badge badge-new">新能力</span><strong>快速 Demo 输出：</strong>1-3 天内输出 OMS 路由配置可视化 Demo，客户可见效果</li>
+                <li><span class="badge badge-ai">AI赋能</span><strong>进度与风险把控：</strong>AI-PM 平台自动监控核心节点，从"事后救火"转为"事前预警"</li>
+                <li style="margin-top:8px;border-top:1px dashed #c2185b;padding-top:8px"><strong>🎯 FDE 终极目标：</strong>直接对接河南/泰国工厂客户，独立完成 OMS 路由配置验证与系统上线交付</li>
+            </ul>
+        </div>
+    </div>
+    <span class="page-num">1 / 8</span>
+</div>
+
+<!-- Slide 2: 核心系统链路 -->
+<div class="slide">
+    <div class="slide-header">
+        <h1>Glory 核心系统链路流转图 (AX ↔ EDI ↔ OMS ↔ WMS)</h1>
+        <div class="subtitle">AI-PM 平台如何赋能系统链路管理与联调测试 · 含 EDI 数据交换</div>
+    </div>
+
+    <div class="flow-diagram" style="padding:24px 20px">
+        <!-- SVG Flow Chart -->
+        <svg width="700" height="360" viewBox="0 0 700 360" style="display:block;margin:0 auto">
+            <!-- AX Box -->
+            <rect x="250" y="10" width="200" height="44" rx="6" fill="#1a237e"/>
+            <text x="350" y="37" text-anchor="middle" fill="#fff" font-size="14" font-weight="700">AX (ERP 系统)</text>
+            
+            <!-- Arrow down: AX → EDI -->
+            <line x1="300" y1="54" x2="300" y2="80" stroke="#1565c0" stroke-width="2" marker-end="url(#arrowBlue)"/>
+            <text x="180" y="72" font-size="11" fill="#555">1. 下推原始订单(含外部料号)</text>
+            <!-- Arrow up: EDI → AX -->
+            <line x1="420" y1="80" x2="420" y2="54" stroke="#e91e63" stroke-width="2" marker-end="url(#arrowPink)"/>
+            <text x="440" y="72" font-size="11" fill="#e91e63">7. 发送856发货通知(ASN)</text>
+            
+            <!-- EDI Box -->
+            <rect x="220" y="82" width="260" height="50" rx="6" fill="#e3f2fd" stroke="#1565c0" stroke-width="2"/>
+            <text x="350" y="105" text-anchor="middle" fill="#1565c0" font-size="14" font-weight="700">EDI (数据交换枢纽)</text>
+            <text x="350" y="122" text-anchor="middle" fill="#1565c0" font-size="10">850(PO)→标准JSON | 856(ASN)→AX回传</text>
+            
+            <!-- Arrow down: EDI → OMS -->
+            <line x1="300" y1="132" x2="300" y2="160" stroke="#1565c0" stroke-width="2" marker-end="url(#arrowBlue)"/>
+            <text x="180" y="152" font-size="11" fill="#555">2. 推送标准 JSON</text>
+            <!-- Arrow up: OMS → EDI -->
+            <line x1="420" y1="160" x2="420" y2="132" stroke="#e91e63" stroke-width="2" marker-end="url(#arrowPink)"/>
+            <text x="440" y="152" font-size="11" fill="#e91e63">6. 接收 DC/RC</text>
+            
+            <!-- OMS Box -->
+            <rect x="250" y="162" width="200" height="44" rx="6" fill="#00bcd4"/>
+            <text x="350" y="189" text-anchor="middle" fill="#fff" font-size="14" font-weight="700">OMS (订单管理中枢)</text>
+            
+            <!-- Arrow down: OMS → WMS -->
+            <line x1="300" y1="206" x2="300" y2="234" stroke="#1565c0" stroke-width="2" marker-end="url(#arrowBlue)"/>
+            <text x="130" y="226" font-size="11" fill="#555">3. 生成 DN(出库单) / RN(入库单)</text>
+            <!-- Arrow up: WMS → OMS -->
+            <line x1="420" y1="234" x2="420" y2="206" stroke="#e91e63" stroke-width="2" marker-end="url(#arrowPink)"/>
+            <text x="440" y="226" font-size="11" fill="#e91e63">5. 推送 DC/RC(出入库确认)</text>
+            
+            <!-- WMS Box -->
+            <rect x="210" y="236" width="280" height="44" rx="6" fill="#e91e63"/>
+            <text x="350" y="258" text-anchor="middle" fill="#fff" font-size="13" font-weight="700">WMS (仓库) / Vendor Portal (工厂)</text>
+            <text x="350" y="273" text-anchor="middle" fill="#fff" font-size="10">拣货·装箱·发货 / 卸货·收货·上架</text>
+            
+            <!-- Legend -->
+            <line x1="50" y1="310" x2="80" y2="310" stroke="#1565c0" stroke-width="2" marker-end="url(#arrowBlue)"/>
+            <text x="85" y="314" font-size="10" fill="#555">下发方向</text>
+            <line x1="180" y1="310" x2="210" y2="310" stroke="#e91e63" stroke-width="2" marker-end="url(#arrowPink)"/>
+            <text x="215" y="314" font-size="10" fill="#e91e63">回传方向</text>
+            
+            <!-- Arrow markers -->
+            <defs>
+                <marker id="arrowBlue" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+                    <polygon points="0 0, 8 3, 0 6" fill="#1565c0"/>
+                </marker>
+                <marker id="arrowPink" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+                    <polygon points="0 0, 8 3, 0 6" fill="#e91e63"/>
+                </marker>
+            </defs>
+        </svg>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px">
+        <div class="card card-green" style="padding:14px 16px">
+            <h3 style="font-size:14px">🔗 EDI 数据交换枢纽</h3>
+            <ul>
+                <li>AX 原始订单(850 PO) → 标准 JSON 转换下发 OMS</li>
+                <li>EDI 856(ASN) 发货通知报文回传 AX</li>
+                <li>OMS DC/RC 确认信息 → EDI 标准格式转换</li>
+                <li>多报文格式适配（XML/JSON/Flat File）</li>
+            </ul>
+        </div>
+        <div class="card card-teal" style="padding:14px 16px">
+            <h3 style="font-size:14px">📦 OMS 订单管理中枢</h3>
+            <ul>
+                <li><strong>下发侧：</strong>SKU映射 + 路由分仓（四种场景）+ 幂等防重</li>
+                <li><strong>回传侧：</strong>双单位/短装校验 + 异常重试 + 拦截判定</li>
+                <li>订单全生命周期状态管理</li>
+                <li>多仓多路由自动化分配规则引擎</li>
+            </ul>
+        </div>
+        <div class="card card-blue" style="padding:14px 16px">
+            <h3 style="font-size:14px">🏭 WMS 仓库管理</h3>
+            <ul>
+                <li>拣货、装箱、发货全流程作业执行</li>
+                <li>处理双单位数量换算（平方英尺↔公斤）</li>
+                <li>支持 Partial Shipment（短装分批发货）</li>
+                <li>出库确认(DC) / 入库确认(RC) 回传 OMS</li>
+            </ul>
+        </div>
+        <div class="card card-orange" style="padding:14px 16px">
+            <h3 style="font-size:14px">🏪 Vendor Portal 工厂端</h3>
+            <ul>
+                <li>简化进销存管理（泰国/河南工厂使用）</li>
+                <li>接收 OMS 下发的入库单(RN) / 出库单(DN)</li>
+                <li>SN 序列号管理（多张皮料 SN 匹配出库）</li>
+                <li>卸货、收货上架、成品 UPC 扫码确认</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="highlight-box" style="margin-top:16px">
+        <strong>🤖 AI-PM 赋能系统链路管理：</strong>
+        接口联调 → AI-PM 平台自动跟踪 AX/EDI/OMS/WMS 各系统对接状态，阻塞自动预警 |
+        EDI 报文验证 → AI 辅助生成 850/856 报文解析校验脚本 |
+        UPC/双单位映射验证 → 批量验证数据一致性 |
+        异常场景测试 → AI 读取 Ontology 自动识别边缘场景，覆盖率 60% → 90%+
+    </div>
+    <span class="page-num">2 / 9</span>
+</div>
+
+<!-- Slide 2.5: IAM & Marketplace 对接 -->
+<div class="slide">
+    <div class="slide-header">
+        <h1>IAM & Marketplace 账号体系集成</h1>
+        <div class="subtitle">Reseller 账号体系从自建迁移到 BNP 统一账号 + IAM 统一认证</div>
+    </div>
+
+    <div class="highlight-box">
+        <strong>🎯 核心目标：</strong>Reseller 平台账号体系迁移到 BNP 统一账号体系 + IAM 统一认证。审批前置设计——先审批申请，通过后才创建 C 端用户账号和实体，避免产生脏数据。<br>
+        <strong>⚠️ 当前阶段：</strong>暂不考虑 BNP 结算集成，聚焦账号体系和认证授权。
+    </div>
+
+    <div class="section-title">Reseller 申请核心流程（两种场景）</div>
+    <div class="two-col">
+        <div class="card card-teal">
+            <h3>👤 场景1：游客申请（无 IAM 账号）</h3>
+            <ul>
+                <li>1. 游客在 Chatbot 填写申请表单（邮箱+密码+公司信息+上级 Reseller）</li>
+                <li>2. 前置校验：邮箱是否已存在 / 已是 Reseller</li>
+                <li>3. 校验通过 → 创建申请记录（PENDING_APPROVAL）</li>
+                <li>4. 审批通过 → 状态变更 APPROVING</li>
+                <li>5. Marketplace 调用 BNP 创建 Company + Reseller（含产品基本信息）</li>
+                <li>6. Marketplace 调用 IAM 创建 C 端用户账号</li>
+                <li>7. 创建站点草稿 → 状态 APPROVED → 通知用户可登录</li>
+            </ul>
+        </div>
+        <div class="card card-orange">
+            <h3>🔑 场景2：已登录用户申请（已有 IAM 账号）</h3>
+            <ul>
+                <li>1. 已登录用户填写申请（公司信息+上级 Reseller，无需邮箱密码）</li>
+                <li>2. 从 Token 获取 userId，创建申请记录（PENDING_APPROVAL）</li>
+                <li>3. 审批通过 → 状态变更 APPROVING</li>
+                <li>4. Marketplace 调用 BNP 创建 Company + Reseller（传入已有 userId）</li>
+                <li>5. 创建站点草稿 → 状态 APPROVED</li>
+                <li>6. 通知用户：当前账号已关联 Reseller 身份</li>
+                <li style="margin-top:6px"><em>无需创建 IAM 账号，使用已有账号身份叠加</em></li>
+            </ul>
+        </div>
+    </div>
+
+    <div style="page-break-inside:avoid;break-inside:avoid">
+    <div class="section-title">系统交互架构</div>
+    <div class="flow-diagram" style="padding:16px">
+        <div class="flow-row">
+            <div class="flow-box" style="background:#555;color:#fff">用户 (Chatbot / Web)</div>
+            <span class="flow-arrow">→</span>
+            <div class="flow-box" style="background:#e65100;color:#fff">Marketplace<br><small>申请管理 + 审批编排</small></div>
+            <span class="flow-arrow">→</span>
+            <div class="flow-box" style="background:#1565c0;color:#fff">BNP<br><small>Company/Reseller 实体<br>身份映射/层级/产品</small></div>
+        </div>
+        <div class="flow-row" style="margin-top:12px">
+            <div style="width:180px"></div>
+            <div class="flow-box" style="background:#e65100;color:#fff;opacity:0.7">Marketplace</div>
+            <span class="flow-arrow">→</span>
+            <div class="flow-box" style="background:#2e7d32;color:#fff">IAM<br><small>C端用户账号创建<br>统一认证 Token</small></div>
+        </div>
+        <p style="font-size:11px;color:#666;margin-top:12px">BNP 内部处理：创建 Company 实体 → 创建 Reseller 实体 → 同步身份映射 → 创建层级关系 → 保存产品基本信息 → 维护产品与 Reseller 关系</p>
+    </div>
+    </div>
+
+    <div class="two-col" style="margin-top:12px">
+        <div class="card card-blue" style="padding:14px 16px">
+            <h3 style="font-size:14px">🔒 关键设计原则</h3>
+            <ul>
+                <li><strong>审批前置：</strong>先审批再创建实体，避免脏数据</li>
+                <li><strong>原子性保证：</strong>IAM 账号与 Reseller 实体同步创建</li>
+                <li><strong>异常处理：</strong>邮箱冲突/已是 Reseller 自动 REJECTED</li>
+                <li><strong>重新申请：</strong>拒绝后允许用户重新提交</li>
+            </ul>
+        </div>
+        <div class="card card-pink" style="padding:14px 16px">
+            <h3 style="font-size:14px">🚀 AI-PM 参与职责</h3>
+            <ul>
+                <li><span class="badge badge-ai">AI赋能</span>梳理 Marketplace↔BNP↔IAM 三方交互流程</li>
+                <li><span class="badge badge-ai">AI赋能</span>AI 辅助生成接口联调测试用例（正常流+异常流）</li>
+                <li><span class="badge badge-new">对接</span>跟进账号体系迁移进度，确保审批流程闭环</li>
+                <li><span class="badge badge-new">Demo</span>快速搭建 Reseller 申请流程可视化 Demo</li>
+            </ul>
+        </div>
+    </div>
+    <span class="page-num">3 / 9</span>
+</div>
+
+<!-- Slide 3: APS 七层架构 -->
+<div class="slide">
+    <div class="slide-header">
+        <h1>APS 核心逻辑架构（七层架构）</h1>
+        <div class="subtitle">AI-PM 如何参与排班规划系统的需求对接与方案跟进</div>
+    </div>
+
+    <table>
+        <tr>
+            <th style="width:60px">层级</th>
+            <th style="width:180px">名称</th>
+            <th>核心内容</th>
+            <th style="width:200px">AI-PM 参与方式</th>
+        </tr>
+        <tr>
+            <td style="text-align:center;font-weight:700;font-size:16px;color:#00695c">1</td>
+            <td><strong>基础数据层</strong><br>Data Foundation</td>
+            <td>HRM/IAM（人员/技能/账号权限）、WMS（订单/任务数据）、标准作业产能（SOP/UPH）</td>
+            <td><span class="badge badge-ai">AI赋能</span>Ontology 快速理解数据模型</td>
+        </tr>
+        <tr>
+            <td style="text-align:center;font-weight:700;font-size:16px;color:#00695c">2</td>
+            <td><strong>过滤池</strong><br>Filtering</td>
+            <td>拦截缺少技能标签人员、排除不完整订单与无标准产能记录的作业节点</td>
+            <td>AI 辅助定义过滤规则</td>
+        </tr>
+        <tr>
+            <td style="text-align:center;font-weight:700;font-size:16px;color:#00695c">3</td>
+            <td><strong>数据处理层</strong><br>Processing</td>
+            <td>基于时间切片(Time-sliced)聚合实时需求产能与出勤算力，动态计算匹配缺口</td>
+            <td>AI 辅助需求结构化</td>
+        </tr>
+        <tr>
+            <td style="text-align:center;font-weight:700;font-size:16px;color:#6a1b9a">4</td>
+            <td><strong>算法核心引擎</strong><br>Algorithm</td>
+            <td>多约束目标求解（工时合规、成本最优、订单不逾期）+ 动态插单重算规则（加急订单触发局部重排）</td>
+            <td>跟进算法落地进度</td>
+        </tr>
+        <tr>
+            <td style="text-align:center;font-weight:700;font-size:16px;color:#00695c">5</td>
+            <td><strong>预测与排班</strong><br>Forecasting</td>
+            <td>Headcount（需求人数）预测输出，跨仓位劳动力调度（借调建议）</td>
+            <td><span class="badge badge-new">Demo</span>Kiro 搭建排班可视化</td>
+        </tr>
+        <tr>
+            <td style="text-align:center;font-weight:700;font-size:16px;color:#00695c">6</td>
+            <td><strong>执行下发</strong><br>Execution</td>
+            <td>生成具体到人、时段的工作指令，同步至 WMS RF 手持终端</td>
+            <td>AI-PM 平台跟踪联调</td>
+        </tr>
+        <tr>
+            <td style="text-align:center;font-weight:700;font-size:16px;color:#00695c">7</td>
+            <td><strong>归档与报表</strong><br>Archiving</td>
+            <td>实际产能 vs 预测产能差异分析，模型自迭代与运营指标大屏</td>
+            <td><span class="badge badge-ai">AI赋能</span>自动计算 Gap 分析</td>
+        </tr>
+    </table>
+
+    <div class="highlight-box">
+        <strong>💡 AI-PM 核心价值：</strong>通过 Ontology + AI 快速掌握七层架构中的数据模型和业务逻辑，无需从零学习即可参与需求对接。AI-PM 平台自动跟踪 IAM/HRM 打通进度，AI 辅助输出排班可视化 Demo，帮助客户直观理解系统效果。<br>
+        <strong style="color:#c2185b">🎯 FDE 终极目标：</strong>直接对接美国仓库 Operations 团队，独立完成排班规则配置、产能数据校准、现场排班系统验收交付。
+    </div>
+
+    <div class="section-title">APS 系统 - Next Steps</div>
+    <div style="display:flex;gap:12px;margin-top:12px;flex-wrap:wrap">
+        <div style="flex:1;min-width:280px;background:#e0f7fa;border-radius:8px;padding:14px 18px;border-left:4px solid #00bcd4">
+            <strong style="color:#00695c;font-size:13px">1. 数据底层打通</strong>
+            <p style="font-size:12px;margin-top:4px">首要任务是对接 IAM 与 HRM 系统，获取准确的人员主数据、账号权限及技能标签</p>
+        </div>
+        <div style="flex:1;min-width:280px;background:#e0f7fa;border-radius:8px;padding:14px 18px;border-left:4px solid #00bcd4">
+            <strong style="color:#00695c;font-size:13px">2. 排班策略固化</strong>
+            <p style="font-size:12px;margin-top:4px">与现场 Operations 团队确认各波次时段切片粒度及标准 UPH(Units Per Hour)</p>
+        </div>
+        <div style="flex:1;min-width:280px;background:#e0f7fa;border-radius:8px;padding:14px 18px;border-left:4px solid #00bcd4">
+            <strong style="color:#00695c;font-size:13px">3. 系统联调联测</strong>
+            <p style="font-size:12px;margin-top:4px">验证"订单池 ↔ 产能池"的动态匹配逻辑，压力测试高并发下的引擎性能</p>
+        </div>
+    </div>
+
+    <span class="page-num">3 / 8</span>
+</div>
+
+<!-- Slide 4: LinkW 业务背景 -->
+<div class="slide">
+    <div class="slide-header">
+        <h1>LinkW 业务背景与 YMS 园区管理</h1>
+        <div class="subtitle">跨境物流 3PL 平台 · 仓库自动化 · 园区智能调度</div>
+    </div>
+
+    <div class="two-col">
+        <div class="card card-pink">
+            <h3>📦 LinkW 业务背景与挑战</h3>
+            <ul>
+                <li><strong>小品牌跨境物流痛点：</strong>无法整箱发货，只能依靠托盘或小件零散运输，物流成本高且效率低</li>
+                <li style="margin-top:10px"><strong>LinkW 平台解决方案：</strong></li>
+                <li>• 订单整合：整合国内小商户订单，集中订舱发货至美国仓库</li>
+                <li>• 运输与仓储：下游对接 Amazon、Costco 等零售商</li>
+                <li>• Dropship（一件代发）：减少店家库存压力，避免库存积压</li>
+            </ul>
+        </div>
+        <div class="card card-green">
+            <h3>🔮 未来计划与自动化目标</h3>
+            <ul>
+                <li><strong>仓库自动化提升：</strong></li>
+                <li>• 接入传送带等自动化设备系统，实现货物快速流转</li>
+                <li>• 减少现场人工干预，优化底层仓库分配与月台管理</li>
+                <li style="margin-top:10px"><strong>园区智能调度：</strong></li>
+                <li>• 引入视觉摄像头与后台远程监控团队</li>
+                <li>• 最终目标：高度自动化的园区调度 (YMS)，显著降低运营成本</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="section-title">LinkW 全局路由与美国仓运转流程</div>
+    <div class="flow-diagram">
+        <div class="flow-row">
+            <div class="flow-box" style="background:#1565c0;color:#fff">LinkW (3PL)<br><small>国内订单集拼</small></div>
+            <span class="flow-arrow">→</span>
+            <div class="flow-box" style="background:#00695c;color:#fff">美国转运中心<br><small>Transportation / Storage</small></div>
+            <span class="flow-arrow">→</span>
+            <div style="display:flex;flex-direction:column;gap:8px">
+                <div class="flow-box" style="background:#e65100;color:#fff;min-width:140px">Amazon (FBA)<br><small>仓储与JIT</small></div>
+                <div class="flow-box" style="background:#c2185b;color:#fff;min-width:140px">Costco (客户)<br><small>Dropship 代发</small></div>
+            </div>
+        </div>
+        <div style="margin-top:24px;border-top:2px dashed #ccc;padding-top:16px">
+            <div class="flow-row">
+                <div class="flow-box" style="background:#bbdefb;color:#1565c0;border:2px solid #1565c0">集装箱/Trailers<br><small>(等待区)</small></div>
+                <span class="flow-arrow">→ 调度 →</span>
+                <div class="flow-box" style="background:#00bcd4;color:#fff">月台 DOCK</div>
+                <span class="flow-arrow">→</span>
+                <div class="flow-box" style="background:#7b1fa2;color:#fff">自动化分拣与存取区<br><small>传送带快速流转</small></div>
+                <span class="flow-arrow">→</span>
+                <div class="flow-box" style="background:#2e7d32;color:#fff">出库发货</div>
+            </div>
+            <p style="text-align:center;font-size:11px;color:#666;margin-top:8px">US Warehouse / Yard Operations (ONT)</p>
+        </div>
+    </div>
+
+    <div class="highlight-box">
+        <strong>🤖 AI-PM 参与方式：</strong>负责实地勘察仓库月台物理环境，将现实动线与系统模型映射 | 主导 WMS（作业）与 YMS（调度）交接节点测试 | AI + Kiro 快速搭建月台调度可视化 Demo<br>
+        <strong style="color:#c2185b">🎯 FDE 终极目标：</strong>直接对接仓库现场团队，独立完成月台调度方案落地、设备部署验收、系统上线交付。
+    </div>
+    <span class="page-num">5 / 9</span>
+</div>
+
+<!-- Slide 5: YMS vs WMS 对比 -->
+<div class="slide">
+    <div class="slide-header">
+        <h1>Link W (YMS) vs WMS 系统功能对比及整合</h1>
+        <div class="subtitle">YMS 核心价值 · 业务流程落地 · AI-PM 测试验证</div>
+    </div>
+
+    <table>
+        <tr>
+            <th style="width:150px">功能模块</th>
+            <th>WMS 现有能力</th>
+            <th>YMS 核心价值</th>
+        </tr>
+        <tr>
+            <td><strong>预约管理 (Appt)</strong></td>
+            <td>✅ 支持入库/出库预约，关联PO/SO和承运商，配置容量模板</td>
+            <td>❌ 不包含业务单据层面的时段规划</td>
+        </tr>
+        <tr>
+            <td><strong>月台管理 (Dock)</strong></td>
+            <td>⚠️ 部分支持（基础指派，缺乏动态排队逻辑）</td>
+            <td>✅ <strong>核心能力：</strong>基于任务动态指派、冲突检测与实时调度</td>
+        </tr>
+        <tr>
+            <td><strong>入场签到 (Check-In)</strong></td>
+            <td>人工操作，登记基础信息</td>
+            <td>✅ 自动化登记（车牌、封签、温度记录等），分配排队号</td>
+        </tr>
+        <tr>
+            <td><strong>场区调度 (Shuttle)</strong></td>
+            <td>❌ 不支持</td>
+            <td>✅ 管理穿梭车任务（等待区→月台），监控车辆滞留</td>
+        </tr>
+    </table>
+
+    <div class="section-title">YMS 业务流程落地关键步骤</div>
+    <div style="display:flex;gap:12px;margin-top:12px;flex-wrap:wrap">
+        <div style="flex:1;min-width:180px;background:#e3f2fd;border-radius:8px;padding:12px 16px;border-left:4px solid #1565c0">
+            <strong style="color:#1565c0;font-size:13px">Step 1</strong>
+            <p style="font-size:12px;margin-top:4px">司机到达道闸，使用 YMS 完成 Check-in，记录车辆状态并生成排队号</p>
+        </div>
+        <div style="flex:1;min-width:180px;background:#e8f5e9;border-radius:8px;padding:12px 16px;border-left:4px solid #2e7d32">
+            <strong style="color:#2e7d32;font-size:13px">Step 2</strong>
+            <p style="font-size:12px;margin-top:4px">YMS 根据月台(Dock)占用情况，下发驶入指令或分配至 Buffer 停车区</p>
+        </div>
+        <div style="flex:1;min-width:180px;background:#f3e5f5;border-radius:8px;padding:12px 16px;border-left:4px solid #7b1fa2">
+            <strong style="color:#7b1fa2;font-size:13px">Step 3</strong>
+            <p style="font-size:12px;margin-top:4px">月台释放后，YMS 触发 Shuttle 任务，引导车辆靠泊对应月台</p>
+        </div>
+        <div style="flex:1;min-width:180px;background:#fff3e0;border-radius:8px;padding:12px 16px;border-left:4px solid #e65100">
+            <strong style="color:#e65100;font-size:13px">Step 4</strong>
+            <p style="font-size:12px;margin-top:4px">WMS 接管实物作业（装卸货），完成后通知 YMS</p>
+        </div>
+        <div style="flex:1;min-width:180px;background:#fce4ec;border-radius:8px;padding:12px 16px;border-left:4px solid #c2185b">
+            <strong style="color:#c2185b;font-size:13px">Step 5</strong>
+            <p style="font-size:12px;margin-top:4px">车辆驶离月台，YMS 完成 Check-out 闭环记录</p>
+        </div>
+    </div>
+
+    <div class="highlight-box" style="margin-top:20px">
+        <strong>🤖 AI-PM 测试验证重点：</strong>
+        主导 WMS↔YMS 交接节点测试（Step 4 的通知机制） | 验证司机打卡硬件配置（Step 1 道闸集成） | AI 辅助生成全流程测试矩阵，确保 5 步闭环无断点
+    </div>
+    <span class="page-num">5 / 8</span>
+</div>
+
+<!-- Slide 6: YMS-Box 实施方案 -->
+<div class="slide">
+    <div class="slide-header">
+        <h1>YMS-Box 上线实施方案 — 司机自动化 Check-in</h1>
+        <div class="subtitle">核心目标：实现仓库司机自动化 Check-in，减少人力 · 硬件外采 + 软件自研</div>
+    </div>
+
+    <div class="highlight-box">
+        <strong>🎯 核心目标：</strong>通过部署边缘工控机（YMS-Box）+ 摄像头，实现物流园区司机自动化 Check-in，取代人工登记流程，显著减少现场人力投入。<br>
+        <strong>技术方案：</strong>采用 MQTT 协议（EMQX Broker）实现指令交互 + TCP/IP 双向通信实现视频流传输，解决原有 HTTP 方案的域名爆炸问题。
+    </div>
+
+    <div class="section-title">总体架构方案</div>
+    <div class="flow-diagram" style="padding:20px">
+        <div class="flow-row">
+            <div class="flow-box" style="background:#666;color:#fff;min-width:120px">Web 浏览器</div>
+            <div class="flow-box" style="background:#666;color:#fff;min-width:120px">手机 APP</div>
+        </div>
+        <div class="flow-row"><span class="flow-arrow">↕ mqtt/tcp ip/http</span></div>
+        <div style="background:#e3f2fd;border-radius:8px;padding:16px;margin:8px 0;border:2px solid #1565c0">
+            <div class="flow-row">
+                <div class="flow-box flow-oms" style="min-width:300px">YMS Server</div>
+            </div>
+            <div class="flow-row" style="margin-top:12px">
+                <div class="flow-box" style="background:#1565c0;color:#fff">消息中台<br><small>(EMQX Broker 集群)</small></div>
+                <div class="flow-box" style="background:#7b1fa2;color:#fff">视频中台</div>
+                <div class="flow-box" style="background:#555;color:#fff">远程桌面服务</div>
+            </div>
+        </div>
+        <div class="flow-row">
+            <span style="font-size:12px;color:#1565c0;font-weight:600">MQTT ↕</span>
+            <span style="margin-left:60px;font-size:12px;color:#7b1fa2;font-weight:600">TCP/IP ↕</span>
+            <span style="margin-left:60px;font-size:12px;color:#555;font-weight:600">Rustdesk ↕</span>
+        </div>
+        <div style="background:#fff3e0;border-radius:8px;padding:16px;margin:8px 0;border:2px solid #e65100">
+            <p style="font-size:12px;color:#e65100;font-weight:700;margin-bottom:8px">YMS-Box 工控机（边缘设备）</p>
+            <div class="flow-row">
+                <div class="flow-box" style="background:#fff;color:#333;border:1px solid #ccc;font-size:11px">显示程序 (H5)</div>
+                <div class="flow-box" style="background:#fff;color:#333;border:1px solid #ccc;font-size:11px">Msg Client</div>
+                <div class="flow-box" style="background:#fff;color:#333;border:1px solid #ccc;font-size:11px">Video Client</div>
+                <div class="flow-box" style="background:#fff;color:#333;border:1px solid #ccc;font-size:11px">Cmd Control</div>
+                <div class="flow-box" style="background:#fff;color:#333;border:1px solid #ccc;font-size:11px">Local Service</div>
+                <div class="flow-box" style="background:#fff;color:#333;border:1px solid #ccc;font-size:11px">Rustdesk</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="two-col" style="margin-top:16px">
+        <div class="card card-blue">
+            <h3>🔧 技术方案要点</h3>
+            <ul>
+                <li><strong>MQTT 指令交互：</strong>YMS 服务端通过 EMQX Broker 与边缘工控机双向通信，下发开启视频流等指令</li>
+                <li><strong>设备状态监控：</strong>EMQX 实时获取工控机在线/离线状态，离线自动告警触发现场排查</li>
+                <li><strong>TCP/IP 视频流：</strong>摄像头实时视频采用 TCP/IP 双向通信，边缘设备为客户端，云端为服务端，无需申请域名和固定IP</li>
+                <li><strong>手机端验证：</strong>支持手机APP查看摄像头监控视频，确认设备部署就绪</li>
+            </ul>
+        </div>
+        <div class="card card-orange">
+            <h3>📋 实施组成</h3>
+            <ul>
+                <li><strong>硬件（外采）：</strong>工控机、摄像头、道闸设备、显示屏</li>
+                <li><strong>软件（自研）：</strong>YMS-Box 客户端（Msg/Video/Cmd/Local Service）、消息中台、视频中台</li>
+                <li><strong>工控激活流程：</strong>厂家申请硬串号 → YMS 生成待激活硬串号 → 打印贴码 → 实施端 App 扫码绑定激活</li>
+                <li><strong>通信安全：</strong>设备握手携带软串号+硬串号验证 → Topic 级别消息隔离与授权</li>
+            </ul>
+        </div>
+    </div>
+    <span class="page-num">6 / 8</span>
+</div>
+
+<!-- Slide 6.5: YMS-Box AI-PM 职责 -->
+<div class="slide">
+    <div class="slide-header">
+        <h1>YMS-Box 实施 — AI-PM 核心职责</h1>
+        <div class="subtitle">上线实施全流程参与 · AI 工具赋能现场部署与远程协调</div>
+    </div>
+
+    <table>
+        <tr>
+            <th style="width:140px">实施阶段</th>
+            <th>AI-PM 职责</th>
+            <th style="width:250px">AI 赋能方式</th>
+        </tr>
+        <tr>
+            <td><strong>方案评审</strong></td>
+            <td>参与 MQTT/TCP/IP 架构方案评审，确认通信安全方案（设备握手、Topic 授权）满足业务需求</td>
+            <td>AI 辅助分析方案文档，快速理解 IoT 架构</td>
+        </tr>
+        <tr>
+            <td><strong>硬件采购协调</strong></td>
+            <td>对接工控机/摄像头厂家，确认设备规格与硬串号管理流程；跟踪采购进度与到货时间</td>
+            <td>AI-PM 平台跟踪采购节点</td>
+        </tr>
+        <tr>
+            <td><strong>现场勘察</strong></td>
+            <td>实地勘察各仓库道闸位置、网络环境、电力条件，输出设备安装点位方案</td>
+            <td>AI 辅助生成点位规划文档与设备清单</td>
+        </tr>
+        <tr>
+            <td><strong>设备激活测试</strong></td>
+            <td>主导工控激活签发流程测试：硬串号申请 → 二维码打印 → App 扫码绑定 → 软硬串号激活验证</td>
+            <td>AI 辅助生成激活测试用例矩阵</td>
+        </tr>
+        <tr>
+            <td><strong>通信联调</strong></td>
+            <td>验证 MQTT 连接稳定性、工控机离线告警触发、视频流 TCP/IP 传输质量；验证视频异常中断重连方案</td>
+            <td>AI-PM 平台自动跟踪联调进度，异常自动推送</td>
+        </tr>
+        <tr>
+            <td><strong>上线部署</strong></td>
+            <td>协调各仓库分批部署计划；现场验收设备安装与网络连通性；手机端确认摄像头监控画面</td>
+            <td>AI 辅助生成部署 Checklist 与验收标准</td>
+        </tr>
+        <tr>
+            <td><strong>上线后跟踪</strong></td>
+            <td>监控设备在线率，跟踪司机自动化 Check-in 成功率；收集现场反馈推动优化</td>
+            <td>AI 自动计算 Check-in 成功率 & 人力节省数据</td>
+        </tr>
+    </table>
+
+    <div class="two-col" style="margin-top:20px">
+        <div class="card card-green">
+            <h3>📊 预期收益</h3>
+            <ul>
+                <li><strong>人力节省：</strong>取消道闸人工登记岗位，每个仓库减少 1-2 名现场人员</li>
+                <li><strong>效率提升：</strong>司机 Check-in 从人工 3-5 分钟 → 自动化 30 秒内</li>
+                <li><strong>运维成本降低：</strong>解决域名爆炸问题，无需为每台设备申请域名/固定IP</li>
+                <li><strong>远程监控：</strong>支持远程查看设备状态和实时视频，减少现场排查频次</li>
+            </ul>
+        </div>
+        <div class="card card-purple">
+            <h3>⚠️ 风险与关注点</h3>
+            <ul>
+                <li><strong>网络稳定性：</strong>仓库现场网络环境复杂，需提前验证 MQTT/TCP 连通性</li>
+                <li><strong>设备兼容性：</strong>不同厂家工控机需确保 YMS-Box 软件兼容</li>
+                <li><strong>离线处理：</strong>工控机断网/断电后的自动恢复与数据补传机制</li>
+                <li><strong>多站点部署：</strong>需制定分批上线计划，避免同时部署导致支持资源不足</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="highlight-box" style="margin-top:16px">
+        <strong>💡 AI-PM 核心价值：</strong>作为技术型交付 PM，不仅协调硬件采购和现场部署，还能深入理解 MQTT/TCP/IP 架构方案，主导通信联调测试，用 AI 工具快速生成部署文档和测试用例，确保 YMS-Box 从开发到上线全流程无阻塞。<br>
+        <strong style="color:#c2185b">🎯 FDE 终极目标：</strong>直接对接各站点仓库经理，独立完成 IoT 设备选型→部署→调试→验收全流程交付，每个仓库减少 1-2 名人力。
+    </div>
+    <span class="page-num">8 / 9</span>
+</div>
+
+<!-- Slide 7: 核心行动项与 AI-PM 部署职责 -->
+<div class="slide">
+    <div class="slide-header">
+        <h1>核心行动项 — AI-PM 转型后的项目职责</h1>
+        <div class="subtitle">终极目标：成为 FDE（Field Delivery Engineer）· 直接对接客户 · 交付产品</div>
+    </div>
+
+    <div class="highlight-box" style="background:linear-gradient(135deg, #fce4ec, #f3e5f5);border-left-color:#c2185b;margin-bottom:20px">
+        <strong style="color:#c2185b;font-size:16px">🎯 终极目标：成为 FDE — 直接对接客户，交付产品</strong><br>
+        转型核心不是"从 PM 变成更好的 PM"，而是<strong>从对内管理者变为对外交付者</strong>。直接面对客户，理解业务，输出方案，交付可运行的系统。AI 工具让这一切成为可能——1 个人 + AI 可以完成过去需要整个团队才能完成的交付工作。
+    </div>
+
+    <table style="margin-top:8px">
+        <tr>
+            <th style="width:90px">项目</th>
+            <th>当前职责</th>
+            <th style="width:280px">FDE 终极目标（直接对客户交付）</th>
+        </tr>
+        <tr>
+            <td><span class="badge badge-ai">Glory</span></td>
+            <td>主导异构系统接口联调测试，跟进 UPC 映射、双单位换算及短装异常场景</td>
+            <td><strong>直接对接河南/泰国工厂客户</strong>，独立完成 OMS 路由配置验证、异常场景解决方案输出，现场交付系统上线</td>
+        </tr>
+        <tr>
+            <td><span class="badge badge-ai">APS</span></td>
+            <td>推动业务与产研对齐数据模型，协助上线试运行，Gap 分析</td>
+            <td><strong>直接对接美国仓库 Operations 团队</strong>，独立完成排班规则配置、产能数据校准、现场排班系统验收交付</td>
+        </tr>
+        <tr>
+            <td><span class="badge badge-ai">YMS</span></td>
+            <td>实地勘察月台环境，主导 WMS↔YMS 交接节点测试</td>
+            <td><strong>直接对接仓库现场团队</strong>，独立完成月台调度方案落地、设备部署验收、系统上线交付</td>
+        </tr>
+        <tr>
+            <td><span class="badge badge-new">YMS-Box</span></td>
+            <td>协调硬件采购与部署，主导通信联调，确保自动化 Check-in 上线</td>
+            <td><strong>直接对接各站点仓库经理</strong>，独立完成 IoT 设备选型→部署→调试→验收全流程交付</td>
+        </tr>
+        <tr>
+            <td><span class="badge badge-ai">IAM/Marketplace</span></td>
+            <td>梳理 Marketplace↔BNP↔IAM 交互流程，跟进账号体系迁移</td>
+            <td><strong>直接对接 Reseller 客户</strong>，独立完成账号体系集成方案交付，处理客户接入问题</td>
+        </tr>
+    </table>
+
+    <div class="section-title">FDE 核心能力模型</div>
+    <div style="display:flex;gap:12px;flex-wrap:wrap">
+        <div style="flex:1;min-width:200px;background:#e8eaf6;border-radius:8px;padding:14px;text-align:center;border:2px solid #1a237e">
+            <div style="font-size:24px">🤝</div>
+            <strong style="color:#1a237e;font-size:13px">直接对接客户</strong>
+            <p style="font-size:11px;color:#555;margin-top:4px">理解客户业务场景与痛点<br>无需开发团队翻译需求</p>
+        </div>
+        <div style="flex:1;min-width:200px;background:#e0f7fa;border-radius:8px;padding:14px;text-align:center;border:2px solid #00695c">
+            <div style="font-size:24px">🛠️</div>
+            <strong style="color:#00695c;font-size:13px">独立交付产品</strong>
+            <p style="font-size:11px;color:#555;margin-top:4px">简单/中等需求自主实现<br>AI + Kiro 快速搭建可运行系统</p>
+        </div>
+        <div style="flex:1;min-width:200px;background:#fff3e0;border-radius:8px;padding:14px;text-align:center;border:2px solid #e65100">
+            <div style="font-size:24px">🏭</div>
+            <strong style="color:#e65100;font-size:13px">现场实施落地</strong>
+            <p style="font-size:11px;color:#555;margin-top:4px">实地勘察 + 设备部署<br>系统联调 + 验收交付</p>
+        </div>
+        <div style="flex:1;min-width:200px;background:#e8f5e9;border-radius:8px;padding:14px;text-align:center;border:2px solid #2e7d32">
+            <div style="font-size:24px">📊</div>
+            <strong style="color:#2e7d32;font-size:13px">效果量化闭环</strong>
+            <p style="font-size:11px;color:#555;margin-top:4px">AI 自动计算交付效果<br>人力节省 / 效率提升数据</p>
+        </div>
+    </div>
+
+    <div class="highlight-box" style="margin-top:16px;text-align:center;background:linear-gradient(135deg,#e8eaf6,#e3f2fd);border-left:4px solid #1a237e;border-radius:0 8px 8px 0">
+        <strong style="color:#1a237e;font-size:15px">🚀 从 PM → FDE：不再是"管理者"，而是"交付者"</strong><br>
+        <span style="color:#333;font-size:13px">直接对接客户 · 直接理解业务 · 直接交付产品 · AI 工具是我的"开发团队"</span>
+    </div>
+    <span class="page-num">9 / 9</span>
+</div>
+
+</body>
+</html>

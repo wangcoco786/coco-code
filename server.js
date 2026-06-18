@@ -178,6 +178,18 @@ app.post('/api/wecom/send', async (req, res) => {
 })
 
 // ============================================================
+// 手动触发每日推送（测试用）POST /api/daily-push
+// ============================================================
+app.post('/api/daily-push', async (_req, res) => {
+  try {
+    await sendDailyStaleAlert()
+    res.status(200).json({ message: '每日推送已触发' })
+  } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
+})
+
+// ============================================================
 // 前端静态文件 + SPA fallback
 // ============================================================
 const distPath = path.join(__dirname, 'dist')
@@ -194,6 +206,118 @@ app.use(express.static(distPath, {
 app.use((_req, res) => {
   res.sendFile(path.join(distPath, 'index.html'))
 })
+
+// ============================================================
+// 每日定时推送：2天无更新的 ticket 报警推送到企微群
+// ============================================================
+const DAILY_PUSH_HOUR = parseInt(process.env.DAILY_PUSH_HOUR || '9', 10) // 默认早上9点
+const DAILY_PUSH_PROJECTS = (process.env.DAILY_PUSH_PROJECTS || 'RP').split(',').map(s => s.trim())
+const STALE_THRESHOLD_HOURS = 48 // 2天
+
+async function fetchStaleIssuesForProject(projectKey) {
+  const { JIRA_BASE_URL, JIRA_USERNAME, JIRA_PASSWORD, JIRA_PAT } = process.env
+  if (!JIRA_BASE_URL || (!JIRA_USERNAME && !JIRA_PAT)) return []
+
+  const authHeader = JIRA_USERNAME
+    ? `Basic ${Buffer.from(`${JIRA_USERNAME}:${JIRA_PASSWORD ?? ''}`).toString('base64')}`
+    : `Bearer ${JIRA_PAT}`
+
+  const jql = `project = ${projectKey} AND sprint in openSprints() AND status != Done AND updated <= -2d ORDER BY updated ASC`
+  const url = `${JIRA_BASE_URL.replace(/\/$/, '')}/rest/api/2/search?jql=${encodeURIComponent(jql)}&fields=summary,assignee,updated,status&maxResults=100`
+
+  try {
+    const res = await fetch(url, {
+      method: 'GET',
+      headers: { Authorization: authHeader, 'Content-Type': 'application/json', Accept: 'application/json' },
+    })
+    if (!res.ok) {
+      console.error(`[定时推送] Jira查询失败: ${res.status}`)
+      return []
+    }
+    const data = await res.json()
+    return (data.issues ?? []).map(issue => ({
+      key: issue.key,
+      summary: issue.fields?.summary ?? '',
+      assignee: issue.fields?.assignee?.displayName ?? '未分配',
+      updatedAt: issue.fields?.updated ?? '',
+      status: issue.fields?.status?.name ?? '',
+    }))
+  } catch (err) {
+    console.error(`[定时推送] 查询出错:`, err.message)
+    return []
+  }
+}
+
+async function sendDailyStaleAlert() {
+  const { WECOM_WEBHOOK_URL } = process.env
+  if (!WECOM_WEBHOOK_URL) {
+    console.warn('[定时推送] WECOM_WEBHOOK_URL 未配置，跳过')
+    return
+  }
+
+  for (const projectKey of DAILY_PUSH_PROJECTS) {
+    const staleIssues = await fetchStaleIssuesForProject(projectKey)
+    if (staleIssues.length === 0) {
+      console.log(`[定时推送] ${projectKey}: 无超期未更新任务`)
+      continue
+    }
+
+    const now = new Date()
+    const lines = [
+      `## 🚨 AI-PM · ${projectKey} 项目停滞预警`,
+      '',
+      `> ${now.toLocaleDateString('zh-CN')} 定时巡检 · 以下 **${staleIssues.length}** 个任务超过2天无更新：`,
+      '',
+    ]
+
+    for (const issue of staleIssues.slice(0, 15)) {
+      const daysSinceUpdate = Math.floor((Date.now() - new Date(issue.updatedAt).getTime()) / (1000 * 60 * 60 * 24))
+      lines.push(`> 🔴 **${issue.key}** ${issue.summary}`)
+      lines.push(`> 负责人: ${issue.assignee} · 已 ${daysSinceUpdate} 天无更新 · 状态: ${issue.status}`)
+      lines.push('')
+    }
+
+    if (staleIssues.length > 15) {
+      lines.push(`> ... 还有 ${staleIssues.length - 15} 个任务未列出`)
+      lines.push('')
+    }
+
+    lines.push('---')
+    lines.push('> 请相关负责人及时更新任务状态或评论说明进展')
+
+    const message = { msgtype: 'markdown', markdown: { content: lines.join('\n') } }
+
+    try {
+      const res = await fetch(WECOM_WEBHOOK_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(message),
+      })
+      const result = await res.json()
+      if (result.errcode === 0) {
+        console.log(`[定时推送] ${projectKey}: 成功推送 ${staleIssues.length} 条预警`)
+      } else {
+        console.error(`[定时推送] ${projectKey}: 企微推送失败`, result.errmsg)
+      }
+    } catch (err) {
+      console.error(`[定时推送] ${projectKey}: 发送失败`, err.message)
+    }
+  }
+}
+
+// 每小时检查一次，到设定的小时则执行推送（防止服务器重启错过）
+let lastPushDate = ''
+setInterval(() => {
+  const now = new Date()
+  const todayStr = now.toISOString().slice(0, 10)
+  const hour = now.getHours()
+
+  if (hour === DAILY_PUSH_HOUR && lastPushDate !== todayStr) {
+    lastPushDate = todayStr
+    console.log(`[定时推送] ${todayStr} ${hour}:00 触发每日推送...`)
+    sendDailyStaleAlert()
+  }
+}, 60 * 1000) // 每分钟检查一次
 
 // ============================================================
 // 启动

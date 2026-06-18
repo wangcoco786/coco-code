@@ -8,6 +8,7 @@ const RISK_RULES = {
   UNASSIGNED_THRESHOLD_HOURS: 24, // 未分配超过 24 小时 → 高危
   OVERTIME_THRESHOLD_RATIO: 1.5, // 实际工时超出预估 50% → 中危
   SCOPE_CREEP_THRESHOLD: 0.1, // 蔓延率超过 10% → 中危
+  STALE_THRESHOLD_HOURS: 48, // 超过 48 小时（2天）无更新 → 高危
 }
 
 // 生成唯一风险 ID
@@ -100,6 +101,31 @@ export function detectScopeCreepRisk(
 }
 
 // ============================================================
+// 规则 4：超过2天无更新（高危）
+// ============================================================
+export function detectStaleRisk(issue: PlatformIssue): Risk | null {
+  // 已完成或待办的不检测
+  if (issue.status === 'done' || issue.status === 'todo') return null
+
+  const lastUpdate = issue.updatedAt ?? issue.createdAt
+  const hours = hoursSince(lastUpdate)
+  if (hours < RISK_RULES.STALE_THRESHOLD_HOURS) return null
+
+  const days = Math.floor(hours / 24)
+
+  return {
+    id: generateRiskId('stale', issue.id),
+    level: 'high',
+    type: 'stale',
+    description: `${issue.id} ${issue.title} 已 ${days} 天无更新`,
+    relatedIssueId: issue.id,
+    assignee: issue.assignee?.name,
+    status: 'open',
+    detectedAt: new Date().toISOString(),
+  }
+}
+
+// ============================================================
 // 风险排序：high → medium → low
 // ============================================================
 const RISK_LEVEL_ORDER: Record<RiskLevel, number> = {
@@ -129,6 +155,9 @@ export function analyzeRisks(
 
     const overtime = detectOvertimeRisk(issue)
     if (overtime) risks.push(overtime)
+
+    const stale = detectStaleRisk(issue)
+    if (stale) risks.push(stale)
   }
 
   // 蔓延率检测

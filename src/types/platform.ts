@@ -63,6 +63,7 @@ export type RiskType =
   | 'overtime' // 超预估工时
   | 'scope_creep' // 范围蔓延
   | 'dependency_block' // 依赖阻塞
+  | 'stale' // 超过2天无更新
 
 // 风险状态
 export type RiskStatus = 'open' | 'notified' | 'resolved'

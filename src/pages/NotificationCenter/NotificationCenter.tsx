@@ -1,6 +1,7 @@
 import { useState, useMemo, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useNotifications } from '@/context/NotificationContext'
+import { useApp } from '@/context/AppContext'
 import { useI18n } from '@/context/I18nContext'
 import { filterNotifications } from '@/lib/notificationEngine'
 import type { NotificationType, PlatformNotification } from '@/types/platform'
@@ -22,12 +23,23 @@ function getNotificationIcon(type: NotificationType): string {
 export default function NotificationCenter() {
   const navigate = useNavigate()
   const { t } = useI18n()
+  const { currentProjectKey } = useApp()
   const {
     notifications,
     markAsRead,
     markAllAsRead,
     deleteNotifications,
   } = useNotifications()
+
+  // 只显示当前项目的通知（没有projectKey的通知是全局通知，始终显示）
+  const projectNotifications = useMemo(
+    () => notifications.filter(n => {
+      const pk = n.metadata?.projectKey as string | undefined
+      if (!pk) return true // 全局通知始终显示
+      return pk === currentProjectKey
+    }),
+    [notifications, currentProjectKey]
+  )
 
   const TABS: { key: FilterCategory; label: string }[] = [
     { key: 'all', label: t('notification.all') },
@@ -55,8 +67,8 @@ export default function NotificationCenter() {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
 
   const filteredNotifications = useMemo(
-    () => filterNotifications(notifications, activeTab),
-    [notifications, activeTab]
+    () => filterNotifications(projectNotifications, activeTab),
+    [projectNotifications, activeTab]
   )
 
   const toggleSelect = useCallback((id: string) => {

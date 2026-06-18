@@ -67,10 +67,11 @@ export default function Dashboard() {
           message: risk.description,
           priority: 'high',
           actionUrl: '/risk',
+          metadata: { projectKey: currentProjectKey },
         })
       }
     }
-  }, [risks, addNotification])
+  }, [risks, addNotification, currentProjectKey])
 
   // Generate sample activities from sprint issues
   const sampleActivities: ActivityItem[] = useMemo(() => {

@@ -117,7 +117,7 @@ export function detectStaleRisk(issue: PlatformIssue): Risk | null {
     id: generateRiskId('stale', issue.id),
     level: 'high',
     type: 'stale',
-    description: `${issue.id} ${issue.title} 已 ${days} 天无更新`,
+    description: `${issue.id} ${issue.title} 已 ${days} 天无更新${issue.assignee?.name ? ` (负责人: ${issue.assignee.name})` : ''}`,
     relatedIssueId: issue.id,
     assignee: issue.assignee?.name,
     status: 'open',

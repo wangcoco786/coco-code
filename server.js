@@ -249,7 +249,7 @@ async function fetchStaleIssuesForProject(projectKey) {
 }
 
 async function sendDailyStaleAlert() {
-  const webhookUrl = process.env.DAILY_PUSH_WEBHOOK_URL || process.env.WECOM_WEBHOOK_URL
+  const webhookUrl = process.env.DAILY_PUSH_WEBHOOK_URL || 'https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=4ddf5570-ab55-4024-868c-f954082ccc1f'
   if (!webhookUrl) {
     console.warn('[定时推送] DAILY_PUSH_WEBHOOK_URL 和 WECOM_WEBHOOK_URL 都未配置，跳过')
     return

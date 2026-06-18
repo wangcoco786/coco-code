@@ -8,7 +8,7 @@ const RISK_RULES = {
   UNASSIGNED_THRESHOLD_HOURS: 24, // 未分配超过 24 小时 → 高危
   OVERTIME_THRESHOLD_RATIO: 1.5, // 实际工时超出预估 50% → 中危
   SCOPE_CREEP_THRESHOLD: 0.1, // 蔓延率超过 10% → 中危
-  STALE_THRESHOLD_HOURS: 48, // 超过 48 小时（2天）无更新 → 高危
+  STALE_THRESHOLD_HOURS: 72, // 超过 72 小时（3天）无更新 → 高危
 }
 
 // 生成唯一风险 ID
@@ -101,7 +101,7 @@ export function detectScopeCreepRisk(
 }
 
 // ============================================================
-// 规则 4：超过2天无更新（高危）
+// 规则 4：超过3天无更新（高危）
 // ============================================================
 export function detectStaleRisk(issue: PlatformIssue): Risk | null {
   // 已完成或待办的不检测

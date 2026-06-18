@@ -189,6 +189,16 @@ app.post('/api/daily-push', async (_req, res) => {
   }
 })
 
+// 预览推送内容（不实际发送）GET /api/daily-push/preview
+app.get('/api/daily-push/preview', async (_req, res) => {
+  try {
+    const result = await buildDailyStaleMessage()
+    res.status(200).json(result)
+  } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
+})
+
 // ============================================================
 // 前端静态文件 + SPA fallback
 // ============================================================
@@ -208,7 +218,7 @@ app.use((_req, res) => {
 })
 
 // ============================================================
-// 每日定时推送：2天无更新的 ticket 报警推送到企微群
+// 每日定时推送：3天无更新的 ticket 报警推送到企微群
 // ============================================================
 const DAILY_PUSH_HOUR = parseInt(process.env.DAILY_PUSH_HOUR || '9', 10) // 默认早上9点
 const DAILY_PUSH_PROJECTS = (process.env.DAILY_PUSH_PROJECTS || 'RP,TRF,APS').split(',').map(s => s.trim())
@@ -222,7 +232,7 @@ async function fetchStaleIssuesForProject(projectKey) {
     ? `Basic ${Buffer.from(`${JIRA_USERNAME}:${JIRA_PASSWORD ?? ''}`).toString('base64')}`
     : `Bearer ${JIRA_PAT}`
 
-  const jql = `project = ${projectKey} AND sprint in openSprints() AND status != Done AND updated <= -2d ORDER BY updated ASC`
+  const jql = `project = ${projectKey} AND sprint in openSprints() AND statusCategory != Done AND updated <= -3d ORDER BY updated ASC`
   const url = `${JIRA_BASE_URL.replace(/\/$/, '')}/rest/api/2/search?jql=${encodeURIComponent(jql)}&fields=summary,assignee,updated,status&maxResults=100`
 
   try {
@@ -248,13 +258,7 @@ async function fetchStaleIssuesForProject(projectKey) {
   }
 }
 
-async function sendDailyStaleAlert() {
-  const webhookUrl = process.env.DAILY_PUSH_WEBHOOK_URL || 'https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=4ddf5570-ab55-4024-868c-f954082ccc1f'
-  if (!webhookUrl) {
-    console.warn('[定时推送] DAILY_PUSH_WEBHOOK_URL 和 WECOM_WEBHOOK_URL 都未配置，跳过')
-    return
-  }
-
+async function buildDailyStaleMessage() {
   // 汇总所有项目的停滞 ticket
   const allStaleByProject = []
   let totalCount = 0
@@ -268,8 +272,7 @@ async function sendDailyStaleAlert() {
   }
 
   if (totalCount === 0) {
-    console.log(`[定时推送] 所有项目无超期未更新任务`)
-    return
+    return { totalCount: 0, message: null, text: '所有项目无超期未更新任务' }
   }
 
   // 构建汇总消息
@@ -277,7 +280,7 @@ async function sendDailyStaleAlert() {
   const lines = [
     `## 🚨 AI-PM · 每日停滞预警`,
     '',
-    `> ${now.toLocaleDateString('zh-CN')} 09:00 定时巡检 · 共 **${totalCount}** 个任务超过2天无更新`,
+    `> ${now.toLocaleDateString('zh-CN')} 09:00 定时巡检 · 共 **${totalCount}** 个任务超过3天无更新`,
     '',
   ]
 
@@ -300,6 +303,17 @@ async function sendDailyStaleAlert() {
   lines.push('> 请相关负责人及时更新任务状态或评论说明进展')
 
   const message = { msgtype: 'markdown', markdown: { content: lines.join('\n') } }
+  return { totalCount, message, text: lines.join('\n') }
+}
+
+async function sendDailyStaleAlert() {
+  const webhookUrl = process.env.DAILY_PUSH_WEBHOOK_URL || 'https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=4ddf5570-ab55-4024-868c-f954082ccc1f'
+
+  const { totalCount, message } = await buildDailyStaleMessage()
+  if (totalCount === 0 || !message) {
+    console.log(`[定时推送] 所有项目无超期未更新任务`)
+    return
+  }
 
   try {
     const res = await fetch(webhookUrl, {

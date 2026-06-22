@@ -531,9 +531,18 @@ export function usePerformanceData(projectKey: string | null): UsePerformanceDat
       const result = calculateDepartmentPerformance(mergedIssues, sprintDates, undefined, knownDevIds)
 
       // 过滤结果：只保留「归属当前项目」的成员
-      // 归属逻辑：该成员在哪个项目的 ticket 数最多，就归属哪个项目
+      // 归属逻辑：该成员必须在当前项目有ticket，且当前项目是其ticket数最多的项目
       if (result && allCrossProjectIssues.length > 0 && projectKey) {
+        // 当前项目中每个成员的 ticket 数（原始的，不含跨项目的）
+        const membersInCurrentProject = new Set<string>()
+        for (const issue of filteredIssues) {
+          if (issue.assignee?.name) membersInCurrentProject.add(issue.assignee.name)
+        }
+
         result.members = result.members.filter(member => {
+          // 硬性条件：必须在当前项目有 ticket
+          if (!membersInCurrentProject.has(member.memberName)) return false
+
           // 统计该成员在各项目的 ticket 数
           const allMemberIssues = mergedIssues.filter(i =>
             i.assignee?.name === member.memberName ||

@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueries } from '@tanstack/react-query'
 import { authFetch } from '@/lib/authFetch'
 import { mapJiraStatus, mapJiraPriority, formatDisplayName } from '@/lib/statusMapper'
 import { calculateDepartmentPerformance } from '@/lib/performanceEngine'
@@ -7,6 +7,11 @@ import { getExcludedUsers } from '@/lib/excludedUsers'
 import type { PerformanceIssue, StatusTransition, IssueComment, DepartmentPerformance } from '@/lib/performanceEngine'
 import type { JiraSprint } from '@/types/jira'
 import { useActiveSprintByProject } from '@/hooks/useProjectIssues'
+
+// ============================================================
+// 跨项目互查列表：这些项目的成员绩效会合并计算
+// ============================================================
+const CROSS_PROJECT_KEYS = ['DTS', 'RP', 'TRF', 'APS', 'PLATFORM', 'CRMC', 'CRM', 'VRM', 'OW', 'WFE', 'SAIL', 'BP', 'RE']
 
 // ============================================================
 // Jira 扩展字段列表（绩效计算所需）
@@ -425,15 +430,55 @@ export function usePerformanceData(projectKey: string | null): UsePerformanceDat
     },
   })
 
-  // 使用 useMemo 在所有数据就绪后计算绩效（确保 knownDeveloperIds 被正确使用）
+  // 跨项目数据：加载互查列表中其他项目的 issues（用于合并同一成员的 ticket）
+  const otherProjectKeys = useMemo(() => {
+    if (!projectKey || !CROSS_PROJECT_KEYS.includes(projectKey)) return []
+    return CROSS_PROJECT_KEYS.filter(k => k !== projectKey)
+  }, [projectKey])
+
+  const crossProjectQueries = useQueries({
+    queries: otherProjectKeys.map(pk => ({
+      queryKey: ['performance-issues', pk],
+      queryFn: async () => {
+        const jql = `project = ${pk} AND sprint in openSprints() ORDER BY priority ASC, updated DESC`
+        const fieldsStr = PERFORMANCE_FIELDS.join(',')
+        const url = `rest/api/2/search?jql=${encodeURIComponent(jql)}&fields=${fieldsStr}&expand=changelog&maxResults=200`
+        const response = await authFetch(`/api/jira/${url}`, {
+          headers: { 'Content-Type': 'application/json' },
+        })
+        if (!response.ok) return { issues: [] }
+        return await response.json()
+      },
+      enabled: !!projectKey && CROSS_PROJECT_KEYS.includes(projectKey),
+      staleTime: 10 * 60 * 1000, // 10分钟缓存
+      retry: 1,
+    })),
+  })
+
+  const crossProjectIssuesLoading = crossProjectQueries.some(q => q.isLoading)
+
+  // 使用 useMemo 在所有数据就绪后计算绩效（含跨项目合并）
   const performanceData = useMemo(() => {
     if (!rawIssuesData) return null
-    // 等待 developer 数据加载完成
     if (!knownDeveloperIdList) return null
+    // 如果是互查项目，等跨项目数据加载完
+    if (CROSS_PROJECT_KEYS.includes(projectKey ?? '') && crossProjectIssuesLoading) return null
     try {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const issues: any[] = rawIssuesData?.issues ?? []
       const performanceIssues: PerformanceIssue[] = issues.map(transformToPerformanceIssue)
+
+      // 收集跨项目的所有 issues
+      const allCrossProjectIssues: PerformanceIssue[] = []
+      if (CROSS_PROJECT_KEYS.includes(projectKey ?? '')) {
+        for (const query of crossProjectQueries) {
+          if (query.data) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const otherIssues: any[] = query.data?.issues ?? []
+            allCrossProjectIssues.push(...otherIssues.map(transformToPerformanceIssue))
+          }
+        }
+      }
 
       const sprintDates = {
         startDate: sprint?.startDate ?? new Date().toISOString(),
@@ -442,27 +487,14 @@ export function usePerformanceData(projectKey: string | null): UsePerformanceDat
 
       if (performanceIssues.length === 0) return null
 
-      // 构建 developer ID Set（包含所有可能的 ID 格式）
+      // 构建 developer ID Set
       const knownDevIds = new Set(knownDeveloperIdList)
-
-      // 如果没有 developer 字段数据，将所有 assignee 视为 developer
       if (knownDevIds.size === 0) {
         for (const issue of performanceIssues) {
           if (issue.assignee?.id) knownDevIds.add(issue.assignee.id)
           if (issue.assignee?.name) knownDevIds.add(issue.assignee.name)
         }
       }
-
-      // DEBUG: 对比 developer IDs 和 assignee IDs
-      const assigneeIds = [...new Set(performanceIssues.map(i => i.assignee?.id).filter(Boolean))]
-      const assigneeNames = [...new Set(performanceIssues.map(i => i.assignee?.name).filter(Boolean))]
-      const intersection = assigneeIds.filter(id => knownDevIds.has(id!))
-      const nameIntersection = assigneeNames.filter(name => knownDevIds.has(name!))
-      console.log('[PerformanceData] DEBUG ALL assignee IDs:', assigneeIds)
-      console.log('[PerformanceData] DEBUG ALL assignee names:', assigneeNames)
-      console.log('[PerformanceData] DEBUG knownDevIds sample:', [...knownDevIds].slice(0, 20))
-      console.log('[PerformanceData] DEBUG ID intersection:', intersection.length, intersection)
-      console.log('[PerformanceData] DEBUG name intersection:', nameIntersection.length, nameIntersection)
 
       // 过滤掉已离职/排除的人员
       const excludedNames = getExcludedUsers()
@@ -472,9 +504,61 @@ export function usePerformanceData(projectKey: string | null): UsePerformanceDat
         return !excludedNames.has(assigneeName) && !excludedNames.has(devName)
       })
 
-      const result = calculateDepartmentPerformance(filteredIssues, sprintDates, undefined, knownDevIds)
+      // 跨项目合并：找出当前项目中的成员，把他们在其他项目的 ticket 也加进来
+      let mergedIssues = [...filteredIssues]
 
-      // 再次过滤结果中的成员（可能通过 reporter 等字段被发现）
+      if (allCrossProjectIssues.length > 0 && projectKey) {
+        // 当前项目的成员名单（以 assignee name 为 key）
+        const currentProjectMembers = new Set<string>()
+        for (const issue of filteredIssues) {
+          if (issue.assignee?.name) currentProjectMembers.add(issue.assignee.name)
+        }
+
+        // 把这些成员在其他项目中的 ticket 加进来
+        const crossIssuesForMembers = allCrossProjectIssues.filter(issue => {
+          const name = issue.assignee?.name ?? ''
+          const devName = issue.developerUser?.name ?? ''
+          return currentProjectMembers.has(name) || currentProjectMembers.has(devName)
+        }).filter(issue => {
+          const assigneeName = issue.assignee?.name?.toLowerCase() ?? ''
+          const devName = issue.developerUser?.name?.toLowerCase() ?? ''
+          return !excludedNames.has(assigneeName) && !excludedNames.has(devName)
+        })
+
+        mergedIssues = [...filteredIssues, ...crossIssuesForMembers]
+      }
+
+      const result = calculateDepartmentPerformance(mergedIssues, sprintDates, undefined, knownDevIds)
+
+      // 过滤结果：只保留「归属当前项目」的成员
+      // 归属逻辑：该成员在哪个项目的 ticket 数最多，就归属哪个项目
+      if (result && allCrossProjectIssues.length > 0 && projectKey) {
+        result.members = result.members.filter(member => {
+          // 统计该成员在各项目的 ticket 数
+          const allMemberIssues = mergedIssues.filter(i =>
+            i.assignee?.name === member.memberName ||
+            i.assignee?.id === member.memberId
+          )
+          const projectCounts: Record<string, number> = {}
+          for (const issue of allMemberIssues) {
+            const pk = issue.projectKey ?? 'UNKNOWN'
+            projectCounts[pk] = (projectCounts[pk] ?? 0) + 1
+          }
+          // 找 ticket 数量最多的项目
+          let maxProject = projectKey
+          let maxCount = 0
+          for (const [pk, count] of Object.entries(projectCounts)) {
+            if (count > maxCount) {
+              maxCount = count
+              maxProject = pk
+            }
+          }
+          // 只保留归属当前项目的成员
+          return maxProject === projectKey
+        })
+      }
+
+      // 再次过滤结果中的成员
       if (result) {
         result.members = result.members.filter(m => !excludedNames.has(m.memberName.toLowerCase()))
       }
@@ -484,11 +568,11 @@ export function usePerformanceData(projectKey: string | null): UsePerformanceDat
       console.error('[PerformanceEngine] calculation error:', e)
       return null
     }
-  }, [rawIssuesData, sprint, knownDeveloperIdList])
+  }, [rawIssuesData, sprint, knownDeveloperIdList, crossProjectQueries, crossProjectIssuesLoading, projectKey])
 
   return {
     data: performanceData,
-    isLoading: isSprintLoading || isDevLoading || isIssuesLoading,
+    isLoading: isSprintLoading || isDevLoading || isIssuesLoading || (CROSS_PROJECT_KEYS.includes(projectKey ?? '') && crossProjectIssuesLoading),
     error: issuesError as Error | null,
     sprint: sprint ?? null,
   }

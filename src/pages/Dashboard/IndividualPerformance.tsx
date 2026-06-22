@@ -371,7 +371,17 @@ function TaskListTable({ tasks }: { tasks: PerformanceIssue[] }) {
           })
           return (
             <tr key={task.id}>
-              <td style={{ color: 'var(--primary)', fontSize: 12, whiteSpace: 'nowrap' }}>{task.id}</td>
+              <td style={{ fontSize: 12, whiteSpace: 'nowrap' }}>
+                <a
+                  href={`${import.meta.env.VITE_JIRA_BASE_URL}/browse/${task.id}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ color: 'var(--primary)', textDecoration: 'none' }}
+                  onClick={e => e.stopPropagation()}
+                >
+                  {task.id}
+                </a>
+              </td>
               <td>{task.title}</td>
               <td>{getStatusLabel(task.status)}</td>
               <td>{getPriorityLabel(task.priority)}</td>

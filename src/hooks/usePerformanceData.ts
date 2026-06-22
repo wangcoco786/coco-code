@@ -4,6 +4,7 @@ import { authFetch } from '@/lib/authFetch'
 import { mapJiraStatus, mapJiraPriority, formatDisplayName } from '@/lib/statusMapper'
 import { calculateDepartmentPerformance } from '@/lib/performanceEngine'
 import { getExcludedUsers } from '@/lib/excludedUsers'
+import { resolveProjectKeys } from '@/lib/projectGroups'
 import type { PerformanceIssue, StatusTransition, IssueComment, DepartmentPerformance } from '@/lib/performanceEngine'
 import type { JiraSprint } from '@/types/jira'
 import { useActiveSprintByProject } from '@/hooks/useProjectIssues'
@@ -319,7 +320,11 @@ export function usePerformanceData(projectKey: string | null): UsePerformanceDat
       if (!projectKey) throw new Error('Project key is required')
 
       // 只搜索当前项目中 Developer 字段非空的 ticket（分页获取全部）
-      const jql = `project = ${projectKey} AND ("Developer(single)" is not EMPTY OR "Developer" is not EMPTY)`
+      const resolvedKeys = resolveProjectKeys(projectKey)
+      const projectClause = resolvedKeys.length === 1
+        ? `project = ${resolvedKeys[0]}`
+        : `project IN (${resolvedKeys.join(', ')})`
+      const jql = `${projectClause} AND ("Developer(single)" is not EMPTY OR "Developer" is not EMPTY)`
       const devIds = new Set<string>()
       let startAt = 0
       const pageSize = 200
@@ -392,7 +397,11 @@ export function usePerformanceData(projectKey: string | null): UsePerformanceDat
       if (!projectKey) throw new Error('Project key is required')
 
       // 使用 openSprints() 获取所有活跃 Sprint 的 issues
-      const jql = `project = ${projectKey} AND sprint in openSprints() ORDER BY priority ASC, updated DESC`
+      const resolvedKeys = resolveProjectKeys(projectKey)
+      const projectClause = resolvedKeys.length === 1
+        ? `project = ${resolvedKeys[0]}`
+        : `project IN (${resolvedKeys.join(', ')})`
+      const jql = `${projectClause} AND sprint in openSprints() ORDER BY priority ASC, updated DESC`
 
       const fieldsStr = PERFORMANCE_FIELDS.join(',')
       const url = `rest/api/2/search?jql=${encodeURIComponent(jql)}&fields=${fieldsStr}&expand=changelog&maxResults=200`

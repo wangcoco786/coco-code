@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useApp } from '@/context/AppContext'
 import { useI18n } from '@/context/I18nContext'
 import { useJiraProjects } from '@/hooks/useJiraBoard'
+import { PROJECT_GROUPS } from '@/lib/projectGroups'
 import { LOCALES } from '@/i18n'
 import GlobalSearch from '@/components/GlobalSearch/GlobalSearch'
 import { getRefreshToken, clearTokens } from '@/lib/tokenManager'
@@ -58,6 +59,7 @@ export default function Topbar({ onMenuToggle }: { onMenuToggle?: () => void }) 
           value={currentProjectKey}
           onChange={setCurrentProjectKey}
           placeholder={isLoading ? t('common.loading') : t('common.selectProject')}
+          projectGroups={PROJECT_GROUPS}
         />
       </div>
 
@@ -149,9 +151,10 @@ interface ProjectSearchSelectProps {
   value: string | null
   onChange: (key: string | null) => void
   placeholder: string
+  projectGroups?: { key: string; name: string; projects: string[] }[]
 }
 
-function ProjectSearchSelect({ projects, isLoading, value, onChange, placeholder }: ProjectSearchSelectProps) {
+function ProjectSearchSelect({ projects, isLoading, value, onChange, placeholder, projectGroups = [] }: ProjectSearchSelectProps) {
   const [open, setOpen] = useState(false)
   const [search, setSearch] = useState('')
   const containerRef = useRef<HTMLDivElement>(null)
@@ -176,18 +179,35 @@ function ProjectSearchSelect({ projects, isLoading, value, onChange, placeholder
     }
   }, [open])
 
-  // 过滤项目
+  // 过滤项目（排除已被分组的项目，在列表顶部显示项目组）
   const filtered = useMemo(() => {
-    if (!search) return projects
+    const groupedProjectKeys = new Set(projectGroups.flatMap(g => g.projects))
+    const ungroupedProjects = projects.filter(p => !groupedProjectKeys.has(p.key))
+
+    if (!search) {
+      // 项目组 + 未分组的项目
+      const groupItems = projectGroups.map(g => ({ key: g.key, name: `${g.name} (${g.projects.join(', ')})`, isGroup: true }))
+      const projectItems = ungroupedProjects.map(p => ({ ...p, isGroup: false }))
+      return [...groupItems, ...projectItems]
+    }
     const kw = search.toLowerCase()
-    return projects.filter(p =>
-      p.key.toLowerCase().includes(kw) || p.name.toLowerCase().includes(kw)
-    )
-  }, [projects, search])
+    const groupItems = projectGroups
+      .filter(g => g.key.toLowerCase().includes(kw) || g.name.toLowerCase().includes(kw) || g.projects.some(p => p.toLowerCase().includes(kw)))
+      .map(g => ({ key: g.key, name: `${g.name} (${g.projects.join(', ')})`, isGroup: true }))
+    const projectItems = ungroupedProjects
+      .filter(p => p.key.toLowerCase().includes(kw) || p.name.toLowerCase().includes(kw))
+      .map(p => ({ ...p, isGroup: false }))
+    return [...groupItems, ...projectItems]
+  }, [projects, projectGroups, search])
 
   // 当前选中项目的显示文本
   const selectedProject = projects.find(p => p.key === value)
-  const displayText = selectedProject ? `[${selectedProject.key}] ${selectedProject.name}` : placeholder
+  const selectedGroup = projectGroups.find(g => g.key === value)
+  const displayText = selectedGroup
+    ? `[${selectedGroup.key}] ${selectedGroup.name}`
+    : selectedProject
+      ? `[${selectedProject.key}] ${selectedProject.name}`
+      : placeholder
 
   return (
     <div ref={containerRef} style={{ position: 'relative' }}>
@@ -263,11 +283,13 @@ function ProjectSearchSelect({ projects, isLoading, value, onChange, placeholder
                     cursor: 'pointer',
                     color: 'var(--text, #333)',
                     transition: 'background 0.15s',
+                    fontWeight: p.isGroup ? 700 : 400,
+                    borderBottom: p.isGroup ? '1px solid var(--border, #f0f0f0)' : 'none',
                   }}
                   onMouseEnter={(e) => { if (value !== p.key) e.currentTarget.style.background = 'var(--bg, #f8f9fa)' }}
                   onMouseLeave={(e) => { if (value !== p.key) e.currentTarget.style.background = 'none' }}
                 >
-                  <span style={{ fontWeight: 600, color: 'var(--primary, #667eea)' }}>[{p.key}]</span>{' '}
+                  <span style={{ fontWeight: 600, color: p.isGroup ? 'var(--success, #52c41a)' : 'var(--primary, #667eea)' }}>[{p.key}]</span>{' '}
                   {p.name}
                 </button>
               ))

@@ -8,9 +8,10 @@ import styles from './PerformanceView.module.css'
 
 // ─── Hardcoded department project keys ───
 const DEPARTMENT_KEYS = [
-  'AIAG', 'APS', 'BP', 'BI', 'CRMC', 'CRM', 'CYC', 'CSR',
-  'FMS', 'HRM', 'DTS', 'AIH', 'OW', 'PLATFORM', 'RE', 'RP',
-  'RMS', 'SAIL', 'TMS', 'TRF', 'VRM', 'WCS', 'WSP', 'WISE2018',
+  'IDC', 'EAG',
+  'AIAG', 'DTS', 'BI', 'CRM', 'CYC', 'CSR',
+  'FMS', 'HRM', 'AIH', 'PLATFORM',
+  'RMS', 'SAIL', 'TMS', 'VRM', 'WCS', 'WSP', 'WISE2018',
 ]
 
 /** Error Boundary */

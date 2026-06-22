@@ -2,11 +2,12 @@ import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { keepPreviousData } from '@tanstack/react-query'
 import { jiraClient } from '@/lib/jiraClient'
 import { mapJiraIssueToPlatform } from '@/lib/statusMapper'
+import { resolveProjectKeys, isProjectGroup } from '@/lib/projectGroups'
 import type { IssuePriority, IssueStatus, PlatformIssue } from '@/types/platform'
 import type { JiraSprint } from '@/types/jira'
 
 // ============================================================
-// 获取项目活跃 Sprint 的 Issue（支持指定 Sprint ID）
+// 获取项目活跃 Sprint 的 Issue（支持指定 Sprint ID，支持项目组）
 // ============================================================
 export function useActiveSprintIssuesByProject(
   projectKey: string | null,
@@ -16,16 +17,20 @@ export function useActiveSprintIssuesByProject(
   return useQuery({
     queryKey: ['issues', 'active-sprint', projectKey, sprintId ?? sprintName ?? 'all'],
     queryFn: () => {
-      // 优先用 sprint name 查询（更可靠），其次用 sprintId，最后 fallback 到 openSprints()
+      const keys = resolveProjectKeys(projectKey)
+      const projectClause = keys.length === 1
+        ? `project = ${keys[0]}`
+        : `project IN (${keys.join(', ')})`
+
       let jql: string
-      if (sprintName) {
-        jql = `project = ${projectKey!} AND sprint = "${sprintName}" ORDER BY priority ASC, updated DESC`
-      } else if (sprintId) {
-        jql = `project = ${projectKey!} AND sprint = ${sprintId} ORDER BY priority ASC, updated DESC`
+      if (sprintName && !isProjectGroup(projectKey)) {
+        jql = `${projectClause} AND sprint = "${sprintName}" ORDER BY priority ASC, updated DESC`
+      } else if (sprintId && !isProjectGroup(projectKey)) {
+        jql = `${projectClause} AND sprint = ${sprintId} ORDER BY priority ASC, updated DESC`
       } else {
-        jql = `project = ${projectKey!} AND sprint in openSprints() ORDER BY priority ASC, updated DESC`
+        jql = `${projectClause} AND sprint in openSprints() ORDER BY priority ASC, updated DESC`
       }
-      return jiraClient.getActiveSprintIssues(projectKey!, jql)
+      return jiraClient.getActiveSprintIssues(keys[0], jql)
     },
     enabled: !!projectKey,
     staleTime: 5 * 60 * 1000,
@@ -43,12 +48,23 @@ export function useActiveSprintIssuesByProject(
 }
 
 // ============================================================
-// 获取项目所有活跃 Sprint（支持多个并行 Sprint）
+// 获取项目所有活跃 Sprint（支持多个并行 Sprint，支持项目组）
 // ============================================================
 export function useActiveSprintsByProject(projectKey: string | null) {
   return useQuery({
     queryKey: ['sprints', 'active', projectKey],
-    queryFn: () => jiraClient.getActiveSprints(projectKey!),
+    queryFn: async () => {
+      const keys = resolveProjectKeys(projectKey)
+      // 对项目组，获取所有子项目的 sprint 合并
+      const allSprints: JiraSprint[] = []
+      for (const key of keys) {
+        try {
+          const sprints = await jiraClient.getActiveSprints(key)
+          allSprints.push(...(sprints as JiraSprint[]))
+        } catch { /* 忽略单个项目失败 */ }
+      }
+      return allSprints
+    },
     enabled: !!projectKey,
     staleTime: 5 * 60 * 1000,
     select: (data) => data as JiraSprint[],
@@ -81,8 +97,13 @@ export function useProjectIssues(
     queryFn: async () => {
       if (!projectKey) throw new Error('Project key is required')
 
+      const resolvedKeys = resolveProjectKeys(projectKey)
+      const projectClause = resolvedKeys.length === 1
+        ? `project = ${resolvedKeys[0]}`
+        : `project IN (${resolvedKeys.join(', ')})`
+
       const conditions: string[] = [
-        `project = ${projectKey}`,
+        projectClause,
         `updated >= -${daysBack}d`,
       ]
 

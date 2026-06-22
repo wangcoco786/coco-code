@@ -353,6 +353,121 @@ setInterval(() => {
 }, 60 * 1000) // 每分钟检查一次
 
 // ============================================================
+// Ach rate 变更监控：定时轮询 APS/RP/TRF，发现变化推送到企微群
+// ============================================================
+const ACH_RATE_PROJECTS = ['APS', 'RP', 'TRF']
+const ACH_RATE_FIELD = 'customfield_12616'
+const ACH_RATE_WEBHOOK = 'https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=f6bc8773-f9be-42e0-85ca-a8224398b70f'
+const ACH_RATE_POLL_INTERVAL = 5 * 60 * 1000 // 5分钟
+
+// 存储上次记录的 ach rate 值：{ "RP-123": "80%" }
+const achRateCache = new Map()
+
+async function fetchAchRatesForProject(projectKey) {
+  const { JIRA_BASE_URL, JIRA_USERNAME, JIRA_PASSWORD, JIRA_PAT } = process.env
+  if (!JIRA_BASE_URL || (!JIRA_USERNAME && !JIRA_PAT)) return []
+
+  const authHeader = JIRA_USERNAME
+    ? `Basic ${Buffer.from(`${JIRA_USERNAME}:${JIRA_PASSWORD ?? ''}`).toString('base64')}`
+    : `Bearer ${JIRA_PAT}`
+
+  const jql = `project = ${projectKey} AND sprint in openSprints() AND "${ACH_RATE_FIELD}" is not EMPTY ORDER BY updated DESC`
+  const url = `${JIRA_BASE_URL.replace(/\/$/, '')}/rest/api/2/search?jql=${encodeURIComponent(jql)}&fields=summary,assignee,${ACH_RATE_FIELD}&maxResults=200`
+
+  try {
+    const res = await fetch(url, {
+      method: 'GET',
+      headers: { Authorization: authHeader, 'Content-Type': 'application/json', Accept: 'application/json' },
+    })
+    if (!res.ok) {
+      console.error(`[Ach rate] ${projectKey} Jira查询失败: ${res.status}`)
+      return []
+    }
+    const data = await res.json()
+    return (data.issues ?? []).map(issue => ({
+      key: issue.key,
+      summary: issue.fields?.summary ?? '',
+      assignee: issue.fields?.assignee?.displayName ?? '未分配',
+      achRate: issue.fields?.[ACH_RATE_FIELD] ?? null,
+    }))
+  } catch (err) {
+    console.error(`[Ach rate] ${projectKey} 查询出错:`, err.message)
+    return []
+  }
+}
+
+async function checkAchRateChanges() {
+  const changes = []
+
+  for (const projectKey of ACH_RATE_PROJECTS) {
+    const issues = await fetchAchRatesForProject(projectKey)
+    for (const issue of issues) {
+      if (issue.achRate == null) continue
+      const achValue = String(issue.achRate)
+      const cacheKey = issue.key
+      const prevValue = achRateCache.get(cacheKey)
+
+      if (prevValue !== undefined && prevValue !== achValue) {
+        // 值发生了变化
+        changes.push({
+          key: issue.key,
+          summary: issue.summary,
+          assignee: issue.assignee,
+          projectKey,
+          oldValue: prevValue,
+          newValue: achValue,
+        })
+      }
+      achRateCache.set(cacheKey, achValue)
+    }
+  }
+
+  if (changes.length === 0) return
+
+  // 构建推送消息
+  const lines = [
+    `## 📊 Ach Rate 更新通知`,
+    '',
+    `> ${new Date(Date.now() + 8 * 3600000).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' })}`,
+    '',
+  ]
+
+  for (const c of changes) {
+    lines.push(`> **${c.key}** ${c.summary}`)
+    lines.push(`> 负责人: ${c.assignee} · Ach rate: ${c.oldValue} → **${c.newValue}**`)
+    lines.push('')
+  }
+
+  const message = { msgtype: 'markdown', markdown: { content: lines.join('\n') } }
+
+  try {
+    const res = await fetch(ACH_RATE_WEBHOOK, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(message),
+    })
+    const result = await res.json()
+    if (result.errcode === 0) {
+      console.log(`[Ach rate] 推送 ${changes.length} 条变更通知`)
+    } else {
+      console.error(`[Ach rate] 推送失败:`, result.errmsg)
+    }
+  } catch (err) {
+    console.error(`[Ach rate] 推送失败:`, err.message)
+  }
+}
+
+// 启动时先加载一次缓存（不推送），之后每30分钟检查变化
+fetchAchRatesForProject('APS').then(issues => issues.forEach(i => i.achRate != null && achRateCache.set(i.key, String(i.achRate))))
+fetchAchRatesForProject('RP').then(issues => issues.forEach(i => i.achRate != null && achRateCache.set(i.key, String(i.achRate))))
+fetchAchRatesForProject('TRF').then(issues => issues.forEach(i => i.achRate != null && achRateCache.set(i.key, String(i.achRate))))
+
+setTimeout(() => {
+  setInterval(checkAchRateChanges, ACH_RATE_POLL_INTERVAL)
+  console.log('[Ach rate] 监控已启动，每5分钟检查一次 APS/RP/TRF')
+}, 10000) // 启动10秒后开始轮询
+
+// ============================================================
 // 启动
 // ============================================================
 function getLocalIPs() {

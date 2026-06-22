@@ -354,6 +354,7 @@ function TaskListTable({ tasks }: { tasks: PerformanceIssue[] }) {
     <table className={styles.taskList}>
       <thead>
         <tr>
+          <th>编号</th>
           <th>任务</th>
           <th>状态</th>
           <th>优先级</th>
@@ -370,6 +371,7 @@ function TaskListTable({ tasks }: { tasks: PerformanceIssue[] }) {
           })
           return (
             <tr key={task.id}>
+              <td style={{ color: 'var(--primary)', fontSize: 12, whiteSpace: 'nowrap' }}>{task.id}</td>
               <td>{task.title}</td>
               <td>{getStatusLabel(task.status)}</td>
               <td>{getPriorityLabel(task.priority)}</td>

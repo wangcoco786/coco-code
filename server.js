@@ -332,20 +332,22 @@ async function sendDailyStaleAlert() {
   }
 }
 
-// 每分钟检查一次，工作日到设定的小时则执行推送
+// 每分钟检查一次，工作日到设定的小时则执行推送（北京时间）
 let lastPushDate = ''
 setInterval(() => {
+  // 使用北京时间 (UTC+8)
   const now = new Date()
-  const todayStr = now.toISOString().slice(0, 10)
-  const hour = now.getHours()
-  const dayOfWeek = now.getDay() // 0=周日, 6=周六
+  const beijingTime = new Date(now.getTime() + 8 * 60 * 60 * 1000)
+  const todayStr = beijingTime.toISOString().slice(0, 10)
+  const hour = beijingTime.getUTCHours()
+  const dayOfWeek = beijingTime.getUTCDay() // 0=周日, 6=周六
 
   // 只在工作日（周一到周五）推送
   if (dayOfWeek === 0 || dayOfWeek === 6) return
 
   if (hour === DAILY_PUSH_HOUR && lastPushDate !== todayStr) {
     lastPushDate = todayStr
-    console.log(`[定时推送] ${todayStr} ${hour}:00 触发每日推送...`)
+    console.log(`[定时推送] 北京时间 ${todayStr} ${hour}:00 触发每日推送...`)
     sendDailyStaleAlert()
   }
 }, 60 * 1000) // 每分钟检查一次

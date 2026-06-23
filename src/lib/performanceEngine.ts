@@ -597,7 +597,7 @@ export function calculateMemberPerformance(
   allIssues: PerformanceIssue[],
   sprint: { startDate: string; endDate: string },
   weights?: PerformanceWeights,
-  knownDeveloperIds?: Set<string>,
+  _knownDeveloperIds?: Set<string>,
   explicitMemberId?: string
 ): MemberPerformance {
   const w = weights ?? DEFAULT_WEIGHTS
@@ -609,12 +609,13 @@ export function calculateMemberPerformance(
   let avatarUrl: string | null
 
   if (explicitMemberId) {
-    // 使用显式传入的 memberId（用于纯 reporter 等场景）
+    // 使用显式传入的 memberId（用于纯 reporter/developer 等场景）
     memberId = explicitMemberId
-    // 从 issues 中找到这个人的名字
+    // 从 issues 中找到这个人的名字（优先 assignee → developerUser → reporter）
     const asAssignee = allIssues.find(i => i.assignee?.id === explicitMemberId)
+    const asDeveloper = allIssues.find(i => i.developerUser?.id === explicitMemberId)
     const asReporter = allIssues.find(i => i.reporter?.id === explicitMemberId)
-    memberName = asAssignee?.assignee?.name ?? asReporter?.reporter?.name ?? 'unknown'
+    memberName = asAssignee?.assignee?.name ?? asDeveloper?.developerUser?.name ?? asReporter?.reporter?.name ?? 'unknown'
     avatarUrl = asAssignee?.assignee?.avatarUrl ?? null
   } else {
     memberId = firstIssue?.assignee?.id ?? firstIssue?.reporter?.id ?? 'unknown'
@@ -660,18 +661,17 @@ export function calculateMemberPerformance(
     crossTeamTaskRatio: collaboration.crossTeamTaskRatio,
   }
 
-  // 计算成员角色（严格逻辑，优先级：Developer > QA > Reporter）
-  // 1. Developer：在项目 developer 字段出现过 → Developer（最高优先级）
-  // 2. QA：在当前 sprint ticket 的 QA 字段出现过，且不是 Developer → QA
-  // 3. Reporter：其他人 → Reporter
+  // 计算成员角色（严格逻辑，优先级：Developer > Reporter > Others）
+  // 1. Developer：在当前 Sprint issues 的 developerUser 字段中直接出现过 → Developer
+  // 2. Reporter：在当前 sprint ticket 的 reporter 字段出现过，且不是 Developer → Reporter
+  // 3. Others：其他人 → Others
   const roles: string[] = []
-  const isDeveloper = (knownDeveloperIds?.has(memberId)) ||
-    allIssues.some(i => i.developerUser?.id === memberId)
-  const isQA = allIssues.some(i => i.qaUser?.id === memberId)
+  const isDeveloper = allIssues.some(i => i.developerUser?.id === memberId || i.developerUser?.name === memberName)
+  const isReporter = allIssues.some(i => i.reporter?.id === memberId || i.reporter?.name === memberName)
 
   if (isDeveloper) roles.push('Developer')
-  else if (isQA) roles.push('QA')
-  else roles.push('Reporter')
+  else if (isReporter) roles.push('Reporter')
+  else roles.push('Others')
 
   return {
     memberId,
@@ -706,6 +706,16 @@ export function calculateDepartmentPerformance(
 ): DepartmentPerformance {
   // 按 assignee 分组 issues（绩效基于 assignee 的任务）
   const memberGroups = groupIssuesByAssignee(issues)
+
+  // 按 developerUser 分组 issues（Developer 字段中的人也参与绩效）
+  const developerGroups: Record<string, PerformanceIssue[]> = {}
+  for (const issue of issues) {
+    if (issue.developerUser?.id) {
+      const devId = issue.developerUser.id
+      if (!developerGroups[devId]) developerGroups[devId] = []
+      developerGroups[devId].push(issue)
+    }
+  }
 
   // 也按 reporter 分组（用于纯 reporter 的绩效计算）
   const reporterGroups: Record<string, PerformanceIssue[]> = {}
@@ -745,12 +755,26 @@ export function calculateDepartmentPerformance(
     return false
   })
 
-  // 收集纯 reporter（在 reporter 字段出现但不在 assignee 组中的人）
-  // 不在这里排除 developer/QA，让角色判定逻辑统一处理
+  // 收集纯 developer（在 developerUser 字段出现但不在 assignee 组中的人）
   const assigneeIdSet = new Set(memberIds)
+  const pureDeveloperIds: string[] = []
+  for (const issue of issues) {
+    if (issue.developerUser?.id && !assigneeIdSet.has(issue.developerUser.id)) {
+      const devId = issue.developerUser.id
+      if (!pureDeveloperIds.includes(devId)) {
+        pureDeveloperIds.push(devId)
+      }
+    }
+  }
+  if (pureDeveloperIds.length > 0) {
+    console.log('[PerfEngine] Pure developers (not in assignee):', pureDeveloperIds.length, 'IDs:', pureDeveloperIds.slice(0, 10))
+  }
+
+  // 收集纯 reporter（在 reporter 字段出现但不在 assignee 组和 developer 组中的人）
+  const devAndAssigneeIdSet = new Set([...memberIds, ...pureDeveloperIds])
   const pureReporterIds: string[] = []
   for (const issue of issues) {
-    if (issue.reporter?.id && !assigneeIdSet.has(issue.reporter.id)) {
+    if (issue.reporter?.id && !devAndAssigneeIdSet.has(issue.reporter.id)) {
       const rid = issue.reporter.id
       if (!pureReporterIds.includes(rid)) {
         pureReporterIds.push(rid)
@@ -759,7 +783,7 @@ export function calculateDepartmentPerformance(
   }
 
   // 合并所有成员 ID（去重）
-  const allMemberIdSet = new Set([...memberIds, ...pureReporterIds])
+  const allMemberIdSet = new Set([...memberIds, ...pureDeveloperIds, ...pureReporterIds])
   const allMemberIds = [...allMemberIdSet]
 
   // 若无成员，返回空结果
@@ -782,7 +806,8 @@ export function calculateDepartmentPerformance(
   const seenNames = new Set<string>()
   const members: MemberPerformance[] = []
   for (const mid of allMemberIds) {
-    const memberIssues = memberGroups[mid] ?? reporterGroups[mid] ?? []
+    // 优先用 assignee 分组的 issues，其次用 developer 字段分组，最后用 reporter 分组
+    const memberIssues = memberGroups[mid] ?? developerGroups[mid] ?? reporterGroups[mid] ?? []
     if (memberIssues.length === 0) continue
     const perf = calculateMemberPerformance(memberIssues, issues, sprint, weights, knownDeveloperIds, mid)
     // 按 memberName 去重

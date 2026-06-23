@@ -517,10 +517,11 @@ export function usePerformanceData(projectKey: string | null): UsePerformanceDat
       let mergedIssues = [...filteredIssues]
 
       if (allCrossProjectIssues.length > 0 && projectKey) {
-        // 当前项目的成员名单（以 assignee name 为 key）
+        // 当前项目的成员名单（以 assignee name 和 developerUser name 为 key）
         const currentProjectMembers = new Set<string>()
         for (const issue of filteredIssues) {
           if (issue.assignee?.name) currentProjectMembers.add(issue.assignee.name)
+          if (issue.developerUser?.name) currentProjectMembers.add(issue.developerUser.name)
         }
 
         // 把这些成员在其他项目中的 ticket 加进来
@@ -540,22 +541,25 @@ export function usePerformanceData(projectKey: string | null): UsePerformanceDat
       const result = calculateDepartmentPerformance(mergedIssues, sprintDates, undefined, knownDevIds)
 
       // 过滤结果：只保留「归属当前项目」的成员
-      // 归属逻辑：该成员必须在当前项目有ticket，且当前项目是其ticket数最多的项目
+      // 归属逻辑：该成员必须在当前项目有ticket（作为 assignee 或 developer），且当前项目是其ticket数最多的项目
       if (result && allCrossProjectIssues.length > 0 && projectKey) {
         // 当前项目中每个成员的 ticket 数（原始的，不含跨项目的）
         const membersInCurrentProject = new Set<string>()
         for (const issue of filteredIssues) {
           if (issue.assignee?.name) membersInCurrentProject.add(issue.assignee.name)
+          if (issue.developerUser?.name) membersInCurrentProject.add(issue.developerUser.name)
         }
 
         result.members = result.members.filter(member => {
-          // 硬性条件：必须在当前项目有 ticket
+          // 硬性条件：必须在当前项目有 ticket（作为 assignee 或 developer）
           if (!membersInCurrentProject.has(member.memberName)) return false
 
-          // 统计该成员在各项目的 ticket 数
+          // 统计该成员在各项目的 ticket 数（作为 assignee 或 developer）
           const allMemberIssues = mergedIssues.filter(i =>
             i.assignee?.name === member.memberName ||
-            i.assignee?.id === member.memberId
+            i.assignee?.id === member.memberId ||
+            i.developerUser?.name === member.memberName ||
+            i.developerUser?.id === member.memberId
           )
           const projectCounts: Record<string, number> = {}
           for (const issue of allMemberIssues) {

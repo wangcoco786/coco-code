@@ -80,26 +80,38 @@ export default function IndividualPerformance({ memberPerformances }: Individual
   const [sortKey, setSortKey] = useState<SortKey>('performanceScore')
   const [selectedMemberId, setSelectedMemberId] = useState<string | null>(null)
 
-  // 按角色分组
-  const { developers, reporters, qas } = useMemo(() => {
+  // 按角色分组（不重复：Developer > Reporter > Others）
+  const { developers, reporters, others } = useMemo(() => {
     const devs: MemberPerformance[] = []
     const reps: MemberPerformance[] = []
-    const qas: MemberPerformance[] = []
+    const othersList: MemberPerformance[] = []
+    const seen = new Set<string>()
 
     for (const member of memberPerformances) {
       const roles = member.roles ?? []
-      if (roles.includes('Developer')) devs.push(member)
-      if (roles.includes('Reporter')) reps.push(member)
-      if (roles.includes('QA')) qas.push(member)
-      // 如果没有明确角色，归入 Developer
-      if (roles.length === 0) {
+      if (roles.includes('Developer')) {
         devs.push(member)
+        seen.add(member.memberId)
       }
+    }
+
+    for (const member of memberPerformances) {
+      if (seen.has(member.memberId)) continue
+      const roles = member.roles ?? []
+      if (roles.includes('Reporter')) {
+        reps.push(member)
+        seen.add(member.memberId)
+      }
+    }
+
+    for (const member of memberPerformances) {
+      if (seen.has(member.memberId)) continue
+      othersList.push(member)
     }
 
     // 各组按选定维度排序
     const sort = (arr: MemberPerformance[]) => [...arr].sort((a, b) => b[sortKey] - a[sortKey])
-    return { developers: sort(devs), reporters: sort(reps), qas: sort(qas) }
+    return { developers: sort(devs), reporters: sort(reps), others: sort(othersList) }
   }, [memberPerformances, sortKey])
 
   // 如果选中了某人，显示该人的详情视图
@@ -158,11 +170,11 @@ export default function IndividualPerformance({ memberPerformances }: Individual
         />
       )}
 
-      {/* QA 组 */}
-      {qas.length > 0 && (
+      {/* Others 组 */}
+      {others.length > 0 && (
         <RoleSection
-          title="🧪 QA"
-          members={qas}
+          title="👥 Others"
+          members={others}
           onCardClick={setSelectedMemberId}
         />
       )}

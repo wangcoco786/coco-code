@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Agent 应用层学习总结 — Harness / Loop / Headless</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; line-height: 1.8; color: #1a1a1a; background: #f8f9fa; padding: 40px 20px; }
+.container { max-width: 900px; margin: 0 auto; background: #fff; border-radius: 12px; box-shadow: 0 2px 20px rgba(0,0,0,0.08); padding: 60px; }
+h1 { font-size: 28px; margin-bottom: 8px; color: #111; }
+.meta { color: #666; font-size: 14px; margin-bottom: 40px; border-bottom: 1px solid #eee; padding-bottom: 20px; }
+h2 { font-size: 22px; margin-top: 48px; margin-bottom: 16px; color: #1677ff; border-left: 4px solid #1677ff; padding-left: 12px; }
+h3 { font-size: 17px; margin-top: 28px; margin-bottom: 12px; color: #333; }
+p { margin-bottom: 12px; }
+.highlight { background: #f0f7ff; border-radius: 8px; padding: 16px 20px; margin: 20px 0; font-weight: 600; font-size: 15px; border-left: 4px solid #1677ff; }
+pre { background: #1e1e1e; color: #d4d4d4; border-radius: 8px; padding: 20px; overflow-x: auto; margin: 16px 0; font-size: 13px; line-height: 1.6; }
+table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px; }
+th { background: #f5f5f5; padding: 10px 12px; text-align: left; font-weight: 600; border-bottom: 2px solid #ddd; }
+td { padding: 10px 12px; border-bottom: 1px solid #eee; }
+tr:hover td { background: #fafafa; }
+.tag-yes { color: #52c41a; font-weight: 600; }
+.tag-no { color: #f5222d; font-weight: 600; }
+.section-arch { background: #f9f9f9; border-radius: 8px; padding: 24px; margin: 20px 0; }
+ul, ol { padding-left: 20px; margin-bottom: 12px; }
+li { margin-bottom: 6px; }
+strong { color: #111; }
+.conclusion { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; border-radius: 12px; padding: 28px; margin-top: 40px; }
+.conclusion h2 { color: #fff; border-left-color: rgba(255,255,255,0.5); }
+.conclusion li { color: rgba(255,255,255,0.95); }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>AI Agent 应用层学习总结</h1>
+<h1 style="font-size:20px;color:#666;font-weight:400;">Harness / Loop / Headless</h1>
+<div class="meta">学习时间：2026.06.24 &nbsp;|&nbsp; 学习工具：Claude Code CLI + 手写 Demo 实验</div>
+
+<h2>一、三个概念的关系</h2>
+
+<div class="section-arch">
+<pre style="background:#fff;color:#333;border:1px solid #e8e8e8;">
+┌─────────────────────────────────────────────────────┐
+│  Headless（部署层）                                   │
+│  无界面运行，事件/定时/API 触发                        │
+│                                                      │
+│  ┌─────────────────────────────────────────────┐     │
+│  │  Harness（管控层）                            │     │
+│  │  工具注册、权限控制、循环限制、日志审批         │     │
+│  │                                              │     │
+│  │  ┌─────────────────────────────────────┐     │     │
+│  │  │  Loop（执行层）                      │     │     │
+│  │  │  思考 → 行动 → 观察 → 循环           │     │     │
+│  │  └─────────────────────────────────────┘     │     │
+│  └─────────────────────────────────────────────┘     │
+└─────────────────────────────────────────────────────┘
+</pre>
+</div>
+
+<div class="highlight">一句话总结：Loop 决定"怎么干活"，Harness 决定"能干什么"，Headless 决定"怎么启动"。</div>
+
+<h2>二、Loop — Agent 的核心执行引擎</h2>
+
+<h3>定义</h3>
+<p>Agent 反复执行"思考 → 行动 → 观察"循环，直到任务完成或达到停止条件。</p>
+
+<h3>实际观察（Claude Code CLI）</h3>
+<table>
+<tr><th>阶段</th><th>Claude Code 显示</th><th>含义</th></tr>
+<tr><td>思考</td><td>Thought 3s</td><td>LLM 推理，决定下一步</td></tr>
+<tr><td>准备</td><td>Brewed 9s</td><td>构建执行计划</td></tr>
+<tr><td>行动</td><td>Bash(find...)</td><td>调用工具执行命令</td></tr>
+<tr><td>观察</td><td>Churned 16s</td><td>分析执行结果</td></tr>
+<tr><td>输出</td><td>Recap</td><td>返回最终结论</td></tr>
+</table>
+
+<h3>关键特征</h3>
+<ul>
+<li>每轮 Loop = 一次 LLM 调用 + 一次工具执行</li>
+<li>Loop 可以嵌套多轮（第一轮发现路径不对 → 第二轮换路径继续）</li>
+<li>停止条件：任务完成 / 最大轮次 / 遇到不可恢复的错误</li>
+</ul>
+
+<h2>三、Harness — Agent 的安全管控框架</h2>
+
+<h3>定义</h3>
+<p>包裹 Loop 的确定性程序逻辑，负责管控 Agent 的行为边界。</p>
+
+<h3>四个核心能力</h3>
+<table>
+<tr><th>能力</th><th>作用</th><th>实验验证</th></tr>
+<tr><td>工具注册表 (Tool Registry)</td><td>定义 Agent 能用哪些工具</td><td>定义了 queryJira / analyzeCause / pushWecom</td></tr>
+<tr><td>最大循环次数</td><td>防止无限循环</td><td>maxIterations 从 5 改为 3，第 4 轮被强制停止</td></tr>
+<tr><td>Lifecycle Hooks</td><td>执行前后的日志/审批</td><td>beforeAction 检查权限，pushWecom 触发审批提示</td></tr>
+<tr><td>错误处理和重试</td><td>工具失败时自动重试</td><td>retryLimit: 2，失败重试两次后放弃</td></tr>
+</table>
+
+<h3>实验结果</h3>
+
+<p><strong>实验 1：maxIterations = 3</strong></p>
+<pre>第 1 轮 ← queryJira 成功
+第 2 轮 ← analyzeCause 成功  
+第 3 轮 ← analyzeCause 成功
+⛔ [Guardrail] 达到最大循环次数 3，强制停止！
+→ pushWecom 没有执行</pre>
+
+<p><strong>实验 2：allowedTools 中删除 pushWecom</strong></p>
+<pre>第 4 轮 → 准备调用 pushWecom
+❌ [Guardrail] 工具 "pushWecom" 不在允许列表中，已拦截！
+→ 工具函数根本没被调用</pre>
+
+<h3>Claude Code 中的 Harness 体现</h3>
+<ul>
+<li><code>/permissions</code> 命令 → 查看工具注册表和权限规则</li>
+<li>删除文件时弹出确认 → beforeAction Hook 的审批机制</li>
+<li>Allow / Ask / Deny 三个权限级别 → Guardrail 分层管控</li>
+</ul>
+
+<h2>四、Headless — Agent 的无界面部署模式</h2>
+
+<h3>定义</h3>
+<p>Agent 在后台自主运行，不需要用户界面交互，触发条件满足时自动启动。</p>
+
+<h3>三种触发方式</h3>
+<table>
+<tr><th>触发方式</th><th>机制</th><th>应用场景</th></tr>
+<tr><td>⏰ 定时 Cron</td><td>到点自动执行</td><td>每天9点停滞预警推送</td></tr>
+<tr><td>📨 事件 Event</td><td>Webhook / 消息队列</td><td>Jira 状态变化时实时响应</td></tr>
+<tr><td>📡 API 调用</td><td>REST 接口</td><td>其他系统按需调用分析能力</td></tr>
+</table>
+
+<h3>与传统模式的对比</h3>
+<table>
+<tr><th></th><th>传统模式</th><th>Headless Agent</th></tr>
+<tr><td>触发</td><td>人输入问题</td><td>定时/事件/API 自动触发</td></tr>
+<tr><td>执行</td><td>人等待回复</td><td>Agent 自主完成多步任务</td></tr>
+<tr><td>输出</td><td>显示在界面上</td><td>推送通知/写入系统/返回 API</td></tr>
+<tr><td>人的参与</td><td>全程在线</td><td>只在异常时介入</td></tr>
+</table>
+
+<h2>五、与 AI-PM 平台的结合分析</h2>
+
+<h3>现状评估</h3>
+<table>
+<tr><th>能力</th><th>状态</th><th>说明</th></tr>
+<tr><td>Headless 定时触发</td><td class="tag-yes">✅ 已有</td><td>server.js 每天9点推送停滞 tickets</td></tr>
+<tr><td>Loop 多轮执行</td><td class="tag-no">❌ 缺失</td><td>只是查数据+推送，没有 LLM 推理分析</td></tr>
+<tr><td>Harness 管控</td><td class="tag-no">❌ 缺失</td><td>没有工具注册、权限控制、循环限制</td></tr>
+<tr><td>事件触发</td><td class="tag-no">❌ 缺失</td><td>没有接 Jira Webhook 实时响应</td></tr>
+<tr><td>API 触发</td><td class="tag-no">❌ 缺失</td><td>没有暴露 Agent 分析端点</td></tr>
+</table>
+
+<h3>升级路径</h3>
+<pre>Phase 1: 给定时推送加上 LLM 分析能力
+  现在: 查停滞 tickets → 直接推送列表
+  目标: 查停滞 tickets → LLM 分析原因 → 生成建议 → 推送智能报告
+
+Phase 2: 搭建 Harness 管控框架
+  - 抽象工具层（Jira/企微/LLM 统一注册）
+  - 加入循环限制、权限控制、执行日志
+  - 关键操作（修改 Jira、推送通知）需要管控
+
+Phase 3: 扩展 Headless 触发方式
+  - 接入 Jira Webhook → 实时风险响应
+  - 暴露 /api/agent/analyze 端点 → 其他系统可调用
+  - 企微消息触发 → 群内 @Bot 即可发起分析</pre>
+
+<div class="conclusion">
+<h2>六、核心认知</h2>
+<ol>
+<li><strong>Loop 是 Agent 的大脑</strong> — 没有 Loop 就是死脚本，有了 Loop 才能自主推理</li>
+<li><strong>Harness 是 Agent 的安全带</strong> — 没有 Harness 的 Agent 像没有刹车的车</li>
+<li><strong>Headless 是 Agent 的工作模式</strong> — 让 AI 像 7×24 值班员工一样自动运转</li>
+<li><strong>三者不是独立技术，是组合架构</strong> — Loop 在最内层执行，Harness 包裹管控，Headless 决定部署方式</li>
+<li><strong>AI-PM 平台已有 Headless 雏形</strong> — 加上 Loop（LLM）和 Harness（管控）就是完整的 Agentic 系统</li>
+</ol>
+</div>
+
+</div>
+</body>
+</html>

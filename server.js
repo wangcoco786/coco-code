@@ -233,7 +233,7 @@ async function fetchStaleIssuesForProject(projectKey) {
     : `Bearer ${JIRA_PAT}`
 
   const jql = `project = ${projectKey} AND sprint in openSprints() AND statusCategory != Done AND updated <= -3d ORDER BY updated ASC`
-  const url = `${JIRA_BASE_URL.replace(/\/$/, '')}/rest/api/2/search?jql=${encodeURIComponent(jql)}&fields=summary,assignee,updated,status&maxResults=100`
+  const url = `${JIRA_BASE_URL.replace(/\/$/, '')}/rest/api/2/search?jql=${encodeURIComponent(jql)}&fields=summary,assignee,updated,status,customfield_11103,customfield_11000&maxResults=100`
 
   try {
     const res = await fetch(url, {
@@ -245,13 +245,32 @@ async function fetchStaleIssuesForProject(projectKey) {
       return []
     }
     const data = await res.json()
-    return (data.issues ?? []).map(issue => ({
-      key: issue.key,
-      summary: issue.fields?.summary ?? '',
-      assignee: issue.fields?.assignee?.displayName ?? '未分配',
-      updatedAt: issue.fields?.updated ?? '',
-      status: issue.fields?.status?.name ?? '',
-    }))
+    return (data.issues ?? []).map(issue => {
+      // 优先取 Developer 字段的人，没有则取 assignee
+      const dev11000 = issue.fields?.customfield_11000
+      const dev11103 = issue.fields?.customfield_11103
+      let responsible = null
+      // Developer(single)
+      if (dev11000 && typeof dev11000 === 'object') {
+        const d = Array.isArray(dev11000) ? dev11000[0] : dev11000
+        if (d?.displayName) responsible = d.displayName
+      }
+      // Developer(multi)
+      if (!responsible && Array.isArray(dev11103) && dev11103.length > 0 && dev11103[0]?.displayName) {
+        responsible = dev11103[0].displayName
+      }
+      // fallback to assignee
+      if (!responsible) {
+        responsible = issue.fields?.assignee?.displayName ?? '未分配'
+      }
+      return {
+        key: issue.key,
+        summary: issue.fields?.summary ?? '',
+        assignee: responsible,
+        updatedAt: issue.fields?.updated ?? '',
+        status: issue.fields?.status?.name ?? '',
+      }
+    })
   } catch (err) {
     console.error(`[定时推送] 查询出错:`, err.message)
     return []

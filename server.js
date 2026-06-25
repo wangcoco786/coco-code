@@ -7,6 +7,7 @@ import 'dotenv/config'
 import express from 'express'
 import path from 'path'
 import os from 'os'
+import fs from 'fs'
 import { fileURLToPath } from 'url'
 
 import { ssoLoginHandler, ssoCallbackHandler } from './src/server/oidcClient.js'
@@ -290,39 +291,127 @@ async function buildDailyStaleMessage() {
     }
   }
 
-  if (totalCount === 0) {
-    return { totalCount: 0, message: null, text: '所有项目无超期未更新任务' }
+  // 筛选超过10天未更新的 tickets，按负责人分组
+  const allIssues = []
+  for (const { projectKey, issues } of allStaleByProject) {
+    for (const issue of issues) {
+      const daysSinceUpdate = Math.floor((Date.now() - new Date(issue.updatedAt).getTime()) / 86400000)
+      if (daysSinceUpdate >= 10) {
+        allIssues.push({ key: issue.key, summary: issue.summary, responsible: issue.assignee, status: issue.status, days: daysSinceUpdate, project: projectKey })
+      }
+    }
   }
 
-  // 构建汇总消息
+  if (allIssues.length === 0) {
+    return { totalCount: 0, message: null, text: '所有项目无超过10天未更新的任务' }
+  }
+
+  // 按负责人分组，ticket数量倒序
+  const grouped = {}
+  for (const t of allIssues) {
+    if (!grouped[t.responsible]) grouped[t.responsible] = []
+    grouped[t.responsible].push(t)
+  }
+  const sortedGroups = Object.entries(grouped).sort((a, b) => b[1].length - a[1].length)
+
+  // 构建企微推送消息（直接按人员分组的报表格式）
   const now = new Date()
   const lines = [
-    `## 🚨 AI-PM · 每日停滞预警`,
+    `## 🚨 AI-PM · 超10天停滞预警`,
     '',
-    `> ${now.toLocaleDateString('zh-CN')} 09:00 定时巡检 · 共 **${totalCount}** 个任务超过3天无更新`,
+    `> ${now.toLocaleDateString('zh-CN')} 09:00 定时巡检 · 共 **${allIssues.length}** 个任务超过10天无更新 · 涉及 **${sortedGroups.length}** 人`,
     '',
   ]
 
-  for (const { projectKey, issues } of allStaleByProject) {
-    lines.push(`### 📌 ${projectKey}（${issues.length} 个）`)
+  for (const [name, tickets] of sortedGroups) {
+    const sorted = tickets.sort((a, b) => b.days - a.days)
+    lines.push(`### � ${name}（${tickets.length} 个）`)
     lines.push('')
-    for (const issue of issues.slice(0, 10)) {
-      const daysSinceUpdate = Math.floor((Date.now() - new Date(issue.updatedAt).getTime()) / (1000 * 60 * 60 * 24))
-      lines.push(`> 🔴 **${issue.key}** ${issue.summary}`)
-      lines.push(`> 负责人: ${issue.assignee} · ${daysSinceUpdate}天未更新 · ${issue.status}`)
-      lines.push('')
-    }
-    if (issues.length > 10) {
-      lines.push(`> ... 还有 ${issues.length - 10} 个未列出`)
+    for (const t of sorted) {
+      lines.push(`> 🔴 **${t.key}** ${t.summary}`)
+      lines.push(`> ${t.days}天未更新 · ${t.status} · ${t.project}`)
       lines.push('')
     }
   }
 
   lines.push('---')
-  lines.push('> 请相关负责人及时更新任务状态或评论说明进展')
+  lines.push('> 📊 [完整报表（可打印）](https://ai-pm-platform.item.pub/stale-report.html)')
+
+  // 生成 HTML 报表文件
+  try {
+    generateStaleReportHtml(allStaleByProject)
+  } catch (e) {
+    console.error('[定时推送] 生成报表失败:', e.message)
+  }
 
   const message = { msgtype: 'markdown', markdown: { content: lines.join('\n') } }
-  return { totalCount, message, text: lines.join('\n') }
+  return { totalCount: allIssues.length, message, text: lines.join('\n') }
+}
+
+/**
+ * 生成停滞预警 HTML 报表（按负责人分组，ticket数量倒序）
+ */
+function generateStaleReportHtml(allStaleByProject) {
+  const allIssues = []
+  for (const { projectKey, issues } of allStaleByProject) {
+    for (const issue of issues) {
+      const days = Math.floor((Date.now() - new Date(issue.updatedAt).getTime()) / 86400000)
+      allIssues.push({ key: issue.key, summary: issue.summary, responsible: issue.assignee, status: issue.status, days, project: projectKey })
+    }
+  }
+
+  const grouped = {}
+  for (const t of allIssues) {
+    if (!grouped[t.responsible]) grouped[t.responsible] = []
+    grouped[t.responsible].push(t)
+  }
+  const sortedGroups = Object.entries(grouped).sort((a, b) => b[1].length - a[1].length)
+
+  const date = new Date().toLocaleDateString('zh-CN')
+  const over10 = allIssues.filter(t => t.days >= 10).length
+
+  let html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>IDC 停滞预警报表 ${date}</title>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:-apple-system,sans-serif;padding:40px;background:#f5f5f5}
+.container{max-width:1100px;margin:0 auto;background:#fff;border-radius:8px;padding:40px;box-shadow:0 2px 12px rgba(0,0,0,.08)}
+h1{font-size:22px;margin-bottom:4px}.subtitle{color:#666;font-size:14px;margin-bottom:24px}
+.summary{display:flex;gap:20px;margin-bottom:30px}.stat{background:#f8f9fa;border-radius:8px;padding:16px 24px;flex:1;text-align:center}
+.stat-value{font-size:28px;font-weight:700;color:#1677ff}.stat-value.danger{color:#f5222d}.stat-label{font-size:12px;color:#999;margin-top:4px}
+h2{font-size:16px;margin:24px 0 12px;padding:8px 12px;background:#f0f7ff;border-radius:4px}h2 .count{color:#1677ff;font-weight:700}
+table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:20px}
+th{background:#fafafa;padding:8px 10px;text-align:left;font-weight:600;border-bottom:2px solid #eee}
+td{padding:8px 10px;border-bottom:1px solid #f0f0f0}tr:hover td{background:#f9f9f9}
+.days{font-weight:700}.days.high{color:#f5222d}.days.mid{color:#fa8c16}.days.low{color:#52c41a}
+.ticket-key{color:#1677ff;font-weight:600;white-space:nowrap}
+a{color:#1677ff;text-decoration:none}a:hover{text-decoration:underline}
+.footer{margin-top:30px;padding-top:16px;border-top:1px solid #eee;font-size:12px;color:#999;text-align:center}
+@media print{body{padding:10px;background:#fff}.container{box-shadow:none;padding:20px}}</style></head>
+<body><div class="container">
+<h1>🚨 IDC 项目停滞预警报表</h1>
+<p class="subtitle">生成时间：${date} | 项目：${DAILY_PUSH_PROJECTS.join(' / ')} | 条件：Sprint 内超过3天未更新</p>
+<div class="summary">
+<div class="stat"><div class="stat-value">${allIssues.length}</div><div class="stat-label">总停滞 Tickets</div></div>
+<div class="stat"><div class="stat-value danger">${over10}</div><div class="stat-label">超10天（高风险）</div></div>
+<div class="stat"><div class="stat-value">${sortedGroups.length}</div><div class="stat-label">涉及人员</div></div>
+</div>`
+
+  for (const [name, tickets] of sortedGroups) {
+    const sorted = tickets.sort((a, b) => b.days - a.days)
+    html += `<h2>👤 ${name} <span class="count">— ${tickets.length} 个</span></h2>
+<table><tr><th>Ticket</th><th>项目</th><th>天数</th><th>状态</th><th>标题</th></tr>`
+    for (const t of sorted) {
+      const cls = t.days >= 10 ? 'high' : t.days >= 7 ? 'mid' : 'low'
+      const s = t.summary.length > 60 ? t.summary.substring(0, 60) + '...' : t.summary
+      const jiraUrl = `${process.env.JIRA_BASE_URL || 'https://jira.logisticsteam.com'}/browse/${t.key}`
+      html += `<tr><td class="ticket-key"><a href="${jiraUrl}" target="_blank">${t.key}</a></td><td>${t.project}</td><td class="days ${cls}">${t.days}天</td><td>${t.status}</td><td>${s}</td></tr>`
+    }
+    html += `</table>`
+  }
+
+  html += `<div class="footer">AI-PM Platform · 自动生成 · ${date}</div></div></body></html>`
+
+  const reportPath = path.join(__dirname, 'dist', 'stale-report.html')
+  fs.writeFileSync(reportPath, html, 'utf-8')
+  console.log(`[定时推送] 报表已生成: ${reportPath}`)
 }
 
 async function sendDailyStaleAlert() {

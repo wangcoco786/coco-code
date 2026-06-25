@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>无忧达 × 沃尔玛供货流程需求梳理</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: "Microsoft YaHei","PingFang SC","Noto Sans CJK SC",sans-serif; line-height: 1.8; color: #333; background: #f8f9fa; padding: 40px 20px; }
+.container { max-width: 1020px; margin: 0 auto; background: #fff; padding: 60px 80px; border-radius: 8px; box-shadow: 0 2px 12px rgba(0,0,0,.08); }
+h1 { font-size: 2em; color: #1a1a2e; margin-bottom: 16px; padding-bottom: 16px; border-bottom: 3px solid #0066cc; }
+h2 { font-size: 1.5em; color: #1a1a2e; margin-top: 48px; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 2px solid #e0e0e0; }
+h3 { font-size: 1.2em; color: #2d3748; margin-top: 32px; margin-bottom: 12px; }
+p { margin-bottom: 12px; }
+strong { color: #1a1a2e; }
+hr { border: none; border-top: 1px solid #e0e0e0; margin: 32px 0; }
+blockquote { border-left: 4px solid #0066cc; background: #f0f7ff; padding: 16px 20px; margin: 16px 0; border-radius: 0 4px 4px 0; }
+blockquote p { margin-bottom: 4px; color: #2d5f8a; }
+pre { background: #1e293b; color: #e2e8f0; padding: 20px 24px; border-radius: 6px; overflow-x: auto; margin: 16px 0; font-family: "Cascadia Code","Fira Code","Source Code Pro",Consolas,monospace; font-size: 0.9em; line-height: 1.6; white-space: pre; }
+table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 0.95em; }
+th, td { border: 1px solid #d1d5db; padding: 10px 14px; text-align: left; }
+th { background: #1a1a2e; color: #fff; font-weight: 600; }
+tr:nth-child(even) { background: #f9fafb; }
+tr:hover { background: #eef2ff; }
+ul, ol { margin: 12px 0 12px 24px; }
+li { margin-bottom: 6px; }
+@media print {
+  body { background: #fff; padding: 0; }
+  .container { box-shadow: none; padding: 20px 40px; max-width: 100%; }
+  pre { background: #f3f4f6; color: #1e293b; border: 1px solid #d1d5db; }
+  th { background: #374151; color: #fff; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  tr:nth-child(even) { background: #f3f4f6; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  h2 { page-break-before: auto; }
+  table, pre, blockquote { page-break-inside: avoid; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>无忧达 × 沃尔玛供货流程需求梳理</h1>
+
+<blockquote>
+<p>目标：帮助无忧达建立统一的北美海外仓面对大卖场（Walmart）的供货流程</p>
+<p>优先级：北美仓库 → Walmart 供货全链路</p>
+</blockquote>
+
+<hr>
+
+<h2>一、业务全景</h2>
+
+<pre>
+无忧达卖家 → 无忧达海外仓（北美）→ Walmart DC（配送中心）
+                   ↕                        ↕
+              我们的系统               Walmart Retail Link
+         (EDI/DI/OMS/WMS)            (EDI/OTIF/Routing Guide)
+</pre>
+
+<p><strong>核心流程</strong>：Walmart 下 PO → 无忧达仓内拣货打包贴标 → 按 Routing Guide 发货 → Walmart DC 收货验收</p>
+
+<hr>
+
+<h2>二、Walmart 供货合规要求</h2>
+
+<h3>2.1 EDI 报文要求（必须）</h3>
+
+<p>Walmart 要求所有供应商必须通过 EDI 交互，格式为 X12 标准：</p>
+
+<table>
+<thead><tr><th>EDI 报文</th><th>方向</th><th>用途</th><th>时效要求</th></tr></thead>
+<tbody>
+<tr><td><strong>850</strong> (PO)</td><td>Walmart → 供应商</td><td>采购订单</td><td>收到后次日 4pm CST 前确认</td></tr>
+<tr><td><strong>855</strong> (PO Ack)</td><td>供应商 → Walmart</td><td>订单确认</td><td>收到 PO 后 24h 内</td></tr>
+<tr><td><strong>856</strong> (ASN)</td><td>供应商 → Walmart</td><td>发货通知</td><td>发货当天，货到 DC 前</td></tr>
+<tr><td><strong>810</strong> (Invoice)</td><td>供应商 → Walmart</td><td>发票</td><td>发货后</td></tr>
+<tr><td><strong>997</strong> (FA)</td><td>双向</td><td>功能确认</td><td>自动</td></tr>
+</tbody>
+</table>
+
+<h3>2.2 UCC-128 / GS1-128 标签要求</h3>
+
+<p>每个出库箱/托盘必须贴合规标签：</p>
+
+<table>
+<thead><tr><th>要素</th><th>要求</th></tr></thead>
+<tbody>
+<tr><td><strong>SSCC-18</strong></td><td>全球唯一序列货运容器代码（箱级/托盘级）</td></tr>
+<tr><td><strong>GS1-128 条码</strong></td><td>编码 SSCC，扫描后关联 ASN</td></tr>
+<tr><td><strong>标签内容</strong></td><td>Ship From、Ship To、PO#、SSCC、件数、重量</td></tr>
+<tr><td><strong>标签位置</strong></td><td>箱体右下角短边，条码不得折叠</td></tr>
+<tr><td><strong>SSCC 与 ASN 一致性</strong></td><td>每个 SSCC 必须在 856 ASN 中出现，否则 DC 拒收</td></tr>
+</tbody>
+</table>
+
+<h3>2.3 Routing Guide（运输路由指南）</h3>
+
+<table>
+<thead><tr><th>要求</th><th>说明</th></tr></thead>
+<tbody>
+<tr><td><strong>MABD</strong></td><td>Must Arrive By Date，PO 上指定的到货截止日</td></tr>
+<tr><td><strong>OTIF</strong></td><td>On-Time In-Full，准时足量率要求 ≥98%，低于扣 3% 货款</td></tr>
+<tr><td><strong>预约</strong></td><td>发往 Walmart DC 需要提前预约送货窗口</td></tr>
+<tr><td><strong>承运商</strong></td><td>Collect freight 由 Walmart 指定承运商；Prepaid 由供应商选</td></tr>
+<tr><td><strong>托盘规格</strong></td><td>GMA 标准托盘 48×40 英寸，最高 60 英寸</td></tr>
+</tbody>
+</table>
+
+<h3>2.4 OTIF 考核（核心 KPI）</h3>
+
+<ul>
+<li><strong>On-Time</strong>: 货物在 MABD 当天或之前到达 Walmart DC</li>
+<li><strong>In-Full</strong>: PO 中每个 line item 数量 100% 齐全</li>
+<li><strong>罚款</strong>: 不达标按每个 line item 货值的 3% 扣罚</li>
+<li><strong>窗口</strong>: Collect PO 有 2 天到货窗口，Prepaid 无窗口</li>
+</ul>
+
+<hr>
+
+<h2>三、端到端业务流程</h2>
+
+<pre>
+┌─────────────────────────────────────────────────────────────────────────┐
+│ 1. 订单接收                                                              │
+│    Walmart EDI 850 (PO) → EDI 系统解析 → OMS 创建出库订单               │
+└─────────────────────────────────────────────────────────────────────────┘
+                                    ↓
+┌─────────────────────────────────────────────────────────────────────────┐
+│ 2. 订单确认                                                              │
+│    OMS 校验库存 → 确认可发 → EDI 回传 855 (PO Acknowledgment)           │
+└─────────────────────────────────────────────────────────────────────────┘
+                                    ↓
+┌─────────────────────────────────────────────────────────────────────────┐
+│ 3. 仓内作业                                                              │
+│    WMS 生成拣货任务 → 拣货 → 验货 → 装箱 → 贴 GS1-128/UCC 标签         │
+│    → 生成 SSCC → 关联 PO Line Item → 打托/称重                          │
+└─────────────────────────────────────────────────────────────────────────┘
+                                    ↓
+┌─────────────────────────────────────────────────────────────────────────┐
+│ 4. 发货 &amp; ASN                                                            │
+│    WMS 确认出库 → EDI 生成 856 (ASN) → 包含 SSCC + PO 关联              │
+│    → 按 Routing Guide 预约 DC 窗口 → 交承运商                           │
+└─────────────────────────────────────────────────────────────────────────┘
+                                    ↓
+┌─────────────────────────────────────────────────────────────────────────┐
+│ 5. 对账 &amp; 发票                                                           │
+│    确认 DC 收货 → EDI 发送 810 (Invoice) → 对账核销                     │
+└─────────────────────────────────────────────────────────────────────────┘
+</pre>
+
+<hr>
+
+<h2>四、我们的系统能力对照</h2>
+
+<h3>4.1 系统能力矩阵</h3>
+
+<table>
+<thead><tr><th>环节</th><th>Walmart 要求</th><th>我们的系统</th><th>能力状态</th></tr></thead>
+<tbody>
+<tr><td>PO 接收</td><td>EDI 850 X12 格式</td><td><strong>EDI</strong></td><td>✅ 可解析 X12 报文</td></tr>
+<tr><td>PO 确认</td><td>24h 内回传 855</td><td><strong>EDI + OMS</strong></td><td>✅ 自动生成 855</td></tr>
+<tr><td>库存校验</td><td>确认可供数量</td><td><strong>OMS + WMS</strong></td><td>✅ 实时库存查询</td></tr>
+<tr><td>拣货装箱</td><td>按 PO Line Item 拣货</td><td><strong>WMS</strong></td><td>✅ 波次拣货</td></tr>
+<tr><td>UCC/GS1 标签</td><td>SSCC-18 + GS1-128 条码</td><td><strong>WMS</strong></td><td>⚠️ 需确认标签模板是否合规</td></tr>
+<tr><td>SSCC 生成</td><td>全球唯一编码</td><td><strong>WMS</strong></td><td>⚠️ 需配置 GS1 Company Prefix</td></tr>
+<tr><td>ASN 发送</td><td>856 含 SSCC 关联</td><td><strong>EDI + WMS</strong></td><td>✅ WMS 出库 → EDI 生成 856</td></tr>
+<tr><td>Routing Guide</td><td>MABD 管控 + DC 预约</td><td><strong>OMS</strong></td><td>⚠️ 需新增 MABD 倒排逻辑</td></tr>
+<tr><td>OTIF 监控</td><td>准时率 + 足量率</td><td><strong>OMS/DI</strong></td><td>❌ 需开发 OTIF 看板</td></tr>
+<tr><td>Invoice</td><td>EDI 810</td><td><strong>EDI</strong></td><td>✅ 可生成 810</td></tr>
+</tbody>
+</table>
+
+<h3>4.2 各系统职责分工</h3>
+
+<table>
+<thead><tr><th>系统</th><th>在 Walmart 流程中的职责</th></tr></thead>
+<tbody>
+<tr><td><strong>EDI</strong></td><td>X12 报文收发（850/855/856/810/997）、格式转换、通信管道</td></tr>
+<tr><td><strong>DI</strong> (Data Integration)</td><td>数据映射转换、多格式适配、报文校验</td></tr>
+<tr><td><strong>OMS</strong></td><td>订单生命周期管理、库存分配、MABD 倒排、路由分仓、OTIF 监控</td></tr>
+<tr><td><strong>WMS</strong></td><td>仓内作业执行、拣货/装箱/贴标、SSCC 生成、出库确认</td></tr>
+</tbody>
+</table>
+
+<hr>
+
+<h2>五、需重点落地的能力</h2>
+
+<h3>5.1 必须做（合规性）</h3>
+
+<table>
+<thead><tr><th>#</th><th>能力</th><th>系统</th><th>说明</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>Walmart EDI 850/855/856/810 全流程</td><td>EDI + DI</td><td>确保 X12 格式完全合规</td></tr>
+<tr><td>2</td><td>GS1-128 标签打印（含 SSCC-18）</td><td>WMS</td><td>配置合规标签模板，注册 GS1 Company Prefix</td></tr>
+<tr><td>3</td><td>SSCC 与 ASN 严格一致</td><td>WMS → EDI</td><td>每个实物箱 SSCC 必须出现在 856 中</td></tr>
+<tr><td>4</td><td>PO 确认时效（24h）</td><td>OMS → EDI</td><td>自动化，不可依赖人工</td></tr>
+</tbody>
+</table>
+
+<h3>5.2 强烈建议做（避免罚款）</h3>
+
+<table>
+<thead><tr><th>#</th><th>能力</th><th>系统</th><th>说明</th></tr></thead>
+<tbody>
+<tr><td>5</td><td>MABD 倒排排程</td><td>OMS</td><td>从 MABD 反推最晚出库日、最晚拣货日</td></tr>
+<tr><td>6</td><td>OTIF 达成率看板</td><td>OMS/DI</td><td>实时监控每个 PO 的 On-Time + In-Full 状态</td></tr>
+<tr><td>7</td><td>Routing Guide 规则引擎</td><td>OMS</td><td>自动匹配承运商、预约 DC 窗口</td></tr>
+<tr><td>8</td><td>短装/超装校验</td><td>WMS</td><td>装箱时校验数量与 PO Line 一致，防止 In-Full 不达标</td></tr>
+</tbody>
+</table>
+
+<h3>5.3 加分项（提效）</h3>
+
+<table>
+<thead><tr><th>#</th><th>能力</th><th>系统</th><th>说明</th></tr></thead>
+<tbody>
+<tr><td>9</td><td>PO 自动拆单/合单</td><td>OMS</td><td>多 PO 合并发货（同 DC），单 PO 拆多仓</td></tr>
+<tr><td>10</td><td>异常自动预警</td><td>OMS</td><td>MABD 临近但未出库 → 自动通知</td></tr>
+<tr><td>11</td><td>Chargeback 追踪</td><td>DI/OMS</td><td>记录每次扣罚，分析根因，持续优化</td></tr>
+</tbody>
+</table>
+
+<hr>
+
+<h2>六、实施建议</h2>
+
+<h3>Phase 1（MVP，2-4周）</h3>
+<ul>
+<li>EDI 850 → OMS → WMS 拣货出库 → 856 ASN 全流程打通</li>
+<li>GS1-128 标签合规出图</li>
+<li>手动跑通一个 PO 的完整生命周期</li>
+</ul>
+
+<h3>Phase 2（合规加固，2-4周）</h3>
+<ul>
+<li>MABD 倒排 + 预警</li>
+<li>SSCC 与 ASN 一致性校验</li>
+<li>OTIF 监控看板</li>
+</ul>
+
+<h3>Phase 3（规模化，持续）</h3>
+<ul>
+<li>多卖家多仓多 DC 路由</li>
+<li>Routing Guide 规则引擎</li>
+<li>Chargeback 分析 + 持续优化</li>
+</ul>
+
+<hr>
+
+<h2>七、风险关注</h2>
+
+<table>
+<thead><tr><th>风险</th><th>影响</th><th>缓解措施</th></tr></thead>
+<tbody>
+<tr><td>SSCC 不一致导致 DC 拒收</td><td>退货 + 扣罚</td><td>WMS 出库时强制校验 SSCC ↔ ASN</td></tr>
+<tr><td>ASN 晚于货物到达</td><td>OTIF 不达标</td><td>出库即发 ASN，不等物流确认</td></tr>
+<tr><td>标签不合规（位置/内容）</td><td>扣罚 + 退货</td><td>首批打样 Walmart 合规部确认</td></tr>
+<tr><td>MABD 管控缺失</td><td>大面积迟到</td><td>OMS MABD 倒排 + T-3 预警</td></tr>
+<tr><td>GS1 Company Prefix 未注册</td><td>无法生成合规 SSCC</td><td>提前帮客户申请 GS1</td></tr>
+</tbody>
+</table>
+
+<hr>
+
+<h2>八、我们的系统如何让转运业务高效运转</h2>
+
+<h3>8.1 整体价值定位</h3>
+
+<p>我们提供的是<strong>一站式 3PL 数字化基础设施</strong>，让海外仓不再需要拼凑多个系统，一套平台覆盖从供应商接单到商超交货的全链路：</p>
+
+<pre>
+供应商/卖家                    3PL 海外仓（无忧达）                   商超（Walmart/Costco/Target）
+    │                              │                                    │
+    │  ← OMS 接单+库存分配 →       │                                    │
+    │                         WMS 仓内高效作业                           │
+    │                         (收货→上架→拣货→打包→贴标→出库)            │
+    │                              │                                    │
+    │                    EDI/DI 自动对接商超系统                          │
+    │                    (PO接收→确认→ASN→Invoice)                       │
+    └──────────────────────────────┴────────────────────────────────────┘
+</pre>
+
+<h3>8.2 四大系统如何协同</h3>
+
+<table>
+<thead><tr><th>系统</th><th>在转运链路中的角色</th><th>核心价值</th></tr></thead>
+<tbody>
+<tr><td><strong>EDI</strong></td><td>商超的"数字握手通道"</td><td>自动收发 Walmart/Costco 的 PO、ASN、Invoice，无需人工介入</td></tr>
+<tr><td><strong>DI</strong></td><td>数据翻译官</td><td>不同格式互转（X12/JSON/XML），不同商超不同规则统一适配</td></tr>
+<tr><td><strong>OMS</strong></td><td>业务大脑</td><td>接单→分仓→排程→监控，一个订单从进来到出去全生命周期管理</td></tr>
+<tr><td><strong>WMS</strong></td><td>仓内执行引擎</td><td>收货、上架、拣货、包装、贴标、出库，RF 手持终端全程指导</td></tr>
+</tbody>
+</table>
+
+<h3>8.3 如何帮助 3PL 仓库连接供应商和商超</h3>
+
+<p><strong>上游连接（供应商/卖家）：</strong></p>
+
+<table>
+<thead><tr><th>能力</th><th>说明</th></tr></thead>
+<tbody>
+<tr><td>多卖家管理</td><td>一个仓同时服务多个卖家，库存/账单/权限完全隔离</td></tr>
+<tr><td>入库预约</td><td>卖家线上预约送货时段，仓库提前安排月台和人力</td></tr>
+<tr><td>库存可视化</td><td>卖家实时查看自己在仓内的库存、效期、批次</td></tr>
+<tr><td>订单 API</td><td>卖家系统直接推单，或从电商平台自动抓单</td></tr>
+</tbody>
+</table>
+
+<p><strong>下游连接（商超/零售商）：</strong></p>
+
+<table>
+<thead><tr><th>能力</th><th>说明</th></tr></thead>
+<tbody>
+<tr><td>EDI 自动对接</td><td>Walmart/Costco/Target 的 PO 自动接收并转为出库任务</td></tr>
+<tr><td>合规标签</td><td>按商超要求自动生成 GS1-128/UCC 标签（SSCC 唯一编码）</td></tr>
+<tr><td>ASN 自动回传</td><td>出库即发 856 ASN，DC 收货前数据先到</td></tr>
+<tr><td>多商超路由</td><td>同一 SKU 可同时供 Walmart、Costco、Amazon，OMS 按规则分配</td></tr>
+<tr><td>OTIF 管控</td><td>MABD 倒排排程，防止迟到；装箱校验，防止短装</td></tr>
+</tbody>
+</table>
+
+<h3>8.4 转运效率提升点</h3>
+
+<table>
+<thead><tr><th>环节</th><th>传统方式</th><th>用我们系统后</th><th>效率提升</th></tr></thead>
+<tbody>
+<tr><td>PO 接收</td><td>人工看邮件/传真，手工录入</td><td>EDI 自动解析，秒级入系统</td><td>从 2h → 0min</td></tr>
+<tr><td>订单确认</td><td>人工查库存，打电话确认</td><td>OMS 自动校验库存，自动回传 855</td><td>从 4h → 即时</td></tr>
+<tr><td>拣货</td><td>纸单拣货，容易错</td><td>WMS RF 引导，路径优化，准确率 99.9%</td><td>效率 +40%</td></tr>
+<tr><td>贴标</td><td>手工打标签，容易贴错箱</td><td>WMS 自动生成 SSCC，扫描验证一致性</td><td>错误率 → 0</td></tr>
+<tr><td>ASN 发送</td><td>人工做 Excel 再转格式</td><td>出库自动触发 856，零人工</td><td>从 30min → 0min</td></tr>
+<tr><td>OTIF 追踪</td><td>事后才知道被罚</td><td>实时看板，T-3 预警</td><td>罚款减少 80%+</td></tr>
+</tbody>
+</table>
+
+</div>
+</body>
+</html>

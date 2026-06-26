@@ -59,7 +59,7 @@ function SingleProjectPerformance({ projectKey }: { projectKey: string }) {
   const [selectedSprintName, setSelectedSprintName] = useState<string | null>(null)
 
   // 获取 Sprint 历史列表
-  const { sprints: sprintHistory } = useSprintHistory(projectKey, 10)
+  const { sprints: sprintHistory } = useSprintHistory(projectKey)
 
   // 当前数据（活跃 Sprint 或选中的历史 Sprint）
   const { data: activeData, isLoading: activeLoading, error: activeError } = usePerformanceData(

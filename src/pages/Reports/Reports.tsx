@@ -246,7 +246,7 @@ export default function Reports() {
   const [sprintFilter, setSprintFilter] = useState<string>('')
 
   // Sprint 历史列表
-  const { sprints: sprintHistory } = useSprintHistory(currentProjectKey, 10)
+  const { sprints: sprintHistory } = useSprintHistory(currentProjectKey)
 
   const { data: sprints = [] } = useActiveSprintsByProject(currentProjectKey)
   const sprint = sprints[0] ?? null

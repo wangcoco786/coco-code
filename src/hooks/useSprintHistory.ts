@@ -27,7 +27,7 @@ export interface UseSprintHistoryResult {
  * 获取项目的 Sprint 历史列表（closed + active）。
  * 从 Jira 的 customfield_10005 中解析 Sprint 信息。
  */
-export function useSprintHistory(projectKey: string | null, maxSprints = 10) {
+export function useSprintHistory(projectKey: string | null, maxSprints = 50) {
   const { data: sprintList, isLoading: isSprintsLoading, error: sprintsError } = useQuery<JiraSprint[]>({
     queryKey: ['sprint-history-list', projectKey, maxSprints],
     queryFn: async () => {
@@ -38,9 +38,9 @@ export function useSprintHistory(projectKey: string | null, maxSprints = 10) {
         ? `project = ${resolvedKeys[0]}`
         : `project IN (${resolvedKeys.join(', ')})`
 
-      // 搜索最近更新的 issues 来解析所有 Sprint（active + closed）
-      const jql = `${projectClause} AND sprint is not EMPTY ORDER BY updated DESC`
-      const url = `rest/api/2/search?jql=${encodeURIComponent(jql)}&fields=customfield_10005&maxResults=200`
+      // 搜索 2025-03-30 之后更新的 issues 来解析所有 Sprint（active + closed）
+      const jql = `${projectClause} AND sprint is not EMPTY AND updated >= "2025/03/30" ORDER BY updated DESC`
+      const url = `rest/api/2/search?jql=${encodeURIComponent(jql)}&fields=customfield_10005&maxResults=500`
 
       const response = await authFetch(`/api/jira/${url}`, {
         headers: { 'Content-Type': 'application/json' },
@@ -97,8 +97,10 @@ export function useSprintHistory(projectKey: string | null, maxSprints = 10) {
         }
       }
 
-      // 按 startDate 倒序排列，取最近 maxSprints 个
+      // 按 startDate 倒序排列，过滤 2025-03-30 之后的 Sprint
+      const MIN_DATE = '2025-03-30'
       const allSprints = Array.from(sprintMap.values())
+        .filter(s => (s.startDate ?? '') >= MIN_DATE)
         .sort((a, b) => (b.startDate ?? '').localeCompare(a.startDate ?? ''))
         .slice(0, maxSprints)
 

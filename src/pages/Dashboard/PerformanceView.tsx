@@ -160,8 +160,8 @@ function SingleProjectPerformance({ projectKey }: { projectKey: string }) {
       />
 
       {/* 迭代对比摘要 */}
-      {previousData && (
-        <SprintComparison current={data} previous={previousData} previousName={previousSprintName!} />
+      {previousData && previousSprintName && (
+        <SprintComparison current={data} previous={previousData} previousName={previousSprintName} />
       )}
 
       <div className={styles.subTabs}>

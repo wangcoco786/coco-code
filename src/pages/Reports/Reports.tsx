@@ -1,9 +1,13 @@
 ﻿import { useState, useMemo, useRef, useEffect } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { useApp } from '@/context/AppContext'
 import { useActiveSprintIssuesByProject, useActiveSprintsByProject } from '@/hooks/useProjectIssues'
 import { useWecomSend } from '@/hooks/useWecomSend'
 import { useI18n } from '@/context/I18nContext'
 import { useSprintHistory } from '@/hooks/useSprintHistory'
+import { jiraClient } from '@/lib/jiraClient'
+import { mapJiraIssueToPlatform } from '@/lib/statusMapper'
+import { resolveProjectKeys } from '@/lib/projectGroups'
 import { buildReportMessage } from '@/lib/wecomClient'
 import { analyzeRisks } from '@/lib/riskEngine'
 import type { Report, ReportType, ReportStatus } from '@/types/platform'
@@ -11,6 +15,32 @@ import styles from './Reports.module.css'
 import AIInsight from '@/components/AIInsight/AIInsight'
 
 // ─── helpers ────────────────────────────────────────────────
+
+/** 多 Sprint 合并查询 hook */
+function useMultiSprintIssues(projectKey: string | null, sprintNames: string[]) {
+  return useQuery({
+    queryKey: ['multi-sprint-issues', projectKey, sprintNames.join('|')],
+    queryFn: async () => {
+      if (!projectKey || sprintNames.length === 0) return []
+      const keys = resolveProjectKeys(projectKey)
+      const projectClause = keys.length === 1
+        ? `project = ${keys[0]}`
+        : `project IN (${keys.join(', ')})`
+      const sprintClause = `sprint IN (${sprintNames.map(n => `"${n}"`).join(', ')})`
+      const jql = `${projectClause} AND ${sprintClause} AND issuetype != Sub-task ORDER BY priority ASC, updated DESC`
+      const result = await jiraClient.searchIssues(
+        jql,
+        ['summary', 'status', 'priority', 'assignee', 'labels', 'fixVersions',
+          'created', 'updated', 'timeoriginalestimate', 'timespent',
+          'customfield_10016', 'customfield_10004', 'customfield_11000', 'customfield_11103'],
+        0, 200
+      )
+      return result.issues.map(mapJiraIssueToPlatform)
+    },
+    enabled: !!projectKey && sprintNames.length > 1,
+    staleTime: 5 * 60 * 1000,
+  })
+}
 
 const QUICK_CARDS: { type: ReportType; labelKey: string; descKey: string; icon: string }[] = [
   { type: 'daily', labelKey: 'reports.daily', descKey: 'reports.dailyDesc', icon: '📅' },
@@ -223,21 +253,34 @@ export default function Reports() {
 
   // 根据 Sprint 筛选决定使用哪个 Sprint 的数据
   const sprintNames = sprintFilter ? sprintFilter.split('|').filter(Boolean) : []
-  const targetSprintName = sprintNames.length > 0 ? sprintNames[0] : sprint?.name || null
-  const targetSprintId = sprintNames.length > 0
-    ? sprintHistory.find(s => s.name === sprintNames[0])?.id ?? null
-    : sprint?.id ?? null
 
-  const { data: issues = [], isLoading: rawLoading, isError, error } = useActiveSprintIssuesByProject(
-    currentProjectKey,
-    targetSprintId,
-    targetSprintName,
+  // 单选或默认用现有 hook
+  const singleSprintName = sprintNames.length === 1 ? sprintNames[0] : null
+  const singleSprintId = singleSprintName
+    ? sprintHistory.find(s => s.name === singleSprintName)?.id ?? null
+    : (!sprintFilter ? sprint?.id ?? null : null)
+
+  const { data: singleIssues = [], isLoading: singleLoading, isError, error } = useActiveSprintIssuesByProject(
+    sprintNames.length <= 1 ? currentProjectKey : null,
+    singleSprintId,
+    singleSprintName ?? (!sprintFilter ? sprint?.name ?? null : null),
   )
-  const isLoading = rawLoading && !!currentProjectKey
+
+  // 多选时用自定义查询
+  const { data: multiIssues = [], isLoading: multiLoading } = useMultiSprintIssues(
+    sprintNames.length > 1 ? currentProjectKey : null,
+    sprintNames.length > 1 ? sprintNames : [],
+  )
+
+  const issues = sprintNames.length > 1 ? multiIssues : singleIssues
+  const isLoading = (sprintNames.length > 1 ? multiLoading : singleLoading) && !!currentProjectKey
 
   const wecomSend = useWecomSend()
   const isDev = currentUser?.role === 'DEV'
-  const projectName = targetSprintName ?? currentProjectKey ?? 'Project'
+  // 报告标题用所有选中的 Sprint 名
+  const projectName = sprintNames.length > 0
+    ? (sprintNames.length <= 2 ? sprintNames.join(' + ') : `${sprintNames.length} 个 Sprint`)
+    : sprint?.name ?? currentProjectKey ?? 'Project'
 
   const risks = useMemo(() => analyzeRisks(issues), [issues])
   const highRisks = risks.filter((r) => r.level === 'high').length

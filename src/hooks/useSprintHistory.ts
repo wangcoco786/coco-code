@@ -100,7 +100,11 @@ export function useSprintHistory(projectKey: string | null, maxSprints = 50) {
       // 按 startDate 倒序排列，过滤 2026-03-30 之后的 Sprint
       const MIN_DATE = '2026-03-30'
       const allSprints = Array.from(sprintMap.values())
-        .filter(s => (s.startDate ?? '') >= MIN_DATE)
+        .filter(s => {
+          // 必须有有效的 startDate 且 >= 2026-03-30
+          if (!s.startDate || s.startDate.length < 10) return false
+          return s.startDate >= MIN_DATE
+        })
         .sort((a, b) => (b.startDate ?? '').localeCompare(a.startDate ?? ''))
         .slice(0, maxSprints)
 

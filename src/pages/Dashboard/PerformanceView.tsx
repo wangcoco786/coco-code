@@ -521,8 +521,16 @@ function getGradeLabel(grade: string): string {
 
 /** 提取 Sprint 名称前缀（组名），用于上期对比时只找同组 Sprint */
 function extractSprintPrefix(name: string): string {
-  // 常见格式: "RP.2026.06/26-07/09", "Trfms.06/12-06/25", "APS.06/26-07/09"
-  // 取第一个 . 或数字之前的部分作为前缀
-  const match = name.match(/^([A-Za-z]+)/)
-  return match ? match[1].toLowerCase() : name.toLowerCase()
+  // 常见格式: "Linker CP.2026.06/26-07/09", "RP.2026.06/26-07/09", "Trfms.06/12-06/25"
+  // 取到第一个日期模式（数字/数字 或 2026 等年份）之前的部分作为前缀
+  // 去掉尾部的 . 和空格
+  const match = name.match(/^(.+?)[\s.]*\d{4}[\s./]|^(.+?)[\s.]*\d{1,2}\//)
+  if (match) {
+    const prefix = (match[1] || match[2] || '').replace(/[\s.]+$/, '')
+    return prefix.toLowerCase()
+  }
+  // fallback: 取第一个 . 之前的部分
+  const dotIdx = name.indexOf('.')
+  if (dotIdx > 0) return name.slice(0, dotIdx).toLowerCase()
+  return name.toLowerCase()
 }

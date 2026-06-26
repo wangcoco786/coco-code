@@ -3,7 +3,6 @@ import { usePerformanceData } from '@/hooks/usePerformanceData'
 import { getPerformanceGrade, getGradeColor } from '@/lib/performanceEngine'
 import type { DepartmentPerformance } from '@/lib/performanceEngine'
 import { useSprintHistory, useSprintPerformance } from '@/hooks/useSprintHistory'
-import { isProjectGroup, resolveProjectKeys, hasSprintGroups, getSprintGroups, matchSprintGroup } from '@/lib/projectGroups'
 import DepartmentOverview from './DepartmentOverview'
 import IndividualPerformance from './IndividualPerformance'
 import PerformanceTrendChart from './PerformanceTrendChart'
@@ -49,152 +48,9 @@ export default function PerformanceView({ projectKey }: Props) {
 
 function PerformanceViewInner({ projectKey }: Props) {
   if (projectKey) {
-    // 项目组（IDC、EAG）或 Sprint 分组项目（DTS）：显示子组 Tab 切换
-    if (isProjectGroup(projectKey) || hasSprintGroups(projectKey)) {
-      return <GroupedProjectPerformance projectKey={projectKey} />
-    }
     return <SingleProjectPerformance projectKey={projectKey} />
   }
   return <DepartmentRankingView />
-}
-
-/** 项目组 / Sprint 分组视图 —— 顶部 Tab 切换子组 */
-function GroupedProjectPerformance({ projectKey }: { projectKey: string }) {
-  const isGroup = isProjectGroup(projectKey)
-  const isSprintGroup = hasSprintGroups(projectKey)
-
-  // 确定子组列表
-  const subTabs = (() => {
-    if (isGroup) {
-      return resolveProjectKeys(projectKey).map(k => ({ key: k, name: k }))
-    }
-    if (isSprintGroup) {
-      return getSprintGroups(projectKey).map(g => ({ key: g.key, name: g.name }))
-    }
-    return []
-  })()
-
-  const [activeGroup, setActiveGroup] = useState<string>(subTabs[0]?.key ?? '')
-  const [showTrend, setShowTrend] = useState(false)
-
-  if (subTabs.length === 0) {
-    return <SingleProjectPerformance projectKey={projectKey} />
-  }
-
-  // 对于项目组（IDC），子项目就是独立的 Jira project key
-  // 对于 Sprint 分组（DTS），仍然是同一个 project key，但需要按 Sprint 前缀过滤
-  const effectiveProjectKey = isGroup ? activeGroup : projectKey
-
-  return (
-    <div>
-      {/* 子组 Tab */}
-      <div className={styles.subTabs} style={{ marginBottom: 12 }}>
-        {subTabs.map(tab => (
-          <button
-            key={tab.key}
-            className={`${styles.subTab} ${activeGroup === tab.key ? styles.active : ''}`}
-            onClick={() => { setActiveGroup(tab.key); setShowTrend(false) }}
-          >
-            {tab.name}
-          </button>
-        ))}
-        <button
-          className={`${styles.subTab} ${showTrend ? styles.active : ''}`}
-          onClick={() => setShowTrend(!showTrend)}
-          style={{ marginLeft: 'auto' }}
-        >
-          📈 趋势对比
-        </button>
-      </div>
-
-      {/* 趋势图（跨组对比） */}
-      {showTrend && <PerformanceTrendChart projectKey={projectKey} />}
-
-      {/* 当前子组的绩效详情 */}
-      {!showTrend && (
-        isSprintGroup
-          ? <SprintGroupPerformance projectKey={projectKey} groupKey={activeGroup} />
-          : <SingleProjectPerformance projectKey={effectiveProjectKey} />
-      )}
-    </div>
-  )
-}
-
-/** Sprint 分组绩效（DTS 内按 OB/OMS/DI/CP 分别展示） */
-function SprintGroupPerformance({ projectKey, groupKey }: { projectKey: string; groupKey: string }) {
-  const [activeSubTab, setActiveSubTab] = useState<'department' | 'individual'>('department')
-  const { sprints } = useSprintHistory(projectKey, 10)
-
-  // 找到属于该组的当前活跃 Sprint
-  const groupSprints = sprints.filter(s => matchSprintGroup(projectKey, s.name) === groupKey)
-  const activeSprint = groupSprints.find(s => s.state === 'active') ?? groupSprints[0] ?? null
-
-  const { data, isLoading } = useSprintPerformance(
-    activeSprint ? projectKey : null,
-    activeSprint?.name ?? null,
-  )
-
-  // 上一个迭代
-  const currentIdx = groupSprints.findIndex(s => s.name === activeSprint?.name)
-  const prevSprintName = currentIdx >= 0 && currentIdx < groupSprints.length - 1
-    ? groupSprints[currentIdx + 1]?.name
-    : null
-  const { data: previousData } = useSprintPerformance(
-    prevSprintName ? projectKey : null,
-    prevSprintName,
-  )
-
-  if (isLoading) {
-    return (
-      <div className={styles.skeletonGrid}>
-        {[1, 2, 3, 4].map(i => (
-          <div key={i} className={styles.skeletonCard}>
-            <div className={styles.skeleton} style={{ height: 16, width: '60%', marginBottom: 8 }} />
-            <div className={styles.skeleton} style={{ height: 32, width: '40%' }} />
-          </div>
-        ))}
-      </div>
-    )
-  }
-
-  if (!data) {
-    return (
-      <div className={styles.emptyState}>
-        <div className={styles.emptyIcon}>📭</div>
-        <div className={styles.emptyTitle}>暂无数据</div>
-        <div className={styles.emptyDesc}>{groupKey} 组暂无可用的绩效数据</div>
-      </div>
-    )
-  }
-
-  return (
-    <div>
-      {activeSprint && (
-        <div style={{ fontSize: 13, color: 'var(--text2)', marginBottom: 12 }}>
-          当前迭代: <strong>{activeSprint.name}</strong>
-          {activeSprint.startDate && ` · ${activeSprint.startDate}`}
-        </div>
-      )}
-
-      {/* 迭代对比 */}
-      {previousData && prevSprintName && (
-        <SprintComparison current={data} previous={previousData} previousName={prevSprintName} />
-      )}
-
-      <div className={styles.subTabs}>
-        <button
-          className={`${styles.subTab} ${activeSubTab === 'department' ? styles.active : ''}`}
-          onClick={() => setActiveSubTab('department')}
-        >总览</button>
-        <button
-          className={`${styles.subTab} ${activeSubTab === 'individual' ? styles.active : ''}`}
-          onClick={() => setActiveSubTab('individual')}
-        >个人详情</button>
-      </div>
-      {activeSubTab === 'department' && <DepartmentOverview departmentPerformance={data} />}
-      {activeSubTab === 'individual' && <IndividualPerformance memberPerformances={data.members} />}
-    </div>
-  )
 }
 
 /** Single project performance view with sprint selection and comparison */

@@ -1,4 +1,4 @@
-import { useState, Component, type ReactNode } from 'react'
+import React, { useState, Component, type ReactNode } from 'react'
 import { usePerformanceData } from '@/hooks/usePerformanceData'
 import { getPerformanceGrade, getGradeColor } from '@/lib/performanceEngine'
 import type { DepartmentPerformance } from '@/lib/performanceEngine'
@@ -173,7 +173,7 @@ function SingleProjectPerformance({ projectKey }: { projectKey: string }) {
   )
 }
 
-/** Sprint 选择下拉框 — 按迭代日期分组，选中一个日期 = 选中该日期所有 Sprint */
+/** Sprint 多选下拉框 — 显示具体 Sprint 名称，支持搜索和多选 */
 function SprintSelector({
   sprints,
   selected,
@@ -183,39 +183,110 @@ function SprintSelector({
   selected: string | null
   onSelect: (name: string | null) => void
 }) {
+  const [open, setOpen] = useState(false)
+  const [search, setSearch] = useState('')
+  const containerRef = React.useRef<HTMLDivElement>(null)
+
+  // 已选中的 sprint 名称集合
+  const selectedNames = selected ? selected.split('|').filter(Boolean) : []
+
+  // 过滤搜索
+  const filtered = sprints.filter(s =>
+    s.name.toLowerCase().includes(search.toLowerCase()) ||
+    (s.startDate ?? '').includes(search)
+  )
+
+  // 点击外部关闭
+  React.useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setOpen(false)
+      }
+    }
+    if (open) document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [open])
+
+  function toggleSprint(name: string) {
+    const newSet = new Set(selectedNames)
+    if (newSet.has(name)) {
+      newSet.delete(name)
+    } else {
+      newSet.add(name)
+    }
+    onSelect(newSet.size > 0 ? Array.from(newSet).join('|') : null)
+  }
+
+  function selectAll() {
+    const allNames = filtered.map(s => s.name)
+    onSelect(allNames.join('|'))
+  }
+
+  function clearAll() {
+    onSelect(null)
+  }
+
   if (sprints.length === 0) return null
 
-  // 按 startDate 分组
-  const dateGroups = new Map<string, Array<{ id: number; name: string; state: string; startDate?: string }>>()
-  for (const s of sprints) {
-    const date = s.startDate || 'unknown'
-    if (!dateGroups.has(date)) dateGroups.set(date, [])
-    dateGroups.get(date)!.push(s)
-  }
-  const sortedDates = Array.from(dateGroups.entries())
-    .sort((a, b) => b[0].localeCompare(a[0])) // 最新的在前
+  const displayText = selectedNames.length === 0
+    ? '当前活跃 Sprint'
+    : selectedNames.length <= 2
+      ? selectedNames.join(', ')
+      : `已选 ${selectedNames.length} 个 Sprint`
 
   return (
-    <div className={styles.sprintSelector}>
+    <div className={styles.sprintSelector} ref={containerRef} style={{ position: 'relative' }}>
       <label className={styles.sprintSelectorLabel}>迭代：</label>
-      <select
+      <div
         className={styles.sprintSelectorSelect}
-        value={selected ?? ''}
-        onChange={(e) => onSelect(e.target.value || null)}
+        onClick={() => setOpen(!open)}
+        style={{ cursor: 'pointer', userSelect: 'none', minWidth: 280 }}
       >
-        <option value="">当前活跃 Sprint</option>
-        {sortedDates.map(([date, group]) => {
-          // value 用第一个 sprint 的 name（后面加载时会按 date 匹配所有）
-          const label = `${date} · ${group.length} 个组`
-          const stateLabel = group.some(g => g.state === 'active') ? '活跃' : '已关闭'
-          const names = group.map(g => g.name).join('|')
-          return (
-            <option key={date} value={names}>
-              {label} ({stateLabel})
-            </option>
-          )
-        })}
-      </select>
+        {displayText}
+        <span style={{ float: 'right', opacity: 0.5 }}>{open ? '▲' : '▼'}</span>
+      </div>
+
+      {open && (
+        <div className={styles.sprintDropdown}>
+          {/* 搜索框 */}
+          <input
+            className={styles.sprintSearchInput}
+            placeholder="搜索 Sprint..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            autoFocus
+          />
+
+          {/* 操作按钮 */}
+          <div className={styles.sprintDropdownActions}>
+            <button onClick={selectAll} className={styles.sprintActionBtn}>全选</button>
+            <button onClick={clearAll} className={styles.sprintActionBtn}>清空</button>
+          </div>
+
+          {/* Sprint 列表 */}
+          <div className={styles.sprintDropdownList}>
+            {filtered.map(s => (
+              <label key={s.id} className={styles.sprintDropdownItem}>
+                <input
+                  type="checkbox"
+                  checked={selectedNames.includes(s.name)}
+                  onChange={() => toggleSprint(s.name)}
+                />
+                <span className={styles.sprintItemName}>{s.name}</span>
+                <span className={styles.sprintItemMeta}>
+                  {s.state === 'active' ? '🟢' : '⚪'}
+                  {s.startDate ? ` ${s.startDate}` : ''}
+                </span>
+              </label>
+            ))}
+            {filtered.length === 0 && (
+              <div style={{ padding: 12, textAlign: 'center', color: 'var(--text2)', fontSize: 13 }}>
+                无匹配结果
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   )
 }

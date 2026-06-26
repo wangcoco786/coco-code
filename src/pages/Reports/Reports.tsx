@@ -1,4 +1,4 @@
-﻿import { useState, useMemo } from 'react'
+﻿import { useState, useMemo, useRef, useEffect } from 'react'
 import { useApp } from '@/context/AppContext'
 import { useActiveSprintIssuesByProject, useActiveSprintsByProject } from '@/hooks/useProjectIssues'
 import { useWecomSend } from '@/hooks/useWecomSend'
@@ -222,9 +222,10 @@ export default function Reports() {
   const sprint = sprints[0] ?? null
 
   // 根据 Sprint 筛选决定使用哪个 Sprint 的数据
-  const targetSprintName = sprintFilter || sprint?.name || null
-  const targetSprintId = sprintFilter
-    ? sprintHistory.find(s => s.name === sprintFilter)?.id ?? null
+  const sprintNames = sprintFilter ? sprintFilter.split('|').filter(Boolean) : []
+  const targetSprintName = sprintNames.length > 0 ? sprintNames[0] : sprint?.name || null
+  const targetSprintId = sprintNames.length > 0
+    ? sprintHistory.find(s => s.name === sprintNames[0])?.id ?? null
     : sprint?.id ?? null
 
   const { data: issues = [], isLoading: rawLoading, isError, error } = useActiveSprintIssuesByProject(
@@ -361,18 +362,11 @@ export default function Reports() {
 
             {/* 筛选栏 */}
             <div className={styles.filterBar} style={{ padding: '12px 16px 0' }}>
-              <select
-                className={styles.filterSelect}
-                value={sprintFilter}
-                onChange={(e) => setSprintFilter(e.target.value)}
-              >
-                <option value="">当前 Sprint</option>
-                {sprintHistory.map(s => (
-                  <option key={s.id} value={s.name}>
-                    {s.name} {s.state === 'closed' ? '(已关闭)' : ''}
-                  </option>
-                ))}
-              </select>
+              <ReportSprintSelector
+                sprints={sprintHistory}
+                selected={sprintFilter}
+                onSelect={setSprintFilter}
+              />
 
               <select
                 className={styles.filterSelect}
@@ -475,6 +469,127 @@ export default function Reports() {
                 <div className={styles.previewEmpty}>{t('reports.previewEmpty')}</div>
               )}
             </div>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ─── Sprint 多选搜索组件 ─────────────────────────────────────
+
+function ReportSprintSelector({
+  sprints,
+  selected,
+  onSelect,
+}: {
+  sprints: Array<{ id: number; name: string; state: string; startDate?: string }>
+  selected: string
+  onSelect: (value: string) => void
+}) {
+  const [open, setOpen] = useState(false)
+  const [search, setSearch] = useState('')
+  const containerRef = useRef<HTMLDivElement>(null)
+
+  const selectedNames = selected ? selected.split('|').filter(Boolean) : []
+
+  const filtered = sprints.filter(s =>
+    s.name.toLowerCase().includes(search.toLowerCase()) ||
+    (s.startDate ?? '').includes(search)
+  )
+
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setOpen(false)
+      }
+    }
+    if (open) document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [open])
+
+  function toggleSprint(name: string) {
+    const newSet = new Set(selectedNames)
+    if (newSet.has(name)) newSet.delete(name)
+    else newSet.add(name)
+    onSelect(newSet.size > 0 ? Array.from(newSet).join('|') : '')
+  }
+
+  function selectAll() {
+    onSelect(filtered.map(s => s.name).join('|'))
+  }
+
+  function clearAll() {
+    onSelect('')
+  }
+
+  if (sprints.length === 0) return null
+
+  const displayText = selectedNames.length === 0
+    ? '当前 Sprint'
+    : selectedNames.length <= 2
+      ? selectedNames.join(', ')
+      : `已选 ${selectedNames.length} 个`
+
+  return (
+    <div ref={containerRef} style={{ position: 'relative', display: 'inline-block' }}>
+      <div
+        className={styles.filterSelect}
+        onClick={() => setOpen(!open)}
+        style={{ cursor: 'pointer', userSelect: 'none', minWidth: 200, display: 'inline-flex', alignItems: 'center', gap: 4 }}
+      >
+        <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{displayText}</span>
+        <span style={{ opacity: 0.5, fontSize: 10 }}>{open ? '▲' : '▼'}</span>
+      </div>
+
+      {open && (
+        <div style={{
+          position: 'absolute', top: '100%', left: 0, zIndex: 1000,
+          background: 'var(--card, #fff)', border: '1px solid var(--border, #e0e0e0)',
+          borderRadius: 8, boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
+          width: 320, marginTop: 4,
+        }}>
+          <div style={{ padding: '8px 12px', borderBottom: '1px solid var(--border, #eee)' }}>
+            <input
+              type="text"
+              placeholder="搜索 Sprint..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              autoFocus
+              style={{
+                width: '100%', padding: '6px 10px', border: '1px solid var(--border, #ddd)',
+                borderRadius: 4, fontSize: 13, outline: 'none',
+              }}
+            />
+          </div>
+          <div style={{ padding: '4px 12px', display: 'flex', gap: 8, borderBottom: '1px solid var(--border, #eee)' }}>
+            <button onClick={selectAll} style={{ fontSize: 12, color: 'var(--primary, #1677ff)', background: 'none', border: 'none', cursor: 'pointer', padding: '4px 0' }}>全选</button>
+            <button onClick={clearAll} style={{ fontSize: 12, color: 'var(--text2, #999)', background: 'none', border: 'none', cursor: 'pointer', padding: '4px 0' }}>清空</button>
+          </div>
+          <div style={{ maxHeight: 240, overflowY: 'auto', padding: '4px 0' }}>
+            {filtered.map(s => (
+              <label key={s.id} style={{
+                display: 'flex', alignItems: 'center', gap: 8, padding: '6px 12px',
+                cursor: 'pointer', fontSize: 13, transition: 'background 0.1s',
+              }}
+                onMouseEnter={(e) => (e.currentTarget.style.background = '#f0f5ff')}
+                onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+              >
+                <input
+                  type="checkbox"
+                  checked={selectedNames.includes(s.name)}
+                  onChange={() => toggleSprint(s.name)}
+                  style={{ margin: 0 }}
+                />
+                <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.name}</span>
+                <span style={{ fontSize: 11, color: 'var(--text2, #999)', flexShrink: 0 }}>
+                  {s.state === 'active' ? '🟢' : '⚪'} {s.startDate ?? ''}
+                </span>
+              </label>
+            ))}
+            {filtered.length === 0 && (
+              <div style={{ padding: 12, textAlign: 'center', color: 'var(--text2)', fontSize: 13 }}>无匹配结果</div>
+            )}
           </div>
         </div>
       )}

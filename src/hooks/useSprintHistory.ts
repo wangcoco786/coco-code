@@ -38,8 +38,8 @@ export function useSprintHistory(projectKey: string | null, maxSprints = 50) {
         ? `project = ${resolvedKeys[0]}`
         : `project IN (${resolvedKeys.join(', ')})`
 
-      // 搜索 2025-03-30 之后更新的 issues 来解析所有 Sprint（active + closed）
-      const jql = `${projectClause} AND sprint is not EMPTY AND updated >= "2025/03/30" ORDER BY updated DESC`
+      // 搜索 2026-03-30 之后更新的 issues 来解析所有 Sprint（active + closed）
+      const jql = `${projectClause} AND sprint is not EMPTY AND updated >= "2026/03/30" ORDER BY updated DESC`
       const url = `rest/api/2/search?jql=${encodeURIComponent(jql)}&fields=customfield_10005&maxResults=500`
 
       const response = await authFetch(`/api/jira/${url}`, {
@@ -97,8 +97,8 @@ export function useSprintHistory(projectKey: string | null, maxSprints = 50) {
         }
       }
 
-      // 按 startDate 倒序排列，过滤 2025-03-30 之后的 Sprint
-      const MIN_DATE = '2025-03-30'
+      // 按 startDate 倒序排列，过滤 2026-03-30 之后的 Sprint
+      const MIN_DATE = '2026-03-30'
       const allSprints = Array.from(sprintMap.values())
         .filter(s => (s.startDate ?? '') >= MIN_DATE)
         .sort((a, b) => (b.startDate ?? '').localeCompare(a.startDate ?? ''))

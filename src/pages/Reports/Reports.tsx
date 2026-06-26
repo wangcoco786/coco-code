@@ -3,6 +3,7 @@ import { useApp } from '@/context/AppContext'
 import { useActiveSprintIssuesByProject, useActiveSprintsByProject } from '@/hooks/useProjectIssues'
 import { useWecomSend } from '@/hooks/useWecomSend'
 import { useI18n } from '@/context/I18nContext'
+import { useSprintHistory } from '@/hooks/useSprintHistory'
 import { buildReportMessage } from '@/lib/wecomClient'
 import { analyzeRisks } from '@/lib/riskEngine'
 import type { Report, ReportType, ReportStatus } from '@/types/platform'
@@ -212,14 +213,30 @@ export default function Reports() {
   const [reportStatuses, setReportStatuses] = useState<Record<string, ReportStatus>>({})
   const [typeFilter, setTypeFilter] = useState<'' | ReportType>('')
   const [statusFilter, setStatusFilter] = useState<'' | ReportStatus>('')
+  const [sprintFilter, setSprintFilter] = useState<string>('')
+
+  // Sprint 历史列表
+  const { sprints: sprintHistory } = useSprintHistory(currentProjectKey, 10)
+
   const { data: sprints = [] } = useActiveSprintsByProject(currentProjectKey)
   const sprint = sprints[0] ?? null
-  const { data: issues = [], isLoading: rawLoading, isError, error } = useActiveSprintIssuesByProject(currentProjectKey)
+
+  // 根据 Sprint 筛选决定使用哪个 Sprint 的数据
+  const targetSprintName = sprintFilter || sprint?.name || null
+  const targetSprintId = sprintFilter
+    ? sprintHistory.find(s => s.name === sprintFilter)?.id ?? null
+    : sprint?.id ?? null
+
+  const { data: issues = [], isLoading: rawLoading, isError, error } = useActiveSprintIssuesByProject(
+    currentProjectKey,
+    targetSprintId,
+    targetSprintName,
+  )
   const isLoading = rawLoading && !!currentProjectKey
 
   const wecomSend = useWecomSend()
   const isDev = currentUser?.role === 'DEV'
-  const projectName = sprint?.name ?? currentProjectKey ?? 'Project'
+  const projectName = targetSprintName ?? currentProjectKey ?? 'Project'
 
   const risks = useMemo(() => analyzeRisks(issues), [issues])
   const highRisks = risks.filter((r) => r.level === 'high').length
@@ -272,11 +289,12 @@ export default function Reports() {
     })
   }, [reports, typeFilter, statusFilter])
 
-  const hasFilter = typeFilter !== '' || statusFilter !== ''
+  const hasFilter = typeFilter !== '' || statusFilter !== '' || sprintFilter !== ''
 
   function resetFilters() {
     setTypeFilter('')
     setStatusFilter('')
+    setSprintFilter('')
   }
 
   function handlePush(report: Report) {
@@ -343,6 +361,19 @@ export default function Reports() {
 
             {/* 筛选栏 */}
             <div className={styles.filterBar} style={{ padding: '12px 16px 0' }}>
+              <select
+                className={styles.filterSelect}
+                value={sprintFilter}
+                onChange={(e) => setSprintFilter(e.target.value)}
+              >
+                <option value="">当前 Sprint</option>
+                {sprintHistory.map(s => (
+                  <option key={s.id} value={s.name}>
+                    {s.name} {s.state === 'closed' ? '(已关闭)' : ''}
+                  </option>
+                ))}
+              </select>
+
               <select
                 className={styles.filterSelect}
                 value={typeFilter}

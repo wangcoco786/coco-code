@@ -5,8 +5,21 @@ import { useI18n } from '@/context/I18nContext'
 import { useNotifications } from '@/context/NotificationContext'
 import { VelocityChart } from '@/components/Charts'
 import { computeVelocityChart } from '@/lib/chartDataEngine'
-import { predictSprintCompletion, shouldTriggerAlert } from '@/lib/predictionEngine'
+import { useApp } from '@/context/AppContext'
+import PerformanceTrendChart from './PerformanceTrendChart'
 import styles from './Dashboard.module.css'
+
+// Lazy load prediction engine (1MB+ file, not needed for initial render)
+let _predictSprintCompletion: typeof import('@/lib/predictionEngine').predictSprintCompletion | null = null
+let _shouldTriggerAlert: typeof import('@/lib/predictionEngine').shouldTriggerAlert | null = null
+const loadPredictionEngine = async () => {
+  if (!_predictSprintCompletion) {
+    const mod = await import('@/lib/predictionEngine')
+    _predictSprintCompletion = mod.predictSprintCompletion
+    _shouldTriggerAlert = mod.shouldTriggerAlert
+  }
+  return { predictSprintCompletion: _predictSprintCompletion!, shouldTriggerAlert: _shouldTriggerAlert! }
+}
 
 const JIRA_BASE_URL = import.meta.env.VITE_JIRA_BASE_URL || ''
 
@@ -155,6 +168,7 @@ type ModalType = 'risks' | 'unassigned' | 'inProgress' | 'todo' | 'done' | 'tota
 
 export default function GlobalView({ sprint, sprints = [], issues, risks, isLoading }: Props) {
   const { t } = useI18n()
+  const { currentProjectKey } = useApp()
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [modal, setModal] = useState<ModalType>(null)
 
@@ -211,9 +225,11 @@ export default function GlobalView({ sprint, sprints = [], issues, risks, isLoad
   // ─── Prediction Engine ─────────────────────────────────────
   const { addNotification } = useNotifications()
   const alertSentRef = useRef(false)
+  const [prediction, setPrediction] = useState<import('@/types/platform').SprintPrediction | null>(null)
+  const [predEngineLoaded, setPredEngineLoaded] = useState(false)
 
-  const prediction = useMemo(() => {
-    if (!sprint || issues.length === 0) return null
+  useEffect(() => {
+    if (!sprint || issues.length === 0) { setPrediction(null); return }
     const start = new Date(sprint.startDate)
     const end = new Date(sprint.endDate)
     const totalDays = Math.max(1, Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)))
@@ -221,22 +237,29 @@ export default function GlobalView({ sprint, sprints = [], issues, risks, isLoad
     const totalTasks = issues.length
     const completedTasks = issues.filter(i => i.status === 'done').length
     const remainingTasks = totalTasks - completedTasks
-    return predictSprintCompletion(remainingTasks, completedTasks, totalTasks, daysElapsed, totalDays, velocityRecords)
+    loadPredictionEngine().then(({ predictSprintCompletion }) => {
+      setPrediction(predictSprintCompletion(remainingTasks, completedTasks, totalTasks, daysElapsed, totalDays, velocityRecords))
+      setPredEngineLoaded(true)
+    })
   }, [sprint, issues, velocityRecords])
 
   // Send risk alert when probability < 60%
   useEffect(() => {
-    if (prediction && shouldTriggerAlert(prediction) && !alertSentRef.current) {
-      alertSentRef.current = true
-      addNotification({
-        type: 'risk',
-        title: '交付风险预警',
-        message: `Sprint 完成概率仅 ${prediction.completionProbability.toFixed(0)}%，存在交付风险`,
-        priority: 'high',
-        actionUrl: '/sprint',
+    if (prediction && predEngineLoaded && !alertSentRef.current) {
+      loadPredictionEngine().then(({ shouldTriggerAlert }) => {
+        if (shouldTriggerAlert(prediction)) {
+          alertSentRef.current = true
+          addNotification({
+            type: 'risk',
+            title: '交付风险预警',
+            message: `Sprint 完成概率仅 ${prediction.completionProbability.toFixed(0)}%，存在交付风险`,
+            priority: 'high',
+            actionUrl: '/sprint',
+          })
+        }
       })
     }
-  }, [prediction, addNotification])
+  }, [prediction, predEngineLoaded, addNotification])
 
   const totalIssues = issues.length
   const completedIssues = issues.filter(i => i.status === 'done').length
@@ -382,7 +405,7 @@ export default function GlobalView({ sprint, sprints = [], issues, risks, isLoad
               {!prediction.isReliable && (
                 <div style={{ color: 'var(--warning)', fontSize: 12 }}>⚠️ {t('prediction.unreliable')}</div>
               )}
-              {shouldTriggerAlert(prediction) && (
+              {prediction && prediction.completionProbability < 60 && (
                 <div style={{ color: 'var(--danger)', fontSize: 12, fontWeight: 600 }}>{t('prediction.riskAlert')}</div>
               )}
             </div>
@@ -505,6 +528,9 @@ export default function GlobalView({ sprint, sprints = [], issues, risks, isLoad
           })}
         </div>
       </div>
+
+      {/* 绩效趋势图 */}
+      <PerformanceTrendChart projectKey={currentProjectKey} />
 
       {/* 弹窗 */}
       {getModalContent()}

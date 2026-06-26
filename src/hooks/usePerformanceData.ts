@@ -182,7 +182,7 @@ function parseLinkedBugCount(issuelinks: unknown): number {
  * 将 Jira 原始 issue 数据转换为 PerformanceIssue 格式。
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function transformToPerformanceIssue(issue: any): PerformanceIssue {
+export function transformToPerformanceIssue(issue: any): PerformanceIssue {
   const fields = issue.fields ?? {}
 
   // 基础 PlatformIssue 字段

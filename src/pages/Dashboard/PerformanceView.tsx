@@ -2,8 +2,10 @@ import { useState, Component, type ReactNode } from 'react'
 import { usePerformanceData } from '@/hooks/usePerformanceData'
 import { getPerformanceGrade, getGradeColor } from '@/lib/performanceEngine'
 import type { DepartmentPerformance } from '@/lib/performanceEngine'
+import { useSprintHistory, useSprintPerformance } from '@/hooks/useSprintHistory'
 import DepartmentOverview from './DepartmentOverview'
 import IndividualPerformance from './IndividualPerformance'
+import PerformanceTrendChart from './PerformanceTrendChart'
 import styles from './PerformanceView.module.css'
 
 // ─── Hardcoded department project keys ───
@@ -51,10 +53,38 @@ function PerformanceViewInner({ projectKey }: Props) {
   return <DepartmentRankingView />
 }
 
-/** Single project performance view (existing behavior) */
+/** Single project performance view with sprint selection and comparison */
 function SingleProjectPerformance({ projectKey }: { projectKey: string }) {
-  const [activeSubTab, setActiveSubTab] = useState<'department' | 'individual'>('department')
-  const { data, isLoading, error } = usePerformanceData(projectKey)
+  const [activeSubTab, setActiveSubTab] = useState<'department' | 'individual' | 'trend'>('department')
+  const [selectedSprintName, setSelectedSprintName] = useState<string | null>(null)
+
+  // 获取 Sprint 历史列表
+  const { sprints: sprintHistory } = useSprintHistory(projectKey, 10)
+
+  // 当前数据（活跃 Sprint 或选中的历史 Sprint）
+  const { data: activeData, isLoading: activeLoading, error: activeError } = usePerformanceData(
+    selectedSprintName ? null : projectKey
+  )
+  const { data: selectedData, isLoading: selectedLoading } = useSprintPerformance(
+    selectedSprintName ? projectKey : null,
+    selectedSprintName
+  )
+
+  // 找到上一个迭代用于对比
+  const currentSprintIndex = selectedSprintName
+    ? sprintHistory.findIndex(s => s.name === selectedSprintName)
+    : 0
+  const previousSprintName = currentSprintIndex >= 0 && currentSprintIndex < sprintHistory.length - 1
+    ? sprintHistory[currentSprintIndex + 1]?.name
+    : null
+  const { data: previousData } = useSprintPerformance(
+    previousSprintName ? projectKey : null,
+    previousSprintName
+  )
+
+  const data = selectedSprintName ? selectedData : activeData
+  const isLoading = selectedSprintName ? selectedLoading : activeLoading
+  const error = selectedSprintName ? null : activeError
 
   if (error) {
     return (
@@ -68,9 +98,16 @@ function SingleProjectPerformance({ projectKey }: { projectKey: string }) {
   if (isLoading) {
     return (
       <div>
+        {/* Sprint 选择器 */}
+        <SprintSelector
+          sprints={sprintHistory}
+          selected={selectedSprintName}
+          onSelect={setSelectedSprintName}
+        />
         <div className={styles.subTabs}>
           <button className={`${styles.subTab} ${styles.active}`}>部门总览</button>
           <button className={styles.subTab}>个人详情</button>
+          <button className={styles.subTab}>趋势</button>
         </div>
         <div className={styles.skeletonGrid}>
           {[1, 2, 3, 4, 5, 6].map(i => (
@@ -86,16 +123,35 @@ function SingleProjectPerformance({ projectKey }: { projectKey: string }) {
 
   if (!data) {
     return (
-      <div className={styles.emptyState}>
-        <div className={styles.emptyIcon}>📭</div>
-        <div className={styles.emptyTitle}>暂无数据</div>
-        <div className={styles.emptyDesc}>当前 Sprint 暂无可用的绩效数据</div>
+      <div>
+        <SprintSelector
+          sprints={sprintHistory}
+          selected={selectedSprintName}
+          onSelect={setSelectedSprintName}
+        />
+        <div className={styles.emptyState}>
+          <div className={styles.emptyIcon}>📭</div>
+          <div className={styles.emptyTitle}>暂无数据</div>
+          <div className={styles.emptyDesc}>当前迭代暂无可用的绩效数据</div>
+        </div>
       </div>
     )
   }
 
   return (
     <div>
+      {/* Sprint 选择器 */}
+      <SprintSelector
+        sprints={sprintHistory}
+        selected={selectedSprintName}
+        onSelect={setSelectedSprintName}
+      />
+
+      {/* 迭代对比摘要 */}
+      {previousData && (
+        <SprintComparison current={data} previous={previousData} previousName={previousSprintName!} />
+      )}
+
       <div className={styles.subTabs}>
         <button
           className={`${styles.subTab} ${activeSubTab === 'department' ? styles.active : ''}`}
@@ -105,9 +161,90 @@ function SingleProjectPerformance({ projectKey }: { projectKey: string }) {
           className={`${styles.subTab} ${activeSubTab === 'individual' ? styles.active : ''}`}
           onClick={() => setActiveSubTab('individual')}
         >个人详情</button>
+        <button
+          className={`${styles.subTab} ${activeSubTab === 'trend' ? styles.active : ''}`}
+          onClick={() => setActiveSubTab('trend')}
+        >趋势</button>
       </div>
       {activeSubTab === 'department' && <DepartmentOverview departmentPerformance={data} />}
       {activeSubTab === 'individual' && <IndividualPerformance memberPerformances={data.members} />}
+      {activeSubTab === 'trend' && <PerformanceTrendChart projectKey={projectKey} />}
+    </div>
+  )
+}
+
+/** Sprint 选择下拉框 */
+function SprintSelector({
+  sprints,
+  selected,
+  onSelect,
+}: {
+  sprints: Array<{ id: number; name: string; state: string; startDate?: string }>
+  selected: string | null
+  onSelect: (name: string | null) => void
+}) {
+  if (sprints.length === 0) return null
+
+  return (
+    <div className={styles.sprintSelector}>
+      <label className={styles.sprintSelectorLabel}>迭代：</label>
+      <select
+        className={styles.sprintSelectorSelect}
+        value={selected ?? ''}
+        onChange={(e) => onSelect(e.target.value || null)}
+      >
+        <option value="">当前活跃 Sprint</option>
+        {sprints.map(s => (
+          <option key={s.id} value={s.name}>
+            {s.name} {s.state === 'closed' ? '(已关闭)' : '(活跃)'}
+            {s.startDate ? ` · ${s.startDate}` : ''}
+          </option>
+        ))}
+      </select>
+    </div>
+  )
+}
+
+/** 迭代对比卡片 */
+function SprintComparison({
+  current,
+  previous,
+  previousName,
+}: {
+  current: DepartmentPerformance
+  previous: DepartmentPerformance
+  previousName: string
+}) {
+  const dims = [
+    { label: '综合分', curr: current.averageScore, prev: previous.averageScore },
+    { label: '吞吐', curr: current.averageThroughput, prev: previous.averageThroughput },
+    { label: '效率', curr: current.averageEfficiency, prev: previous.averageEfficiency },
+    { label: '质量', curr: current.averageQuality, prev: previous.averageQuality },
+    { label: '影响', curr: current.averageImpact, prev: previous.averageImpact },
+    { label: '协作', curr: current.averageCollaboration, prev: previous.averageCollaboration },
+  ]
+
+  return (
+    <div className={styles.comparisonContainer}>
+      <div className={styles.comparisonTitle}>
+        📊 与上期对比 <span className={styles.comparisonPrevName}>({previousName})</span>
+      </div>
+      <div className={styles.comparisonGrid}>
+        {dims.map(d => {
+          const diff = d.curr - d.prev
+          const isUp = diff > 0
+          const isDown = diff < 0
+          return (
+            <div key={d.label} className={styles.comparisonItem}>
+              <div className={styles.comparisonLabel}>{d.label}</div>
+              <div className={styles.comparisonValue}>{d.curr.toFixed(1)}</div>
+              <div className={`${styles.comparisonDiff} ${isUp ? styles.diffUp : isDown ? styles.diffDown : ''}`}>
+                {isUp ? '↑' : isDown ? '↓' : '—'} {Math.abs(diff).toFixed(1)}
+              </div>
+            </div>
+          )
+        })}
+      </div>
     </div>
   )
 }

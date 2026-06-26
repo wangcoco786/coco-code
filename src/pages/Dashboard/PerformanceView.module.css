@@ -1061,3 +1061,166 @@
     font-size: 14px;
   }
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   Sprint 选择器 & 迭代对比
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ─── Sprint Selector ─── */
+.sprintSelector {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  padding: 10px 16px;
+  background: var(--card);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+
+.sprintSelectorLabel {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text2);
+  flex-shrink: 0;
+}
+
+.sprintSelectorSelect {
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--bg, #f9fafb);
+  font-size: 13px;
+  color: var(--text);
+  cursor: pointer;
+  min-width: 240px;
+  transition: var(--transition);
+}
+
+.sprintSelectorSelect:hover {
+  border-color: var(--primary);
+}
+
+.sprintSelectorSelect:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(22, 119, 255, 0.1);
+}
+
+/* ─── Sprint Comparison ─── */
+.comparisonContainer {
+  margin-bottom: 20px;
+  padding: 16px 20px;
+  background: var(--card);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  border-left: 4px solid #1677ff;
+}
+
+.comparisonTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 12px;
+}
+
+.comparisonPrevName {
+  font-weight: 400;
+  font-size: 12px;
+  color: var(--text2);
+}
+
+.comparisonGrid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 12px;
+}
+
+.comparisonItem {
+  text-align: center;
+  padding: 8px 4px;
+  border-radius: var(--radius-sm);
+  background: var(--bg, #f9fafb);
+}
+
+.comparisonLabel {
+  font-size: 11px;
+  color: var(--text2);
+  margin-bottom: 4px;
+}
+
+.comparisonValue {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.comparisonDiff {
+  font-size: 12px;
+  font-weight: 500;
+  margin-top: 2px;
+  color: var(--text2);
+}
+
+.comparisonDiff.diffUp {
+  color: #52c41a;
+}
+
+.comparisonDiff.diffDown {
+  color: #f5222d;
+}
+
+/* ─── Trend Chart Container ─── */
+.trendContainer {
+  background: var(--card);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 20px;
+}
+
+.trendHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.trendTitle {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.trendExportBtn {
+  padding: 4px 12px;
+  font-size: 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--card);
+  cursor: pointer;
+  color: var(--text2);
+  transition: var(--transition);
+}
+
+.trendExportBtn:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+/* ─── Responsive ─── */
+@media (max-width: 900px) {
+  .comparisonGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .sprintSelectorSelect {
+    min-width: 180px;
+  }
+}
+
+@media (max-width: 600px) {
+  .comparisonGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

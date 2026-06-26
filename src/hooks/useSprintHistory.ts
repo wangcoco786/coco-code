@@ -79,9 +79,24 @@ export function useSprintHistory(projectKey: string | null, maxSprints = 50) {
             if (!id || sprintMap.has(id)) continue
 
             const name = parseField('name')
-            const startDate = parseField('startDate').slice(0, 10)
+            let startDate = parseField('startDate').slice(0, 10)
             const endDate = parseField('endDate').slice(0, 10)
             const completeDate = parseField('completeDate').slice(0, 10)
+
+            // fallback: 从 Sprint name 提取开始日期
+            // 格式如 "RP.2026.03/30-04/10" or "APS.03/30-04/10"
+            if (!startDate || startDate.length < 10) {
+              const yearMatch = name.match(/(\d{4})\.(\d{1,2})\/(\d{1,2})/)
+              const noYearMatch = name.match(/\.(\d{1,2})\/(\d{1,2})-/)
+              if (yearMatch) {
+                const [, y, m, d] = yearMatch
+                startDate = `${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`
+              } else if (noYearMatch) {
+                // 没有年份，假设是 2026 年
+                const [, m, d] = noYearMatch
+                startDate = `2026-${m.padStart(2, '0')}-${d.padStart(2, '0')}`
+              }
+            }
 
             if (name) {
               sprintMap.set(id, {
@@ -97,8 +112,8 @@ export function useSprintHistory(projectKey: string | null, maxSprints = 50) {
         }
       }
 
-      // 按 startDate 倒序排列，过滤 2026-03-01 之后的 Sprint
-      const MIN_DATE = '2026-03-01'
+      // 按 startDate 倒序排列，过滤 2026-03-14 之后的 Sprint
+      const MIN_DATE = '2026-03-14'
       const allSprints = Array.from(sprintMap.values())
         .filter(s => {
           // 必须有有效的 startDate 且 >= 2026-03-30

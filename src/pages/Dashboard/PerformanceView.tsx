@@ -70,13 +70,25 @@ function SingleProjectPerformance({ projectKey }: { projectKey: string }) {
     selectedSprintName
   )
 
-  // 找到上一个迭代用于对比
-  const currentSprintIndex = selectedSprintName
-    ? sprintHistory.findIndex(s => s.name === selectedSprintName)
-    : 0
-  const previousSprintName = currentSprintIndex >= 0 && currentSprintIndex < sprintHistory.length - 1
-    ? sprintHistory[currentSprintIndex + 1]?.name
-    : null
+  // 找到上一个迭代用于对比（只在同组 Sprint 中找）
+  const selectedNames = selectedSprintName ? selectedSprintName.split('|').filter(Boolean) : []
+  const primarySprintName = selectedNames[0] ?? null
+
+  const previousSprintName = (() => {
+    if (!primarySprintName) return null
+    // 提取 Sprint 名称前缀（如 "RP.2026.06/26-07/09" → "RP"）
+    const prefix = extractSprintPrefix(primarySprintName)
+    // 在历史中找同前缀的 Sprint，按时间排列找当前的上一个
+    const samePrefixSprints = sprintHistory
+      .filter(s => extractSprintPrefix(s.name) === prefix)
+      .sort((a, b) => (b.startDate ?? '').localeCompare(a.startDate ?? ''))
+    const currentIdx = samePrefixSprints.findIndex(s => s.name === primarySprintName)
+    if (currentIdx >= 0 && currentIdx < samePrefixSprints.length - 1) {
+      return samePrefixSprints[currentIdx + 1]?.name ?? null
+    }
+    return null
+  })()
+
   const { data: previousData } = useSprintPerformance(
     previousSprintName ? projectKey : null,
     previousSprintName
@@ -505,4 +517,12 @@ function getGradeLabel(grade: string): string {
     case 'needs_improvement': return '需改进'
     default: return ''
   }
+}
+
+/** 提取 Sprint 名称前缀（组名），用于上期对比时只找同组 Sprint */
+function extractSprintPrefix(name: string): string {
+  // 常见格式: "RP.2026.06/26-07/09", "Trfms.06/12-06/25", "APS.06/26-07/09"
+  // 取第一个 . 或数字之前的部分作为前缀
+  const match = name.match(/^([A-Za-z]+)/)
+  return match ? match[1].toLowerCase() : name.toLowerCase()
 }

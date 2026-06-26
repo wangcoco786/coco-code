@@ -129,17 +129,25 @@ const PERFORMANCE_FIELDS = [
 ]
 
 export function useSprintPerformance(projectKey: string | null, sprintName: string | null) {
+  // 支持 | 分隔的多个 Sprint 名称（同一迭代的多个并行 Sprint）
+  const sprintNames = sprintName?.split('|').filter(Boolean) ?? []
+
   return useQuery<DepartmentPerformance | null>({
     queryKey: ['sprint-performance', projectKey, sprintName],
     queryFn: async () => {
-      if (!projectKey || !sprintName) return null
+      if (!projectKey || sprintNames.length === 0) return null
 
       const resolvedKeys = resolveProjectKeys(projectKey)
       const projectClause = resolvedKeys.length === 1
         ? `project = ${resolvedKeys[0]}`
         : `project IN (${resolvedKeys.join(', ')})`
 
-      const jql = `${projectClause} AND sprint = "${sprintName}" ORDER BY priority ASC, updated DESC`
+      // 多个 Sprint 用 IN 查询
+      const sprintClause = sprintNames.length === 1
+        ? `sprint = "${sprintNames[0]}"`
+        : `sprint IN (${sprintNames.map(n => `"${n}"`).join(', ')})`
+
+      const jql = `${projectClause} AND ${sprintClause} ORDER BY priority ASC, updated DESC`
       const fieldsStr = PERFORMANCE_FIELDS.join(',')
       const url = `rest/api/2/search?jql=${encodeURIComponent(jql)}&fields=${fieldsStr}&expand=changelog&maxResults=200`
 
@@ -153,7 +161,6 @@ export function useSprintPerformance(projectKey: string | null, sprintName: stri
       const issues = data?.issues ?? []
       if (issues.length === 0) return null
 
-      // 动态 import transformToPerformanceIssue（避免循环依赖，复用已有逻辑）
       const { transformToPerformanceIssue } = await import('@/hooks/usePerformanceData')
       const performanceIssues = issues.map(transformToPerformanceIssue)
 
@@ -165,7 +172,7 @@ export function useSprintPerformance(projectKey: string | null, sprintName: stri
       const result = calculateDepartmentPerformance(performanceIssues, sprintDates)
       return result
     },
-    enabled: !!projectKey && !!sprintName,
-    staleTime: 15 * 60 * 1000, // 历史数据缓存更久
+    enabled: !!projectKey && sprintNames.length > 0,
+    staleTime: 15 * 60 * 1000,
   })
 }

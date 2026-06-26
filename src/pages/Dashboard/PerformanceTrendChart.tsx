@@ -3,20 +3,14 @@ import ReactECharts from 'echarts-for-react'
 import type { ECharts } from 'echarts'
 import { useQueries } from '@tanstack/react-query'
 import { authFetch } from '@/lib/authFetch'
-import {
-  resolveProjectKeys,
-  isProjectGroup,
-  hasSprintGroups,
-  getSprintGroups,
-  matchSprintGroup,
-} from '@/lib/projectGroups'
+import { resolveProjectKeys, isProjectGroup } from '@/lib/projectGroups'
 import styles from './PerformanceView.module.css'
 
 interface Props {
   projectKey: string | null
 }
 
-// 趋势图只需要轻量字段，不要 changelog/comment/issuelinks
+// 趋势图只需要轻量字段
 const TREND_FIELDS = [
   'summary', 'status', 'priority', 'assignee',
   'labels', 'created', 'updated', 'resolutiondate',
@@ -24,10 +18,9 @@ const TREND_FIELDS = [
   'customfield_10016', 'issuetype',
 ]
 
-const COLORS = ['#1677ff', '#52c41a', '#faad14', '#722ed1', '#eb2f96', '#13c2c2', '#fa541c']
-const MAX_SPRINTS = 5
+const MAX_SPRINTS = 8
 
-/** 轻量级绩效计算（不需要 changelog，只做完成率 + 工时效率） */
+/** 轻量级绩效计算 */
 function calcLightScore(issues: any[]): number {
   if (issues.length === 0) return 0
   const total = issues.length
@@ -36,17 +29,14 @@ function calcLightScore(issues: any[]): number {
     return status === 'done' || status === 'closed' || status === 'resolved' || status === 'released'
   }).length
 
-  // 完成率权重 60%
   const completionRate = done / total
 
-  // 有 story points 的平均分（质量代理）权重 20%
   const pointsIssues = issues.filter((i: any) => (i.fields?.customfield_10016 ?? 0) > 0)
   const avgPoints = pointsIssues.length > 0
     ? pointsIssues.reduce((sum: number, i: any) => sum + (i.fields?.customfield_10016 ?? 0), 0) / pointsIssues.length
     : 0
-  const pointsScore = Math.min(1, avgPoints / 5) // 5 SP 为满分
+  const pointsScore = Math.min(1, avgPoints / 5)
 
-  // 高优完成率 权重 20%
   const highPri = issues.filter((i: any) => {
     const p = (i.fields?.priority?.name ?? '').toLowerCase()
     return p === 'highest' || p === 'high'
@@ -57,14 +47,13 @@ function calcLightScore(issues: any[]): number {
   })
   const highPriRate = highPri.length > 0 ? highPriDone.length / highPri.length : completionRate
 
-  const score = (completionRate * 60 + pointsScore * 20 + highPriRate * 20)
-  return Math.round(score * 10) / 10
+  return Math.round((completionRate * 60 + pointsScore * 20 + highPriRate * 20) * 10) / 10
 }
 
 /**
- * 绩效趋势折线图（优化版）。
- * - 不请求 changelog，使用轻量计算
- * - 每组最多显示最近 5 个 Sprint
+ * 绩效趋势折线图。
+ * 显示整个部门/项目的综合绩效趋势（一条线），X 轴为 Sprint 开始时间。
+ * 对于项目组，合并所有子项目同一迭代的数据算整体分。
  */
 export default function PerformanceTrendChart({ projectKey }: Props) {
   if (!projectKey) return null
@@ -72,32 +61,30 @@ export default function PerformanceTrendChart({ projectKey }: Props) {
   return (
     <div className={styles.trendContainer}>
       <div className={styles.trendHeader}>
-        <span className={styles.trendTitle}>
-          📈 绩效趋势
-          {(isProjectGroup(projectKey) || hasSprintGroups(projectKey)) ? '（按组）' : ''}
-        </span>
+        <span className={styles.trendTitle}>📈 绩效趋势</span>
       </div>
       <TrendChartInner projectKey={projectKey} />
     </div>
   )
 }
 
+/** 按 startDate 分组迭代（同一天开始的 Sprint 合并为一个迭代） */
+interface IterationGroup {
+  startDate: string
+  sprintNames: string[]
+  subProjects: string[]
+}
+
 function TrendChartInner({ projectKey }: { projectKey: string }) {
   const echartRef = useRef<ReactECharts>(null)
   const isGroup = isProjectGroup(projectKey)
-  const isSprintGrouped = !isGroup && hasSprintGroups(projectKey)
 
   const subProjects = useMemo(() => {
     if (isGroup) return resolveProjectKeys(projectKey)
     return [projectKey]
   }, [projectKey, isGroup])
 
-  const sprintGroupDefs = useMemo(() => {
-    if (isSprintGrouped) return getSprintGroups(projectKey)
-    return []
-  }, [projectKey, isSprintGrouped])
-
-  // 获取 Sprint 历史列表
+  // 获取所有子项目的 Sprint 历史
   const sprintHistories = useQueries({
     queries: subProjects.map(pk => ({
       queryKey: ['sprint-history-light', pk, MAX_SPRINTS],
@@ -150,42 +137,61 @@ function TrendChartInner({ projectKey }: { projectKey: string }) {
     })),
   })
 
-  // 收集所有需要查询的 Sprint（轻量）
-  const allSprintQueries = useMemo(() => {
-    const queries: Array<{ subProject: string; sprintName: string; startDate: string }> = []
+  // 把所有子项目的 Sprint 按 startDate 分组为"迭代"
+  const iterations: IterationGroup[] = useMemo(() => {
+    const dateMap = new Map<string, { sprintNames: string[]; subProjects: string[] }>()
+
     subProjects.forEach((pk, idx) => {
       const sprints = sprintHistories[idx]?.data ?? []
       for (const s of sprints) {
-        queries.push({ subProject: pk, sprintName: s.name, startDate: s.startDate })
+        const date = s.startDate || 'unknown'
+        if (!dateMap.has(date)) {
+          dateMap.set(date, { sprintNames: [], subProjects: [] })
+        }
+        const entry = dateMap.get(date)!
+        entry.sprintNames.push(s.name)
+        entry.subProjects.push(pk)
       }
     })
-    return queries
+
+    return Array.from(dateMap.entries())
+      .map(([startDate, data]) => ({ startDate, ...data }))
+      .sort((a, b) => a.startDate.localeCompare(b.startDate))
+      .slice(-MAX_SPRINTS)
   }, [subProjects, sprintHistories])
 
-  // 轻量化请求（无 changelog，少字段）
-  const perfQueries = useQueries({
-    queries: allSprintQueries.map(q => ({
-      queryKey: ['sprint-trend-light', q.subProject, q.sprintName],
+  // 为每个迭代拉取所有 Sprint 的数据并合并
+  const iterationQueries = useQueries({
+    queries: iterations.map(iter => ({
+      queryKey: ['iteration-score', projectKey, iter.startDate, iter.sprintNames.join(',')],
       queryFn: async () => {
-        const jql = `project = ${q.subProject} AND sprint = "${q.sprintName}" ORDER BY priority ASC`
-        const fieldsStr = TREND_FIELDS.join(',')
-        // 注意：没有 expand=changelog，速度快很多
-        const url = `rest/api/2/search?jql=${encodeURIComponent(jql)}&fields=${fieldsStr}&maxResults=200`
-        const response = await authFetch(`/api/jira/${url}`, {
-          headers: { 'Content-Type': 'application/json' },
-        })
-        if (!response.ok) return null
-        const data = await response.json()
-        const issues = data?.issues ?? []
-        if (issues.length === 0) return null
-        return { score: calcLightScore(issues), total: issues.length }
+        // 合并同一迭代下所有 Sprint 的 issues
+        const allIssues: any[] = []
+        for (let i = 0; i < iter.sprintNames.length; i++) {
+          const pk = iter.subProjects[i]
+          const sprintName = iter.sprintNames[i]
+          const jql = `project = ${pk} AND sprint = "${sprintName}" ORDER BY priority ASC`
+          const fieldsStr = TREND_FIELDS.join(',')
+          const url = `rest/api/2/search?jql=${encodeURIComponent(jql)}&fields=${fieldsStr}&maxResults=200`
+          try {
+            const response = await authFetch(`/api/jira/${url}`, {
+              headers: { 'Content-Type': 'application/json' },
+            })
+            if (response.ok) {
+              const data = await response.json()
+              allIssues.push(...(data?.issues ?? []))
+            }
+          } catch { /* skip */ }
+        }
+        if (allIssues.length === 0) return null
+        return { score: calcLightScore(allIssues), total: allIssues.length }
       },
-      enabled: allSprintQueries.length > 0,
-      staleTime: 30 * 60 * 1000, // 30 分钟缓存
+      enabled: iterations.length > 0,
+      staleTime: 30 * 60 * 1000,
     })),
   })
 
-  const isLoading = sprintHistories.some(q => q.isLoading) || perfQueries.some(q => q.isLoading)
+  const isLoading = sprintHistories.some(q => q.isLoading) || iterationQueries.some(q => q.isLoading)
 
   const handleExport = useCallback(() => {
     const instance = echartRef.current?.getEchartsInstance() as ECharts | undefined
@@ -198,99 +204,27 @@ function TrendChartInner({ projectKey }: { projectKey: string }) {
   }, [])
 
   // 组装图表数据
-  const chartConfig = useMemo(() => {
-    if (isGroup) {
-      // 项目组模式（IDC）：每个子项目一条线
-      const seriesData: Array<{ name: string; points: Array<{ label: string; tooltip: string; score: number }> }> = []
-      let queryIdx = 0
-
-      subProjects.forEach((pk, pkIdx) => {
-        const sprints = sprintHistories[pkIdx]?.data ?? []
-        const points: Array<{ label: string; tooltip: string; score: number }> = []
-        for (const s of sprints) {
-          const result = perfQueries[queryIdx]?.data
-          if (result) {
-            points.push({
-              label: formatDateLabel(s.startDate),
-              tooltip: s.name,
-              score: result.score,
-            })
-          }
-          queryIdx++
-        }
-        if (points.length > 0) {
-          seriesData.push({ name: pk, points })
-        }
-      })
-
-      // X 轴用日期标签，取最长的那组作为参考
-      const maxLen = Math.max(...seriesData.map(s => s.points.length), 0)
-      const longestSeries = seriesData.find(s => s.points.length === maxLen)
-      const xLabels = longestSeries?.points.map(p => p.label) ?? []
-
-      return { xLabels, seriesData, legendData: seriesData.map(s => s.name) }
-    }
-
-    if (isSprintGrouped) {
-      // Sprint 分组模式（DTS）
-      const sprints = sprintHistories[0]?.data ?? []
-      const grouped: Record<string, Array<{ label: string; tooltip: string; score: number }>> = {}
-      for (const g of sprintGroupDefs) grouped[g.key] = []
-
-      let queryIdx = 0
-      for (const s of sprints) {
-        const result = perfQueries[queryIdx]?.data
-        const groupKey = matchSprintGroup(projectKey, s.name)
-        if (result && groupKey && grouped[groupKey]) {
-          grouped[groupKey].push({
-            label: formatDateLabel(s.startDate),
-            tooltip: s.name,
-            score: result.score,
-          })
-        }
-        queryIdx++
-      }
-
-      const seriesData = sprintGroupDefs
-        .filter(g => grouped[g.key].length > 0)
-        .map(g => ({ name: g.name, points: grouped[g.key] }))
-
-      const maxLen = Math.max(...seriesData.map(s => s.points.length), 0)
-      const longestSeries = seriesData.find(s => s.points.length === maxLen)
-      const xLabels = longestSeries?.points.map(p => p.label) ?? []
-
-      return { xLabels, seriesData, legendData: seriesData.map(s => s.name) }
-    }
-
-    // 普通单项目
-    const sprints = sprintHistories[0]?.data ?? []
+  const chartData = useMemo(() => {
     const points: Array<{ label: string; tooltip: string; score: number }> = []
-    let queryIdx = 0
-    for (const s of sprints) {
-      const result = perfQueries[queryIdx]?.data
+    for (let i = 0; i < iterations.length; i++) {
+      const result = iterationQueries[i]?.data
       if (result) {
+        const iter = iterations[i]
         points.push({
-          label: formatDateLabel(s.startDate),
-          tooltip: s.name,
+          label: formatDateLabel(iter.startDate),
+          tooltip: iter.sprintNames.join('\n'),
           score: result.score,
         })
       }
-      queryIdx++
     }
-
-    return {
-      xLabels: points.map(p => p.label),
-      seriesData: [{ name: '综合分', points }],
-      legendData: ['综合分'],
-    }
-  }, [isGroup, isSprintGrouped, subProjects, sprintHistories, perfQueries, sprintGroupDefs, projectKey])
+    return points
+  }, [iterations, iterationQueries])
 
   if (isLoading) {
     return <div style={{ padding: 30, textAlign: 'center', color: 'var(--text2)' }}>加载中...</div>
   }
 
-  const hasData = chartConfig.seriesData.some(s => s.points.length >= 2)
-  if (!hasData) {
+  if (chartData.length < 2) {
     return <div style={{ padding: 30, textAlign: 'center', color: 'var(--text2)' }}>需要至少 2 个迭代的数据才能展示趋势</div>
   }
 
@@ -299,26 +233,25 @@ function TrendChartInner({ projectKey }: { projectKey: string }) {
       trigger: 'axis' as const,
       formatter: (params: any) => {
         const idx = params[0]?.dataIndex ?? 0
-        // 显示完整 Sprint 名
-        const firstSeries = chartConfig.seriesData[0]
-        const sprintName = firstSeries?.points[idx]?.tooltip ?? ''
-        let html = `<strong>${sprintName || params[0]?.axisValue}</strong><br/>`
-        for (const p of params) {
-          html += `${p.marker} ${p.seriesName}: <strong>${Number(p.value).toFixed(1)}</strong><br/>`
+        const point = chartData[idx]
+        const sprints = point?.tooltip?.split('\n') ?? []
+        let html = `<strong>开始: ${point?.label}</strong><br/>`
+        html += `综合绩效: <strong>${Number(params[0]?.value).toFixed(1)}</strong><br/>`
+        if (sprints.length > 0) {
+          html += `<br/><span style="color:#999">包含 Sprint:</span><br/>`
+          for (const s of sprints.slice(0, 6)) {
+            html += `· ${s}<br/>`
+          }
+          if (sprints.length > 6) html += `… 等 ${sprints.length} 个`
         }
         return html
       },
     },
-    legend: {
-      data: chartConfig.legendData,
-      bottom: 0,
-      textStyle: { fontSize: 11, color: '#666' },
-    },
-    grid: { left: 45, right: 20, top: 20, bottom: 50 },
+    grid: { left: 45, right: 20, top: 30, bottom: 40 },
     xAxis: {
       type: 'category' as const,
-      data: chartConfig.xLabels,
-      axisLabel: { rotate: 0, fontSize: 11, color: '#666' },
+      data: chartData.map(d => d.label),
+      axisLabel: { rotate: 0, fontSize: 12, color: '#666' },
       axisLine: { lineStyle: { color: '#e8e8e8' } },
       axisTick: { show: false },
     },
@@ -329,18 +262,36 @@ function TrendChartInner({ projectKey }: { projectKey: string }) {
       axisLabel: { fontSize: 11, color: '#999' },
       splitLine: { lineStyle: { color: '#f0f0f0' } },
     },
-    series: chartConfig.seriesData.map((s, i) => ({
-      name: s.name,
-      type: 'line',
-      data: s.points.map(p => p.score),
-      lineStyle: { width: 2.5, color: COLORS[i % COLORS.length] },
-      itemStyle: { color: COLORS[i % COLORS.length] },
-      symbol: 'circle',
-      symbolSize: 7,
-      label: { show: false },
-    })),
+    series: [
+      {
+        name: '综合绩效',
+        type: 'line',
+        data: chartData.map(d => d.score),
+        lineStyle: { width: 3, color: '#1677ff' },
+        itemStyle: { color: '#1677ff' },
+        symbol: 'circle',
+        symbolSize: 8,
+        areaStyle: {
+          color: {
+            type: 'linear',
+            x: 0, y: 0, x2: 0, y2: 1,
+            colorStops: [
+              { offset: 0, color: 'rgba(22,119,255,0.15)' },
+              { offset: 1, color: 'rgba(22,119,255,0)' },
+            ],
+          },
+        },
+        label: {
+          show: true,
+          position: 'top' as const,
+          fontSize: 12,
+          fontWeight: 600,
+          color: '#1677ff',
+          formatter: '{c}',
+        },
+      },
+    ],
     animationDuration: 400,
-    animationEasing: 'cubicOut',
   }
 
   return (
@@ -351,7 +302,7 @@ function TrendChartInner({ projectKey }: { projectKey: string }) {
       <ReactECharts
         ref={echartRef}
         option={option}
-        style={{ height: 300 }}
+        style={{ height: 280 }}
         notMerge={true}
         lazyUpdate={true}
       />
@@ -359,8 +310,8 @@ function TrendChartInner({ projectKey }: { projectKey: string }) {
   )
 }
 
-/** 把 2026-06-12 格式化为 06/12 */
 function formatDateLabel(dateStr: string): string {
   if (!dateStr || dateStr.length < 10) return dateStr || '?'
+  // 显示 MM/DD 格式
   return dateStr.slice(5).replace('-', '/')
 }

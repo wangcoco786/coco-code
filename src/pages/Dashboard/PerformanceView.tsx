@@ -317,7 +317,7 @@ function SingleProjectPerformance({ projectKey }: { projectKey: string }) {
   )
 }
 
-/** Sprint 选择下拉框 */
+/** Sprint 选择下拉框 — 按迭代日期分组，选中一个日期 = 选中该日期所有 Sprint */
 function SprintSelector({
   sprints,
   selected,
@@ -329,6 +329,16 @@ function SprintSelector({
 }) {
   if (sprints.length === 0) return null
 
+  // 按 startDate 分组
+  const dateGroups = new Map<string, Array<{ id: number; name: string; state: string; startDate?: string }>>()
+  for (const s of sprints) {
+    const date = s.startDate || 'unknown'
+    if (!dateGroups.has(date)) dateGroups.set(date, [])
+    dateGroups.get(date)!.push(s)
+  }
+  const sortedDates = Array.from(dateGroups.entries())
+    .sort((a, b) => b[0].localeCompare(a[0])) // 最新的在前
+
   return (
     <div className={styles.sprintSelector}>
       <label className={styles.sprintSelectorLabel}>迭代：</label>
@@ -338,12 +348,17 @@ function SprintSelector({
         onChange={(e) => onSelect(e.target.value || null)}
       >
         <option value="">当前活跃 Sprint</option>
-        {sprints.map(s => (
-          <option key={s.id} value={s.name}>
-            {s.name} {s.state === 'closed' ? '(已关闭)' : '(活跃)'}
-            {s.startDate ? ` · ${s.startDate}` : ''}
-          </option>
-        ))}
+        {sortedDates.map(([date, group]) => {
+          // value 用第一个 sprint 的 name（后面加载时会按 date 匹配所有）
+          const label = `${date} · ${group.length} 个组`
+          const stateLabel = group.some(g => g.state === 'active') ? '活跃' : '已关闭'
+          const names = group.map(g => g.name).join('|')
+          return (
+            <option key={date} value={names}>
+              {label} ({stateLabel})
+            </option>
+          )
+        })}
       </select>
     </div>
   )

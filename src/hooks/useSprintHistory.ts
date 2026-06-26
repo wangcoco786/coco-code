@@ -38,8 +38,8 @@ export function useSprintHistory(projectKey: string | null, maxSprints = 50) {
         ? `project = ${resolvedKeys[0]}`
         : `project IN (${resolvedKeys.join(', ')})`
 
-      // 搜索 2026-03-30 之后更新的 issues 来解析所有 Sprint（active + closed）
-      const jql = `${projectClause} AND sprint is not EMPTY AND updated >= "2026/03/30" ORDER BY updated DESC`
+      // 搜索 2026-03-01 之后创建或更新的 issues 来解析所有 Sprint
+      const jql = `${projectClause} AND sprint is not EMPTY AND (updated >= "2026/03/01" OR created >= "2026/03/01") ORDER BY updated DESC`
       const url = `rest/api/2/search?jql=${encodeURIComponent(jql)}&fields=customfield_10005&maxResults=500`
 
       const response = await authFetch(`/api/jira/${url}`, {

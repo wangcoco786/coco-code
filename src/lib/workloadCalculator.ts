@@ -84,9 +84,9 @@ export function computeDeveloperProfiles(
   >()
 
   for (const issue of issues) {
-    // 优先使用 developer 字段，fallback 到 assignee
-    const person = issue.developer ?? issue.assignee
-    if (person === null) continue
+    // 只使用 developer 字段，没有 developer 的 ticket 不归入任何人
+    const person = issue.developer
+    if (person === null || person === undefined) continue
     // 跳过 inactive 用户
     if (person.active === false) continue
     // 跳过排除名单中的用户

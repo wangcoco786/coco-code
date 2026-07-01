@@ -39,6 +39,8 @@ export interface PlatformIssue {
   updatedAt: string // ISO 8601
   estimatedHours: number | null // 预估工时（小时）
   spentHours: number | null // 实际工时（小时）
+  isSubTask?: boolean // 是否为子任务
+  parentKey?: string | null // 父任务 key
 }
 
 // Sprint 摘要

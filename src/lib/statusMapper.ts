@@ -145,6 +145,10 @@ export function mapJiraIssueToPlatform(issue: JiraIssue): PlatformIssue {
       }
     : null
 
+  // Issue type and parent
+  const isSubTask = (fieldsAny.issuetype?.subtask === true) || (fieldsAny.issuetype?.name ?? '').toLowerCase().includes('sub-task')
+  const parentKey = fieldsAny.parent?.key ?? null
+
   return {
     id: issue.key,
     jiraId: issue.id,
@@ -167,6 +171,8 @@ export function mapJiraIssueToPlatform(issue: JiraIssue): PlatformIssue {
     updatedAt: fields.updated,
     estimatedHours,
     spentHours,
+    isSubTask,
+    parentKey,
   }
 }
 

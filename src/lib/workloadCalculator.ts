@@ -65,10 +65,11 @@ export function sortTasks(tasks: PlatformIssue[]): PlatformIssue[] {
 // ─── computeDeveloperProfiles ───────────────────────────────
 
 /**
- * Group issues by developer field (fallback to assignee if no developer).
- * - Skips issues with neither developer nor assignee.
- * - Formats name: if it looks like an email, take the part before '@'.
- * - Extracts deduplicated skill tags from all labels across the developer's issues.
+ * Group issues by developer field.
+ * - Only uses developer field (no fallback to assignee).
+ * - If a parent task has no developer but its sub-tasks do,
+ *   the parent task is assigned to the sub-task's developer.
+ * - Sub-tasks themselves are not shown (only parent tasks).
  */
 export function computeDeveloperProfiles(
   issues: PlatformIssue[],
@@ -83,13 +84,30 @@ export function computeDeveloperProfiles(
     }
   >()
 
+  // Step 1: Build a map of parent key → sub-task developers
+  const parentToDeveloper = new Map<string, { id: string; name: string; avatarUrl: string; active?: boolean }>()
   for (const issue of issues) {
-    // 只使用 developer 字段，没有 developer 的 ticket 不归入任何人
-    const person = issue.developer
+    if (issue.isSubTask && issue.parentKey && issue.developer) {
+      // First sub-task's developer wins for the parent
+      if (!parentToDeveloper.has(issue.parentKey)) {
+        parentToDeveloper.set(issue.parentKey, issue.developer)
+      }
+    }
+  }
+
+  // Step 2: Process only non-sub-task issues (main tasks)
+  for (const issue of issues) {
+    if (issue.isSubTask) continue // Skip sub-tasks in display
+
+    // Determine developer: direct developer field, or inherited from sub-task
+    let person: { id: string; name: string; avatarUrl: string; active?: boolean } | null | undefined = issue.developer
+    if (!person) {
+      person = parentToDeveloper.get(issue.id) ?? null
+    }
     if (person === null || person === undefined) continue
-    // 跳过 inactive 用户
+    // Skip inactive users
     if (person.active === false) continue
-    // 跳过排除名单中的用户
+    // Skip excluded users
     const excludedNames = getExcludedUsers()
     if (excludedNames.has(person.name.toLowerCase())) continue
 
@@ -97,9 +115,7 @@ export function computeDeveloperProfiles(
     let entry = profileMap.get(id)
 
     if (!entry) {
-      // Format name: strip email domain if applicable
       const formattedName = name.includes('@') ? name.split('@')[0] : name
-
       entry = {
         name: formattedName,
         avatarUrl: avatarUrl || null,
@@ -111,7 +127,6 @@ export function computeDeveloperProfiles(
 
     entry.tasks.push(issue)
 
-    // Collect labels (handle undefined / null gracefully)
     const labels = issue.labels ?? []
     for (const label of labels) {
       entry.labels.add(label)

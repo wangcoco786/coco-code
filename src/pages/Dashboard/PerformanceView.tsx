@@ -71,20 +71,22 @@ function SingleProjectPerformance({ projectKey }: { projectKey: string }) {
   )
 
   // 找到上一个迭代用于对比（只在同组 Sprint 中找）
-  const selectedNames = selectedSprintName ? selectedSprintName.split('|').filter(Boolean) : []
-  const primarySprintName = selectedNames[0] ?? null
+  const selectedEntries = selectedSprintName ? selectedSprintName.split('|').filter(Boolean) : []
+  const primaryEntry = selectedEntries[0] ?? null
+  const primaryName = primaryEntry?.includes(':') ? primaryEntry.split(':').slice(1).join(':') : primaryEntry
 
   const previousSprintName = (() => {
-    if (!primarySprintName) return null
+    if (!primaryName) return null
     // 提取 Sprint 名称前缀（如 "RP.2026.06/26-07/09" → "RP"）
-    const prefix = extractSprintPrefix(primarySprintName)
+    const prefix = extractSprintPrefix(primaryName)
     // 在历史中找同前缀的 Sprint，按时间排列找当前的上一个
     const samePrefixSprints = sprintHistory
       .filter(s => extractSprintPrefix(s.name) === prefix)
       .sort((a, b) => (b.startDate ?? '').localeCompare(a.startDate ?? ''))
-    const currentIdx = samePrefixSprints.findIndex(s => s.name === primarySprintName)
+    const currentIdx = samePrefixSprints.findIndex(s => s.name === primaryName)
     if (currentIdx >= 0 && currentIdx < samePrefixSprints.length - 1) {
-      return samePrefixSprints[currentIdx + 1]?.name ?? null
+      const prevSprint = samePrefixSprints[currentIdx + 1]
+      return prevSprint ? `${prevSprint.id}:${prevSprint.name}` : null
     }
     return null
   })()
@@ -161,7 +163,7 @@ function SingleProjectPerformance({ projectKey }: { projectKey: string }) {
 
       {/* 迭代对比摘要 */}
       {previousData && previousSprintName && (
-        <SprintComparison current={data} previous={previousData} previousName={previousSprintName} />
+        <SprintComparison current={data} previous={previousData} previousName={previousSprintName.includes(':') ? previousSprintName.split(':').slice(1).join(':') : previousSprintName} />
       )}
 
       <div className={styles.subTabs}>
@@ -199,8 +201,10 @@ function SprintSelector({
   const [search, setSearch] = useState('')
   const containerRef = React.useRef<HTMLDivElement>(null)
 
-  // 已选中的 sprint 名称集合
+  // 已选中的 sprint（格式 "id:name"）
   const selectedNames = selected ? selected.split('|').filter(Boolean) : []
+  // 用于显示的名称列表
+  const selectedDisplayNames = selectedNames.map(s => s.includes(':') ? s.split(':').slice(1).join(':') : s)
 
   // 过滤搜索
   const filtered = sprints.filter(s =>
@@ -219,19 +223,24 @@ function SprintSelector({
     return () => document.removeEventListener('mousedown', handleClick)
   }, [open])
 
-  function toggleSprint(name: string) {
+  function getSprintValue(s: { id: number; name: string }) {
+    return `${s.id}:${s.name}`
+  }
+
+  function toggleSprint(s: { id: number; name: string }) {
+    const val = getSprintValue(s)
     const newSet = new Set(selectedNames)
-    if (newSet.has(name)) {
-      newSet.delete(name)
+    if (newSet.has(val)) {
+      newSet.delete(val)
     } else {
-      newSet.add(name)
+      newSet.add(val)
     }
     onSelect(newSet.size > 0 ? Array.from(newSet).join('|') : null)
   }
 
   function selectAll() {
-    const allNames = filtered.map(s => s.name)
-    onSelect(allNames.join('|'))
+    const allVals = filtered.map(s => getSprintValue(s))
+    onSelect(allVals.join('|'))
   }
 
   function clearAll() {
@@ -240,11 +249,11 @@ function SprintSelector({
 
   if (sprints.length === 0) return null
 
-  const displayText = selectedNames.length === 0
+  const displayText = selectedDisplayNames.length === 0
     ? '当前活跃 Sprint'
-    : selectedNames.length <= 2
-      ? selectedNames.join(', ')
-      : `已选 ${selectedNames.length} 个 Sprint`
+    : selectedDisplayNames.length <= 2
+      ? selectedDisplayNames.join(', ')
+      : `已选 ${selectedDisplayNames.length} 个 Sprint`
 
   return (
     <div className={styles.sprintSelector} ref={containerRef} style={{ position: 'relative' }}>
@@ -281,8 +290,8 @@ function SprintSelector({
               <label key={s.id} className={styles.sprintDropdownItem}>
                 <input
                   type="checkbox"
-                  checked={selectedNames.includes(s.name)}
-                  onChange={() => toggleSprint(s.name)}
+                  checked={selectedNames.includes(getSprintValue(s))}
+                  onChange={() => toggleSprint(s)}
                 />
                 <span className={styles.sprintItemName}>{s.name}</span>
                 <span className={styles.sprintItemMeta}>

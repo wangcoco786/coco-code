@@ -181,23 +181,46 @@ const PERFORMANCE_FIELDS = [
 ]
 
 export function useSprintPerformance(projectKey: string | null, sprintName: string | null) {
-  // 支持 | 分隔的多个 Sprint 名称（同一迭代的多个并行 Sprint）
-  const sprintNames = sprintName?.split('|').filter(Boolean) ?? []
+  // 支持 | 分隔的多个 Sprint（格式为 "id:name" 或纯 "name"）
+  const sprintEntries = sprintName?.split('|').filter(Boolean) ?? []
 
   return useQuery<DepartmentPerformance | null>({
     queryKey: ['sprint-performance', projectKey, sprintName],
     queryFn: async () => {
-      if (!projectKey || sprintNames.length === 0) return null
+      if (!projectKey || sprintEntries.length === 0) return null
 
       const resolvedKeys = resolveProjectKeys(projectKey)
       const projectClause = resolvedKeys.length === 1
         ? `project = ${resolvedKeys[0]}`
         : `project IN (${resolvedKeys.join(', ')})`
 
-      // 多个 Sprint 用 IN 查询
-      const sprintClause = sprintNames.length === 1
-        ? `sprint = "${sprintNames[0]}"`
-        : `sprint IN (${sprintNames.map(n => `"${n}"`).join(', ')})`
+      // 尝试用 Sprint ID 查询（更可靠），fallback 到名称
+      const sprintClauses: string[] = []
+      for (const entry of sprintEntries) {
+        if (entry.includes(':')) {
+          // 格式 "123:SprintName" — 用 ID
+          const id = entry.split(':')[0]
+          sprintClauses.push(id)
+        } else if (/^\d+$/.test(entry)) {
+          // 纯数字 — 直接是 ID
+          sprintClauses.push(entry)
+        } else {
+          // 纯名称 — 用名称查询
+          sprintClauses.push(`"${entry}"`)
+        }
+      }
+
+      let sprintClause: string
+      const allNumeric = sprintClauses.every(s => /^\d+$/.test(s))
+      if (allNumeric) {
+        sprintClause = sprintClauses.length === 1
+          ? `sprint = ${sprintClauses[0]}`
+          : `sprint IN (${sprintClauses.join(', ')})`
+      } else {
+        sprintClause = sprintClauses.length === 1
+          ? `sprint = ${sprintClauses[0]}`
+          : `sprint IN (${sprintClauses.join(', ')})`
+      }
 
       const jql = `${projectClause} AND ${sprintClause} ORDER BY priority ASC, updated DESC`
       const fieldsStr = PERFORMANCE_FIELDS.join(',')
@@ -222,9 +245,21 @@ export function useSprintPerformance(projectKey: string | null, sprintName: stri
       }
 
       const result = calculateDepartmentPerformance(performanceIssues, sprintDates)
-      return result
+      // 即使 members 为空（可能因为 developer 未标记），只要有 issues 就返回结果
+      return result ?? {
+        averageScore: 0,
+        averageThroughput: 0,
+        averageEfficiency: 0,
+        averageQuality: 0,
+        averageImpact: 0,
+        averageCollaboration: 0,
+        totalCompletedTasks: performanceIssues.filter((i: any) => i.status === 'done').length,
+        averageCycleTime: 0,
+        members: [],
+        distribution: { excellent: 0, good: 0, average: 0, needsImprovement: 0 },
+      }
     },
-    enabled: !!projectKey && sprintNames.length > 0,
+    enabled: !!projectKey && sprintEntries.length > 0,
     staleTime: 15 * 60 * 1000,
   })
 }

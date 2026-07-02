@@ -52,7 +52,7 @@ export function useSprintHistory(projectKey: string | null, maxSprints = 50) {
               if (!board.id) continue
               // 获取 closed sprints
               try {
-                const closedUrl = `rest/agile/1.0/board/${board.id}/sprint?state=closed&maxResults=50`
+                const closedUrl = `rest/agile/1.0/board/${board.id}/sprint?state=closed&maxResults=100`
                 const closedRes = await authFetch(`/api/jira/${closedUrl}`, {
                   headers: { 'Content-Type': 'application/json' },
                 })
@@ -97,8 +97,8 @@ export function useSprintHistory(projectKey: string | null, maxSprints = 50) {
         } catch { /* ignore board fetch failure */ }
       }
 
-      // 方法2: fallback — 从 issue 的 customfield_10005 补充（以防 Agile API 不可用）
-      if (sprintMap.size < 5) {
+      // 方法2: 补充 — 从 issue 的 customfield_10005 获取更多 Sprint（Agile API 可能遗漏）
+      {
         const projectClause = resolvedKeys.length === 1
           ? `project = ${resolvedKeys[0]}`
           : `project IN (${resolvedKeys.join(', ')})`

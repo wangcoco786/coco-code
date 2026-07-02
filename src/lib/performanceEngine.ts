@@ -806,8 +806,23 @@ export function calculateDepartmentPerformance(
   const seenNames = new Set<string>()
   const members: MemberPerformance[] = []
   for (const mid of allMemberIds) {
-    // 优先用 assignee 分组的 issues，其次用 developer 字段分组，最后用 reporter 分组
-    const memberIssues = memberGroups[mid] ?? developerGroups[mid] ?? reporterGroups[mid] ?? []
+    // 合并 developer 分组和 assignee 分组的 issues（与资源视图一致，developer 优先）
+    // 如果同时存在 developer 和 assignee 分组，合并去重；否则按 developer → assignee → reporter 优先级
+    let memberIssues: PerformanceIssue[]
+    const devIssues = developerGroups[mid]
+    const assigneeIssues = memberGroups[mid]
+    const repIssues = reporterGroups[mid]
+
+    if (devIssues && assigneeIssues) {
+      // 合并去重（以 issue id 为 key）
+      const issueMap = new Map<string, PerformanceIssue>()
+      for (const i of devIssues) issueMap.set(i.id, i)
+      for (const i of assigneeIssues) issueMap.set(i.id, i)
+      memberIssues = [...issueMap.values()]
+    } else {
+      memberIssues = devIssues ?? assigneeIssues ?? repIssues ?? []
+    }
+
     if (memberIssues.length === 0) continue
     const perf = calculateMemberPerformance(memberIssues, issues, sprint, weights, knownDeveloperIds, mid)
     // 按 memberName 去重

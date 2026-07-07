@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>无忧达 × 沃尔玛供货流程</title>
+<style>
+  body {
+    font-family: -apple-system, "Microsoft YaHei", "PingFang SC", sans-serif;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 40px 30px;
+    color: #333;
+    line-height: 1.7;
+  }
+  h1 {
+    text-align: center;
+    border-bottom: 3px solid #1a73e8;
+    padding-bottom: 12px;
+    margin-bottom: 30px;
+  }
+  h2 {
+    color: #1a73e8;
+    border-left: 4px solid #1a73e8;
+    padding-left: 10px;
+    margin-top: 36px;
+  }
+  h3 {
+    color: #444;
+    margin-top: 20px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 12px 0 20px;
+    font-size: 14px;
+  }
+  th, td {
+    border: 1px solid #ddd;
+    padding: 8px 12px;
+    text-align: left;
+  }
+  th {
+    background: #f0f6ff;
+    font-weight: 600;
+  }
+  tr:nth-child(even) { background: #fafafa; }
+  ul, ol { padding-left: 20px; }
+  li { margin-bottom: 4px; }
+  .tag-ok { color: #2e7d32; font-weight: bold; }
+  .tag-warn { color: #e65100; font-weight: bold; }
+  .tag-miss { color: #c62828; font-weight: bold; }
+  .phase { background: #f0f6ff; border-radius: 6px; padding: 12px 16px; margin: 10px 0; }
+  .phase strong { color: #1a73e8; }
+  @media print {
+    body { padding: 20px; }
+    h1 { font-size: 22px; }
+    h2 { font-size: 16px; margin-top: 24px; }
+    table { font-size: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<h1>无忧达 × 沃尔玛供货流程</h1>
+
+<h2>目标</h2>
+<p>帮助无忧达建立统一的北美海外仓面对大卖场（Walmart）的供货流程。</p>
+
+<h2>业务链路</h2>
+<p><strong>无忧达卖家 → 无忧达海外仓（北美）→ Walmart DC（配送中心）</strong></p>
+
+<h2>Walmart 合规要求</h2>
+
+<h3>EDI 报文（X12 标准）</h3>
+<table>
+  <tr><th>EDI 报文</th><th>方向</th><th>用途</th><th>时效要求</th></tr>
+  <tr><td>850 (PO)</td><td>Walmart → 供应商</td><td>采购订单</td><td>收到后次日 4pm CST 前确认</td></tr>
+  <tr><td>855 (PO Ack)</td><td>供应商 → Walmart</td><td>订单确认</td><td>收到 PO 后 24h 内</td></tr>
+  <tr><td>856 (ASN)</td><td>供应商 → Walmart</td><td>发货通知</td><td>发货当天，货到 DC 前</td></tr>
+  <tr><td>810 (Invoice)</td><td>供应商 → Walmart</td><td>发票</td><td>发货后</td></tr>
+  <tr><td>997 (FA)</td><td>双向</td><td>功能确认</td><td>自动</td></tr>
+</table>
+
+<h3>GS1-128 标签</h3>
+<p>每个出库箱/托盘必须贴合规标签，包含 SSCC-18（全球唯一序列货运容器代码）、GS1-128 条码。每个 SSCC 必须在 856 ASN 中出现，否则 DC 拒收。</p>
+
+<h3>Routing Guide</h3>
+<ul>
+  <li><strong>MABD</strong>：Must Arrive By Date，PO 上指定的到货截止日</li>
+  <li>发往 Walmart DC 需提前预约送货窗口</li>
+  <li>托盘规格：GMA 标准托盘 48×40 英寸，最高 60 英寸</li>
+</ul>
+
+<h3>OTIF 考核</h3>
+<ul>
+  <li>OTIF（On-Time In-Full）准时足量率要求 ≥98%，低于扣 3% 货款</li>
+  <li>On-Time：货物在 MABD 当天或之前到达</li>
+  <li>In-Full：PO 中每个 line item 数量 100% 齐全</li>
+</ul>
+
+<h2>系统能力现状</h2>
+<table>
+  <tr><th>状态</th><th>内容</th></tr>
+  <tr><td class="tag-ok">✅ 已具备</td><td>EDI 解析 X12；自动生成 855；实时库存查询；波次拣货；出库自动生成 856 ASN；可生成 810</td></tr>
+  <tr><td class="tag-warn">⚠️ 需完善</td><td>标签模板合规确认；配置 GS1 Company Prefix；新增 MABD 倒排逻辑</td></tr>
+  <tr><td class="tag-miss">❌ 缺失</td><td>OTIF 看板</td></tr>
+</table>
+
+<h2>四大系统职责</h2>
+<table>
+  <tr><th>系统</th><th>角色</th></tr>
+  <tr><td><strong>EDI</strong></td><td>商超的"数字握手通道"，自动收发 PO、ASN、Invoice</td></tr>
+  <tr><td><strong>DI</strong></td><td>数据翻译官，不同格式互转（X12/JSON/XML），不同商超统一适配</td></tr>
+  <tr><td><strong>OMS</strong></td><td>业务大脑，接单→分仓→排程→监控，订单全生命周期管理</td></tr>
+  <tr><td><strong>WMS</strong></td><td>仓内执行引擎，收货、上架、拣货、包装、贴标、出库</td></tr>
+</table>
+
+<h2>必须落地的能力（合规性）</h2>
+<ol>
+  <li>Walmart EDI 850/855/856/810 全流程合规</li>
+  <li>GS1-128 标签打印（含 SSCC-18）</li>
+  <li>SSCC 与 ASN 严格一致</li>
+  <li>PO 确认时效自动化（24h）</li>
+</ol>
+
+<h2>强烈建议做（避免罚款）</h2>
+<ol start="5">
+  <li>MABD 倒排排程（从 MABD 反推最晚出库日）</li>
+  <li>OTIF 达成率看板</li>
+  <li>Routing Guide 规则引擎（自动匹配承运商、预约 DC 窗口）</li>
+  <li>短装/超装校验</li>
+</ol>
+
+<h2>主要风险</h2>
+<table>
+  <tr><th>风险</th><th>影响</th></tr>
+  <tr><td>SSCC 不一致</td><td>DC 拒收，退货 + 扣罚</td></tr>
+  <tr><td>ASN 晚于货物到达</td><td>OTIF 不达标</td></tr>
+  <tr><td>标签不合规</td><td>扣罚 + 退货</td></tr>
+  <tr><td>MABD 管控缺失</td><td>大面积迟到</td></tr>
+  <tr><td>GS1 Company Prefix 未注册</td><td>无法生成合规 SSCC</td></tr>
+</table>
+
+<h2>实施节奏</h2>
+<div class="phase"><strong>Phase 1（MVP，2-4周）</strong>：全流程打通 + GS1-128 标签合规</div>
+<div class="phase"><strong>Phase 2（合规加固，2-4周）</strong>：SSCC 与 ASN 一致性校验 + OTIF 监控看板</div>
+<div class="phase"><strong>Phase 3（规模化，持续）</strong>：多卖家多仓多 DC 路由 + Routing Guide 规则引擎 + Chargeback 分析</div>
+
+</body>
+</html>

@@ -1,102 +1,234 @@
 # AI-PM Platform User Guide
 
-## Overview
+> AI-Powered Project Management · Jira Integration · Smart Analytics & Decisions
 
-AI-PM is an AI-powered project management platform that integrates with Jira to provide Sprint management, requirements tracking, risk monitoring, report generation, and project roadmap planning.
+---
+
+## Platform Architecture
+
+```mermaid
+graph TB
+    subgraph Data Layer
+        JIRA[Jira API] --> API[Backend API Proxy]
+        API --> CACHE[TanStack Query Cache]
+    end
+    subgraph Feature Modules
+        CACHE --> DASH[Dashboard]
+        CACHE --> SPRINT[Sprint Management]
+        CACHE --> REQ[Requirements]
+        CACHE --> RISK[Risk & Collaboration]
+        CACHE --> REPORT[Reports]
+        CACHE --> ROAD[Roadmap]
+        CACHE --> PERF[Performance]
+        CACHE --> RN[Release Notes]
+    end
+    subgraph AI Engine
+        AI[AI Analysis Engine] --> DASH
+        AI --> SPRINT
+        AI --> RISK
+        AI --> REPORT
+        AI --> ROAD
+    end
+    subgraph Notifications
+        WECOM[WeCom Webhook] --> RISK
+        WECOM --> REPORT
+    end
+```
+
+---
 
 ## Getting Started
 
-1. Select a Jira project from the project selector in the top navigation bar
-2. All pages will automatically load data for the selected project
+```mermaid
+flowchart LR
+    A[Select Project] --> B[View Dashboard]
+    B --> C{Your Role?}
+    C -->|PM| D[Global View + AI Decisions]
+    C -->|DEV| E[Personal View + My Tasks]
+    D --> F[Sprint / Risk / Reports]
+    E --> F
+```
+
+1. Select a Jira project from the top navigation bar
+2. All pages automatically load data for the selected project
 3. Use the left sidebar to navigate between modules
 
-## Modules
+---
 
-### Dashboard
+## Feature Modules
 
-Project overview at a glance:
-- **Global View**: Sprint completion rate, task status distribution, team workload, risk alerts, burndown chart
-- **Personal View**: My tasks, progress stats
-- **AI Decision** (PM role): AI-assisted decision suggestions
-- **AI Project Insights**: Click "Generate Analysis" for AI health assessment
+### 1. Dashboard
 
-### Requirements
+| Tab | Description | Role |
+|-----|-------------|------|
+| Global View | Sprint completion, task distribution, team workload, burndown | PM / DEV |
+| Personal View | My tasks, progress stats | DEV |
+| Performance | Five-dimension performance evaluation, team ranking | PM |
+| Release Notes | Current sprint release summary, export | PM |
+| AI Decision | AI-assisted decision suggestions | PM |
 
-Manage all project requirements (past year):
-- **List / Kanban View**: Toggle between display modes
-- **Filters**: By status, priority, assignee, keyword
-- **Status Stats**: Top bar shows counts per status, click to quick-filter
-- **Ticket Links**: Click any task ID to open the original Jira issue
-- **AI Analysis**: Requirements health and backlog risk insights
+**AI Insights**: Click "Generate Analysis" at the top of any page for AI assessment.
 
-### Sprint Management
+---
 
-Detailed Sprint management with 4 tabs:
+### 2. Sprint Management
 
-**Board**
-- 5-column kanban: To Do → In Progress → In Review → In Testing → Done
-- Filter by priority, assignee, keyword
+```mermaid
+graph LR
+    subgraph Four Tabs
+        A[Board] --> B[Resources]
+        B --> C[Changes]
+        C --> D[AI Planning]
+    end
+```
 
-**Resources**
-- Developer profile cards: avatar, skill tags, workload indicator
-- Workload visualization: Overloaded (red) / Balanced (green) / Idle (orange)
-- Team summary bar: click any stat card to expand task details
-- Sort by: load, task count, name
+| Tab | Features |
+|-----|----------|
+| **Board** | 5-column kanban (To Do → In Progress → Review → Testing → Done), filters |
+| **Resources** | Developer profiles, workload visualization (red/green/orange), team stats |
+| **Changes** | AI change detection, impact analysis, scope creep warning (>20%) |
+| **Planning** | AI scores and ranks Backlog candidates |
 
-**Changes**
-- AI-powered change detection: priority changes, new additions, scope changes, status regressions
-- Impact analysis dashboard
-- Scope creep detection (auto-warning at >20%)
-- AI change summary generation
+---
 
-**Planning**
-- AI scores and ranks Backlog candidates
-- Select tasks and copy planning list
+### 3. Requirements
 
-### Risk & Collaboration
+- List view / Kanban view toggle
+- Filter by status, priority, assignee, keyword
+- Status stats bar at top, click to quick-filter
+- All Ticket IDs clickable → opens Jira
+- AI requirements health analysis
 
-- **Risk Board**: Risks by status (Identified → Evaluating → Handling → Closed)
-- **Cross-team Collaboration**: Auto-detected cross-project tasks
-- **Dependencies**: Unassigned high-priority tasks, overtime tasks, stale tasks
-- **WeCom Push**: One-click risk notification to WeCom group
+---
 
-### Reports
+### 4. Risk & Collaboration
 
-- **Daily / Weekly / Sprint Review**: Auto-generated reports with task details, team workload tables, risk details
-- **Push to WeCom**: One-click report delivery
-- **AI Report Assistant**: AI-generated progress summaries
+```mermaid
+flowchart LR
+    A[Identified] --> B[Evaluating]
+    B --> C[Handling]
+    C --> D[Closed]
+```
 
-### Project Roadmap
+- Risk board: columns by status
+- Cross-team collaboration: auto-detected cross-project tasks
+- Dependencies: unassigned high-priority, overtime, stale tasks
+- WeCom push: one-click risk notification
 
-- **Timeline View**: Horizontal timeline with milestones and key nodes
-- **Milestone Management**: Add/edit/delete milestones (Planned/In Progress/Completed/Delayed)
-- **Key Nodes**: Release, review, deadline, custom events
-- **Templates**: 4 built-in templates (Agile Sprint, Quarterly, Product Launch, Custom Blank)
-- **Jira Sync**: Import milestones from Jira Fix Versions
-- **AI Roadmap Analysis**: Roadmap health insights
+---
 
-### Settings
+### 5. Reports
 
-- Jira connection configuration and testing
-- Notification settings
-- Permission management
+| Report Type | Content |
+|-------------|---------|
+| Daily | Today's progress, completed/new task stats |
+| Weekly | Workload summary, risk overview, next week plan |
+| Sprint Review | Completion rate, team contributions, improvement suggestions |
+
+- One-click push to WeCom
+- AI auto-generated progress summaries
+
+---
+
+### 6. Project Roadmap
+
+- Horizontal timeline with milestones
+- 4 built-in templates (Agile Sprint / Quarterly / Product Launch / Custom)
+- Sync milestones from Jira Fix Versions
+- AI roadmap health analysis
+
+---
+
+### 7. Department Performance
+
+```mermaid
+pie title Performance Dimension Weights
+    "Throughput" : 20
+    "Efficiency" : 25
+    "Quality" : 25
+    "Impact" : 15
+    "Collaboration" : 15
+```
+
+**Five-Dimension Model (SPACE + DORA):**
+
+| Dimension | Weight | Calculation |
+|-----------|--------|-------------|
+| Throughput | 20% | Completed tasks × complexity factor, percentile rank in team |
+| Efficiency | 25% | Average Cycle Time + on-time delivery rate within Sprint |
+| Quality | 25% | Rework rate + Bug introduction rate |
+| Impact | 15% | High-priority task completion ratio + blocking resolution speed |
+| Collaboration | 15% | Cross-team comments + participation in others' tasks |
+
+**Performance Grades:**
+
+| Score | Grade | Color |
+|-------|-------|-------|
+| 80-100 | Excellent | 🟢 |
+| 60-79 | Good | 🔵 |
+| 40-59 | Average | 🟠 |
+| 0-39 | Needs Improvement | 🔴 |
+
+---
+
+### 8. Release Notes
+
+```mermaid
+flowchart TB
+    A[Current Sprint Issues] --> B[Classification Engine]
+    B --> C[Feature / Bug Fix / Hot Fix / Improvement / Other]
+    C --> D[Completion Summary]
+    C --> E[Unplanned Markers]
+    C --> F[Stale Status Alerts]
+    D --> G[Export Markdown / HTML]
+```
+
+- Auto-aggregates current sprint issues
+- Categorized display (collapsible sections)
+- Completion summary (click numbers for details)
+- Unplanned issue markers + filter toggle
+- Stale status alerts (2 days before Sprint end)
+- One-click export to Markdown / HTML
+
+---
 
 ## Common Features
 
-### AI Smart Analysis
-Every page has an AI analysis panel at the top. Click "Generate Analysis" for AI-powered insights and recommendations.
+| Feature | Description |
+|---------|-------------|
+| 🔍 Global Search | Search by task ID, title, page name |
+| 🔗 Ticket Links | All IDs clickable → opens Jira |
+| 🌐 Multi-language | Chinese / English / Japanese / Spanish |
+| 👤 Role Switching | PM / DEV roles with differentiated features |
+| 🤖 AI Assistant | Bottom-right chat, query Jira data directly |
+| 🔔 Notification Center | Real-time risk alerts and change notifications |
 
-### Global Search
-The top search bar supports searching by task ID, title, and page names. Supports exact Jira ticket number search.
+---
 
-### Ticket Links
-All ticket IDs across the platform are clickable, opening the original Jira issue in a new tab.
+## Tech Stack
 
-### Multi-language
-Supports Chinese, English, Japanese, and Spanish. Switch languages from the top navigation bar.
+```mermaid
+graph LR
+    React --> Vite
+    Vite --> TypeScript
+    TypeScript --> TanStack[TanStack Query]
+    TanStack --> Express
+    Express --> JiraAPI[Jira REST API]
+```
 
-### Role Switching
-Switch between PM and DEV roles in the top navigation bar. Different roles see different features.
+| Layer | Technology |
+|-------|-----------|
+| Frontend | React 18 + TypeScript + Vite |
+| State | TanStack Query |
+| Backend | Express (API Proxy) |
+| AI | LLM API Integration |
+| Notifications | WeCom Webhook |
+| Deployment | Vercel + On-premise Node.js |
 
-### AI Assistant
-Click the 🤖 button in the bottom-right corner to open the AI chat. Ask questions about your Jira project data directly.
+---
+
+## Access
+
+- **Public**: https://ai-pm-platform.item.pub/
+- **Intranet**: http://192.168.x.x:3000 (run `启动服务.bat`)
+

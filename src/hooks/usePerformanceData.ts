@@ -275,14 +275,17 @@ export function transformToPerformanceIssue(issue: any): PerformanceIssue {
           }
         }
       }
-      // Developer (multi) 字段: customfield_11103
+      // Developer (multi) 字段: customfield_11103 — 可能是数组或单个对象
       const devMulti = fields.customfield_11103 ?? null
-      if (Array.isArray(devMulti) && devMulti.length > 0) {
-        const d = devMulti[0] as { accountId?: string; key?: string; name?: string; displayName?: string; active?: boolean }
-        if (d && typeof d === 'object' && d.active !== false) {
-          return {
-            id: d.accountId || d.key || d.name || d.displayName || 'unknown',
-            name: formatDisplayName(d.displayName ?? ''),
+      if (devMulti && typeof devMulti === 'object') {
+        const devObj = Array.isArray(devMulti) ? devMulti[0] : devMulti
+        if (devObj && typeof devObj === 'object') {
+          const d = devObj as { accountId?: string; key?: string; name?: string; displayName?: string; active?: boolean }
+          if (d.active !== false) {
+            return {
+              id: d.accountId || d.key || d.name || d.displayName || 'unknown',
+              name: formatDisplayName(d.displayName ?? ''),
+            }
           }
         }
       }

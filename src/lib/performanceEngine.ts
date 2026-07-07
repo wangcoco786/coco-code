@@ -1,8 +1,12 @@
 // ============================================================
 // 绩效计算引擎 — 基于 SPACE + DORA 框架的五维度绩效评估
+// v2.1 - ownerGroups 统一归属逻辑
 // ============================================================
 
 import type { PlatformIssue } from '@/types/platform'
+
+/** Build version marker for cache busting */
+export const PERF_ENGINE_VERSION = '2.1.0'
 
 // ────────────────────────────────────────────────────────────
 // 数据模型：输入
@@ -623,9 +627,15 @@ export function calculateMemberPerformance(
     avatarUrl = firstIssue?.assignee?.avatarUrl ?? null
   }
 
-  // 预计算所有成员的吞吐量统计（用于相对排名）
-  const memberGroups = groupIssuesByAssignee(allIssues)
-  const allMemberStats = computeAllMemberStats(memberGroups)
+  // 预计算所有成员的吞吐量统计（用于相对排名，按实际 owner 分组）
+  const ownerGroupsForStats: Record<string, PerformanceIssue[]> = {}
+  for (const issue of allIssues) {
+    const oid = issue.developerUser?.id ?? issue.assignee?.id ?? issue.reporter?.id
+    if (!oid) continue
+    if (!ownerGroupsForStats[oid]) ownerGroupsForStats[oid] = []
+    ownerGroupsForStats[oid].push(issue)
+  }
+  const allMemberStats = computeAllMemberStats(ownerGroupsForStats)
 
   // 计算五个维度
   const throughput = calculateThroughputScore(memberIssues, allMemberStats)
@@ -704,20 +714,38 @@ export function calculateDepartmentPerformance(
   weights?: PerformanceWeights,
   knownDeveloperIds?: Set<string>
 ): DepartmentPerformance {
-  // 按 assignee 分组 issues（绩效基于 assignee 的任务）
-  const memberGroups = groupIssuesByAssignee(issues)
+  // ─── 统一任务归属逻辑（与资源视图 computeDeveloperProfiles 一致）───
+  // 每个任务只归属一个人：优先 developerUser，没有则用 assignee，再没有则用 reporter
+  const ownerGroups: Record<string, PerformanceIssue[]> = {}
+  const ownerNameMap = new Map<string, string>() // ownerId → name
 
-  // 按 developerUser 分组 issues（Developer 字段中的人也参与绩效）
-  const developerGroups: Record<string, PerformanceIssue[]> = {}
   for (const issue of issues) {
+    let ownerId: string | null = null
+    let ownerName: string | null = null
+
     if (issue.developerUser?.id) {
-      const devId = issue.developerUser.id
-      if (!developerGroups[devId]) developerGroups[devId] = []
-      developerGroups[devId].push(issue)
+      ownerId = issue.developerUser.id
+      ownerName = issue.developerUser.name
+    } else if (issue.assignee?.id) {
+      ownerId = issue.assignee.id
+      ownerName = issue.assignee.name
+    } else if (issue.reporter?.id) {
+      ownerId = issue.reporter.id
+      ownerName = issue.reporter.name
     }
+
+    // DEBUG: track RMS-2886 assignment
+    if (issue.id === 'RMS-2886') {
+      console.log('[PerfEngine DEBUG] RMS-2886 developerUser:', JSON.stringify(issue.developerUser), 'assignee:', JSON.stringify(issue.assignee), '→ ownerId:', ownerId, 'ownerName:', ownerName)
+    }
+
+    if (!ownerId) continue
+    if (!ownerGroups[ownerId]) ownerGroups[ownerId] = []
+    ownerGroups[ownerId].push(issue)
+    if (ownerName) ownerNameMap.set(ownerId, ownerName)
   }
 
-  // 也按 reporter 分组（用于纯 reporter 的绩效计算）
+  // 也按 reporter 分组（用于纯 reporter 的绩效计算 - 仅当 reporter 不在 ownerGroups 时）
   const reporterGroups: Record<string, PerformanceIssue[]> = {}
   for (const issue of issues) {
     if (issue.reporter?.id) {
@@ -738,53 +766,14 @@ export function calculateDepartmentPerformance(
     if (issue.qaUser?.id) validMemberIds.add(issue.qaUser.id)
   }
 
-  // 构建 assigneeId → assigneeName 映射
-  const assigneeNameMap = new Map<string, string>()
-  for (const issue of issues) {
-    if (issue.assignee?.id && issue.assignee?.name) {
-      assigneeNameMap.set(issue.assignee.id, issue.assignee.name)
-    }
-  }
-
-  // 过滤 assignee 组：只保留 developer/reporter/QA 角色的成员
-  const memberIds = Object.keys(memberGroups).filter(id => {
+  // 过滤 ownerGroups：只保留 developer/reporter/QA 角色的成员
+  const allMemberIds = Object.keys(ownerGroups).filter(id => {
     if (id === 'unassigned') return false
     if (validMemberIds.has(id)) return true
-    const name = assigneeNameMap.get(id)
+    const name = ownerNameMap.get(id)
     if (name && validMemberIds.has(name)) return true
     return false
   })
-
-  // 收集纯 developer（在 developerUser 字段出现但不在 assignee 组中的人）
-  const assigneeIdSet = new Set(memberIds)
-  const pureDeveloperIds: string[] = []
-  for (const issue of issues) {
-    if (issue.developerUser?.id && !assigneeIdSet.has(issue.developerUser.id)) {
-      const devId = issue.developerUser.id
-      if (!pureDeveloperIds.includes(devId)) {
-        pureDeveloperIds.push(devId)
-      }
-    }
-  }
-  if (pureDeveloperIds.length > 0) {
-    console.log('[PerfEngine] Pure developers (not in assignee):', pureDeveloperIds.length, 'IDs:', pureDeveloperIds.slice(0, 10))
-  }
-
-  // 收集纯 reporter（在 reporter 字段出现但不在 assignee 组和 developer 组中的人）
-  const devAndAssigneeIdSet = new Set([...memberIds, ...pureDeveloperIds])
-  const pureReporterIds: string[] = []
-  for (const issue of issues) {
-    if (issue.reporter?.id && !devAndAssigneeIdSet.has(issue.reporter.id)) {
-      const rid = issue.reporter.id
-      if (!pureReporterIds.includes(rid)) {
-        pureReporterIds.push(rid)
-      }
-    }
-  }
-
-  // 合并所有成员 ID（去重）
-  const allMemberIdSet = new Set([...memberIds, ...pureDeveloperIds, ...pureReporterIds])
-  const allMemberIds = [...allMemberIdSet]
 
   // 若无成员，返回空结果
   if (allMemberIds.length === 0) {
@@ -806,23 +795,7 @@ export function calculateDepartmentPerformance(
   const seenNames = new Set<string>()
   const members: MemberPerformance[] = []
   for (const mid of allMemberIds) {
-    // 合并 developer 分组和 assignee 分组的 issues（与资源视图一致，developer 优先）
-    // 如果同时存在 developer 和 assignee 分组，合并去重；否则按 developer → assignee → reporter 优先级
-    let memberIssues: PerformanceIssue[]
-    const devIssues = developerGroups[mid]
-    const assigneeIssues = memberGroups[mid]
-    const repIssues = reporterGroups[mid]
-
-    if (devIssues && assigneeIssues) {
-      // 合并去重（以 issue id 为 key）
-      const issueMap = new Map<string, PerformanceIssue>()
-      for (const i of devIssues) issueMap.set(i.id, i)
-      for (const i of assigneeIssues) issueMap.set(i.id, i)
-      memberIssues = [...issueMap.values()]
-    } else {
-      memberIssues = devIssues ?? assigneeIssues ?? repIssues ?? []
-    }
-
+    const memberIssues = ownerGroups[mid] ?? []
     if (memberIssues.length === 0) continue
     const perf = calculateMemberPerformance(memberIssues, issues, sprint, weights, knownDeveloperIds, mid)
     // 按 memberName 去重
@@ -886,24 +859,6 @@ export function calculateDepartmentPerformance(
     members,
     distribution,
   }
-}
-
-/**
- * 按 assignee 分组 issues。
- * 无 assignee 的 issue 归入 'unassigned' 组。
- */
-function groupIssuesByAssignee(issues: PerformanceIssue[]): Record<string, PerformanceIssue[]> {
-  const groups: Record<string, PerformanceIssue[]> = {}
-
-  for (const issue of issues) {
-    const memberId = issue.assignee?.id ?? 'unassigned'
-    if (!groups[memberId]) {
-      groups[memberId] = []
-    }
-    groups[memberId].push(issue)
-  }
-
-  return groups
 }
 
 /**

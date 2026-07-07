@@ -1,0 +1,334 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>年中汇报-PMO</title>
+<style>
+  body { font-family: -apple-system, "Microsoft YaHei", "PingFang SC", sans-serif; max-width: 1000px; margin: 0 auto; padding: 20px 30px; color: #333; line-height: 1.6; font-size: 13px; }
+  h1 { text-align: center; border-bottom: 3px solid #1a73e8; padding-bottom: 8px; margin-bottom: 4px; margin-top: 20px; }
+  .subtitle { text-align: center; color: #666; font-size: 14px; margin-bottom: 12px; }
+  h2 { color: #1a73e8; border-left: 4px solid #1a73e8; padding-left: 10px; margin-top: 20px; margin-bottom: 8px; }
+  h3 { color: #444; margin-top: 16px; margin-bottom: 6px; }
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 12px; font-size: 12px; }
+  th, td { border: 1px solid #ddd; padding: 5px 8px; text-align: left; vertical-align: top; }
+  th { background: #f0f6ff; font-weight: 600; }
+  tr:nth-child(even) { background: #fafafa; }
+  ul, ol { padding-left: 20px; }
+  li { margin-bottom: 4px; }
+  .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 16px 0; }
+  .stat-card { background: #f8f9fa; border-radius: 8px; padding: 16px; text-align: center; border-left: 4px solid #1a73e8; }
+  .stat-card .value { font-size: 28px; font-weight: 700; color: #1a73e8; }
+  .stat-card .label { font-size: 12px; color: #666; margin-top: 4px; }
+  .highlight-box { background: #f0f6ff; border: 1px solid #d0e3ff; border-radius: 8px; padding: 16px; margin: 16px 0; }
+  .section-note { font-size: 13px; color: #666; font-style: italic; margin-top: 30px; text-align: center; }
+  @media print { body { padding: 20px; } h2, h3, h4 { page-break-after: avoid; orphans: 3; widows: 3; } table, .stats-grid, .highlight-box { page-break-inside: avoid; } h2 + *, h3 + *, h2 + * + * { page-break-before: avoid; } .stats-grid { page-break-before: avoid; page-break-after: avoid; } }
+</style>
+</head>
+<body>
+
+<h1>年中汇报-PMO</h1>
+<div class="subtitle">汇报日期: 2026年6月29日 | 数据范围: 2026-01-01 ~ 2026-06-29</div>
+
+<h2>一、产品规划与交付</h2>
+<p>以下按产品线列出大模块及具体功能。</p>
+
+<h3>IDC（YMS、APS、Shuttle、Recruit、HRM、IAM）</h3>
+<table>
+<tr><th>大模块</th><th>具体功能</th></tr>
+<tr><td rowspan="6">YMS 月台管理</td><td>预约管理（入库/出库时段规划，关联 PO/SO 和承运商）</td></tr>
+<tr><td>月台动态指派 + 冲突检测 + 实时调度</td></tr>
+<tr><td>Check-in 自动化（车牌识别、封签校验、温度记录、排队号生成）</td></tr>
+<tr><td>Shuttle 穿梭车调度（等待区→月台，任务状态流转、设备同步到 Load）</td></tr>
+<tr><td>YMS-Box IoT 工控机（MQTT 指令交互、Gate 开关消息、设备在线监控）</td></tr>
+<tr><td>Load Task 创建与管理（Location suggest、参数校验、设备关联）</td></tr>
+<tr><td rowspan="4">APS 排程系统</td><td>七层架构（数据基础→过滤池→数据处理→算法引擎→预测排班→执行下发→归档报表）</td></tr>
+<tr><td>HRM/IAM 数据底层打通（人员主数据、技能标签、账号权限）</td></tr>
+<tr><td>时间切片聚合：实时需求产能与出勤算力匹配</td></tr>
+<tr><td>排班可视化 Dashboard + Headcount 预测</td></tr>
+<tr><td rowspan="4">Recruit 招聘系统</td><td>候选人管理 + 简历查看 + 岗位信息展示</td></tr>
+<tr><td>Agency 协作（人员分配、Review 候选人、查看简历和岗位信息）</td></tr>
+<tr><td>用工方 Requisitions Detail 页面 + View Detail 跳转</td></tr>
+<tr><td>Talent 添加弹窗优化 + Check-in 报错信息细化</td></tr>
+<tr><td rowspan="4">HRM 人力资源</td><td>员工信息管理 + 技能标签 + 活体检测人脸比对</td></tr>
+<tr><td>Driver Identity & Load Verification (Shield) — 司机端 AI 证件拍照、认证与防伪</td></tr>
+<tr><td>FE Scan 模式人脸比对及照片流程优化</td></tr>
+<tr><td>Paylocity 集成 + 与 APS 联动产能数据</td></tr>
+<tr><td rowspan="4">IAM 权限认证</td><td>对外 API Token 鉴权机制（Central ApiKey 管理）</td></tr>
+<tr><td>Internal User 关联 Customer + 新 App 冗余校验去除</td></tr>
+<tr><td>密码修改流程修复 + 错误提示优化</td></tr>
+<tr><td>IoT Platform 权限集成</td></tr>
+</table>
+
+<h3>EAG（BP、CRMC、VRM、OW、RE）</h3>
+<table>
+<tr><th>大模块</th><th>具体功能</th></tr>
+<tr><td rowspan="5">Billing Core 计费</td><td>接入 IAM 鉴权 + IDM 授权（新建 App/Client/管理员初始化）</td></tr>
+<tr><td>Reconcile Tracking System（API + Frontend）</td></tr>
+<tr><td>Storage Charge Comparison 支持 Location Area 维度对比</td></tr>
+<tr><td>TransformParams 强类型化 — 修复前后端 Contract 断裂</td></tr>
+<tr><td>MATERIAL FactType — 支持出库材料费自动计费</td></tr>
+<tr><td rowspan="4">AP 应付</td><td>LH Carrier Pay — Ready to Pay Transaction 无 Invoice 场景处理</td></tr>
+<tr><td>Vendor Payment Remittance Email 字符限制扩展</td></tr>
+<tr><td>Driver Pay — Missing Vendor Bill（空 Invoice No/Amount 修复）</td></tr>
+<tr><td>PO GR Status 状态更新修复 + Bill 审批流程优化</td></tr>
+<tr><td rowspan="3">AR 应收</td><td>Invoice Due Date 修复 + 自动生成</td></tr>
+<tr><td>Invoice Duplicate Generate 防重</td></tr>
+<tr><td>Cash Receipt 缺失调查 + Client Portal Wallet Top-Up</td></tr>
+<tr><td rowspan="2">CMS 客户管理</td><td>Account Manager Entry 与 Sales Entry 联动停用</td></tr>
+<tr><td>数据修复 + IS 数据库异常报错页面</td></tr>
+<tr><td>VRM 供应商管理</td><td>供应商全生命周期管理</td></tr>
+<tr><td>OW 运营工具</td><td>Email 编辑功能扩展（加粗、插入 Logo、文字编辑等）</td></tr>
+<tr><td>RE 营收引擎</td><td>Refactor import-price-list to V2（模块化架构）+ Sales Invoice Filter</td></tr>
+</table>
+
+<h3>DTS（OMS、DI、Agent Factory、Marketplace、Client Portal）</h3>
+<table>
+<tr><th>大模块</th><th>具体功能</th></tr>
+<tr><td rowspan="6">OMS 订单管理</td><td>Hold Rules + 普通暂停超时自动释放</td></tr>
+<tr><td>Glory 四种路由场景（直发/关税规避中转/跨国前置仓/纯中转）</td></tr>
+<tr><td>双单位/SN 管理 + 短装校验 + MABD/RequestedShipDate 时差处理</td></tr>
+<tr><td>PO 异常状态手动 Reopen（无异常记录但状态为 Exception）</td></tr>
+<tr><td>Dispatch updatePurchaseOrder ORDER_NOT_FOUND 修复</td></tr>
+<tr><td>Dropship Order 日报 + Shopify Order Import + EasyPost Label</td></tr>
+<tr><td rowspan="3">DI 数据集成</td><td>EDI 报文收发（850 PO/855 Ack/856 ASN/810 Invoice）</td></tr>
+<tr><td>多格式适配（X12/JSON/XML/Flat File）+ Kafka 格式调整</td></tr>
+<tr><td>DN 推送 WMS 异常处理 + Freight Charge 0 值场景</td></tr>
+<tr><td rowspan="5">Agent Factory</td><td>Multi-Agent RUN 支持 + 单 Agent RUN</td></tr>
+<tr><td>会话恢复（Runtime 增加会话恢复能力）</td></tr>
+<tr><td>IDE Builder 创建 Agent 方案 + 方案研究与搭建</td></tr>
+<tr><td>Claude 模型集成 + 速度优化</td></tr>
+<tr><td>Fix Agent 支持分析</td></tr>
+<tr><td rowspan="4">Marketplace</td><td>使用量统计、头像渲染与 Item Agent Owner 脚本</td></tr>
+<tr><td>详情页、卡片导航与用户统计接口</td></tr>
+<tr><td>分组统计与 Agent 卡片状态优化</td></tr>
+<tr><td>基础模型、管理端与用户端能力 + 同步与调度增强</td></tr>
+<tr><td rowspan="3">Customize 定制化</td><td>列表统计、共享列表与回收站能力</td></tr>
+<tr><td>Detail Page（详情页）+ Artifact 前端预览（全屏 iframe 渲染）</td></tr>
+<tr><td>删除动画、列表排序增强、Artifact 查询修复与响应式优化</td></tr>
+<tr><td rowspan="2">Client Portal</td><td>端到端菜单配置 + 权限</td></tr>
+<tr><td>分享邀请确认、权限校验与 i18n 优化</td></tr>
+</table>
+
+<h3>Public Platform（IAM、工作流、PowerJob、APIHub）</h3>
+<table>
+<tr><th>大模块</th><th>具体功能</th></tr>
+<tr><td rowspan="5">IAM 身份认证</td><td>Internal User 关联 Customer + redirect URL 增加</td></tr>
+<tr><td>AISGM 权限按部门管理 + SSO 登录三方账号方式确认</td></tr>
+<tr><td>错误异常报警到部门群 + 同步 Platform-portal</td></tr>
+<tr><td>报错区分数据库异常和 Redis 异常</td></tr>
+<tr><td>支持开发 IDE 中 AI 方式集成（技术方案 + 实现）</td></tr>
+<tr><td rowspan="3">工作流平台</td><td>模板设计开发 + 审核模块设计开发</td></tr>
+<tr><td>Topic 对接工作流平台 + 查询条件添加 Topic 输入框</td></tr>
+<tr><td>Kafka 数据量监控 + 异常报警接入 Platform-portal</td></tr>
+<tr><td rowspan="4">PowerJob 任务调度</td><td>powerJob-server 部署 + 改造（鉴权、注册）</td></tr>
+<tr><td>任务管理、应用管理、日志管理功能开发</td></tr>
+<tr><td>增加 Nacos 注册方式 + 修改触发逻辑</td></tr>
+<tr><td>接入 AISGM</td></tr>
+<tr><td rowspan="3">APIHub / 计量</td><td>Coolify 开放原子能力 API 列表调研</td></tr>
+<tr><td>计量模型指标管理、维度管理迁入 PLATFORM-AISGM</td></tr>
+<tr><td>PlatformPortal + AISGM 接入 UV/PV 统计</td></tr>
+</table>
+
+<h3>RMS</h3>
+<table>
+<tr><th>大模块</th><th>具体功能</th></tr>
+<tr><td rowspan="3">Return Management</td><td>自动日报（Automatic Daily Return Report）+ 导出优化</td></tr>
+<tr><td>Import Shipment 失败修复 + Wrong LP/RMA 修复</td></tr>
+<tr><td>Visual Screening Bug 修复 + Resend Log</td></tr>
+<tr><td rowspan="3">OpenAPI 平台</td><td>项目搭建：认证抽离 + 项目骨架 + RFC 7807 异常处理</td></tr>
+<tr><td>认证中间件（HMAC-SHA256 + IP 白名单）</td></tr>
+<tr><td>Customer API Key 管理（CRUD + 密钥重置）</td></tr>
+<tr><td>Webhook 出站推送</td><td>事件订阅 + Payload 映射 + HMAC 签名 + 重试</td></tr>
+<tr><td rowspan="2">AI 驱动能力</td><td>AI Dynamic UI Playground Demo + AI 对话驱动表单</td></tr>
+<tr><td>AI Agent 驱动页面操作（Chat Assistant 通过对话操作页面元素）</td></tr>
+<tr><td>打印机管理</td><td>Agent 代理、模板配置、绑定管理</td></tr>
+</table>
+
+<h3>BI</h3>
+<table>
+<tr><th>大模块</th><th>具体功能</th></tr>
+<tr><td rowspan="3">Accounting 报表</td><td>Small Parcel 系列（Part 5-8）+ Atlas Account</td></tr>
+<tr><td>Inventory Daily Report（Location No. + Filter + 多月数据）</td></tr>
+<tr><td>Wise Billing Miss Check + Space Usage Union (group by)</td></tr>
+<tr><td rowspan="2">Dashboard</td><td>UF Dashboard 权限控制 + 操作指南</td></tr>
+<tr><td>Wise Daily Space Usage Dashboard</td></tr>
+<tr><td rowspan="4">Dubhe 数据平台</td><td>新增随安装内置 Skill 能力</td></tr>
+<tr><td>上游同步 + Item 模型 + 品牌化集成</td></tr>
+<tr><td>数据查询操作优化</td></tr>
+<tr><td>Kiro Proxy 异常修复</td></tr>
+<tr><td rowspan="2">数据基础设施</td><td>FMCSA Data Download Links</td></tr>
+<tr><td>OpenSearch 流程 + Atlas 兼容 + Athena WMS App JDBC + 权限保护</td></tr>
+</table>
+
+<h3>AI Agent</h3>
+<table>
+<tr><th>大模块</th><th>具体功能</th></tr>
+<tr><td rowspan="5">Agent Factory</td><td>Factory Runtime：Claude 支持 + 速度优化 + 会话恢复 + Sandbox 支持</td></tr>
+<tr><td>Multi-Agent RUN + 单 Agent RUN + Fix Agent 分析</td></tr>
+<tr><td>IDE Builder：可视化创建 Agent 方案</td></tr>
+<tr><td>Factory 搭建、调研、联调、上线全流程</td></tr>
+<tr><td>Skills 优化 + 获取调用 API Token</td></tr>
+<tr><td rowspan="3">能力平台集成</td><td>能力平台集成部署上线 + OpenSandbox Staging 部署</td></tr>
+<tr><td>接入豆包 S2S 2.0 模型</td></tr>
+<tr><td>Teams 对接 OpenClaw 插件（权限开通 + K8s 部署）</td></tr>
+<tr><td rowspan="3">标注 & 专家系统</td><td>标注平台线上环境修复及验证 + 推荐问题优化</td></tr>
+<tr><td>创建专家自动打标签 Skills + 区分管理员/专家角色</td></tr>
+<tr><td>分配任务后 WebChat 通知专家 + 会议助手 Staging 验证</td></tr>
+</table>
+
+<h3>SAIL</h3>
+<table>
+<tr><th>大模块</th><th>具体功能</th></tr>
+<tr><td rowspan="5">Ontology 本体管理</td><td>本体 CRUD（创建/编辑/删除/发布/Delist）+ 卡片详情页优化</td></tr>
+<tr><td>权限体系（测试用例 + 用户体系与 IAM 同步新用户）</td></tr>
+<tr><td>My Favorites 本体收藏 + My Ontologies 作者显示修复</td></tr>
+<tr><td>分享邀请（invite people 搜索租户内用户 + 权限校验）</td></tr>
+<tr><td>数据安全管控 + 秘钥管理 + 合规整改日志处理</td></tr>
+<tr><td rowspan="4">Ask Ontology (AI 问答)</td><td>Chat 频道集成 + 时间显示优化（年月日）</td></tr>
+<tr><td>AI 问答体验优化（Cypher 语句替换为自然语言描述）</td></tr>
+<tr><td>Slash Command + 检索模式切换（Onto + Res）</td></tr>
+<tr><td>AI 修改本体后右侧图实时更新</td></tr>
+<tr><td rowspan="2">Agent + Publish</td><td>Chat 中 Agent 辅助用户 Publish 本体 + 右侧面板 Publish 按钮</td></tr>
+<tr><td>Native Skill 更新 + Issue 频道优化</td></tr>
+<tr><td>Resource Library</td><td>租户变更问题处理 + 文件复制/rsync/SQL</td></tr>
+</table>
+
+<h2>二、2026年上半年Ticket统计</h2>
+
+<div style="page-break-inside: avoid;">
+<div class="stats-grid">
+  <div class="stat-card"><div class="value">7,382</div><div class="label">总 Ticket 数</div></div>
+  <div class="stat-card"><div class="value">5,109</div><div class="label">已完成</div></div>
+  <div class="stat-card"><div class="value">69%</div><div class="label">完成率</div></div>
+  <div class="stat-card"><div class="value">8</div><div class="label">产品线</div></div>
+</div>
+
+<h3>同比对比（2025 上半年 vs 2026 上半年）</h3>
+<table>
+<tr><th>部门</th><th colspan="2">Ticket 数量</th><th>变化</th><th colspan="2">人员数量</th><th>变化</th></tr>
+<tr><th></th><th>2025</th><th>2026</th><th></th><th>2025</th><th>2026</th><th></th></tr>
+<tr><td>IDC</td><td>1,843</td><td>2,027</td><td style="color:#2e7d32;">+10%</td><td>6</td><td>13</td><td style="color:#2e7d32;">+117%</td></tr>
+<tr><td>EAG</td><td>2,992</td><td>1,488</td><td style="color:#c62828;">-50%</td><td>25</td><td>19</td><td style="color:#c62828;">-24%</td></tr>
+<tr><td>DTS</td><td>4,231</td><td>1,850</td><td style="color:#c62828;">-56%</td><td>29</td><td>24</td><td style="color:#c62828;">-17%</td></tr>
+<tr><td>Platform</td><td>507</td><td>370</td><td style="color:#c62828;">-27%</td><td>13</td><td>5</td><td style="color:#c62828;">-62%</td></tr>
+<tr><td>RMS</td><td>120</td><td>536</td><td style="color:#2e7d32;">+347%</td><td>3</td><td>3</td><td>0%</td></tr>
+<tr><td>BI</td><td>493</td><td>315</td><td style="color:#c62828;">-36%</td><td>8</td><td>6</td><td style="color:#c62828;">-25%</td></tr>
+<tr><td>AI Agent</td><td>675</td><td>613</td><td style="color:#c62828;">-9%</td><td>14</td><td>8</td><td style="color:#c62828;">-43%</td></tr>
+<tr><td>SAIL</td><td>—</td><td>183</td><td>新增</td><td>—</td><td>4</td><td>新增</td></tr>
+<tr style="font-weight:600;"><td>合计</td><td>10,861</td><td>7,382</td><td style="color:#c62828;">-32%</td><td>98</td><td>82</td><td style="color:#c62828;">-16%</td></tr>
+</table>
+<p style="font-size:12px;color:#666;">PM 人数：2025 上半年 6 人 → 2026 上半年 3 人（-50%，AI-PM 平台替代人工管理）</p>
+
+<table>
+<tr><th>部门</th><th>总 Ticket</th><th>已完成</th><th>进行中</th><th>评审/测试</th><th>待办</th><th>完成率</th></tr>
+<tr><td>IDC</td><td>2,027</td><td>1,559</td><td>16</td><td>3</td><td>397</td><td>79%</td></tr>
+<tr><td>EAG</td><td>1,488</td><td>1,177</td><td>16</td><td>10</td><td>285</td><td>79%</td></tr>
+<tr><td>DTS</td><td>1,850</td><td>898</td><td>30</td><td>27</td><td>710</td><td>54%</td></tr>
+<tr><td>Public Platform</td><td>370</td><td>319</td><td>1</td><td>0</td><td>50</td><td>86%</td></tr>
+<tr><td>RMS</td><td>536</td><td>291</td><td>1</td><td>0</td><td>244</td><td>54%</td></tr>
+<tr><td>BI</td><td>315</td><td>282</td><td>3</td><td>12</td><td>18</td><td>90%</td></tr>
+<tr><td>AI Agent</td><td>613</td><td>492</td><td>8</td><td>3</td><td>110</td><td>80%</td></tr>
+<tr><td>SAIL</td><td>183</td><td>91</td><td>0</td><td>1</td><td>91</td><td>50%</td></tr>
+<tr style="font-weight:600;"><td>合计</td><td>7,382</td><td>5,109</td><td>75</td><td>56</td><td>1,905</td><td>69%</td></tr>
+</table>
+
+<div class="highlight-box">
+<strong>说明：</strong>数据范围为 2026-01-01 至今在 Jira 中创建的所有 Ticket。IDC 含 RP/TRF/YMS/APS，EAG 含 BP/CRMC/VRM/OW/RE，DTS 含 DTS/CRM(Client Portal)。
+</div>
+</div>
+
+<h2>三、AI 在日常开发中的应用</h2>
+
+<h3>3.1 工具矩阵</h3>
+<table>
+<tr><th>工具</th><th>使用场景</th><th>频率</th></tr>
+<tr><td><strong>Kiro</strong></td><td>AI IDE，Spec 驱动开发（需求→设计→任务→代码），日常编码主力</td><td>每天</td></tr>
+<tr><td><strong>Cursor</strong></td><td>Copilot++ 智能补全，多文件同时编辑，快速重构</td><td>每天</td></tr>
+<tr><td><strong>Claude Code</strong></td><td>复杂架构设计、大段代码重写、跨文件重构</td><td>高频</td></tr>
+<tr><td><strong>Codex (OpenAI)</strong></td><td>批量代码生成、测试用例编写、文档生成</td><td>中频</td></tr>
+<tr><td><strong>ChatGPT</strong></td><td>需求分析、方案设计、技术调研、文档撰写</td><td>每天</td></tr>
+</table>
+
+<h3>3.2 工作方式</h3>
+<table>
+<tr><th>模式</th><th>说明</th><th>覆盖场景</th></tr>
+<tr><td><strong>Spec-Driven Development</strong></td><td>需求→设计→任务的结构化流程，AI 辅助拆分并生成代码</td><td>新功能开发</td></tr>
+<tr><td><strong>AI-Assisted Coding</strong></td><td>AI 工具完成 60-70% 代码编写，人工校验逻辑和边界</td><td>日常开发</td></tr>
+<tr><td><strong>AI Code Review</strong></td><td>提交前 AI 初步审查，减少人工 review 负担</td><td>代码提交</td></tr>
+<tr><td><strong>AI-PM 自动化</strong></td><td>日报/周报/复盘自动生成，绩效自动计算，风险自动推送</td><td>项目管理</td></tr>
+<tr><td><strong>FDE 快速交付</strong></td><td>简单/中等需求 PM + AI 自主实现（1-3天），无需等排期</td><td>客户 Demo</td></tr>
+</table>
+
+<h3>3.3 收益量化</h3>
+<table>
+<tr><th>环节</th><th>传统方式</th><th>AI 赋能后</th><th>效率提升</th></tr>
+<tr><td>需求分析</td><td>人工拆解 2-3 天</td><td>AI 辅助结构化半天</td><td>60-70%</td></tr>
+<tr><td>方案设计</td><td>3 天出初稿</td><td>AI 生成 + 人工调整半天</td><td>80%</td></tr>
+<tr><td>Demo 开发</td><td>等排期 2 周</td><td>PM + AI 自主实现 1-3 天</td><td>从 2 周→3 天</td></tr>
+<tr><td>代码开发</td><td>全手工编写</td><td>AI 辅助编码</td><td>2-3 倍</td></tr>
+<tr><td>文档撰写</td><td>人工撰写</td><td>AI 生成 + 校对</td><td>5 倍</td></tr>
+<tr><td>报告生成</td><td>人工整理 30min</td><td>AI-PM 平台一键生成</td><td>从 30min→0</td></tr>
+</table>
+
+<h3>3.4 发现的问题与改进方向</h3>
+<ul>
+<li><strong>准确性</strong>：AI 生成代码需人工校验，复杂业务逻辑容易遗漏边界情况</li>
+<li><strong>一致性</strong>：多人协作时 AI 生成代码风格不统一，需要制定 Steering 规范</li>
+<li><strong>上下文</strong>：对私有 API/内部系统理解不足，需要额外提供 Ontology 知识</li>
+<li><strong>改进方向</strong>：建立 AI Steering 规范 + Ontology 知识库接入，让 AI 理解业务上下文</li>
+</ul>
+
+<h2>四、与 Ontology / Agent Factory 的配合</h2>
+
+<h3>4.1 Ontology（SAIL 部门主导）</h3>
+<table>
+<tr><th>配合内容</th><th>进展</th><th>PMO 参与方式</th></tr>
+<tr><td>Ontology 本体平台</td><td>创建/编辑/删除/发布基本完成，权限体系开发中</td><td>需求对接、优先级协调</td></tr>
+<tr><td>Ask Ontology AI 问答</td><td>已集成到 Chat 频道，Cypher 替换为自然语言</td><td>体验测试、反馈优化建议</td></tr>
+<tr><td>Agent + Ontology Publish</td><td>Chat 中 Agent 辅助发布，进行中</td><td>跨团队联调协调</td></tr>
+<tr><td>Ontology 赋能 FDE</td><td>AI 通过 Ontology 快速理解业务数据模型</td><td>实际应用验证（Glory、APS 项目）</td></tr>
+</table>
+
+<h3>4.2 Agent Factory（DTS + AI Agent 部门）</h3>
+<table>
+<tr><th>配合内容</th><th>DTS 职责</th><th>AI Agent 职责</th><th>PMO 参与</th></tr>
+<tr><td>Factory 核心平台</td><td>Multi-Agent RUN、IDE Builder、Marketplace</td><td>Runtime 优化、Fix Agent</td><td>产品规划对齐、优先级协调</td></tr>
+<tr><td>Claude 模型集成</td><td>模型接入 + 速度优化</td><td>应用层调优</td><td>效果验收、问题反馈</td></tr>
+<tr><td>Factory 上线</td><td>平台侧部署</td><td>联调 + 上线</td><td>进度跟踪、风险预警</td></tr>
+<tr><td>Marketplace 管理</td><td>后台管理 + 同步</td><td>Agent 质量审核</td><td>数据统计、使用量分析</td></tr>
+</table>
+
+<h3>4.3 协作模式</h3>
+<div class="highlight-box">
+<strong>三角协作：</strong><br>
+SAIL 提供 <strong>Ontology 知识底座</strong>（业务数据模型）<br>
+DTS + AI Agent 提供 <strong>Agent Factory 执行引擎</strong>（AI 能力平台）<br>
+PMO 负责 <strong>产品规划对齐 + 跨团队协调 + 实际应用验证</strong>（通过 FDE 模式直接对客户交付）
+</div>
+
+<h2>五、PMO 自身工作成果</h2>
+
+<h3>5.1 AI-PM 平台建设</h3>
+<p>自主设计并开发了 AI-PM 项目管理平台，实现对内管理从"人工推动"到"平台驱动"的转变：</p>
+<ul>
+<li><strong>Sprint 看板</strong>：5 列看板实时展示各部门进度</li>
+<li><strong>绩效排行榜</strong>：SPACE+DORA 五维度评估，24 部门实时排名</li>
+<li><strong>风险自动预警</strong>：延期/阻塞/超负荷自动推送企微群</li>
+<li><strong>报告自动生成</strong>：日报/周报/Sprint 复盘一键生成并推送</li>
+<li><strong>AI 智能分析</strong>：AI Insight 自动分析项目健康度</li>
+<li><strong>绩效趋势图</strong>：历史迭代对比，支持多选搜索</li>
+</ul>
+
+<h3>6.2 FDE 对外交付</h3>
+<table>
+<tr><th>项目</th><th>职责</th><th>交付成果</th></tr>
+<tr><td>Glory 全球供应链</td><td>异构系统联调（AX↔EDI↔OMS↔WMS）</td><td>四种路由场景跑通、UPC 映射、双单位换算</td></tr>
+<tr><td>APS 排程</td><td>七层架构需求对接、数据模型验证、各仓库上线推进</td><td>IAM/HRM 数据打通、排班可视化 Demo</td></tr>
+<tr><td>LinkW YMS 园区管理</td><td>客户需求对接 + 实地勘察 + WMS↔YMS 交接测试</td><td>月台调度方案落地、预约管理上线</td></tr>
+<tr><td>YMS-Box IoT</td><td>硬件采购协调 + MQTT 通信联调</td><td>司机自动化 Check-in 上线</td></tr>
+</table>
+
+<div class="section-note">本报告基于 Jira 数据自动统计 + PMO 工作整理 · 2026年6月</div>
+
+</body>
+</html>

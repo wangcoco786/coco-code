@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI-PM Platform User Guide</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, 'Segoe UI', Roboto, sans-serif; background: #f8f9fa; color: #1a1a2e; line-height: 1.7; }
+.page { max-width: 960px; margin: 0 auto; padding: 40px 24px; }
+
+.hero { text-align: center; padding: 60px 30px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 20px; color: #fff; margin-bottom: 40px; position: relative; overflow: hidden; }
+.hero::before { content: ''; position: absolute; top: -50%; right: -20%; width: 400px; height: 400px; background: rgba(255,255,255,0.06); border-radius: 50%; }
+.hero h1 { font-size: 36px; font-weight: 800; margin-bottom: 12px; }
+.hero p { font-size: 16px; opacity: 0.9; }
+
+.section { background: #fff; border-radius: 16px; padding: 32px; margin-bottom: 24px; box-shadow: 0 2px 12px rgba(0,0,0,0.04); }
+.section h2 { font-size: 22px; font-weight: 700; margin-bottom: 20px; color: #1a1a2e; border-left: 4px solid #667eea; padding-left: 12px; }
+.section h3 { font-size: 17px; font-weight: 600; margin: 20px 0 12px; color: #333; }
+
+table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px; }
+th { background: #f0f2f8; padding: 10px 14px; text-align: left; font-weight: 600; border-bottom: 2px solid #e0e0e0; }
+td { padding: 10px 14px; border-bottom: 1px solid #f0f0f0; }
+tr:hover td { background: #fafafe; }
+
+.flow { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 16px 0; }
+.flow-step { background: linear-gradient(135deg, #667eea, #764ba2); color: #fff; padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 500; }
+.flow-arrow { color: #999; font-size: 18px; }
+
+.arch-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin: 16px 0; }
+.arch-card { background: #f8f9ff; border: 1.5px solid #e8e8f0; border-radius: 12px; padding: 16px; text-align: center; }
+.arch-card .icon { font-size: 28px; margin-bottom: 8px; }
+.arch-card .label { font-size: 13px; font-weight: 600; color: #333; }
+.arch-card .desc { font-size: 11px; color: #666; margin-top: 4px; }
+
+.pie-container { display: flex; align-items: center; gap: 24px; margin: 16px 0; flex-wrap: wrap; }
+.pie { width: 160px; height: 160px; border-radius: 50%; background: conic-gradient(#667eea 0% 20%, #52c41a 20% 45%, #faad14 45% 70%, #ff4d4f 70% 85%, #13c2c2 85% 100%); position: relative; flex-shrink: 0; }
+.pie::after { content: ''; position: absolute; top: 30%; left: 30%; width: 40%; height: 40%; background: #fff; border-radius: 50%; }
+.pie-legend { display: flex; flex-direction: column; gap: 6px; }
+.pie-item { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+.pie-dot { width: 12px; height: 12px; border-radius: 3px; flex-shrink: 0; }
+
+.grade-row { display: flex; gap: 12px; flex-wrap: wrap; margin: 12px 0; }
+.grade-badge { padding: 6px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; }
+.grade-excellent { background: #f6ffed; color: #52c41a; border: 1px solid #b7eb8f; }
+.grade-good { background: #e6f7ff; color: #1890ff; border: 1px solid #91d5ff; }
+.grade-average { background: #fff7e6; color: #fa8c16; border: 1px solid #ffd591; }
+.grade-low { background: #fff1f0; color: #f5222d; border: 1px solid #ffa39e; }
+
+.feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin: 16px 0; }
+.feature-card { background: #fafafe; border: 1px solid #f0f0f0; border-radius: 12px; padding: 20px; }
+.feature-card .emoji { font-size: 24px; margin-bottom: 8px; }
+.feature-card .title { font-size: 14px; font-weight: 600; margin-bottom: 6px; }
+.feature-card .desc { font-size: 12px; color: #666; line-height: 1.6; }
+
+.steps { display: flex; gap: 16px; margin: 16px 0; flex-wrap: wrap; }
+.step { flex: 1; min-width: 180px; background: #f8f9ff; border-radius: 12px; padding: 16px; text-align: center; border: 1.5px solid #e8e8f0; }
+.step-num { width: 28px; height: 28px; background: #667eea; color: #fff; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; margin-bottom: 8px; }
+.step-text { font-size: 13px; color: #333; }
+
+.footer { text-align: center; padding: 30px; color: #999; font-size: 12px; }
+
+@media print { body { background: #fff; } .page { padding: 20px; } .section { box-shadow: none; border: 1px solid #eee; } }
+</style>
+</head>
+<body>
+<div class="page">
+
+<div class="hero">
+  <h1>AI-PM Platform User Guide</h1>
+  <p>AI-Powered Project Management · Jira Integration · Smart Analytics & Decisions</p>
+  <div style="margin-top:20px;">
+    <input id="searchInput" type="text" placeholder="🔍 Quick search..." oninput="handleSearch(this.value)" style="width:320px;max-width:80%;padding:10px 16px;border:none;border-radius:24px;font-size:14px;outline:none;background:rgba(255,255,255,0.95);color:#333;box-shadow:0 4px 12px rgba(0,0,0,0.15);">
+  </div>
+</div>
+
+<!-- Architecture -->
+<div class="section">
+  <h2>Platform Architecture</h2>
+  <div class="arch-grid">
+    <div class="arch-card"><div class="icon">🔗</div><div class="label">Jira API</div><div class="desc">Data Source</div></div>
+    <div class="arch-card"><div class="icon">⚡</div><div class="label">Express Proxy</div><div class="desc">Backend API</div></div>
+    <div class="arch-card"><div class="icon">⚛️</div><div class="label">React + TS</div><div class="desc">Frontend</div></div>
+    <div class="arch-card"><div class="icon">🤖</div><div class="label">AI Engine</div><div class="desc">Smart Analysis</div></div>
+    <div class="arch-card"><div class="icon">📊</div><div class="label">TanStack Query</div><div class="desc">State Cache</div></div>
+    <div class="arch-card"><div class="icon">💬</div><div class="label">WeCom</div><div class="desc">Notifications</div></div>
+  </div>
+</div>
+
+<!-- Quick Start -->
+<div class="section">
+  <h2>Getting Started</h2>
+  <div class="steps">
+    <div class="step"><div class="step-num">1</div><div class="step-text">Select a Jira project<br>from the top nav</div></div>
+    <div class="step"><div class="step-num">2</div><div class="step-text">Data loads<br>automatically</div></div>
+    <div class="step"><div class="step-num">3</div><div class="step-text">Navigate modules<br>via left sidebar</div></div>
+  </div>
+</div>
+
+<!-- Dashboard -->
+<div class="section">
+  <h2>1. Dashboard</h2>
+  <table>
+    <tr><th>Tab</th><th>Description</th><th>Role</th></tr>
+    <tr><td>Global View</td><td>Sprint completion, task distribution, team workload, burndown</td><td>PM / DEV</td></tr>
+    <tr><td>Personal View</td><td>My tasks, progress stats</td><td>DEV</td></tr>
+    <tr><td>Performance</td><td>Five-dimension evaluation, team ranking</td><td>PM</td></tr>
+    <tr><td>Release Notes</td><td>Current sprint release summary, export</td><td>PM</td></tr>
+    <tr><td>AI Decision</td><td>AI-assisted decision suggestions</td><td>PM</td></tr>
+  </table>
+</div>
+
+<!-- Sprint -->
+<div class="section">
+  <h2>2. Sprint Management</h2>
+  <div class="flow">
+    <span class="flow-step">📋 Board</span><span class="flow-arrow">→</span>
+    <span class="flow-step">👥 Resources</span><span class="flow-arrow">→</span>
+    <span class="flow-step">🔄 Changes</span><span class="flow-arrow">→</span>
+    <span class="flow-step">🧠 AI Planning</span>
+  </div>
+  <table>
+    <tr><th>Tab</th><th>Features</th></tr>
+    <tr><td>Board</td><td>5-column kanban (To Do → In Progress → Review → Testing → Done)</td></tr>
+    <tr><td>Resources</td><td>Developer profiles, workload visualization (red/green/orange)</td></tr>
+    <tr><td>Changes</td><td>AI change detection, impact analysis, scope creep warning (>20%)</td></tr>
+    <tr><td>Planning</td><td>AI scores and ranks Backlog candidates</td></tr>
+  </table>
+</div>
+
+<!-- Requirements -->
+<div class="section">
+  <h2>3. Requirements</h2>
+  <div class="feature-grid">
+    <div class="feature-card"><div class="emoji">📋</div><div class="title">List / Kanban View</div><div class="desc">Toggle between display modes to match your workflow</div></div>
+    <div class="feature-card"><div class="emoji">🔍</div><div class="title">Multi-filter</div><div class="desc">Filter by status, priority, assignee, keyword</div></div>
+    <div class="feature-card"><div class="emoji">🔗</div><div class="title">Ticket Links</div><div class="desc">All IDs clickable → opens original Jira issue</div></div>
+    <div class="feature-card"><div class="emoji">🤖</div><div class="title">AI Analysis</div><div class="desc">Requirements health and backlog risk assessment</div></div>
+  </div>
+</div>
+
+<!-- Risk -->
+<div class="section">
+  <h2>4. Risk & Collaboration</h2>
+  <div class="flow">
+    <span class="flow-step">🔴 Identified</span><span class="flow-arrow">→</span>
+    <span class="flow-step">🟡 Evaluating</span><span class="flow-arrow">→</span>
+    <span class="flow-step">🔵 Handling</span><span class="flow-arrow">→</span>
+    <span class="flow-step">🟢 Closed</span>
+  </div>
+  <div class="feature-grid">
+    <div class="feature-card"><div class="emoji">📊</div><div class="title">Risk Board</div><div class="desc">Columns by status for clear visibility</div></div>
+    <div class="feature-card"><div class="emoji">🤝</div><div class="title">Cross-team</div><div class="desc">Auto-detected cross-project collaboration tasks</div></div>
+    <div class="feature-card"><div class="emoji">⚠️</div><div class="title">Dependencies</div><div class="desc">Unassigned high-priority, overtime, stale tasks</div></div>
+    <div class="feature-card"><div class="emoji">💬</div><div class="title">WeCom Push</div><div class="desc">One-click risk notification to WeCom group</div></div>
+  </div>
+</div>
+
+<!-- Reports -->
+<div class="section">
+  <h2>5. Reports</h2>
+  <table>
+    <tr><th>Report Type</th><th>Content</th></tr>
+    <tr><td>📅 Daily</td><td>Today's progress, completed/new task stats</td></tr>
+    <tr><td>📊 Weekly</td><td>Workload summary, risk overview, next week plan</td></tr>
+    <tr><td>🏁 Sprint Review</td><td>Completion rate, team contributions, improvement suggestions</td></tr>
+  </table>
+  <p style="margin-top:12px;font-size:13px;color:#666;">Supports one-click WeCom push + AI auto-generated summaries</p>
+</div>
+
+<!-- Roadmap -->
+<div class="section">
+  <h2>6. Project Roadmap</h2>
+  <div class="feature-grid">
+    <div class="feature-card"><div class="emoji">🗓️</div><div class="title">Timeline View</div><div class="desc">Horizontal timeline with milestones and key nodes</div></div>
+    <div class="feature-card"><div class="emoji">📐</div><div class="title">4 Templates</div><div class="desc">Agile Sprint / Quarterly / Product Launch / Custom</div></div>
+    <div class="feature-card"><div class="emoji">🔄</div><div class="title">Jira Sync</div><div class="desc">Import milestones from Fix Versions</div></div>
+    <div class="feature-card"><div class="emoji">🤖</div><div class="title">AI Analysis</div><div class="desc">Roadmap health assessment</div></div>
+  </div>
+</div>
+
+<!-- Performance -->
+<div class="section">
+  <h2>7. Department Performance</h2>
+  <h3>Five-Dimension Model (SPACE + DORA)</h3>
+  <div class="pie-container">
+    <div class="pie"></div>
+    <div class="pie-legend">
+      <div class="pie-item"><div class="pie-dot" style="background:#667eea"></div>Throughput 20% — Completed tasks × complexity factor</div>
+      <div class="pie-item"><div class="pie-dot" style="background:#52c41a"></div>Efficiency 25% — Cycle Time + on-time delivery rate</div>
+      <div class="pie-item"><div class="pie-dot" style="background:#faad14"></div>Quality 25% — Rework rate + Bug introduction rate</div>
+      <div class="pie-item"><div class="pie-dot" style="background:#ff4d4f"></div>Impact 15% — High-priority completion + blocking resolution</div>
+      <div class="pie-item"><div class="pie-dot" style="background:#13c2c2"></div>Collaboration 15% — Cross-team comments + task participation</div>
+    </div>
+  </div>
+
+  <h3>Performance Grades</h3>
+  <div class="grade-row">
+    <span class="grade-badge grade-excellent">80-100 Excellent</span>
+    <span class="grade-badge grade-good">60-79 Good</span>
+    <span class="grade-badge grade-average">40-59 Average</span>
+    <span class="grade-badge grade-low">0-39 Needs Improvement</span>
+  </div>
+
+  <h3>Score Formula</h3>
+  <div style="background:#f8f9ff;border-radius:8px;padding:16px;font-family:monospace;font-size:13px;margin:12px 0;border:1px solid #e8e8f0;">
+    Score = Throughput×0.20 + Efficiency×0.25 + Quality×0.25 + Impact×0.15 + Collaboration×0.15
+  </div>
+</div>
+
+<!-- Release Notes -->
+<div class="section">
+  <h2>8. Release Notes</h2>
+  <div class="flow">
+    <span class="flow-step">📥 Sprint Issues</span><span class="flow-arrow">→</span>
+    <span class="flow-step">🏷️ Classification</span><span class="flow-arrow">→</span>
+    <span class="flow-step">📊 Stats + Markers</span><span class="flow-arrow">→</span>
+    <span class="flow-step">📤 Export MD/HTML</span>
+  </div>
+  <table>
+    <tr><th>Feature</th><th>Description</th></tr>
+    <tr><td>Auto-classify</td><td>Feature / Bug Fix / Hot Fix / Improvement / Other</td></tr>
+    <tr><td>Completion Summary</td><td>Total, completed, rate (click numbers for details)</td></tr>
+    <tr><td>Unplanned Markers</td><td>Issues added after Sprint start marked as "unplanned"</td></tr>
+    <tr><td>Stale Alerts</td><td>Warning for incomplete issues 2 days before Sprint end</td></tr>
+    <tr><td>Export</td><td>One-click export to Markdown or HTML</td></tr>
+  </table>
+</div>
+
+<!-- Common Features -->
+<div class="section">
+  <h2>Common Features</h2>
+  <table>
+    <tr><th>Feature</th><th>Description</th></tr>
+    <tr><td>🔍 Global Search</td><td>Search by task ID, title, page name</td></tr>
+    <tr><td>🔗 Ticket Links</td><td>All IDs clickable → opens Jira</td></tr>
+    <tr><td>🌐 Multi-language</td><td>Chinese / English / Japanese / Spanish</td></tr>
+    <tr><td>👤 Role Switching</td><td>PM / DEV roles with differentiated features</td></tr>
+    <tr><td>🤖 AI Assistant</td><td>Bottom-right chat, query Jira data directly</td></tr>
+    <tr><td>🔔 Notifications</td><td>Real-time risk alerts and change notifications</td></tr>
+  </table>
+</div>
+
+<!-- Access -->
+<div class="section">
+  <h2>Access</h2>
+  <table>
+    <tr><th>Environment</th><th>URL</th></tr>
+    <tr><td>Public</td><td><a href="https://ai-pm-platform.item.pub/">https://ai-pm-platform.item.pub/</a></td></tr>
+    <tr><td>Intranet</td><td>http://192.168.x.x:3000 (run 启动服务.bat)</td></tr>
+  </table>
+</div>
+
+<div class="footer">
+  AI-PM Platform User Guide · Generated 2026-05-18
+</div>
+
+</div>
+
+<script>
+function handleSearch(keyword) {
+  document.querySelectorAll('.search-highlight').forEach(el => {
+    el.outerHTML = el.textContent;
+  });
+
+  if (!keyword || keyword.length < 2) return;
+
+  const sections = document.querySelectorAll('.section');
+  let found = false;
+
+  sections.forEach(section => {
+    const walker = document.createTreeWalker(section, NodeFilter.SHOW_TEXT, null, false);
+    const matches = [];
+
+    while (walker.nextNode()) {
+      const node = walker.currentNode;
+      const idx = node.textContent.toLowerCase().indexOf(keyword.toLowerCase());
+      if (idx >= 0) {
+        matches.push({ node, idx });
+      }
+    }
+
+    matches.reverse().forEach(({ node, idx }) => {
+      const span = document.createElement('span');
+      span.className = 'search-highlight';
+      span.style.cssText = 'background:#ffe066;padding:1px 2px;border-radius:3px;';
+      const range = document.createRange();
+      range.setStart(node, idx);
+      range.setEnd(node, idx + keyword.length);
+      range.surroundContents(span);
+
+      if (!found) {
+        span.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        found = true;
+      }
+    });
+  });
+}
+</script>
+</body>
+</html>

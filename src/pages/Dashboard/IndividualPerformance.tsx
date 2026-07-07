@@ -348,7 +348,7 @@ function MemberCard({
           {/* 任务列表 */}
           <div className={styles.memberDetails} onClick={e => e.stopPropagation()}>
             <div className={styles.detailsTitle}>任务列表</div>
-            <TaskListTable tasks={member.tasks} />
+            <TaskListTable tasks={member.tasks} memberId={member.memberId} memberName={member.memberName} />
           </div>
         </>
       )}
@@ -356,9 +356,26 @@ function MemberCard({
   )
 }
 
-/** 任务列表表格 */
-function TaskListTable({ tasks }: { tasks: PerformanceIssue[] }) {
-  if (!tasks || tasks.length === 0) {
+/** 任务列表表格 — 只显示归属当前成员的任务（与资源视图一致） */
+function TaskListTable({ tasks, memberId, memberName }: { tasks: PerformanceIssue[]; memberId?: string; memberName?: string }) {
+  // DEBUG: 在浏览器 console 中打印过滤信息
+  if (tasks.some(t => t.id === 'RMS-2886')) {
+    const rms2886 = tasks.find(t => t.id === 'RMS-2886')!
+    console.log('[TaskListTable DEBUG] memberId:', memberId, 'memberName:', memberName,
+      'RMS-2886 developerUser:', JSON.stringify(rms2886.developerUser),
+      'RMS-2886 assignee:', JSON.stringify(rms2886.assignee))
+  }
+
+  const filteredTasks = (memberId || memberName)
+    ? tasks.filter(task => {
+        const devUser = task.developerUser
+        const ownerId = devUser?.id ?? task.assignee?.id
+        const ownerName = devUser?.name ?? task.assignee?.name
+        return ownerId === memberId || ownerName === memberName
+      })
+    : tasks
+
+  if (!filteredTasks || filteredTasks.length === 0) {
     return <div className={styles.noData}>暂无任务数据</div>
   }
 
@@ -374,7 +391,7 @@ function TaskListTable({ tasks }: { tasks: PerformanceIssue[] }) {
         </tr>
       </thead>
       <tbody>
-        {tasks.map(task => {
+        {filteredTasks.map(task => {
           const complexity = calculateComplexityFactor({
             subtaskCount: task.subtaskCount,
             linkedIssueCount: task.linkedIssueCount,

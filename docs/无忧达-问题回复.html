@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>无忧达问题回复</title>
+<style>
+  body { font-family: -apple-system, "Microsoft YaHei", "PingFang SC", sans-serif; max-width: 900px; margin: 0 auto; padding: 30px; color: #333; line-height: 1.7; font-size: 14px; }
+  h1 { text-align: center; border-bottom: 3px solid #1a73e8; padding-bottom: 10px; }
+  h2 { color: #1a73e8; margin-top: 30px; border-left: 4px solid #1a73e8; padding-left: 10px; }
+  h3 { color: #444; margin-top: 20px; }
+  pre { background: #f5f7fa; border: 1px solid #e0e0e0; border-radius: 6px; padding: 16px; font-size: 12px; line-height: 1.5; overflow-x: auto; white-space: pre; font-family: "Courier New", monospace; }
+  ul { padding-left: 20px; }
+  li { margin-bottom: 6px; }
+  .note { background: #fff8e1; border-left: 4px solid #ffc107; padding: 10px 14px; margin: 12px 0; font-size: 13px; border-radius: 4px; }
+  table { border-collapse: collapse; margin: 10px 0; }
+  th, td { border: 1px solid #ddd; padding: 6px 10px; font-size: 13px; }
+  th { background: #f0f6ff; }
+  @media print { body { padding: 20px; } pre { font-size: 10px; } }
+</style>
+</head>
+<body>
+
+<h1>无忧达问题回复</h1>
+
+<h2>1. Item OMS 是给卖家使用的，还是给仓库使用？</h2>
+<p>Item OMS 是一套<strong>订单履行管理系统</strong>，既可以给卖家使用，也可以给仓库使用，取决于具体业务需求。主要对接 3PL 海外仓，核心任务是把来自多个销售渠道的订单，自动路由到最合适的仓库，并跟踪从发货到签收的全过程。</p>
+
+<h2>2. 如果只采购 Item WMS，哪些系统与 WMS 打通？支持哪些国内 ERP？</h2>
+<p>如果只采购 Item WMS，需要通过我们的 <strong>EDI</strong> 层来打通外部系统：</p>
+<ul>
+  <li>EDI 自动对接 Walmart/Costco/Target 的 PO 并转为出库任务</li>
+  <li>EDI 负责数据格式转换（X12/JSON/XML）、不同商超规则统一适配</li>
+</ul>
+<p>关于国内 ERP（领星 ERP、易仓 ERP 等）：EDI 支持不同格式互转，理论上可以对接任何能输出标准格式（JSON/XML/CSV）的 ERP，但具体到领星、易仓等需要评估其 API/数据格式做定制化适配。</p>
+<div class="note"><strong>建议：</strong>搭配 OMS + EDI 一起使用。单独 WMS 需要客户自行解决订单下发问题。</div>
+
+<h2>3. 沃尔玛 1P 业务（买家用 SPS Commerce），需要采购哪些系统？</h2>
+<p>必须采购的系统：<strong>EDI + OMS + WMS</strong></p>
+
+<h3>订单流转流程图</h3>
+<pre>
+SPS Commerce (买家/Walmart)
+    │
+    │  EDI 850 (PO 采购订单)
+    ▼
+EDI 系统（接收并解析 X12 报文，格式转换）
+    │
+    │  创建出库订单
+    ▼
+OMS 订单管理（库存校验 → 确认可发 → 回传 855 PO Ack）
+    │
+    │  生成拣货任务
+    ▼
+WMS 仓内执行（拣货 → 验货 → 装箱 → 贴 GS1-128 标签 → 生成 SSCC）
+    │
+    │  确认出库
+    ▼
+EDI 系统（生成 856 ASN，含 SSCC + PO 关联）
+    │
+    │  发送 ASN（货到 DC 前）
+    ▼
+SPS Commerce → Walmart DC 收货验收
+    │
+    ▼
+EDI 发送 810 (Invoice) → 对账核销
+</pre>
+
+<h2>4. 商超 Wholesale 业务，Item 提供哪些连接方式？</h2>
+
+<h3>流程图（含各角色及系统）</h3>
+<pre>
+┌─────────────────┐       ┌────────────────────────────┐       ┌─────────────────┐
+│     买方          │       │     3PL 海外仓（无忧达）     │       │    采购方/卖家    │
+│                   │       │                            │       │                  │
+│  Walmart          │       │   ┌─────┐     ┌─────┐     │       │   卖家 ERP       │
+│  Costco           │       │   │ OMS │ ←→ │ WMS │     │       │   电商平台       │
+│  Target           │       │   └──┬──┘     └─────┘     │       │   Shopify        │
+│  Amazon           │       │      │                    │       │                  │
+│                   │       │   ┌──┴──┐                 │       │                  │
+│  SPS Commerce  ◄──────────►  │ EDI │  ◄───────────────────►   API / 文件推送   │
+│  Retail Link      │       │   └─────┘                 │       │                  │
+│  EDI 直连         │       │                            │       │                  │
+└─────────────────┘       └────────────────────────────┘       └─────────────────┘
+</pre>
+
+<h3>连接方式</h3>
+<table>
+<tr><th>连接方式</th><th>说明</th></tr>
+<tr><td>SPS Commerce</td><td>通过 EDI 对接 SPS 的 X12 报文</td></tr>
+<tr><td>EDI 直连</td><td>对于有自己 EDI 能力的商超，直接对接</td></tr>
+<tr><td>订单 API</td><td>卖家系统直接推单，或从电商平台（Shopify 等）自动抓单</td></tr>
+<tr><td>多商超路由</td><td>同一 SKU 可同时供 Walmart、Costco、Amazon，OMS 按规则分配</td></tr>
+</table>
+
+<h2>5. 携带 SSCC 的托盘标签样例</h2>
+<p>托盘标签可根据不同商超要求进行定制，以下为几个样例：</p>
+
+<h3>COSTCO：</h3>
+<img src="COSTCO Lable.png" style="max-width:100%;border:1px solid #ddd;border-radius:4px;margin-bottom:16px;" />
+
+<h3>Amazon DC：</h3>
+<img src="Amazon DC Lable.png" style="max-width:100%;border:1px solid #ddd;border-radius:4px;margin-bottom:16px;" />
+
+<h3>Target：</h3>
+<img src="Target Lable.png" style="max-width:100%;border:1px solid #ddd;border-radius:4px;margin-bottom:16px;" />
+
+<h2>6. Item Transload 是单独系统还是集成在 WMS 中？</h2>
+<p>Item Transload 是<strong>集成在 Item WMS 系统中的功能模块</strong>，不是独立的一套系统。</p>
+<p>WMS 中包含转运（transload）的作业流程：收货 → 分拣 → 重新打托 → 贴标 → 出库，都在同一个 WMS 系统内完成。Transload 场景下 WMS 管理的是"货物经过仓库但不上架存储"的快速中转流程。</p>
+
+</body>
+</html>

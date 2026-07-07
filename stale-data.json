@@ -1,0 +1,354 @@
+﻿[
+    {
+        "Key":  "RP-869",
+        "Summary":  "视频中台和消息中台staging环境部署搭建",
+        "Responsible":  "yihuan yang",
+        "Status":  "Ready for PO Review",
+        "Days":  19,
+        "Project":  "RP"
+    },
+    {
+        "Key":  "RP-870",
+        "Summary":  "本地验证整套方案的可行性",
+        "Responsible":  "yihuan yang",
+        "Status":  "Ready for PO Review",
+        "Days":  19,
+        "Project":  "RP"
+    },
+    {
+        "Key":  "RP-872",
+        "Summary":  "staging环境整套方案验证",
+        "Responsible":  "yihuan yang",
+        "Status":  "Testing",
+        "Days":  13,
+        "Project":  "RP"
+    },
+    {
+        "Key":  "TRF-5358",
+        "Summary":  "Unable to create Shuttle task",
+        "Responsible":  "Soren Su",
+        "Status":  "Ready For Hotfix",
+        "Days":  9,
+        "Project":  "TRF"
+    },
+    {
+        "Key":  "TRF-5356",
+        "Summary":  "Dock Location equipment type 也需要支持选择container 、 trailer，就像spot一样",
+        "Responsible":  "Wade Zhang",
+        "Status":  "Ready to release",
+        "Days":  9,
+        "Project":  "TRF"
+    },
+    {
+        "Key":  "TRF-5346",
+        "Summary":  "Check-Out Live Service Action Task Validation",
+        "Responsible":  "Soren Su",
+        "Status":  "Ready to release",
+        "Days":  9,
+        "Project":  "TRF"
+    },
+    {
+        "Key":  "TRF-5360",
+        "Summary":  "Location suggest 排序有误",
+        "Responsible":  "Matt Wang",
+        "Status":  "Ready to release",
+        "Days":  9,
+        "Project":  "TRF"
+    },
+    {
+        "Key":  "TRF-5279",
+        "Summary":  "Live Service 最晚完成时间配置",
+        "Responsible":  "Soren Su",
+        "Status":  "Dev Completed",
+        "Days":  9,
+        "Project":  "TRF"
+    },
+    {
+        "Key":  "TRF-4185",
+        "Summary":  "Carrier Account 增加Freight Term",
+        "Responsible":  "Wade Zhang",
+        "Status":  "New",
+        "Days":  9,
+        "Project":  "TRF"
+    },
+    {
+        "Key":  "TRF-5359",
+        "Summary":  "Location Carrier/Customer Shared 通配配置",
+        "Responsible":  "Matt Wang",
+        "Status":  "Ready to release",
+        "Days":  9,
+        "Project":  "TRF"
+    },
+    {
+        "Key":  "TRF-5453",
+        "Summary":  "Yard Check Missing Threshold - Configurable Auto Mark Out of Yard",
+        "Responsible":  "Matt Wang",
+        "Status":  "Dev Completed",
+        "Days":  9,
+        "Project":  "TRF"
+    },
+    {
+        "Key":  "TRF-5435",
+        "Summary":  "Shuttle task issue",
+        "Responsible":  "Wade Zhang",
+        "Status":  "Ready For Hotfix",
+        "Days":  9,
+        "Project":  "TRF"
+    },
+    {
+        "Key":  "TRF-5363",
+        "Summary":  "Location Logic Test - Drop Off Activity 匹配增强",
+        "Responsible":  "Wade Zhang",
+        "Status":  "Ready to release",
+        "Days":  9,
+        "Project":  "TRF"
+    },
+    {
+        "Key":  "APS-1470",
+        "Summary":  "【APS】 APS business  agent",
+        "Responsible":  "Rainy",
+        "Status":  "Doing",
+        "Days":  9,
+        "Project":  "APS"
+    },
+    {
+        "Key":  "TRF-5304",
+        "Summary":  "gate check out 通知 wms 关单操作 bug",
+        "Responsible":  "Matt Wang",
+        "Status":  "Ready to release",
+        "Days":  9,
+        "Project":  "TRF"
+    },
+    {
+        "Key":  "TRF-5350",
+        "Summary":  "iOS OCR USDOT 优化",
+        "Responsible":  "Zane Li",
+        "Status":  "Ready to release",
+        "Days":  9,
+        "Project":  "TRF"
+    },
+    {
+        "Key":  "TRF-5348",
+        "Summary":  "gate event 使用websocket",
+        "Responsible":  "Wade Zhang",
+        "Status":  "Ready to release",
+        "Days":  9,
+        "Project":  "TRF"
+    },
+    {
+        "Key":  "TRF-5381",
+        "Summary":  "Load/Receive Task Detail - Start \u0026 Complete Task Action",
+        "Responsible":  "Wade Zhang",
+        "Status":  "Ready to release",
+        "Days":  9,
+        "Project":  "TRF"
+    },
+    {
+        "Key":  "TRF-5349",
+        "Summary":  "CLONE - iOS APP多租户切换token enhance",
+        "Responsible":  "Zane Li",
+        "Status":  "Ready to release",
+        "Days":  9,
+        "Project":  "TRF"
+    },
+    {
+        "Key":  "TRF-5285",
+        "Summary":  "YMS Check-In: Add ARN search to look up outbound loads and link to Entry Ticket",
+        "Responsible":  "Shuo Wang",
+        "Status":  "New",
+        "Days":  9,
+        "Project":  "TRF"
+    },
+    {
+        "Key":  "TRF-5328",
+        "Summary":  "Pickup Preload Load 搜索状态筛选",
+        "Responsible":  "Wade Zhang",
+        "Status":  "Ready to release",
+        "Days":  9,
+        "Project":  "TRF"
+    },
+    {
+        "Key":  "TRF-5341",
+        "Summary":  "Yard BNP Push Flag",
+        "Responsible":  "Wade Zhang",
+        "Status":  "Ready to release",
+        "Days":  9,
+        "Project":  "TRF"
+    },
+    {
+        "Key":  "TRF-5365",
+        "Summary":  "Dock Location Activity - Add Drop Off Empty / Full \u0026 Label Rename",
+        "Responsible":  "Wade Zhang",
+        "Status":  "Ready to release",
+        "Days":  9,
+        "Project":  "TRF"
+    },
+    {
+        "Key":  "TRF-5340",
+        "Summary":  "Gate Event 补充需求",
+        "Responsible":  "Wade Zhang",
+        "Status":  "Ready to release",
+        "Days":  9,
+        "Project":  "TRF"
+    },
+    {
+        "Key":  "RP-877",
+        "Summary":  "spec driven 流程搭建",
+        "Responsible":  "yihuan yang",
+        "Status":  "In Dev",
+        "Days":  9,
+        "Project":  "RP"
+    },
+    {
+        "Key":  "RP-891",
+        "Summary":  "IAM accessToken移除 ",
+        "Responsible":  "BingWu Wang",
+        "Status":  "In Dev",
+        "Days":  9,
+        "Project":  "RP"
+    },
+    {
+        "Key":  "RP-893",
+        "Summary":  " 工控机摄像头测试流程",
+        "Responsible":  "xuan zhao",
+        "Status":  "In Dev",
+        "Days":  9,
+        "Project":  "RP"
+    },
+    {
+        "Key":  "TRF-5317",
+        "Summary":  "多浏览器多租户切换token enhance",
+        "Responsible":  "Wade Zhang",
+        "Status":  "Ready to release",
+        "Days":  9,
+        "Project":  "TRF"
+    },
+    {
+        "Key":  "TRF-5194",
+        "Summary":  "App Shuttle Task 排序优化 - 按计划开始时间排序",
+        "Responsible":  "Matt Wang",
+        "Status":  "Ready to release",
+        "Days":  9,
+        "Project":  "TRF"
+    },
+    {
+        "Key":  "TRF-5256",
+        "Summary":  "Container Number 格式校验开关配置",
+        "Responsible":  "Zane Li",
+        "Status":  "Doing",
+        "Days":  9,
+        "Project":  "TRF"
+    },
+    {
+        "Key":  "TRF-5302",
+        "Summary":  "Shuttle Task / Workspace Movement 自动刷新",
+        "Responsible":  "Wade Zhang",
+        "Status":  "Ready to release",
+        "Days":  9,
+        "Project":  "TRF"
+    },
+    {
+        "Key":  "TRF-5103",
+        "Summary":  "Gate 进出事件实时通知 \u0026 通话小浮窗",
+        "Responsible":  "未分配",
+        "Status":  "New",
+        "Days":  9,
+        "Project":  "TRF"
+    },
+    {
+        "Key":  "TRF-5184",
+        "Summary":  "YMS 新组硬件需求",
+        "Responsible":  "Arthur Liu",
+        "Status":  "New",
+        "Days":  9,
+        "Project":  "TRF"
+    },
+    {
+        "Key":  "TRF-5286",
+        "Summary":  "Load ARN 搜索配置",
+        "Responsible":  "Matt Wang",
+        "Status":  "Ready For Hotfix",
+        "Days":  9,
+        "Project":  "TRF"
+    },
+    {
+        "Key":  "TRF-5290",
+        "Summary":  "Gate Lane 设备方向自动继承",
+        "Responsible":  "Wade Zhang",
+        "Status":  "Ready to release",
+        "Days":  9,
+        "Project":  "TRF"
+    },
+    {
+        "Key":  "TRF-5467",
+        "Summary":  "load 校验逻辑上浮",
+        "Responsible":  "Wade Zhang",
+        "Status":  "Ready to Test",
+        "Days":  8,
+        "Project":  "TRF"
+    },
+    {
+        "Key":  "TRF-5428",
+        "Summary":  "Drop Off Equipment Page - Preload Now / Receive Now \u0026 Load Equipment Fields",
+        "Responsible":  "Matt Wang",
+        "Status":  "Doing",
+        "Days":  7,
+        "Project":  "TRF"
+    },
+    {
+        "Key":  "TRF-5486",
+        "Summary":  "BE Drop off Equipment Page",
+        "Responsible":  "Matt Wang",
+        "Status":  "Dev Completed",
+        "Days":  7,
+        "Project":  "TRF"
+    },
+    {
+        "Key":  "TRF-5156",
+        "Summary":  "Yard Check 超时关闭（不处理未盘点设备）",
+        "Responsible":  "Wade Zhang",
+        "Status":  "Ready to release",
+        "Days":  7,
+        "Project":  "TRF"
+    },
+    {
+        "Key":  "TRF-5321",
+        "Summary":  "Appointment 状态推送 WMS",
+        "Responsible":  "Matt Wang",
+        "Status":  "Ready to release",
+        "Days":  7,
+        "Project":  "TRF"
+    },
+    {
+        "Key":  "RP-895",
+        "Summary":  "提供Ai Agent团队Employee查询技能的Api",
+        "Responsible":  "BingWu Wang",
+        "Status":  "In Dev",
+        "Days":  6,
+        "Project":  "RP"
+    },
+    {
+        "Key":  "TRF-5498",
+        "Summary":  "web修改DOCK没有发短信提醒司机",
+        "Responsible":  "Shuo Wang",
+        "Status":  "Waiting for Dev",
+        "Days":  6,
+        "Project":  "TRF"
+    },
+    {
+        "Key":  "TRF-5500",
+        "Summary":  "Jett 的三星demo完成 Driver 身份和车辆验证后，通过回调接口将结果推送给 YMS",
+        "Responsible":  "Matt Wang",
+        "Status":  "Doing",
+        "Days":  5,
+        "Project":  "TRF"
+    },
+    {
+        "Key":  "TRF-5501",
+        "Summary":  "TOM demo用的预约短信链接增强",
+        "Responsible":  "未分配",
+        "Status":  "New",
+        "Days":  5,
+        "Project":  "TRF"
+    }
+]

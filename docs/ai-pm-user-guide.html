@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI-PM 平台使用指南</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,'PingFang SC','Microsoft YaHei',sans-serif;background:#fff;color:#1a1a2e;line-height:1.8;padding:40px 24px}
+.page{max-width:800px;margin:0 auto}
+h1{font-size:28px;font-weight:800;text-align:center;margin-bottom:6px;color:#667eea}
+.subtitle{text-align:center;font-size:14px;color:#666;margin-bottom:40px}
+h2{font-size:20px;font-weight:700;margin:40px 0 16px;padding-bottom:8px;border-bottom:2px solid #667eea;color:#1a1a2e}
+h3{font-size:16px;font-weight:600;margin:22px 0 10px;color:#333}
+h4{font-size:14px;font-weight:600;margin:14px 0 6px;color:#555}
+p{font-size:14px;margin:8px 0}
+table{width:100%;border-collapse:collapse;margin:12px 0;font-size:13px}
+th{background:#f0f2f8;padding:10px 12px;text-align:left;font-weight:600;border-bottom:2px solid #ddd}
+td{padding:10px 12px;border-bottom:1px solid #f0f0f0;vertical-align:top}
+.formula{background:#1a1a2e;color:#fff;border-radius:8px;padding:14px 20px;text-align:center;font-family:monospace;font-size:14px;margin:14px 0}
+.tip{background:#f0f7ff;border-left:4px solid #667eea;padding:12px 16px;border-radius:0 6px 6px 0;margin:12px 0;font-size:13px}
+.warn{background:#fff7e6;border-left:4px solid #faad14;padding:12px 16px;border-radius:0 6px 6px 0;margin:12px 0;font-size:13px}
+.highlight{background:#f6ffed;border-left:4px solid #52c41a;padding:12px 16px;border-radius:0 6px 6px 0;margin:12px 0;font-size:13px}
+.grades{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0}
+.grades span{padding:4px 12px;border-radius:14px;font-size:12px;font-weight:600}
+.g1{background:#f6ffed;color:#52c41a}.g2{background:#e6f7ff;color:#1890ff}.g3{background:#fff7e6;color:#fa8c16}.g4{background:#fff1f0;color:#f5222d}
+ul{padding-left:20px;font-size:13px;margin:6px 0}
+li{margin:4px 0}
+.tag{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;margin-right:4px}
+.ref-list{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+.ref-item{background:#f8f9ff;border:1px solid #e8e8f0;padding:6px 12px;border-radius:8px;font-size:12px}
+.footer{text-align:center;margin-top:40px;color:#999;font-size:11px;border-top:1px solid #eee;padding-top:16px}
+@media print{body{padding:20px}h2{page-break-before:auto}}
+</style>
+</head>
+<body>
+<div class="page">
+
+<h1>AI-PM 平台使用指南</h1>
+<p class="subtitle">AI 驱动的项目管理与绩效评估平台 · v1.1 · 2026-05</p>
+
+<!-- ═══════════ 平台介绍 ═══════════ -->
+<h2>平台介绍</h2>
+
+<h3>什么是 AI-PM</h3>
+<p>AI-PM 是一个 AI 驱动的项目管理平台，深度集成 Jira 数据，为研发团队提供 Sprint 可视化管理、智能风险预警、自动化报告生成、量化绩效评估和发版管理。区别于传统 PM 工具，AI-PM 通过 AI 引擎自动分析数据、识别风险、生成洞察，帮助团队做出更好的决策。</p>
+
+<h3>平台优势</h3>
+<table>
+<tr><th>优势</th><th>说明</th></tr>
+<tr><td><strong>零配置接入</strong></td><td>直接连接 Jira，无需手动导入数据，实时同步 Sprint/Issue 状态</td></tr>
+<tr><td><strong>AI 智能分析</strong></td><td>每个页面内置 AI 分析，一键生成项目健康度评估、风险提示和行动建议</td></tr>
+<tr><td><strong>量化绩效</strong></td><td>基于 SPACE + DORA 模型，五维度客观评估开发者绩效，数据驱动而非主观打分</td></tr>
+<tr><td><strong>自动化报告</strong></td><td>日报/周报/Sprint 复盘一键生成，支持企业微信推送</td></tr>
+<tr><td><strong>多视角看板</strong></td><td>PM 和 DEV 角色差异化视图，每个人看到最相关的信息</td></tr>
+<tr><td><strong>风险前置</strong></td><td>AI 自动识别进度风险、资源过载、范围蔓延，提前预警而非事后补救</td></tr>
+<tr><td><strong>Release Notes</strong></td><td>自动聚合 Sprint 已完成任务，按分类导出发版说明</td></tr>
+</table>
+
+<h3>参考模型与平台</h3>
+<table>
+<tr><th>领域</th><th>参考来源</th><th>我们的应用</th></tr>
+<tr><td>项目管理</td><td>Jira Software、Linear、Notion Projects</td><td>Sprint 看板、Backlog 管理、时间线视图</td></tr>
+<tr><td>团队洞察</td><td>Jellyfish、Pluralsight Flow、Waydev</td><td>开发者负载可视化、团队热力图、AI 洞察</td></tr>
+<tr><td>绩效模型</td><td>SPACE 框架（GitHub/微软研究）+ DORA 指标（Google DevOps）</td><td>五维度绩效评估（吞吐量/效率/质量/影响力/协作）</td></tr>
+<tr><td>AI 能力</td><td>GitHub Copilot Workspace、Cursor</td><td>AI 分析面板、智能规划、变更摘要生成</td></tr>
+<tr><td>通知协作</td><td>Slack、企业微信</td><td>风险推送、报告推送、AI 助手对话</td></tr>
+</table>
+
+<div class="highlight">
+<strong>SPACE 框架</strong>由 GitHub 和微软研究院提出，衡量开发者生产力的五个维度：Satisfaction（满意度）、Performance（绩效）、Activity（活动量）、Communication（协作）、Efficiency（效率）。<br>
+<strong>DORA 指标</strong>由 Google DevOps Research 提出，包括部署频率、变更前置时间、变更失败率、恢复时间。我们将这两个框架结合，形成适合内部团队的量化评估体系。
+</div>
+
+<!-- ═══════════ 功能模块 ═══════════ -->
+<h2>功能模块详解</h2>
+
+<h3>Dashboard（项目驾驶舱）</h3>
+<table>
+<tr><th>视图</th><th>内容</th><th>适用角色</th></tr>
+<tr><td>全局视图</td><td>Sprint 完成率、任务状态分布（可点击查看明细）、风险预警数、团队负载柱状图、燃尽图、交付预测</td><td>PM / DEV</td></tr>
+<tr><td>个人视图</td><td>我的待办/进行中/已完成任务列表，个人进度统计</td><td>DEV</td></tr>
+<tr><td>部门绩效</td><td>五维度雷达图、团队成员排名、绩效分布、任务明细</td><td>PM</td></tr>
+<tr><td>Release Notes</td><td>当前 Sprint 发版说明，按分类展示，支持导出 HTML</td><td>PM</td></tr>
+<tr><td>AI 决策</td><td>完成率评估、风险提示、AI 行动建议</td><td>PM</td></tr>
+</table>
+
+<h3>Sprint 管理</h3>
+<table>
+<tr><th>Tab</th><th>功能详情</th></tr>
+<tr><td>执行看板</td><td>5 列状态（待办→进行中→评审中→测试中→已完成），支持按优先级/负责人/关键词筛选，点击 Ticket ID 跳转 Jira</td></tr>
+<tr><td>资源视图</td><td>按 Developer 字段分组展示开发者卡片，含负载指示器（过载/均衡/空闲）、任务列表、团队统计栏（点击展开明细）</td></tr>
+<tr><td>变更检测</td><td>AI 自动检测优先级变更、新增需求、范围变更、状态回退；范围蔓延超 20% 自动告警；生成变更影响摘要</td></tr>
+<tr><td>AI 规划</td><td>从 Backlog 中 AI 评分推荐候选任务，支持勾选后一键复制规划清单</td></tr>
+</table>
+
+<h3>需求管理</h3>
+<p>管理项目近一年所有需求，支持列表/看板两种视图。顶部状态统计栏可快速筛选。所有 Ticket ID 可点击跳转 Jira。内置 AI 需求健康度分析。</p>
+
+<h3>风险与协作</h3>
+<p>风险看板按状态分列（已识别→评估中→应对中→已关闭）。自动识别：未分配高优任务、超工时任务、长时间无更新任务、跨项目协作依赖。支持一键企微推送风险通知。</p>
+
+<h3>报告中心</h3>
+<p>自动生成日报（当日进展）、周报（工作量+风险汇总+下周计划）、Sprint 复盘（完成率+团队贡献+改进建议）。支持一键推送企业微信。AI 自动生成进展摘要。</p>
+
+<h3>项目路线图</h3>
+<p>水平时间轴展示里程碑和关键节点。4 个内置模板。支持从 Jira Fix Versions 同步里程碑。AI 路线图健康分析。</p>
+
+<h3>AI 助手（Mini Coco）</h3>
+<p>右下角 🤖 按钮打开 AI 对话框。可直接查询 Jira 数据（"DTS 当前 Sprint 完成率？"）、搜索任务、生成报告。对话中的链接和 Ticket ID 可直接点击打开。</p>
+
+<h3>设置</h3>
+<p>Jira 连接配置、通知设置、<strong>排除人员管理</strong>（已离职人员不参与绩效计算和资源展示）。</p>
+
+<!-- ═══════════ 绩效评估 ═══════════ -->
+<h2>绩效评估体系</h2>
+
+<h3>评估模型</h3>
+<p>基于<strong>SPACE 框架</strong>（GitHub/微软）和 <strong>DORA 指标</strong>（Google DevOps Research），结合 Jira 数据自动计算，形成五维度量化评估：</p>
+
+<div class="formula">绩效分 = 吞吐量 × 20% + 效率 × 25% + 质量 × 25% + 影响力 × 15% + 协作 × 15%</div>
+
+<h3>绩效等级</h3>
+<div class="grades">
+<span class="g1">80-100 优秀</span>
+<span class="g2">60-79 良好</span>
+<span class="g3">40-59 一般</span>
+<span class="g4">0-39 需改进</span>
+</div>
+<p>等级由分数自然产生，不做强制分布。</p>
+
+<h3>Jira 优先级定义</h3>
+<p>优先级直接影响<strong>影响力维度</strong>。P0/P1 属于"高优"，完成高优任务是影响力得分的核心来源。</p>
+<table>
+<tr><th>等级</th><th>定义</th><th>响应要求</th><th>绩效贡献</th></tr>
+<tr><td><strong style="color:#f5222d">P0</strong></td><td>阻塞生产运营，需立即叫醒开发修复</td><td>立即，当天修复</td><td>✅ 高优（影响力+60%权重）</td></tr>
+<tr><td><strong style="color:#fa8c16">P1</strong></td><td>紧急问题，无 workaround，当天修复</td><td>当天修复</td><td>✅ 高优（影响力+60%权重）</td></tr>
+<tr><td><strong style="color:#1890ff">P2</strong></td><td>严重问题，Ready 后立即发布</td><td>尽快修复</td><td>普通</td></tr>
+<tr><td><strong style="color:#52c41a">P3</strong></td><td>下个 Sprint 完成，需设 Due Date</td><td>按排期</td><td>普通</td></tr>
+<tr><td><strong style="color:#999">P4</strong></td><td>放入下一个可用 Sprint</td><td>按排期</td><td>普通</td></tr>
+</table>
+
+<h3>维度一：吞吐量（权重 20%）</h3>
+<p><strong>衡量什么：</strong>Sprint 内完成的工作总量（数量 × 复杂度）。</p>
+<p><strong>计算逻辑：</strong>完成任务数 × 复杂度因子（1.0~5.0），在团队中算百分位排名。单人团队直接满分。</p>
+<h4>复杂度因子加分规则</h4>
+<table>
+<tr><th>条件</th><th>加分</th><th>逻辑</th></tr>
+<tr><td>子任务 >3 / >6</td><td>+0.5 / +1.0</td><td>任务拆分多说明复杂（互斥取高）</td></tr>
+<tr><td>关联 issue >2 / >5</td><td>+0.3 / +0.6</td><td>跨模块依赖多（互斥取高）</td></tr>
+<tr><td>评论 >5 / >10</td><td>+0.3 / +0.6</td><td>讨论多说明有挑战（互斥取高）</td></tr>
+<tr><td>跨 Sprint N 次</td><td>+0.3 × N</td><td>大型持续性任务</td></tr>
+</table>
+<div class="tip"><strong>如何提升：</strong>多完成任务 + 接复杂任务 + 确保状态移到 Done。复杂度因子 5.0 的大任务相当于 5 个简单任务。</div>
+
+<h3>维度二：效率（权重 25%）</h3>
+<p><strong>衡量什么：</strong>完成速度和按时交付能力。</p>
+<p><strong>计算逻辑：</strong></p>
+<ul>
+<li><strong>Cycle Time 分量（50%）</strong>= max(0, 100 - 平均天数 × 5)。4 天=80 分，10 天=50 分，20 天=0 分。</li>
+<li><strong>Delivery Rate 分量（50%）</strong>= Sprint 结束前完成数 / 总分配数 × 100</li>
+</ul>
+<div class="warn"><strong>核心要点：</strong>及时更新 Jira 状态是效率分的命脉。In Progress → Done 的时间差就是 Cycle Time。不更新状态会导致系统用 createdAt→updatedAt 计算，通常非常长。</div>
+<div class="tip"><strong>如何提升：</strong>拿到任务立刻移 In Progress → 做完立刻移 Done → 拆分大任务控制在 10 天内 → Sprint 内完成承诺。</div>
+
+<h3>维度三：质量（权重 25%）</h3>
+<p><strong>衡量什么：</strong>一次做对的能力，是否引入缺陷。</p>
+<p><strong>计算逻辑：</strong>((1 - 返工率) × 100 + (1 - Bug引入率) × 100) / 2</p>
+<ul>
+<li><strong>返工率</strong> = 被 Reopen 的任务数 / 已完成任务数</li>
+<li><strong>Bug 引入率</strong> = 关联了 Bug 类型 issue 的已完成任务数 / 已完成任务数</li>
+<li>Bug 数据不可用时，100% 权重归入返工率</li>
+</ul>
+<div class="tip"><strong>如何提升：</strong>开发前确认需求 → 充分自测 → Code Review 自查 → 减少 Reopen。<strong>返工率 0 + Bug 引入率 0 = 满分 100。</strong></div>
+
+<h3>维度四：影响力（权重 15%）</h3>
+<p><strong>衡量什么：</strong>你做的任务对业务的重要程度。</p>
+<p><strong>计算逻辑：</strong>高优完成比 × 100 × 60% + 阻塞解决速度 × 40%</p>
+<ul>
+<li><strong>高优</strong> = P0（Highest）/ P1（High）任务</li>
+<li><strong>阻塞解决速度</strong> = max(0, 100 - 有关联 issue 任务的平均 Cycle Time × 5)</li>
+<li>无阻塞任务时取中性值 50</li>
+</ul>
+<div class="warn"><strong>注意：</strong>只做 P3/P4 时，高优完成比=0，影响力最多只有 20 分。主动承担 P0/P1 紧急任务是影响力的决定性因素。</div>
+
+<h3>维度五：协作（权重 15%）</h3>
+<p><strong>衡量什么：</strong>你对团队的帮助和跨职能参与。</p>
+<p><strong>计算逻辑：</strong></p>
+<ul>
+<li><strong>评论分量（50%）</strong>= min(100, 在他人任务上的评论数 × 10)。10 条即满分。</li>
+<li><strong>任务参与度（50%）</strong>= 你参与过评论的他人任务数 / 他人任务总数 × 100</li>
+</ul>
+<div class="tip"><strong>最易提分维度：</strong>在 10 个不同同事的 Jira ticket 上留有价值的评论（Code Review 建议、技术讨论、问题反馈）即可拿到评论满分。覆盖面比深度更重要。</div>
+
+<h3>常见问题</h3>
+<table>
+<tr><th>问题</th><th>原因与解决</th></tr>
+<tr><td>效率分为 0</td><td>Jira 状态没及时更新。开始做 → 移 In Progress，完成 → 移 Done。不更新会导致 Cycle Time 按创建到最后更新算（通常几十天）。</td></tr>
+<tr><td>吞吐量低但完成了很多</td><td>吞吐量是团队内相对排名。接复杂任务（复杂度因子 3.0~5.0）比做很多简单任务（1.0）更有效。</td></tr>
+<tr><td>影响力很低</td><td>只做了 P2/P3/P4 任务。影响力 60% 来自高优（P0/P1）完成比。需要主动承担紧急重要任务。</td></tr>
+<tr><td>协作分低</td><td>没有在别人任务上留评论。10 条跨团队评论即可拿满评论分量。多参与 Code Review。</td></tr>
+<tr><td>质量不满分</td><td>有被 Reopen 或任务关联了 Bug。开发前确认需求，充分自测后再提交。</td></tr>
+<tr><td>某人已离职但还显示</td><td>进入 设置 → 排除人员 → 添加该人姓名（与 Jira 一致）即可隐藏。</td></tr>
+</table>
+
+<h3>快速提分行动清单</h3>
+<table>
+<tr><th>优先级</th><th>行动</th><th>影响维度</th><th>预期提升</th></tr>
+<tr><td>⭐⭐⭐</td><td>及时更新 Jira 状态（开始→In Progress，完成→Done）</td><td>效率</td><td>+20~30</td></tr>
+<tr><td>⭐⭐⭐</td><td>Sprint 内完成承诺的任务，不拖到下个 Sprint</td><td>效率 + 吞吐量</td><td>+15~25</td></tr>
+<tr><td>⭐⭐⭐</td><td>一次做对，自测充分，减少 Reopen</td><td>质量</td><td>+10~25</td></tr>
+<tr><td>⭐⭐</td><td>在 10 个同事的任务上留有价值评论</td><td>协作</td><td>+50（满分）</td></tr>
+<tr><td>⭐⭐</td><td>主动接 P0/P1 高优紧急任务</td><td>影响力</td><td>+20~40</td></tr>
+<tr><td>⭐⭐</td><td>接复杂任务（多子任务/多关联/多讨论）</td><td>吞吐量</td><td>+10~20</td></tr>
+<tr><td>⭐</td><td>拆分大任务，控制 Cycle Time < 10 天</td><td>效率</td><td>+10~15</td></tr>
+</table>
+
+<div class="footer">AI-PM Platform · v1.1 · 2026-05 · https://ai-pm-platform.item.pub<br>绩效模型参考：SPACE Framework (GitHub/Microsoft Research) + DORA Metrics (Google DevOps Research)</div>
+</div>
+</body>
+</html>

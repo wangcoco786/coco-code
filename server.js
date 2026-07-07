@@ -205,16 +205,16 @@ app.get('/api/daily-push/preview', async (_req, res) => {
 // ============================================================
 const distPath = path.join(__dirname, 'dist')
 app.use(express.static(distPath, {
-  maxAge: '1y',
-  immutable: true,
   setHeaders: (res, filePath) => {
-    if (filePath.endsWith('.html')) {
-      res.setHeader('Cache-Control', 'no-cache')
-    }
+    // 所有文件都禁用缓存，确保浏览器总是加载最新版本
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate')
+    res.setHeader('Pragma', 'no-cache')
+    res.setHeader('Expires', '0')
   }
 }))
 
 app.use((_req, res) => {
+  res.setHeader('Cache-Control', 'no-cache')
   res.sendFile(path.join(distPath, 'index.html'))
 })
 

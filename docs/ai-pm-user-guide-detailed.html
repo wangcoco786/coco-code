@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI-PM 平台用户指南（详细版）</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,'PingFang SC','Microsoft YaHei',sans-serif;background:#f8f9fa;color:#1a1a2e;line-height:1.8;font-size:14px}
+.page{max-width:960px;margin:0 auto;padding:40px 24px}
+.hero{text-align:center;padding:60px 30px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);border-radius:20px;color:#fff;margin-bottom:36px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-50%;right:-20%;width:400px;height:400px;background:rgba(255,255,255,0.06);border-radius:50%}
+.hero h1{font-size:34px;font-weight:800;margin-bottom:10px}
+.hero p{font-size:15px;opacity:0.9}
+.toc{background:#fff;border-radius:16px;padding:24px 28px;margin-bottom:24px;box-shadow:0 2px 12px rgba(0,0,0,0.04)}
+.toc h2{font-size:16px;margin-bottom:12px}
+.toc ol{padding-left:20px;columns:2;column-gap:32px}
+.toc li{margin:4px 0;font-size:13px}
+.toc a{color:#667eea;text-decoration:none}
+.toc a:hover{text-decoration:underline}
+.section{background:#fff;border-radius:16px;padding:28px 32px;margin-bottom:24px;box-shadow:0 2px 12px rgba(0,0,0,0.04)}
+.section h2{font-size:22px;font-weight:700;margin-bottom:16px;border-left:4px solid #667eea;padding-left:12px}
+.section h3{font-size:16px;font-weight:600;margin:20px 0 10px;color:#333}
+.section h4{font-size:14px;font-weight:600;margin:14px 0 8px;color:#555}
+table{width:100%;border-collapse:collapse;margin:12px 0;font-size:13px}
+th{background:#f0f2f8;padding:8px 12px;text-align:left;font-weight:600;border-bottom:2px solid #e0e0e0}
+td{padding:8px 12px;border-bottom:1px solid #f0f0f0}
+tr:hover td{background:#fafafe}
+.formula{background:#1a1a2e;color:#fff;border-radius:10px;padding:16px 20px;text-align:center;font-family:'SF Mono',monospace;font-size:14px;margin:12px 0;letter-spacing:0.5px}
+.tip{background:#f0f7ff;border-left:4px solid #667eea;padding:14px 18px;border-radius:0 8px 8px 0;margin:12px 0;font-size:13px}
+.tip strong{color:#667eea}
+.warn{background:#fff7e6;border-left:4px solid #faad14;padding:14px 18px;border-radius:0 8px 8px 0;margin:12px 0;font-size:13px}
+.warn strong{color:#d48806}
+.badge{display:inline-block;padding:2px 10px;border-radius:12px;font-size:11px;font-weight:600}
+.b-green{background:#f6ffed;color:#52c41a}.b-blue{background:#e6f7ff;color:#1890ff}
+.b-orange{background:#fff7e6;color:#fa8c16}.b-red{background:#fff1f0;color:#f5222d}
+.grade-row{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0}
+.steps{display:flex;gap:16px;margin:16px 0;flex-wrap:wrap}
+.step{flex:1;min-width:160px;background:#f8f9ff;border-radius:12px;padding:16px;text-align:center;border:1.5px solid #e8e8f0}
+.step-num{width:28px;height:28px;background:#667eea;color:#fff;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;margin-bottom:8px}
+.step-text{font-size:12px;color:#333}
+.priority-table td:first-child{font-weight:700;text-align:center}
+.footer{text-align:center;padding:30px;color:#999;font-size:12px}
+@media print{body{background:#fff;font-size:12px}.section{box-shadow:none;border:1px solid #eee;page-break-inside:avoid}.hero{padding:30px}}
+@media(max-width:600px){.toc ol{columns:1}.steps{flex-direction:column}}
+</style>
+</head>
+<body>
+<div class="page">
+
+<div class="hero">
+<h1>AI-PM 平台用户指南</h1>
+<p>AI 驱动的项目管理平台 · 集成 Jira · 智能分析与绩效评估</p>
+<p style="margin-top:8px;opacity:0.7;font-size:13px">版本 1.1 · 2026年5月</p>
+</div>
+
+<!-- 目录 -->
+<div class="toc">
+<h2>📋 目录</h2>
+<ol>
+<li><a href="#start">快速开始</a></li>
+<li><a href="#dashboard">Dashboard 驾驶舱</a></li>
+<li><a href="#sprint">Sprint 管理</a></li>
+<li><a href="#requirements">需求管理</a></li>
+<li><a href="#risk">风险与协作</a></li>
+<li><a href="#reports">报告中心</a></li>
+<li><a href="#roadmap">项目路线图</a></li>
+<li><a href="#release">Release Notes</a></li>
+<li><a href="#performance">部门绩效（详细）</a></li>
+<li><a href="#settings">设置与配置</a></li>
+<li><a href="#common">通用功能</a></li>
+</ol>
+</div>
+
+<!-- 快速开始 -->
+<div class="section" id="start">
+<h2>1. 快速开始</h2>
+<div class="steps">
+<div class="step"><div class="step-num">1</div><div class="step-text">顶部导航栏<br>选择 Jira 项目</div></div>
+<div class="step"><div class="step-num">2</div><div class="step-text">系统自动加载<br>当前 Sprint 数据</div></div>
+<div class="step"><div class="step-num">3</div><div class="step-text">左侧菜单<br>切换功能模块</div></div>
+</div>
+<table>
+<tr><th>功能</th><th>说明</th></tr>
+<tr><td>🔍 全局搜索</td><td>顶部搜索框，支持任务 ID、标题、页面名搜索</td></tr>
+<tr><td>👤 角色切换</td><td>顶部右侧切换 PM/DEV 角色，不同角色看到不同功能</td></tr>
+<tr><td>🌐 多语言</td><td>支持中文/English/日本語/Español</td></tr>
+<tr><td>🤖 AI 助手</td><td>右下角 Mini Coco 对话框，可直接查询 Jira 数据</td></tr>
+</table>
+</div>
+
+<!-- Dashboard -->
+<div class="section" id="dashboard">
+<h2>2. Dashboard 驾驶舱</h2>
+<p>项目整体概览，包含多个视图 Tab：</p>
+<table>
+<tr><th>Tab</th><th>功能</th><th>适用角色</th></tr>
+<tr><td>全局视图</td><td>Sprint 完成率、任务状态分布（可点击看明细）、团队负载、燃尽图、风险预警</td><td>PM/DEV</td></tr>
+<tr><td>个人视图</td><td>我的任务列表、进度统计</td><td>DEV</td></tr>
+<tr><td>部门绩效</td><td>五维度绩效评估、团队排名、雷达图</td><td>PM</td></tr>
+<tr><td>Release Notes</td><td>当前 Sprint 发版说明、分类展示、导出</td><td>PM</td></tr>
+<tr><td>AI 决策</td><td>AI 辅助决策建议</td><td>PM</td></tr>
+</table>
+<div class="tip"><strong>💡 提示：</strong>每个页面顶部都有 AI 智能分析面板，点击"生成分析"可获取 AI 对当前数据的洞察和建议。</div>
+</div>
+
+<!-- Sprint -->
+<div class="section" id="sprint">
+<h2>3. Sprint 管理</h2>
+<table>
+<tr><th>Tab</th><th>功能详情</th></tr>
+<tr><td>📋 执行（看板）</td><td>5 列看板：待办→进行中→评审→测试→完成。支持按优先级/负责人/关键词筛选</td></tr>
+<tr><td>👥 资源</td><td>开发者画像卡片（按 Developer 字段分组）、工作负载可视化（过载红/均衡绿/空闲橙）、团队统计栏可点击展开明细</td></tr>
+<tr><td>🔄 变更</td><td>AI 自动检测需求变更（优先级变更/新增需求/范围变更/状态回退）、影响分析仪表盘、范围蔓延检测（>20% 警告）</td></tr>
+<tr><td>🧠 规划</td><td>AI 从 Backlog 筛选候选任务评分推荐，勾选后可复制规划清单</td></tr>
+</table>
+</div>
+
+<!-- 需求 -->
+<div class="section" id="requirements">
+<h2>4. 需求管理</h2>
+<ul style="padding-left:20px;font-size:13px">
+<li>列表视图 / 看板视图切换</li>
+<li>按状态、优先级、负责人、关键词多维筛选</li>
+<li>顶部状态统计栏，点击数字快速筛选</li>
+<li>所有 Ticket ID 可点击跳转 Jira 原始页面</li>
+<li>AI 需求健康度分析和积压风险评估</li>
+<li>支持近一年内所有需求数据</li>
+</ul>
+</div>
+
+<!-- 风险 -->
+<div class="section" id="risk">
+<h2>5. 风险与协作</h2>
+<h3>风险看板</h3>
+<p style="font-size:13px">按状态分列展示：已识别 → 评估中 → 应对中 → 已关闭</p>
+<h3>跨团队协作</h3>
+<p style="font-size:13px">自动识别跨项目协作任务</p>
+<h3>依赖管理</h3>
+<ul style="padding-left:20px;font-size:13px">
+<li>未分配的高优先级任务</li>
+<li>超工时任务</li>
+<li>长时间未更新的任务</li>
+</ul>
+<h3>企微推送</h3>
+<p style="font-size:13px">一键推送风险通知到企业微信群</p>
+</div>
+
+<!-- 报告 -->
+<div class="section" id="reports">
+<h2>6. 报告中心</h2>
+<table>
+<tr><th>报告类型</th><th>内容</th></tr>
+<tr><td>📅 日报</td><td>当日任务进展、完成/新增统计</td></tr>
+<tr><td>📊 周报</td><td>本周工作量、风险汇总、下周计划</td></tr>
+<tr><td>🏁 Sprint 复盘</td><td>完成率、团队贡献、改进建议</td></tr>
+</table>
+<p style="font-size:13px;margin-top:8px">支持一键推送企业微信 + AI 自动生成进展摘要</p>
+</div>
+
+<!-- 路线图 -->
+<div class="section" id="roadmap">
+<h2>7. 项目路线图</h2>
+<ul style="padding-left:20px;font-size:13px">
+<li>水平时间轴展示里程碑和关键节点</li>
+<li>4 个内置模板（Agile Sprint / 季度规划 / 产品发布 / 自定义）</li>
+<li>从 Jira Fix Versions 自动同步里程碑</li>
+<li>AI 路线图健康状况分析</li>
+</ul>
+</div>
+
+<!-- Release Notes -->
+<div class="section" id="release">
+<h2>8. Release Notes</h2>
+<p style="font-size:13px">自动聚合当前 Sprint 已完成的任务，按类型分类展示：</p>
+<table>
+<tr><th>功能</th><th>说明</th></tr>
+<tr><td>自动分类</td><td>Feature / Bug Fix / Hot Fix / Improvement / Other（基于 labels 和 issue type）</td></tr>
+<tr><td>完成度摘要</td><td>总数、已完成、完成率（点击数字查看明细弹窗）</td></tr>
+<tr><td>插队标识</td><td>Sprint 开始后加入的 Issue 标记"插队"badge</td></tr>
+<tr><td>状态提醒</td><td>Sprint 结束前 2 天，未完成 Issue 显示"状态待更新"警告</td></tr>
+<tr><td>导出</td><td>一键导出 HTML 文件（只包含已完成任务 + 分类汇总）</td></tr>
+<tr><td>筛选</td><td>"仅插队" / "仅状态待更新" 筛选切换</td></tr>
+</table>
+</div>
+
+<!-- 绩效（重点详细） -->
+<div class="section" id="performance">
+<h2>9. 部门绩效（详细说明）</h2>
+
+<h3>9.1 综合绩效公式</h3>
+<div class="formula">绩效分 = 吞吐量×20% + 效率×25% + 质量×25% + 影响力×15% + 协作×15%</div>
+
+<h3>9.2 绩效等级</h3>
+<div class="grade-row">
+<span class="badge b-green">🟢 80-100 Excellent（优秀）</span>
+<span class="badge b-blue">🔵 60-79 Good（良好）</span>
+<span class="badge b-orange">🟠 40-59 Average（一般）</span>
+<span class="badge b-red">🔴 0-39 Needs Improvement（需改进）</span>
+</div>
+
+<h3>9.3 优先级说明（影响绩效计算）</h3>
+<div class="warn"><strong>⚠️ 重要：</strong>Jira 任务的优先级直接影响「影响力」维度得分。高优先级任务完成越多，影响力分越高。</div>
+<table class="priority-table">
+<tr><th>Jira 优先级</th><th>平台映射</th><th>对绩效的影响</th><th>建议</th></tr>
+<tr><td style="color:#f5222d">Highest</td><td><span class="badge b-red">P0</span></td><td>高优完成比 +1（影响力核心指标）</td><td>⭐⭐⭐ 优先完成，直接提升影响力分</td></tr>
+<tr><td style="color:#fa8c16">High</td><td><span class="badge b-orange">P1</span></td><td>高优完成比 +1（影响力核心指标）</td><td>⭐⭐⭐ 优先完成，直接提升影响力分</td></tr>
+<tr><td style="color:#1890ff">Medium</td><td><span class="badge b-blue">P2</span></td><td>不计入高优完成比</td><td>⭐⭐ 正常处理，贡献吞吐量</td></tr>
+<tr><td style="color:#999">Low / Lowest</td><td><span class="badge" style="background:#f5f5f5;color:#999">P3</span></td><td>不计入高优完成比</td><td>⭐ 有空再做</td></tr>
+</table>
+<div class="tip"><strong>💡 关键点：</strong>影响力维度中，高优先级完成比 = 你完成的 P0+P1 任务数 / 你完成的总任务数。如果你只做 P2/P3 任务，这个比值为 0，影响力最多只能得 20 分（阻塞分量的中性值）。</div>
+
+<h3>9.4 五维度详细说明</h3>
+
+<h4>① 吞吐量（权重 20%）— 产出能力</h4>
+<p style="font-size:13px">统计 Sprint 内完成的任务数 × 复杂度因子，在团队中算百分位排名。</p>
+<table>
+<tr><th>复杂度因子条件</th><th>加分</th></tr>
+<tr><td>子任务 >3 个</td><td>+0.5</td></tr>
+<tr><td>子任务 >6 个</td><td>+1.0（与上互斥取高）</td></tr>
+<tr><td>关联 issue >2</td><td>+0.3</td></tr>
+<tr><td>关联 issue >5</td><td>+0.6（与上互斥取高）</td></tr>
+<tr><td>评论 >5 条</td><td>+0.3</td></tr>
+<tr><td>评论 >10 条</td><td>+0.6（与上互斥取高）</td></tr>
+<tr><td>跨 Sprint 次数 >0</td><td>+0.3 × 次数</td></tr>
+</table>
+<div class="tip"><strong>💡 提升方法：</strong>多完成任务 + 接复杂任务（多子任务/多关联）。只有 status=Done 的任务才计入。</div>
+
+<h4>② 效率（权重 25%）— 交付速度</h4>
+<p style="font-size:13px"><strong>Cycle Time 分量</strong> = max(0, 100 - 平均天数×5)。<strong>Delivery Rate 分量</strong> = Sprint 结束前完成数/总分配数×100。两者各占 50%。</p>
+<div class="warn"><strong>⚠️ 注意：</strong>如果不及时更新 Jira 状态（不移到 In Progress），系统无法准确计算 Cycle Time，会导致效率分偏低。</div>
+<div class="tip"><strong>💡 提升方法：</strong>开始做任务就移到 In Progress，做完立刻移到 Done。拆分大任务（20 天 Cycle Time = 0 分）。Sprint 内完成承诺的任务。</div>
+
+<h4>③ 质量（权重 25%）— 交付质量</h4>
+<p style="font-size:13px"><strong>返工率</strong> = 被 Reopen 次数 / 已完成数。<strong>Bug 引入率</strong> = 关联 Bug>0 的完成任务 / 已完成总数。</p>
+<div class="formula">质量 = ((1-返工率)×100 + (1-Bug引入率)×100) / 2</div>
+<div class="tip"><strong>💡 提升方法：</strong>一次做对（减少 Reopen）+ 减少 Bug（自测充分、写单元测试）。返工率 0 + Bug 引入率 0 = 满分 100。</div>
+
+<h4>④ 影响力（权重 15%）— 高价值贡献</h4>
+<div class="formula">影响力 = 高优完成比×100×60% + 阻塞解决速度分量×40%</div>
+<p style="font-size:13px"><strong>高优</strong> = P0/P1（Highest/High）。<strong>阻塞解决速度分量</strong> = max(0, 100 - 阻塞任务平均 Cycle Time × 5)。无阻塞任务时取中性值 50。</p>
+<div class="tip"><strong>💡 提升方法：</strong>主动接 P0/P1 任务 + 快速完成有 blocked 关系的任务。</div>
+
+<h4>⑤ 协作（权重 15%）— 团队贡献</h4>
+<div class="formula">协作 = (min(100, 跨团队评论数×10) + 他人任务参与比×100) / 2</div>
+<p style="font-size:13px"><strong>跨团队评论</strong> = 在不是你负责的任务上发表的评论数。<strong>10 条即满分。</strong></p>
+<div class="tip"><strong>💡 提升方法（最容易提分）：</strong>在 10 个不同同事的 Jira ticket 上各留一条有价值的评论（Code Review、建议、问题讨论）。</div>
+
+<h3>9.5 快速提分优先级</h3>
+<table>
+<tr><th>优先级</th><th>行动</th><th>影响维度</th><th>预期提升</th></tr>
+<tr><td>⭐⭐⭐</td><td>及时更新 Jira 状态（In Progress → Done）</td><td>效率</td><td>+20~30</td></tr>
+<tr><td>⭐⭐⭐</td><td>Sprint 内完成承诺的任务</td><td>效率+吞吐量</td><td>+15~25</td></tr>
+<tr><td>⭐⭐⭐</td><td>减少 Reopen（一次做对）</td><td>质量</td><td>+10~25</td></tr>
+<tr><td>⭐⭐</td><td>在他人任务上留 10 条评论</td><td>协作</td><td>+50（满分）</td></tr>
+<tr><td>⭐⭐</td><td>主动接 P0/P1 任务</td><td>影响力</td><td>+20~40</td></tr>
+<tr><td>⭐⭐</td><td>接复杂任务（多子任务/多关联）</td><td>吞吐量</td><td>+10~20</td></tr>
+<tr><td>⭐</td><td>拆分大任务，缩短 Cycle Time 到 4 天以内</td><td>效率</td><td>+10~15</td></tr>
+</table>
+</div>
+
+<!-- 设置 -->
+<div class="section" id="settings">
+<h2>10. 设置与配置</h2>
+<table>
+<tr><th>Tab</th><th>功能</th></tr>
+<tr><td>项目</td><td>当前项目和 Board 信息</td></tr>
+<tr><td>Jira</td><td>Jira 连接配置和测试</td></tr>
+<tr><td>通知</td><td>风险预警通知开关</td></tr>
+<tr><td>外观</td><td>深色/浅色主题切换</td></tr>
+<tr><td>权限</td><td>角色和功能权限管理</td></tr>
+<tr><td>排除人员</td><td>管理不参与绩效考核的人员（已离职等）</td></tr>
+</table>
+</div>
+
+<!-- 通用 -->
+<div class="section" id="common">
+<h2>11. 通用功能</h2>
+<table>
+<tr><th>功能</th><th>说明</th></tr>
+<tr><td>🔗 Ticket 链接</td><td>平台上所有 Jira ticket ID 都可点击，直接跳转 Jira 原始页面</td></tr>
+<tr><td>🤖 AI 小助手</td><td>右下角 Mini Coco，支持自然语言查询 Jira 数据、生成报告、PPT 下载链接可直接点击</td></tr>
+<tr><td>🔔 通知中心</td><td>实时风险预警和变更通知推送</td></tr>
+<tr><td>📥 导出</td><td>Release Notes 支持导出 HTML（仅已完成任务）、报告支持推送企微</td></tr>
+<tr><td>🔍 项目搜索</td><td>项目选择器支持输入关键词快速搜索过滤</td></tr>
+</table>
+</div>
+
+<!-- 访问 -->
+<div class="section">
+<h2>访问方式</h2>
+<table>
+<tr><th>环境</th><th>地址</th></tr>
+<tr><td>公网</td><td><a href="https://ai-pm-platform.item.pub/" style="color:#667eea">https://ai-pm-platform.item.pub/</a></td></tr>
+<tr><td>内网</td><td>http://192.168.x.x:3000（启动 启动服务.bat）</td></tr>
+</table>
+</div>
+
+<div class="footer">AI-PM Platform User Guide v1.1 · 2026-05</div>
+</div>
+</body>
+</html>

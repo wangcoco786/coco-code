@@ -348,7 +348,7 @@ function MemberCard({
           {/* 任务列表 */}
           <div className={styles.memberDetails} onClick={e => e.stopPropagation()}>
             <div className={styles.detailsTitle}>任务列表</div>
-            <TaskListTable tasks={member.tasks} memberId={member.memberId} memberName={member.memberName} />
+            <TaskListTable tasks={member.tasks} memberId={member.memberId} memberName={member.memberName} roles={member.roles} />
           </div>
         </>
       )}
@@ -356,22 +356,26 @@ function MemberCard({
   )
 }
 
-/** 任务列表表格 — 只显示归属当前成员的任务（与资源视图一致） */
-function TaskListTable({ tasks, memberId, memberName }: { tasks: PerformanceIssue[]; memberId?: string; memberName?: string }) {
-  // DEBUG: 在浏览器 console 中打印过滤信息
-  if (tasks.some(t => t.id === 'RMS-2886')) {
-    const rms2886 = tasks.find(t => t.id === 'RMS-2886')!
-    console.log('[TaskListTable DEBUG] memberId:', memberId, 'memberName:', memberName,
-      'RMS-2886 developerUser:', JSON.stringify(rms2886.developerUser),
-      'RMS-2886 assignee:', JSON.stringify(rms2886.assignee))
-  }
-
+/** 任务列表表格 — 按角色过滤任务 */
+function TaskListTable({ tasks, memberId, memberName, roles }: { tasks: PerformanceIssue[]; memberId?: string; memberName?: string; roles?: string[] }) {
+  // Developer: 只显示 developerUser 是自己的任务
+  // Reporter: 只显示没有 developerUser 且 reporter 是自己的任务
+  // Other: 没有 developer 的任务按 assignee 归属
   const filteredTasks = (memberId || memberName)
     ? tasks.filter(task => {
-        const devUser = task.developerUser
-        const ownerId = devUser?.id ?? task.assignee?.id
-        const ownerName = devUser?.name ?? task.assignee?.name
-        return ownerId === memberId || ownerName === memberName
+        const isDeveloperRole = roles?.includes('Developer')
+        const isReporterRole = roles?.includes('Reporter')
+
+        if (isDeveloperRole) {
+          if (!task.developerUser?.id) return false
+          return task.developerUser.id === memberId || task.developerUser.name === memberName
+        } else if (isReporterRole) {
+          if (task.developerUser?.id) return false
+          return task.reporter?.id === memberId || task.reporter?.name === memberName
+        } else {
+          if (task.developerUser?.id) return false
+          return task.assignee?.id === memberId || task.assignee?.name === memberName
+        }
       })
     : tasks
 

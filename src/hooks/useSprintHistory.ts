@@ -224,16 +224,24 @@ export function useSprintPerformance(projectKey: string | null, sprintName: stri
 
       const jql = `${projectClause} AND ${sprintClause} ORDER BY priority ASC, updated DESC`
       const fieldsStr = PERFORMANCE_FIELDS.join(',')
-      const url = `rest/api/2/search?jql=${encodeURIComponent(jql)}&fields=${fieldsStr}&expand=changelog&maxResults=200`
-
-      const response = await authFetch(`/api/jira/${url}`, {
-        headers: { 'Content-Type': 'application/json' },
-      })
-
-      if (!response.ok) return null
-
-      const data = await response.json()
-      const issues = data?.issues ?? []
+ // 分页获取所有 issues
+ const allIssues: any[] = []
+ let startAt = 0
+ const pageSize = 200
+ let total = Infinity
+ while (startAt < total) {
+ const url = `rest/api/2/search?jql=${encodeURIComponent(jql)}&fields=${fieldsStr}&expand=changelog&maxResults=${pageSize}&startAt=${startAt}`
+ const response = await authFetch(`/api/jira/${url}`, {
+ headers: { 'Content-Type': 'application/json' },
+ })
+ if (!response.ok) return null
+ const data = await response.json()
+ total = data.total ?? 0
+ allIssues.push(...(data.issues ?? []))
+ startAt += pageSize
+ if (!data.issues?.length) break
+ }
+ const issues = allIssues
       if (issues.length === 0) return null
 
       const { transformToPerformanceIssue } = await import('@/hooks/usePerformanceData')

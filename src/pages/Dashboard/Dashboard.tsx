@@ -41,12 +41,13 @@ export default function Dashboard() {
 
   const { data: sprints = [] } = useActiveSprintsByProject(currentProjectKey)
   const sprint = sprints[0] ?? null  // Dashboard 显示第一个 Sprint
-  const { data: issues = [], isLoading: rawLoading, error } = useActiveSprintIssuesByProject(
-    sprint?.name ? currentProjectKey : null,
-    sprint?.id ?? null,
-    sprint?.name ?? null,
+  // 查询所有活跃 Sprint 的 Issues（不传 sprintId/sprintName，使用 openSprints()）
+ const { data: issues = [], isLoading: rawLoading, error } = useActiveSprintIssuesByProject(
+    currentProjectKey,
+    null,
+    null,
   )
-  const isLoading = (rawLoading && !!currentProjectKey) || (!sprint && !!currentProjectKey)
+  const isLoading = (rawLoading && !!currentProjectKey) || (!sprints.length && !!currentProjectKey)
 
   const risks = analyzeRisks(issues)
   const teamLoad = calculateTeamLoad(issues, {})

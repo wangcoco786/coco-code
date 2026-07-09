@@ -407,27 +407,35 @@ export function usePerformanceData(projectKey: string | null): UsePerformanceDat
       const jql = `${projectClause} AND sprint in openSprints() ORDER BY priority ASC, updated DESC`
 
       const fieldsStr = PERFORMANCE_FIELDS.join(',')
-      const url = `rest/api/2/search?jql=${encodeURIComponent(jql)}&fields=${fieldsStr}&expand=changelog&maxResults=200`
-
-      const response = await authFetch(`/api/jira/${url}`, {
-        headers: { 'Content-Type': 'application/json' },
-      })
-
-      if (!response.ok) {
-        const status = response.status
-        let message = `Jira API error: ${status}`
-        try {
-          const body = await response.json()
-          if (body.errorMessages?.length) message = body.errorMessages.join(', ')
-          else if (body.message) message = body.message
-        } catch { /* ignore */ }
-        const err = new Error(message)
-        ;(err as unknown as { status: number }).status = status
-        throw err
-      }
-
-      const data = await response.json()
-      return data
+ // 分页获取所有 issues（避免 maxResults 截断）
+ const allIssues = []
+ let startAt = 0
+ const pageSize = 200
+ let total = Infinity
+ while (startAt < total) {
+ const url = `rest/api/2/search?jql=${encodeURIComponent(jql)}&fields=${fieldsStr}&expand=changelog&maxResults=${pageSize}&startAt=${startAt}`
+ const response = await authFetch(`/api/jira/${url}`, {
+ headers: { 'Content-Type': 'application/json' },
+ })
+ if (!response.ok) {
+ const status = response.status
+ let message = `Jira API error: ${status}`
+ try {
+ const body = await response.json()
+ if (body.errorMessages?.length) message = body.errorMessages.join(', ')
+ else if (body.message) message = body.message
+ } catch { /* ignore */ }
+ const err = new Error(message)
+ ;(err as unknown as { status: number }).status = status
+ throw err
+ }
+ const data = await response.json()
+ total = data.total ?? 0
+ allIssues.push(...(data.issues ?? []))
+ startAt += pageSize
+ if (!data.issues?.length) break
+ }
+ return { issues: allIssues, total: allIssues.length }
     },
     enabled: !!projectKey,
     staleTime: 5 * 60 * 1000,
@@ -454,12 +462,24 @@ export function usePerformanceData(projectKey: string | null): UsePerformanceDat
       queryFn: async () => {
         const jql = `project = ${pk} AND sprint in openSprints() ORDER BY priority ASC, updated DESC`
         const fieldsStr = PERFORMANCE_FIELDS.join(',')
-        const url = `rest/api/2/search?jql=${encodeURIComponent(jql)}&fields=${fieldsStr}&expand=changelog&maxResults=200`
-        const response = await authFetch(`/api/jira/${url}`, {
-          headers: { 'Content-Type': 'application/json' },
-        })
-        if (!response.ok) return { issues: [] }
-        return await response.json()
+        // 分页获取
+        const allIssues: any[] = []
+        let startAt = 0
+        const pageSize = 200
+        let total = Infinity
+        while (startAt < total) {
+          const url = `rest/api/2/search?jql=${encodeURIComponent(jql)}&fields=${fieldsStr}&expand=changelog&maxResults=${pageSize}&startAt=${startAt}`
+          const response = await authFetch(`/api/jira/${url}`, {
+            headers: { 'Content-Type': 'application/json' },
+          })
+          if (!response.ok) return { issues: [] }
+          const data = await response.json()
+          total = data.total ?? 0
+          allIssues.push(...(data.issues ?? []))
+          startAt += pageSize
+          if (!data.issues?.length) break
+        }
+        return { issues: allIssues, total: allIssues.length }
       },
       enabled: !!projectKey && CROSS_PROJECT_KEYS.includes(projectKey),
       staleTime: 10 * 60 * 1000, // 10分钟缓存

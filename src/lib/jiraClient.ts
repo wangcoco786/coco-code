@@ -109,9 +109,21 @@ export const jiraClient = {
       'customfield_10016', 'customfield_10004', 'customfield_11000', 'customfield_11103',
       'issuetype', 'parent',
     ].join(',')
-    return jiraFetch<JiraSearchResponse>(
-      `rest/api/2/search?jql=${encodeURIComponent(finalJql)}&fields=${fields}&maxResults=200`
-    )
+    // 分页获取所有 issues
+    const allIssues: JiraIssue[] = []
+    let startAt = 0
+    const pageSize = 200
+    let total = Infinity
+    while (startAt < total) {
+      const result = await jiraFetch<JiraSearchResponse>(
+        `rest/api/2/search?jql=${encodeURIComponent(finalJql)}&fields=${fields}&maxResults=${pageSize}&startAt=${startAt}`
+      )
+      total = result.total
+      allIssues.push(...(result.issues ?? []))
+      startAt += pageSize
+      if (!result.issues?.length) break
+    }
+    return { issues: allIssues, total: allIssues.length } as JiraSearchResponse
   },
 
   // 获取项目的活跃 Sprint 信息（通过 JQL 查 sprint 字段）

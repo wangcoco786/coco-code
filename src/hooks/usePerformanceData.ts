@@ -462,12 +462,24 @@ export function usePerformanceData(projectKey: string | null): UsePerformanceDat
       queryFn: async () => {
         const jql = `project = ${pk} AND sprint in openSprints() ORDER BY priority ASC, updated DESC`
         const fieldsStr = PERFORMANCE_FIELDS.join(',')
-        const url = `rest/api/2/search?jql=${encodeURIComponent(jql)}&fields=${fieldsStr}&expand=changelog&maxResults=200`
-        const response = await authFetch(`/api/jira/${url}`, {
-          headers: { 'Content-Type': 'application/json' },
-        })
-        if (!response.ok) return { issues: [] }
-        return await response.json()
+        // 分页获取
+        const allIssues: any[] = []
+        let startAt = 0
+        const pageSize = 200
+        let total = Infinity
+        while (startAt < total) {
+          const url = `rest/api/2/search?jql=${encodeURIComponent(jql)}&fields=${fieldsStr}&expand=changelog&maxResults=${pageSize}&startAt=${startAt}`
+          const response = await authFetch(`/api/jira/${url}`, {
+            headers: { 'Content-Type': 'application/json' },
+          })
+          if (!response.ok) return { issues: [] }
+          const data = await response.json()
+          total = data.total ?? 0
+          allIssues.push(...(data.issues ?? []))
+          startAt += pageSize
+          if (!data.issues?.length) break
+        }
+        return { issues: allIssues, total: allIssues.length }
       },
       enabled: !!projectKey && CROSS_PROJECT_KEYS.includes(projectKey),
       staleTime: 10 * 60 * 1000, // 10分钟缓存

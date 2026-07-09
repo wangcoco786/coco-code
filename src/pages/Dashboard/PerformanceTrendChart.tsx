@@ -172,16 +172,24 @@ function TrendChartInner({ projectKey }: { projectKey: string }) {
           const sprintName = iter.sprintNames[i]
           const jql = `project = ${pk} AND sprint = "${sprintName}" ORDER BY priority ASC`
           const fieldsStr = TREND_FIELDS.join(',')
-          const url = `rest/api/2/search?jql=${encodeURIComponent(jql)}&fields=${fieldsStr}&maxResults=200`
-          try {
-            const response = await authFetch(`/api/jira/${url}`, {
-              headers: { 'Content-Type': 'application/json' },
-            })
-            if (response.ok) {
-              const data = await response.json()
-              allIssues.push(...(data?.issues ?? []))
-            }
-          } catch { /* skip */ }
+          // 分页获取
+          let tStartAt = 0
+          let tTotal = Infinity
+          while (tStartAt < tTotal) {
+            const url = `rest/api/2/search?jql=${encodeURIComponent(jql)}&fields=${fieldsStr}&maxResults=200&startAt=${tStartAt}`
+            try {
+              const response = await authFetch(`/api/jira/${url}`, {
+                headers: { 'Content-Type': 'application/json' },
+              })
+              if (response.ok) {
+                const data = await response.json()
+                tTotal = data.total ?? 0
+                allIssues.push(...(data?.issues ?? []))
+                tStartAt += 200
+                if (!data.issues?.length) break
+              } else { break }
+            } catch { break }
+          }
         }
         if (allIssues.length === 0) return null
         return { score: calcLightScore(allIssues), total: allIssues.length }

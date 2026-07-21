@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useMemo } from 'react'
 import type { JiraSprint } from '@/types/jira'
-import type { PlatformIssue, Risk, TeamMemberLoad, VelocityRecord } from '@/types/platform'
+import type { PlatformIssue, Risk, TeamMemberLoad, VelocityRecord, IssueStatus } from '@/types/platform'
 import { useI18n } from '@/context/I18nContext'
 import { useNotifications } from '@/context/NotificationContext'
 import { VelocityChart } from '@/components/Charts'
@@ -113,10 +113,47 @@ function RiskDetail({ risks }: { risks: Risk[] }) {
   )
 }
 
+// ─── 状态过滤常量与工具函数 ───────────────────────────────────────
+const STATUS_FILTER_OPTIONS: Array<{ key: IssueStatus | null; labelKey: string; color: string }> = [
+  { key: null, labelKey: 'common.all', color: 'var(--primary)' },
+  { key: 'todo', labelKey: 'common.todo', color: 'var(--text2)' },
+  { key: 'in_progress', labelKey: 'common.inProgress', color: 'var(--primary)' },
+  { key: 'in_review', labelKey: 'common.inReview', color: 'var(--warning)' },
+  { key: 'in_testing', labelKey: 'common.inTesting', color: '#722ed1' },
+  { key: 'done', labelKey: 'common.completed', color: 'var(--success)' },
+]
+
+function getStatusFilterButtonStyle(isActive: boolean, color: string): React.CSSProperties {
+  return {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: 6,
+    padding: '4px 12px',
+    borderRadius: 16,
+    border: isActive ? '1px solid transparent' : '1px solid var(--border)',
+    background: isActive ? color : '#fff',
+    color: isActive ? '#fff' : 'var(--text1)',
+    cursor: 'pointer',
+    fontSize: 12,
+    fontWeight: 500,
+    transition: 'background 0.2s, color 0.2s',
+  }
+}
+
+function getStatusCount(issues: PlatformIssue[], status: IssueStatus | null): number {
+  if (status === null) return issues.length
+  return issues.filter(i => i.status === status).length
+}
+
 // ─── Issue 明细 ──────────────────────────────────────────────
 
-function IssueDetail({ issues }: { issues: PlatformIssue[]; title?: string }) {
+function IssueDetail({ issues, showFilter = false }: { issues: PlatformIssue[]; title?: string; showFilter?: boolean }) {
   const { t } = useI18n()
+  const [statusFilter, setStatusFilter] = useState<IssueStatus | null>(null)
+  const filteredIssues = useMemo(() => {
+    if (!statusFilter) return issues
+    return issues.filter(i => i.status === statusFilter)
+  }, [issues, statusFilter])
   const PRIORITY_COLOR: Record<string, string> = {
     P0: 'var(--danger)', P1: 'var(--warning)', P2: 'var(--primary)', P3: 'var(--text2)',
   }
@@ -124,14 +161,38 @@ function IssueDetail({ issues }: { issues: PlatformIssue[]; title?: string }) {
   return (
     <div>
       <div style={{ fontSize: 13, color: 'var(--text2)', marginBottom: 12 }}>
-        {t('dashboard.totalCount')} <strong>{issues.length}</strong> {t('dashboard.subtitle.tasks')}
+        {t('dashboard.totalCount')} <strong>{filteredIssues.length}</strong> {t('dashboard.subtitle.tasks')}
       </div>
+      {showFilter && (
+        <div style={{ display: 'flex', gap: 8, marginBottom: 12, flexWrap: 'wrap' }}>
+          {STATUS_FILTER_OPTIONS.map(({ key, labelKey, color }) => {
+            const isActive = statusFilter === key
+            const count = getStatusCount(issues, key)
+            return (
+              <button
+                key={labelKey}
+                onClick={() => setStatusFilter(key)}
+                aria-pressed={isActive}
+                style={getStatusFilterButtonStyle(isActive, color)}
+              >
+                <span style={{
+                  width: 8, height: 8, borderRadius: '50%',
+                  background: isActive ? '#fff' : color,
+                  flexShrink: 0,
+                }} />
+                {t(labelKey as any)}
+                <span style={{ fontWeight: 700 }}>{count}</span>
+              </button>
+            )
+          })}
+        </div>
+      )}
       <table className={styles.riskTable}>
         <thead>
           <tr><th>ID</th><th>{t('sprint.thTitle')}</th><th>{t('sprint.thPriority')}</th><th>{t('reports.status')}</th><th>{t('dashboard.assignee')}</th></tr>
         </thead>
         <tbody>
-          {issues.slice(0, 50).map(issue => (
+          {filteredIssues.slice(0, 50).map(issue => (
             <tr key={issue.id}>
               <td style={{ color: 'var(--primary)', fontWeight: 600, fontSize: 12, whiteSpace: 'nowrap' }}>
                 {JIRA_BASE_URL
@@ -153,9 +214,9 @@ function IssueDetail({ issues }: { issues: PlatformIssue[]; title?: string }) {
           ))}
         </tbody>
       </table>
-      {issues.length > 50 && (
+      {filteredIssues.length > 50 && (
         <div style={{ textAlign: 'center', padding: '8px 0', fontSize: 12, color: 'var(--text2)' }}>
-          {t('dashboard.showFirst50')} {issues.length} {t('dashboard.items')}
+          {t('dashboard.showFirst50')} {filteredIssues.length} {t('dashboard.items')}
         </div>
       )}
     </div>
@@ -305,7 +366,7 @@ export default function GlobalView({ sprint, sprints = [], issues, risks, isLoad
       case 'done':
         return <DetailModal title={`${t('dashboard.done')}（${completedIssues}）`} onClose={() => setModal(null)}><IssueDetail issues={completedIssues > 0 ? issues.filter(i => i.status === 'done') : []} title={t('dashboard.done')} /></DetailModal>
       case 'total':
-        return <DetailModal title={`${t('common.all')}（${totalIssues}）`} onClose={() => setModal(null)}><IssueDetail issues={issues} title={t('common.all')} /></DetailModal>
+        return <DetailModal title={`${t('common.all')}（${totalIssues}）`} onClose={() => setModal(null)}><IssueDetail issues={issues} title={t('common.all')} showFilter={true} /></DetailModal>
       default:
         return null
     }

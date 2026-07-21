@@ -479,7 +479,7 @@ async function fetchAchRatesForProject(projectKey) {
     ? `Basic ${Buffer.from(`${JIRA_USERNAME}:${JIRA_PASSWORD ?? ''}`).toString('base64')}`
     : `Bearer ${JIRA_PAT}`
 
-  const jql = `project = ${projectKey} AND sprint in openSprints() AND "${ACH_RATE_FIELD}" is not EMPTY ORDER BY updated DESC`
+  const jql = `project = ${projectKey} AND sprint in openSprints() AND cf[12616] is not empty ORDER BY updated DESC`
   const url = `${JIRA_BASE_URL.replace(/\/$/, '')}/rest/api/2/search?jql=${encodeURIComponent(jql)}&fields=summary,assignee,${ACH_RATE_FIELD}&maxResults=200`
 
   try {

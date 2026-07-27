@@ -147,6 +147,75 @@ export function computeDeveloperProfiles(
   return profiles
 }
 
+// ─── computeReporterProfiles ────────────────────────────────
+
+/**
+ * Group issues by reporter field for those without a developer.
+ * Only includes issues that have no developer field and are not sub-tasks.
+ * Excludes people already in the developer profiles.
+ */
+export function computeReporterProfiles(
+  issues: PlatformIssue[],
+  developerIds: Set<string>,
+): DeveloperProfile[] {
+  const profileMap = new Map<
+    string,
+    {
+      name: string
+      avatarUrl: string | null
+      labels: Set<string>
+      tasks: PlatformIssue[]
+    }
+  >()
+
+  const excludedNames = getExcludedUsers()
+
+  for (const issue of issues) {
+    if (issue.isSubTask) continue
+    // Only include issues without developer
+    if (issue.developer) continue
+    // Must have assignee (reporter in Jira context acts as task owner when no developer)
+    const reporter = issue.assignee // Use assignee as the "reporter" role person for display
+    if (!reporter) continue
+    if (reporter.active === false) continue
+    if (excludedNames.has(reporter.name.toLowerCase())) continue
+    // Skip if this person is already a developer
+    if (developerIds.has(reporter.id)) continue
+
+    const { id, name, avatarUrl } = reporter
+    let entry = profileMap.get(id)
+
+    if (!entry) {
+      const formattedName = name.includes('@') ? name.split('@')[0] : name
+      entry = {
+        name: formattedName,
+        avatarUrl: avatarUrl || null,
+        labels: new Set<string>(),
+        tasks: [],
+      }
+      profileMap.set(id, entry)
+    }
+
+    entry.tasks.push(issue)
+    for (const label of issue.labels ?? []) {
+      entry.labels.add(label)
+    }
+  }
+
+  const profiles: DeveloperProfile[] = []
+  for (const [id, entry] of profileMap) {
+    profiles.push({
+      id,
+      name: entry.name,
+      avatarUrl: entry.avatarUrl,
+      skillTags: Array.from(entry.labels),
+      tasks: entry.tasks,
+    })
+  }
+
+  return profiles
+}
+
 // ─── computeWorkloadInfo ────────────────────────────────────
 
 /**

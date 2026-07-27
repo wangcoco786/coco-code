@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react'
 import type { PlatformIssue, DeveloperProfile, DeveloperSortKey, TimeRange } from '@/types/platform'
 import {
   computeDeveloperProfiles,
+  computeReporterProfiles,
   computeWorkloadInfo,
   sortTasks,
   computeTeamSummary,
@@ -268,6 +269,12 @@ export default function ResourceTab({ issues }: ResourceTabProps) {
 
   const profiles = useMemo(() => computeDeveloperProfiles(issues), [issues])
 
+  // Reporter profiles: people who have tasks assigned but no developer field
+  const reporterProfiles = useMemo(() => {
+    const devIds = new Set(profiles.map(p => p.id))
+    return computeReporterProfiles(issues, devIds)
+  }, [issues, profiles])
+
   const teamSummary = useMemo(
     () => computeTeamSummary(profiles, issues),
     [profiles, issues],
@@ -423,6 +430,11 @@ export default function ResourceTab({ issues }: ResourceTabProps) {
       </div>
 
       <div className={styles.devGrid}>
+        {sortedProfiles.length > 0 && (
+          <h3 style={{ gridColumn: '1 / -1', fontSize: 16, fontWeight: 700, color: 'var(--text)', marginBottom: 4, paddingBottom: 8, borderBottom: '2px solid var(--border)' }}>
+            👨‍💻 Developer ({sortedProfiles.length} 人)
+          </h3>
+        )}
         {sortedProfiles.map(({ profile, info }) => (
           <DeveloperProfileCard
             key={profile.id}
@@ -434,6 +446,25 @@ export default function ResourceTab({ issues }: ResourceTabProps) {
             onToggleExpand={() => toggleExpand(profile.id)}
           />
         ))}
+        {reporterProfiles.length > 0 && (
+          <h3 style={{ gridColumn: '1 / -1', fontSize: 16, fontWeight: 700, color: 'var(--text)', marginTop: 24, marginBottom: 4, paddingBottom: 8, borderBottom: '2px solid var(--border)' }}>
+            📝 Reporter ({reporterProfiles.length} 人)
+          </h3>
+        )}
+        {reporterProfiles.map((profile) => {
+          const info = computeWorkloadInfo(profile.tasks)
+          return (
+            <DeveloperProfileCard
+              key={profile.id}
+              developer={profile}
+              tasks={profile.tasks}
+              loadPercentage={info.loadPercentage}
+              loadStatus={info.status}
+              isExpanded={expandedIds.has(profile.id)}
+              onToggleExpand={() => toggleExpand(profile.id)}
+            />
+          )
+        })}
       </div>
     </div>
   )

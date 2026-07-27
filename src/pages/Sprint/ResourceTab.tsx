@@ -125,6 +125,7 @@ interface DeveloperProfileCardProps {
   loadStatus: 'overloaded' | 'balanced' | 'underloaded'
   onToggleExpand: () => void
   isExpanded: boolean
+  roleLabel?: string
 }
 
 function DeveloperProfileCard({
@@ -134,6 +135,7 @@ function DeveloperProfileCard({
   loadStatus,
   onToggleExpand,
   isExpanded,
+  roleLabel,
 }: DeveloperProfileCardProps) {
   const { t } = useI18n()
   const MAX_TAGS = 5
@@ -155,7 +157,7 @@ function DeveloperProfileCard({
         )}
         <div className={styles.devInfo}>
           <div className={styles.devName}>{developer.name}</div>
-          <div className={styles.devRole}>{t('resource.developer')}</div>
+          <div className={styles.devRole}>{roleLabel ?? t('resource.developer')}</div>
         </div>
       </div>
 
@@ -462,6 +464,7 @@ export default function ResourceTab({ issues }: ResourceTabProps) {
               loadStatus={info.status}
               isExpanded={expandedIds.has(profile.id)}
               onToggleExpand={() => toggleExpand(profile.id)}
+              roleLabel="Reporter"
             />
           )
         })}

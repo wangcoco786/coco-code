@@ -150,8 +150,10 @@ export function computeDeveloperProfiles(
 // ─── computeReporterProfiles ────────────────────────────────
 
 /**
- * Group issues by reporter field for those without a developer.
- * Only includes issues that have no developer field and are not sub-tasks.
+ * Group issues by assignee for those without a developer,
+ * plus show assignees whose tasks were "claimed" by a developer.
+ * This captures Reporter/PM roles who create and assign tasks
+ * but don't develop them.
  * Excludes people already in the developer profiles.
  */
 export function computeReporterProfiles(
@@ -172,17 +174,19 @@ export function computeReporterProfiles(
 
   for (const issue of issues) {
     if (issue.isSubTask) continue
-    // Only include issues without developer
-    if (issue.developer) continue
-    // Must have assignee (reporter in Jira context acts as task owner when no developer)
-    const reporter = issue.assignee // Use assignee as the "reporter" role person for display
-    if (!reporter) continue
-    if (reporter.active === false) continue
-    if (excludedNames.has(reporter.name.toLowerCase())) continue
-    // Skip if this person is already a developer
-    if (developerIds.has(reporter.id)) continue
 
-    const { id, name, avatarUrl } = reporter
+    // Case 1: No developer → assignee is the "reporter/owner"
+    // Case 2: Has developer but assignee is different → assignee is PM/reporter role
+    const assignee = issue.assignee
+    if (!assignee) continue
+    if (assignee.active === false) continue
+    if (excludedNames.has(assignee.name.toLowerCase())) continue
+    // Skip if this person is already a developer
+    if (developerIds.has(assignee.id)) continue
+    // Only include if: no developer, or developer is someone else
+    if (issue.developer && issue.developer.id === assignee.id) continue
+
+    const { id, name, avatarUrl } = assignee
     let entry = profileMap.get(id)
 
     if (!entry) {

@@ -86,17 +86,20 @@
 .devGrid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 16px;
+  gap: 12px;
+  overflow: hidden;
 }
 
 /* DeveloperProfileCard */
 .devCard {
   background: var(--card);
   border-radius: var(--radius-lg);
-  padding: 20px;
+  padding: 14px;
   box-shadow: var(--shadow-sm);
   transition: all 0.2s ease;
   border: 1.5px solid transparent;
+  overflow: hidden;
+  min-width: 0;
 }
 
 .devCard:hover {

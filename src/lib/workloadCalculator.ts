@@ -206,6 +206,29 @@ export function computeReporterProfiles(
     }
   }
 
+  // Also include sub-task assignees who don't appear in developer or parent task profiles
+  for (const issue of issues) {
+    if (!issue.isSubTask) continue
+    const assignee = issue.assignee
+    if (!assignee) continue
+    if (assignee.active === false) continue
+    if (excludedNames.has(assignee.name.toLowerCase())) continue
+    if (developerIds.has(assignee.id)) continue
+    // Only add if not already captured via a parent task
+    if (!profileMap.has(assignee.id)) {
+      const formattedName = assignee.name.includes('@') ? assignee.name.split('@')[0] : assignee.name
+      profileMap.set(assignee.id, {
+        name: formattedName,
+        avatarUrl: assignee.avatarUrl || null,
+        labels: new Set<string>(),
+        tasks: [],
+      })
+    }
+    const entry = profileMap.get(assignee.id)!
+    entry.tasks.push(issue)
+    for (const label of issue.labels ?? []) entry.labels.add(label)
+  }
+
   const profiles: DeveloperProfile[] = []
   for (const [id, entry] of profileMap) {
     profiles.push({

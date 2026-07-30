@@ -43,7 +43,7 @@ export const PROJECT_GROUPS: ProjectGroup[] = [
   {
     key: 'EAG',
     name: 'EAG',
-    projects: ['BP', 'CRMC', 'VRM', 'OW', 'RE', 'AUR'],
+    projects: ['BP', 'CRMC', 'VRM', 'OW', 'RE'],
   },
 ]
 

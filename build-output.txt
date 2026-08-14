@@ -1,0 +1,68 @@
+﻿[36mvite v8.0.8 [32mbuilding client environment for production...[36m[39m
+[2K
+transforming...鉁?773 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                                                2.45 kB 鈹?gzip:   0.70 kB
+dist/assets/chartDataEngine-CcODfRYJ-1786689533681.css         1.37 kB 鈹?gzip:   0.51 kB
+dist/assets/Login-CJUbCOwv-1786689533681.css                   1.94 kB 鈹?gzip:   0.64 kB
+dist/assets/AIInsight-CU757vjm-1786689533681.css               2.12 kB 鈹?gzip:   0.82 kB
+dist/assets/NotificationCenter-DHw9V0K1-1786689533681.css      2.60 kB 鈹?gzip:   0.87 kB
+dist/assets/AuditLog-vDQy69Lr-1786689533681.css                3.09 kB 鈹?gzip:   0.94 kB
+dist/assets/Settings-CEaUClB9-1786689533681.css                3.72 kB 鈹?gzip:   1.11 kB
+dist/assets/Reports-DWeh_h5w-1786689533681.css                 4.08 kB 鈹?gzip:   1.21 kB
+dist/assets/Risk-Cbi3rZ6D-1786689533681.css                    7.52 kB 鈹?gzip:   1.91 kB
+dist/assets/Requirements-CjnqfQbq-1786689533681.css            8.40 kB 鈹?gzip:   2.07 kB
+dist/assets/Roadmap-BEwYIE-6-1786689533681.css                 8.52 kB 鈹?gzip:   2.15 kB
+dist/assets/Sprint-Izbrm4mS-1786689533681.css                 26.20 kB 鈹?gzip:   4.99 kB
+dist/assets/index-4RshKbRX-1786689533681.css                  56.02 kB 鈹?gzip:  10.69 kB
+dist/assets/usePerformanceData-C_dMkQL_-1786689533681.js       0.10 kB 鈹?gzip:   0.11 kB
+dist/assets/Login.module-B-NXYo-G-1786689533681.js             0.34 kB 鈹?gzip:   0.19 kB
+dist/assets/excludedUsers-S1zTF4iL-1786689533681.js            0.57 kB 鈹?gzip:   0.32 kB
+dist/assets/AppContext-CSEb_X3x-1786689533681.js               0.67 kB 鈹?gzip:   0.40 kB
+dist/assets/tokenManager-Ccab_KsE-1786689533681.js             0.68 kB 鈹?gzip:   0.39 kB
+dist/assets/ToastContext-CEO3B6-j-1786689533681.js             0.73 kB 鈹?gzip:   0.47 kB
+dist/assets/AuthCallback-DnFQMzNC-1786689533681.js             0.87 kB 鈹?gzip:   0.57 kB
+dist/assets/Login-C1O5SIvM-1786689533681.js                    1.10 kB 鈹?gzip:   0.65 kB
+dist/assets/ThemeContext-Z-CYLdBY-1786689533681.js             1.10 kB 鈹?gzip:   0.57 kB
+dist/assets/NotificationContext-Dy6vMn2z-1786689533681.js      1.57 kB 鈹?gzip:   0.81 kB
+dist/assets/predictionEngine-D6FDl_Qm-1786689533681.js         2.03 kB 鈹?gzip:   0.96 kB
+dist/assets/statusMapper-Kz7WZx-N-1786689533681.js             3.28 kB 鈹?gzip:   1.41 kB
+dist/assets/jiraClient-D4_MHnoB-1786689533681.js               4.24 kB 鈹?gzip:   1.83 kB
+dist/assets/AIInsight-ouijcTCg-1786689533681.js                4.31 kB 鈹?gzip:   1.57 kB
+dist/assets/NotificationCenter-qQvj3rCK-1786689533681.js       4.43 kB 鈹?gzip:   1.61 kB
+dist/assets/useWecomSend-DN-1DNE5-1786689533681.js             4.46 kB 鈹?gzip:   2.12 kB
+dist/assets/riskEngine-B3zF7DIk-1786689533681.js               5.86 kB 鈹?gzip:   2.18 kB
+dist/assets/AuditLog-BNUPCdyI-1786689533681.js                 6.23 kB 鈹?gzip:   2.03 kB
+dist/assets/useSprintHistory-DR-YAlB3-1786689533681.js         6.47 kB 鈹?gzip:   2.68 kB
+dist/assets/jsx-runtime-CqFVq2my-1786689533681.js              7.74 kB 鈹?gzip:   2.97 kB
+dist/assets/performanceEngine-Ds2gG7e0-1786689533681.js        7.84 kB 鈹?gzip:   2.57 kB
+dist/assets/AutomationRules-Bke6lVlM-1786689533681.js          8.40 kB 鈹?gzip:   2.67 kB
+dist/assets/usePerformanceData-WZy3EndC-1786689533681.js      12.48 kB 鈹?gzip:   4.45 kB
+dist/assets/Settings-oX7MsxOb-1786689533681.js                12.82 kB 鈹?gzip:   3.16 kB
+dist/assets/Requirements-D89-nVck-1786689533681.js            15.84 kB 鈹?gzip:   5.13 kB
+dist/assets/Reports-3CTMH8jF-1786689533681.js                 16.64 kB 鈹?gzip:   5.88 kB
+dist/assets/Risk-DkHt6pVC-1786689533681.js                    19.47 kB 鈹?gzip:   5.61 kB
+dist/assets/useProjectIssues-COFUpEmC-1786689533681.js        24.94 kB 鈹?gzip:   8.49 kB
+dist/assets/Roadmap-bcnnc8rt-1786689533681.js                 25.74 kB 鈹?gzip:   6.37 kB
+dist/assets/Sprint-CQcoQNWh-1786689533681.js                  46.96 kB 鈹?gzip:  12.44 kB
+dist/assets/I18nContext-BEIz-V5W-1786689533681.js             81.48 kB 鈹?gzip:  21.52 kB
+dist/assets/index-CM3x_Oh3-1786689533681.js                  137.24 kB 鈹?gzip:  39.00 kB
+dist/assets/dist-CxaR40WS-1786689533681.js                   156.82 kB 鈹?gzip:  51.65 kB
+dist/assets/chartDataEngine-BMd4sHR--1786689533681.js      1,140.33 kB 鈹?gzip: 373.91 kB
+
+[32m鉁?built in 1.22s[39m
+node.exe : [33m[plugin builtin:vite-reporter] 
+所在位置 行:1 字符: 1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ([33m[plugin builtin:vite-reporte 
+   r] :String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://r
+olldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.[39
+m

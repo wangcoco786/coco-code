@@ -1,10 +1,37 @@
 /* PerformanceView 绩效视图样式 */
 
 /* ─── 子 Tab 切换 ─── */
+.subTabsRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
 .subTabs {
   display: flex;
   gap: 8px;
-  margin-bottom: 20px;
+}
+
+.exportBtn {
+  padding: 6px 16px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--card);
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  transition: var(--transition);
+  color: var(--text2);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.exportBtn:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: #f0f5ff;
 }
 
 .subTab {

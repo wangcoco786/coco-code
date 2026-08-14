@@ -1,0 +1,30 @@
+[2026-08-05T08:48:10.811Z] 开始导出...
+[2026-08-05T08:48:10.813Z] 查询 DTS: project IN (DTS, CRM) AND status IN (Done, Closed, Resolved) AND resolved >= "2026-06-04"
+[2026-08-05T08:48:14.260Z]   fetched 100 / 384
+[2026-08-05T08:48:15.893Z]   fetched 200 / 384
+[2026-08-05T08:48:17.458Z]   fetched 300 / 384
+[2026-08-05T08:48:19.041Z]   fetched 384 / 384
+[2026-08-05T08:48:19.042Z] DTS: 384 条
+[2026-08-05T08:48:19.042Z] 查询 AIAG: project = AIAG AND status IN (Done, Closed, Resolved) AND resolved >= "2026-06-04"
+[2026-08-05T08:48:19.529Z]   fetched 9 / 9
+[2026-08-05T08:48:19.529Z] AIAG: 9 条
+[2026-08-05T08:48:19.530Z] 查询 BI: project = BI AND status IN (Done, Closed, Resolved) AND resolved >= "2026-06-04"
+[2026-08-05T08:48:20.593Z]   fetched 91 / 91
+[2026-08-05T08:48:20.594Z] BI: 91 条
+[2026-08-05T08:48:20.594Z] 查询 EAG: project IN (BP, CRMC, VRM, OW, RE) AND status IN (Done, Closed, Resolved) AND resolved >= "2026-06-04"
+[2026-08-05T08:48:22.443Z]   fetched 100 / 528
+[2026-08-05T08:48:23.720Z]   fetched 200 / 528
+[2026-08-05T08:48:24.731Z]   fetched 300 / 528
+[2026-08-05T08:48:25.714Z]   fetched 400 / 528
+[2026-08-05T08:48:26.653Z]   fetched 500 / 528
+[2026-08-05T08:48:27.016Z]   fetched 528 / 528
+[2026-08-05T08:48:27.017Z] EAG: 528 条
+[2026-08-05T08:48:27.017Z] 查询 IDC: project IN (RP, TRF, APS) AND status IN (Done, Closed, Resolved) AND resolved >= "2026-06-04"
+[2026-08-05T08:48:27.603Z]   fetched 100 / 473
+[2026-08-05T08:48:28.171Z]   fetched 200 / 473
+[2026-08-05T08:48:28.828Z]   fetched 300 / 473
+[2026-08-05T08:48:29.649Z]   fetched 400 / 473
+[2026-08-05T08:48:30.239Z]   fetched 473 / 473
+[2026-08-05T08:48:30.240Z] IDC: 473 条
+[2026-08-05T08:48:30.240Z] 数据拉取完成，共 1485 条，开始生成 Word...
+[2026-08-05T08:48:30.552Z] 导出完成！文件: ./completed-tickets-export.docx

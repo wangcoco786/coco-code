@@ -1,8 +1,9 @@
-import React, { useState, Component, type ReactNode } from 'react'
+import React, { useState, useRef, Component, type ReactNode } from 'react'
 import { usePerformanceData } from '@/hooks/usePerformanceData'
 import { getPerformanceGrade, getGradeColor } from '@/lib/performanceEngine'
-import type { DepartmentPerformance, MemberPerformance } from '@/lib/performanceEngine'
+import type { DepartmentPerformance } from '@/lib/performanceEngine'
 import { useSprintHistory, useSprintPerformance } from '@/hooks/useSprintHistory'
+import html2canvas from 'html2canvas'
 import DepartmentOverview from './DepartmentOverview'
 import IndividualPerformance from './IndividualPerformance'
 import PerformanceTrendChart from './PerformanceTrendChart'
@@ -10,73 +11,24 @@ import styles from './PerformanceView.module.css'
 
 // ─── Export Utilities ───
 
-/** 将数据导出为 CSV 文件并下载 */
-function exportCSV(filename: string, headers: string[], rows: string[][]) {
-  // 添加 BOM 以支持 Excel 正确识别中文
-  const BOM = '\uFEFF'
-  const csvContent = [
-    headers.join(','),
-    ...rows.map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(','))
-  ].join('\n')
-  const blob = new Blob([BOM + csvContent], { type: 'text/csv;charset=utf-8;' })
-  const url = URL.createObjectURL(blob)
-  const link = document.createElement('a')
-  link.href = url
-  link.download = filename
-  link.click()
-  URL.revokeObjectURL(url)
-}
-
-/** 导出部门总览数据 */
-function exportDepartmentOverview(data: DepartmentPerformance) {
-  const headers = ['排名', '成员', '综合分', '吞吐量', '效率', '质量', '影响力', '协作', '等级']
-  const sortedMembers = [...data.members].sort((a, b) => b.performanceScore - a.performanceScore)
-  const rows = sortedMembers.map((m, i) => [
-    String(i + 1),
-    m.memberName,
-    m.performanceScore.toFixed(1),
-    m.throughputScore.toFixed(1),
-    m.efficiencyScore.toFixed(1),
-    m.qualityScore.toFixed(1),
-    m.impactScore.toFixed(1),
-    m.collaborationScore.toFixed(1),
-    getGradeLabel(m.grade),
-  ])
-
-  // 在末尾追加团队平均行
-  rows.push([
-    '',
-    '团队平均',
-    data.averageScore.toFixed(1),
-    data.averageThroughput.toFixed(1),
-    data.averageEfficiency.toFixed(1),
-    data.averageQuality.toFixed(1),
-    data.averageImpact.toFixed(1),
-    data.averageCollaboration.toFixed(1),
-    '',
-  ])
-
-  exportCSV('部门绩效总览.csv', headers, rows)
-}
-
-/** 导出个人详情数据 */
-function exportIndividualPerformance(members: MemberPerformance[]) {
-  const headers = ['排名', '成员', '角色', '综合分', '吞吐量', '效率', '质量', '影响力', '协作', '等级', '完成任务数']
-  const sorted = [...members].sort((a, b) => b.performanceScore - a.performanceScore)
-  const rows = sorted.map((m, i) => [
-    String(i + 1),
-    m.memberName,
-    (m.roles ?? []).join('/') || '-',
-    m.performanceScore.toFixed(1),
-    m.throughputScore.toFixed(1),
-    m.efficiencyScore.toFixed(1),
-    m.qualityScore.toFixed(1),
-    m.impactScore.toFixed(1),
-    m.collaborationScore.toFixed(1),
-    getGradeLabel(m.grade),
-    String(m.tasks?.filter(task => task.status === 'done').length ?? 0),
-  ])
-  exportCSV('个人绩效详情.csv', headers, rows)
+/** 将页面内容截图导出为 PNG 图片 */
+async function exportAsImage(element: HTMLElement | null, filename: string) {
+  if (!element) return
+  try {
+    const canvas = await html2canvas(element, {
+      backgroundColor: '#ffffff',
+      scale: 2,
+      useCORS: true,
+      logging: false,
+    })
+    const url = canvas.toDataURL('image/png')
+    const link = document.createElement('a')
+    link.download = filename
+    link.href = url
+    link.click()
+  } catch (e) {
+    console.error('导出图片失败:', e)
+  }
 }
 
 // ─── Hardcoded department project keys ───
@@ -128,6 +80,7 @@ function PerformanceViewInner({ projectKey }: Props) {
 function SingleProjectPerformance({ projectKey }: { projectKey: string }) {
   const [activeSubTab, setActiveSubTab] = useState<'department' | 'individual' | 'trend'>('department')
   const [selectedSprintName, setSelectedSprintName] = useState<string | null>(null)
+  const contentRef = useRef<HTMLDivElement>(null)
 
   // 获取 Sprint 历史列表
   const { sprints: sprintHistory } = useSprintHistory(projectKey)
@@ -252,24 +205,23 @@ function SingleProjectPerformance({ projectKey }: { projectKey: string }) {
             onClick={() => setActiveSubTab('trend')}
           >趋势</button>
         </div>
-        {activeSubTab !== 'trend' && (
-          <button
-            className={styles.exportBtn}
-            onClick={() => {
-              if (activeSubTab === 'department') {
-                exportDepartmentOverview(data)
-              } else if (activeSubTab === 'individual') {
-                exportIndividualPerformance(data.members)
-              }
-            }}
-          >
-            📥 导出
-          </button>
-        )}
+        <button
+          className={styles.exportBtn}
+          onClick={() => {
+            const filename = activeSubTab === 'department' ? '部门绩效总览.png'
+              : activeSubTab === 'individual' ? '个人绩效详情.png'
+              : '绩效趋势.png'
+            exportAsImage(contentRef.current, filename)
+          }}
+        >
+          📷 导出图片
+        </button>
       </div>
-      {activeSubTab === 'department' && <DepartmentOverview departmentPerformance={data} />}
-      {activeSubTab === 'individual' && <IndividualPerformance memberPerformances={data.members} />}
-      {activeSubTab === 'trend' && <PerformanceTrendChart projectKey={projectKey} />}
+      <div ref={contentRef}>
+        {activeSubTab === 'department' && <DepartmentOverview departmentPerformance={data} />}
+        {activeSubTab === 'individual' && <IndividualPerformance memberPerformances={data.members} />}
+        {activeSubTab === 'trend' && <PerformanceTrendChart projectKey={projectKey} />}
+      </div>
     </div>
   )
 }

@@ -145,6 +145,21 @@ export function mapJiraIssueToPlatform(issue: JiraIssue): PlatformIssue {
       }
     : null
 
+  // QA 字段：customfield_11102（可能是单人对象，也可能是人员数组）
+  const qaRawField = fieldsAny.customfield_11102 as
+    | { key?: string; name?: string; displayName?: string; accountId?: string; active?: boolean; avatarUrls?: { '48x48': string } }
+    | Array<{ key?: string; name?: string; displayName?: string; accountId?: string; active?: boolean; avatarUrls?: { '48x48': string } }>
+    | null
+  const qaRaw = Array.isArray(qaRawField) ? (qaRawField.length > 0 ? qaRawField[0] : null) : qaRawField
+  const qa = qaRaw
+    ? {
+        id: qaRaw.accountId || qaRaw.key || qaRaw.name || qaRaw.displayName || '',
+        name: formatDisplayName(qaRaw.displayName || qaRaw.name || ''),
+        avatarUrl: qaRaw.avatarUrls?.['48x48'] ?? '',
+        active: qaRaw.active,
+      }
+    : null
+
   // Issue type and parent
   const isSubTask = (fieldsAny.issuetype?.subtask === true) || (fieldsAny.issuetype?.name ?? '').toLowerCase().includes('sub-task')
   const parentKey = fieldsAny.parent?.key ?? null
@@ -164,6 +179,7 @@ export function mapJiraIssueToPlatform(issue: JiraIssue): PlatformIssue {
         }
       : null,
     developer,
+    qa,
     storyPoints,
     labels: fields.labels,
     isBaseline,

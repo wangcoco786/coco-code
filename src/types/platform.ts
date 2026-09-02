@@ -32,6 +32,12 @@ export interface PlatformIssue {
     avatarUrl: string
     active?: boolean
   } | null // Developer(single) 自定义字段
+  qa?: {
+    id: string
+    name: string
+    avatarUrl: string
+    active?: boolean
+  } | null // QA 自定义字段 (customfield_11102)
   storyPoints: number
   labels: string[]
   isBaseline: boolean // 是否为基线需求（通过 label 标记）

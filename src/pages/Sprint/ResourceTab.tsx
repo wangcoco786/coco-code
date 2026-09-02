@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react'
 import type { PlatformIssue, DeveloperProfile, DeveloperSortKey, TimeRange } from '@/types/platform'
 import {
   computeDeveloperProfiles,
+  computeQAProfiles,
   computeReporterProfiles,
   computeWorkloadInfo,
   sortTasks,
@@ -271,11 +272,21 @@ export default function ResourceTab({ issues }: ResourceTabProps) {
 
   const profiles = useMemo(() => computeDeveloperProfiles(issues), [issues])
 
-  // Reporter profiles: people who have tasks assigned but no developer field
-  const reporterProfiles = useMemo(() => {
+  // QA profiles: people in the QA field (customfield_11102) who aren't Developers.
+  // 角色优先级 Developer > QA。
+  const qaProfiles = useMemo(() => {
     const devIds = new Set(profiles.map(p => p.id))
-    return computeReporterProfiles(issues, devIds)
+    return computeQAProfiles(issues, devIds)
   }, [issues, profiles])
+
+  // Reporter profiles: 排除已归入 Developer / QA 的人（优先级 Developer > QA > Reporter）
+  const reporterProfiles = useMemo(() => {
+    const excludeIds = new Set([
+      ...profiles.map(p => p.id),
+      ...qaProfiles.map(p => p.id),
+    ])
+    return computeReporterProfiles(issues, excludeIds)
+  }, [issues, profiles, qaProfiles])
 
   const teamSummary = useMemo(
     () => computeTeamSummary(profiles, issues),
@@ -448,6 +459,26 @@ export default function ResourceTab({ issues }: ResourceTabProps) {
             onToggleExpand={() => toggleExpand(profile.id)}
           />
         ))}
+        {qaProfiles.length > 0 && (
+          <h3 style={{ gridColumn: '1 / -1', fontSize: 16, fontWeight: 700, color: 'var(--text)', marginTop: 24, marginBottom: 4, paddingBottom: 8, borderBottom: '2px solid var(--border)' }}>
+            🧪 QA ({qaProfiles.length} 人)
+          </h3>
+        )}
+        {qaProfiles.map((profile) => {
+          const info = computeWorkloadInfo(profile.tasks)
+          return (
+            <DeveloperProfileCard
+              key={profile.id}
+              developer={profile}
+              tasks={profile.tasks}
+              loadPercentage={info.loadPercentage}
+              loadStatus={info.status}
+              isExpanded={expandedIds.has(profile.id)}
+              onToggleExpand={() => toggleExpand(profile.id)}
+              roleLabel="QA"
+            />
+          )
+        })}
         {reporterProfiles.length > 0 && (
           <h3 style={{ gridColumn: '1 / -1', fontSize: 16, fontWeight: 700, color: 'var(--text)', marginTop: 24, marginBottom: 4, paddingBottom: 8, borderBottom: '2px solid var(--border)' }}>
             📝 Reporter ({reporterProfiles.length} 人)

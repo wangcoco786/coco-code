@@ -179,6 +179,66 @@ export function isSystemAccount(person: { id?: string; name?: string } | null | 
   return false
 }
 
+// ─── computeQAProfiles ──────────────────────────────────────
+
+/**
+ * Group issues by the QA field (customfield_11102 → issue.qa).
+ * Scans both main tasks and sub-tasks so a QA who only appears on
+ * sub-tasks (e.g. Yuna Wu in APS) is still captured.
+ * Excludes system accounts, excluded users, and anyone already
+ * counted as a Developer (role priority: Developer > QA).
+ */
+export function computeQAProfiles(
+  issues: PlatformIssue[],
+  developerIds: Set<string>,
+): DeveloperProfile[] {
+  const profileMap = new Map<
+    string,
+    {
+      name: string
+      avatarUrl: string | null
+      labels: Set<string>
+      tasks: PlatformIssue[]
+    }
+  >()
+
+  const excludedNames = getExcludedUsers()
+
+  for (const issue of issues) {
+    const qa = issue.qa
+    if (!qa || !qa.id || qa.id === 'unknown') continue
+    if (qa.active === false) continue
+    if (isSystemAccount(qa)) continue
+    if (excludedNames.has(qa.name.toLowerCase())) continue
+    // 角色优先级：Developer > QA。已是 Developer 的人不再进 QA 组。
+    if (developerIds.has(qa.id)) continue
+
+    let entry = profileMap.get(qa.id)
+    if (!entry) {
+      const formattedName = qa.name.includes('@') ? qa.name.split('@')[0] : qa.name
+      entry = { name: formattedName, avatarUrl: qa.avatarUrl || null, labels: new Set<string>(), tasks: [] }
+      profileMap.set(qa.id, entry)
+    }
+    if (!entry.tasks.find(t => t.id === issue.id)) {
+      entry.tasks.push(issue)
+      for (const label of issue.labels ?? []) entry.labels.add(label)
+    }
+  }
+
+  const profiles: DeveloperProfile[] = []
+  for (const [id, entry] of profileMap) {
+    profiles.push({
+      id,
+      name: entry.name,
+      avatarUrl: entry.avatarUrl,
+      skillTags: Array.from(entry.labels),
+      tasks: entry.tasks,
+    })
+  }
+
+  return profiles
+}
+
 // ─── computeReporterProfiles ────────────────────────────────
 
 /**
@@ -186,12 +246,14 @@ export function isSystemAccount(person: { id?: string; name?: string } | null | 
  * plus show assignees whose tasks were "claimed" by a developer.
  * This captures Reporter/PM roles who create and assign tasks
  * but don't develop them.
- * Excludes people already in the developer profiles.
+ * `excludeIds` = people already counted as Developer or QA
+ * (role priority: Developer > QA > Reporter), so they don't appear twice.
  */
 export function computeReporterProfiles(
   issues: PlatformIssue[],
-  developerIds: Set<string>,
+  excludeIds: Set<string>,
 ): DeveloperProfile[] {
+  const developerIds = excludeIds
   const profileMap = new Map<
     string,
     {

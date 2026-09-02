@@ -106,7 +106,7 @@ export const jiraClient = {
       'summary', 'status', 'priority', 'assignee', 'reporter',
       'labels', 'fixVersions', 'created', 'updated',
       'timeoriginalestimate', 'timespent',
-      'customfield_10016', 'customfield_10004', 'customfield_11000', 'customfield_11103',
+      'customfield_10016', 'customfield_10004', 'customfield_11000', 'customfield_11103', 'customfield_11102',
       'issuetype', 'parent',
     ].join(',')
     // 分页获取所有 issues

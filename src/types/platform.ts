@@ -41,6 +41,10 @@ export interface PlatformIssue {
   spentHours: number | null // 实际工时（小时）
   isSubTask?: boolean // 是否为子任务
   parentKey?: string | null // 父任务 key
+  reporter?: {
+    id: string
+    name: string
+  } | null // Jira reporter 字段
 }
 
 // Sprint 摘要

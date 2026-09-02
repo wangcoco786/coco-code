@@ -178,31 +178,42 @@ export function computeReporterProfiles(
     // Case 1: No developer → assignee is the "reporter/owner"
     // Case 2: Has developer but assignee is different → assignee is PM/reporter role
     const assignee = issue.assignee
-    if (!assignee) continue
-    if (assignee.active === false) continue
-    if (excludedNames.has(assignee.name.toLowerCase())) continue
-    // Skip if this person is already a developer
-    if (developerIds.has(assignee.id)) continue
-    // Only include if: no developer, or developer is someone else
-    if (issue.developer && issue.developer.id === assignee.id) continue
-
-    const { id, name, avatarUrl } = assignee
-    let entry = profileMap.get(id)
-
-    if (!entry) {
-      const formattedName = name.includes('@') ? name.split('@')[0] : name
-      entry = {
-        name: formattedName,
-        avatarUrl: avatarUrl || null,
-        labels: new Set<string>(),
-        tasks: [],
+    if (assignee && assignee.active !== false && !excludedNames.has(assignee.name.toLowerCase()) && !developerIds.has(assignee.id)) {
+      if (!(issue.developer && issue.developer.id === assignee.id)) {
+        const { id, name, avatarUrl } = assignee
+        let entry = profileMap.get(id)
+        if (!entry) {
+          const formattedName = name.includes('@') ? name.split('@')[0] : name
+          entry = { name: formattedName, avatarUrl: avatarUrl || null, labels: new Set<string>(), tasks: [] }
+          profileMap.set(id, entry)
+        }
+        entry.tasks.push(issue)
+        for (const label of issue.labels ?? []) entry.labels.add(label)
       }
-      profileMap.set(id, entry)
     }
 
-    entry.tasks.push(issue)
-    for (const label of issue.labels ?? []) {
-      entry.labels.add(label)
+    // Case 3: reporter 字段有人，且不是 Developer，也不是系统账号
+    // 这样能捕获 reporter 只填了 Reporter 字段、assignee 是系统账号的情况（如 APS 中的 Charles Zeng / Yuna Wu）
+    const reporter = issue.reporter
+    if (reporter && reporter.id && reporter.id !== 'unknown') {
+      const rName = reporter.name ?? ''
+      if (!developerIds.has(reporter.id) && !excludedNames.has(rName.toLowerCase())) {
+        // 避免把 developer（assignee 和 reporter 同一人）重复加入
+        const isDeveloperAssignee = issue.developer?.id === reporter.id || assignee?.id === reporter.id && developerIds.has(assignee.id)
+        if (!isDeveloperAssignee) {
+          let entry = profileMap.get(reporter.id)
+          if (!entry) {
+            const formattedName = rName.includes('@') ? rName.split('@')[0] : rName
+            entry = { name: formattedName, avatarUrl: null, labels: new Set<string>(), tasks: [] }
+            profileMap.set(reporter.id, entry)
+          }
+          // 只添加这个 issue 到 reporter 的任务列表（如未添加过）
+          if (!entry.tasks.find(t => t.id === issue.id)) {
+            entry.tasks.push(issue)
+            for (const label of issue.labels ?? []) entry.labels.add(label)
+          }
+        }
+      }
     }
   }
 

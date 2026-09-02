@@ -173,6 +173,12 @@ export function mapJiraIssueToPlatform(issue: JiraIssue): PlatformIssue {
     spentHours,
     isSubTask,
     parentKey,
+    reporter: fields.reporter
+      ? {
+          id: fields.reporter.accountId || fields.reporter.key || fields.reporter.name || fields.reporter.displayName || '',
+          name: formatDisplayName(fields.reporter.displayName || fields.reporter.name || ''),
+        }
+      : null,
   }
 }
 

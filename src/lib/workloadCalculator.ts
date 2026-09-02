@@ -147,6 +147,38 @@ export function computeDeveloperProfiles(
   return profiles
 }
 
+// ─── isSystemAccount ────────────────────────────────────────
+
+/**
+ * Jira 系统账号 / 占位账号识别。
+ * 这类账号（如 "+closed_folder"、"Pre Release Box"）常被用作 assignee
+ * 来归档或暂存 ticket，但它们不是真实的人，不应出现在人员分组里。
+ * 同时匹配 account id 和 显示名（大小写不敏感）。
+ */
+const SYSTEM_ACCOUNT_IDS = new Set<string>([
+  'closefolder',
+  'pre-release',
+])
+
+const SYSTEM_ACCOUNT_NAMES = new Set<string>([
+  '+closed_folder',
+  'closed_folder',
+  'pre release box',
+  'pre-release box',
+])
+
+export function isSystemAccount(person: { id?: string; name?: string } | null | undefined): boolean {
+  if (!person) return false
+  const id = (person.id ?? '').toLowerCase()
+  const name = (person.name ?? '').toLowerCase()
+  if (id && SYSTEM_ACCOUNT_IDS.has(id)) return true
+  if (name && SYSTEM_ACCOUNT_NAMES.has(name)) return true
+  // 兜底：名字里带这些关键词的占位账号
+  if (name.includes('closed_folder') || name.includes('closed folder')) return true
+  if (name.includes('pre release box') || name.includes('pre-release box')) return true
+  return false
+}
+
 // ─── computeReporterProfiles ────────────────────────────────
 
 /**
@@ -178,7 +210,7 @@ export function computeReporterProfiles(
     // Case 1: No developer → assignee is the "reporter/owner"
     // Case 2: Has developer but assignee is different → assignee is PM/reporter role
     const assignee = issue.assignee
-    if (assignee && assignee.active !== false && !excludedNames.has(assignee.name.toLowerCase()) && !developerIds.has(assignee.id)) {
+    if (assignee && assignee.active !== false && !isSystemAccount(assignee) && !excludedNames.has(assignee.name.toLowerCase()) && !developerIds.has(assignee.id)) {
       if (!(issue.developer && issue.developer.id === assignee.id)) {
         const { id, name, avatarUrl } = assignee
         let entry = profileMap.get(id)
@@ -195,7 +227,7 @@ export function computeReporterProfiles(
     // Case 3: reporter 字段有人，且不是 Developer，也不是系统账号
     // 这样能捕获 reporter 只填了 Reporter 字段、assignee 是系统账号的情况（如 APS 中的 Charles Zeng / Yuna Wu）
     const reporter = issue.reporter
-    if (reporter && reporter.id && reporter.id !== 'unknown') {
+    if (reporter && reporter.id && reporter.id !== 'unknown' && !isSystemAccount(reporter)) {
       const rName = reporter.name ?? ''
       if (!developerIds.has(reporter.id) && !excludedNames.has(rName.toLowerCase())) {
         // 避免把 developer（assignee 和 reporter 同一人）重复加入
@@ -223,6 +255,7 @@ export function computeReporterProfiles(
     const assignee = issue.assignee
     if (!assignee) continue
     if (assignee.active === false) continue
+    if (isSystemAccount(assignee)) continue
     if (excludedNames.has(assignee.name.toLowerCase())) continue
     if (developerIds.has(assignee.id)) continue
     // Only add if not already captured via a parent task

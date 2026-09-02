@@ -103,7 +103,7 @@ export const jiraClient = {
     // 不排除子任务，需要子任务的 developer 信息来关联主任务归属
     const finalJql = jql
     const fields = [
-      'summary', 'status', 'priority', 'assignee',
+      'summary', 'status', 'priority', 'assignee', 'reporter',
       'labels', 'fixVersions', 'created', 'updated',
       'timeoriginalestimate', 'timespent',
       'customfield_10016', 'customfield_10004', 'customfield_11000', 'customfield_11103',

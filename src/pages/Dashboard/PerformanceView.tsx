@@ -218,8 +218,8 @@ function SingleProjectPerformance({ projectKey }: { projectKey: string }) {
         </button>
       </div>
       <div ref={contentRef}>
-        {activeSubTab === 'department' && <DepartmentOverview departmentPerformance={data} />}
-        {activeSubTab === 'individual' && <IndividualPerformance memberPerformances={data.members} />}
+        {activeSubTab === 'department' && <DepartmentOverview departmentPerformance={data} previousPerformance={previousData ?? undefined} />}
+        {activeSubTab === 'individual' && <IndividualPerformance memberPerformances={data.members} previousMembers={previousData?.members} />}
         {activeSubTab === 'trend' && <PerformanceTrendChart projectKey={projectKey} />}
       </div>
     </div>

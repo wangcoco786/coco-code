@@ -22,10 +22,16 @@ export function useActiveSprintIssuesByProject(
         ? `project = ${keys[0]}`
         : `project IN (${keys.join(', ')})`
 
+      // 按 Sprint 名称过滤：项目组里各子项目的同一迭代 Sprint 名称一致，
+      // 但 sprintId 各不相同，因此用名称过滤才能跨项目正确筛选。
+      const escapedSprintName = sprintName ? sprintName.replace(/"/g, '\\"') : null
+
       let jql: string
-      if (sprintName && !isProjectGroup(projectKey)) {
-        jql = `${projectClause} AND sprint = "${sprintName}" ORDER BY priority ASC, updated DESC`
+      if (escapedSprintName) {
+        // 指定了具体 Sprint（单项目或项目组都按名称过滤）
+        jql = `${projectClause} AND sprint = "${escapedSprintName}" ORDER BY priority ASC, updated DESC`
       } else if (sprintId && !isProjectGroup(projectKey)) {
+        // 单项目且只有 sprintId 时按 id 过滤
         jql = `${projectClause} AND sprint = ${sprintId} ORDER BY priority ASC, updated DESC`
       } else {
         jql = `${projectClause} AND sprint in openSprints() ORDER BY priority ASC, updated DESC`

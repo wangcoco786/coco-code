@@ -5,6 +5,7 @@ import styles from './PerformanceView.module.css'
 
 interface DepartmentOverviewProps {
   departmentPerformance: DepartmentPerformance
+  previousPerformance?: DepartmentPerformance
 }
 
 /** 等级标签文字映射 */
@@ -29,7 +30,7 @@ function getGradeClass(grade: string): string {
   }
 }
 
-export default function DepartmentOverview({ departmentPerformance }: DepartmentOverviewProps) {
+export default function DepartmentOverview({ departmentPerformance, previousPerformance }: DepartmentOverviewProps) {
   const {
     averageScore,
     averageThroughput,
@@ -45,6 +46,13 @@ export default function DepartmentOverview({ departmentPerformance }: Department
 
   // 按 Performance_Score 降序排列
   const sortedMembers = [...members].sort((a, b) => b.performanceScore - a.performanceScore)
+
+  // 计算上一期的排名映射（memberId -> 上期排名），用于显示排名变化
+  const previousRankMap = new Map<string, number>()
+  if (previousPerformance) {
+    const prevSorted = [...previousPerformance.members].sort((a, b) => b.performanceScore - a.performanceScore)
+    prevSorted.forEach((m, i) => previousRankMap.set(m.memberId, i + 1))
+  }
 
   // 指标卡片数据
   const metrics = [
@@ -228,6 +236,7 @@ export default function DepartmentOverview({ departmentPerformance }: Department
           <thead>
             <tr>
               <th>#</th>
+              {previousPerformance && <th>变化</th>}
               <th>成员</th>
               <th>综合分</th>
               <th>吞吐量</th>
@@ -240,7 +249,13 @@ export default function DepartmentOverview({ departmentPerformance }: Department
           </thead>
           <tbody>
             {sortedMembers.map((member, index) => (
-              <RankingRow key={member.memberId} member={member} rank={index + 1} />
+              <RankingRow
+                key={member.memberId}
+                member={member}
+                rank={index + 1}
+                previousRank={previousPerformance ? previousRankMap.get(member.memberId) : undefined}
+                showTrend={!!previousPerformance}
+              />
             ))}
           </tbody>
         </table>
@@ -250,13 +265,23 @@ export default function DepartmentOverview({ departmentPerformance }: Department
 }
 
 /** 排行列表行组件 */
-function RankingRow({ member, rank }: { member: MemberPerformance; rank: number }) {
+function RankingRow({ member, rank, previousRank, showTrend }: {
+  member: MemberPerformance
+  rank: number
+  previousRank?: number
+  showTrend?: boolean
+}) {
   const grade = member.grade
   const gradeClass = getGradeClass(grade)
 
   return (
     <tr>
       <td className={styles.rankNumber}>{rank}</td>
+      {showTrend && (
+        <td className={styles.rankTrend}>
+          <RankChange rank={rank} previousRank={previousRank} />
+        </td>
+      )}
       <td className={styles.memberName}>{member.memberName}</td>
       <td>
         <span className={styles.dimensionScore} style={{ color: getGradeColor(grade) }}>
@@ -305,4 +330,20 @@ function DimensionCell({ score }: { score: number }) {
       </div>
     </div>
   )
+}
+
+/** 排名变化指示器：与上期对比显示 ↑↓ 或 新上榜 */
+function RankChange({ rank, previousRank }: { rank: number; previousRank?: number }) {
+  // 上期不在榜 → 新上榜
+  if (previousRank === undefined) {
+    return <span className={styles.rankNew}>NEW</span>
+  }
+  const diff = previousRank - rank // 正数表示排名上升
+  if (diff > 0) {
+    return <span className={styles.rankUp}>↑{diff}</span>
+  }
+  if (diff < 0) {
+    return <span className={styles.rankDown}>↓{Math.abs(diff)}</span>
+  }
+  return <span className={styles.rankSame}>—</span>
 }

@@ -178,6 +178,37 @@
   text-align: center;
 }
 
+/* ─── 排名变化指示器 ─── */
+.rankTrend {
+  width: 48px;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.rankUp {
+  color: #52c41a;
+}
+
+.rankDown {
+  color: #f5222d;
+}
+
+.rankSame {
+  color: var(--text2);
+  opacity: 0.5;
+}
+
+.rankNew {
+  display: inline-block;
+  padding: 1px 6px;
+  border-radius: 8px;
+  font-size: 10px;
+  font-weight: 700;
+  background: #e6f4ff;
+  color: #1677ff;
+}
+
 .memberName {
   font-weight: 500;
   color: var(--text);

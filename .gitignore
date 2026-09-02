@@ -30,3 +30,6 @@ Thumbs.db
 logs.txt
 logs-err.txt
 *.log
+
+# Build output (built by CI/CD)
+dist/

@@ -227,7 +227,8 @@ export default function Sprint() {
 
   const { data: issues = [], isLoading: rawLoading, isError, error } = useActiveSprintIssuesByProject(
     currentProjectKey,
-    currentSprint?.id ?? null  // null 时不查（等 Sprint 加载完）
+    currentSprint?.id ?? null,  // null 时不查（等 Sprint 加载完）
+    currentSprint?.name ?? null // 传 Sprint 名称，项目组按名称跨项目过滤
   )
   const isLoading = rawLoading && !!currentProjectKey
   const refresh = useRefreshProjectIssues()

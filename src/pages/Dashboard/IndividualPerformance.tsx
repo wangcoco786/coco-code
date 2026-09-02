@@ -8,6 +8,8 @@ type SortKey = 'performanceScore' | 'throughputScore' | 'efficiencyScore' | 'qua
 
 interface IndividualPerformanceProps {
   memberPerformances: MemberPerformance[]
+  /** 上一期成员数据，用于计算排名/分数变化（可选） */
+  previousMembers?: MemberPerformance[]
 }
 
 /** 排序维度选项 */
@@ -76,9 +78,18 @@ function getPriorityLabel(priority: string | null | undefined): string {
   }
 }
 
-export default function IndividualPerformance({ memberPerformances }: IndividualPerformanceProps) {
+export default function IndividualPerformance({ memberPerformances, previousMembers }: IndividualPerformanceProps) {
   const [sortKey, setSortKey] = useState<SortKey>('performanceScore')
   const [selectedMemberId, setSelectedMemberId] = useState<string | null>(null)
+
+  // 上一期成员综合分映射（memberId -> 上期综合分），用于显示分数变化
+  const previousScoreMap = useMemo(() => {
+    const map = new Map<string, number>()
+    for (const m of previousMembers ?? []) {
+      map.set(m.memberId, m.performanceScore)
+    }
+    return map
+  }, [previousMembers])
 
   // 按角色分组（不重复：Developer > Reporter > Others）
   const { developers, reporters, others } = useMemo(() => {
@@ -158,6 +169,7 @@ export default function IndividualPerformance({ memberPerformances }: Individual
           title="👨‍💻 Developer"
           members={developers}
           onCardClick={setSelectedMemberId}
+          previousScoreMap={previousScoreMap}
         />
       )}
 
@@ -167,6 +179,7 @@ export default function IndividualPerformance({ memberPerformances }: Individual
           title="📝 Reporter"
           members={reporters}
           onCardClick={setSelectedMemberId}
+          previousScoreMap={previousScoreMap}
         />
       )}
 
@@ -176,6 +189,7 @@ export default function IndividualPerformance({ memberPerformances }: Individual
           title="👥 Others"
           members={others}
           onCardClick={setSelectedMemberId}
+          previousScoreMap={previousScoreMap}
         />
       )}
     </div>
@@ -183,10 +197,11 @@ export default function IndividualPerformance({ memberPerformances }: Individual
 }
 
 /** 角色分组区块 */
-function RoleSection({ title, members, onCardClick }: {
+function RoleSection({ title, members, onCardClick, previousScoreMap }: {
   title: string
   members: MemberPerformance[]
   onCardClick: (id: string) => void
+  previousScoreMap?: Map<string, number>
 }) {
   return (
     <div style={{ marginBottom: 32 }}>
@@ -203,6 +218,7 @@ function RoleSection({ title, members, onCardClick }: {
             member={member}
             isExpanded={false}
             onClick={() => onCardClick(member.memberId)}
+            previousScore={previousScoreMap?.get(member.memberId)}
           />
         ))}
       </div>
@@ -215,13 +231,18 @@ function MemberCard({
   member,
   isExpanded,
   onClick,
+  previousScore,
 }: {
   member: MemberPerformance
   isExpanded: boolean
   onClick: () => void
+  previousScore?: number
 }) {
   const grade = member.grade
   const gradeClass = getGradeClass(grade)
+
+  // 计算与上期综合分的变化
+  const scoreDiff = previousScore !== undefined ? member.performanceScore - previousScore : undefined
 
   // 个人雷达图配置
   const radarOption = {
@@ -300,6 +321,19 @@ function MemberCard({
           </div>
           <div className={styles.memberCardScore} style={{ color: getGradeColor(grade) }}>
             {member.performanceScore.toFixed(1)}
+            {scoreDiff !== undefined && Math.abs(scoreDiff) >= 0.1 && (
+              <span
+                style={{
+                  fontSize: 12,
+                  fontWeight: 600,
+                  marginLeft: 6,
+                  color: scoreDiff > 0 ? '#52c41a' : '#f5222d',
+                }}
+                title="与上期综合分对比"
+              >
+                {scoreDiff > 0 ? '↑' : '↓'}{Math.abs(scoreDiff).toFixed(1)}
+              </span>
+            )}
             <span className={`${styles.gradeBadge} ${gradeClass}`} style={{ marginLeft: 8 }}>
               {getGradeLabel(grade)}
             </span>

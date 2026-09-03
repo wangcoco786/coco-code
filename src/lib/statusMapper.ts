@@ -169,6 +169,7 @@ export function mapJiraIssueToPlatform(issue: JiraIssue): PlatformIssue {
     jiraId: issue.id,
     title: fields.summary,
     status: mapJiraStatus(fields.status.name, fields.status.statusCategory),
+    statusName: fields.status.name,
     priority: mapJiraPriority(fields.priority.name),
     assignee: fields.assignee
       ? {

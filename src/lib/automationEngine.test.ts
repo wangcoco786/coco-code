@@ -14,6 +14,7 @@ function makeIssue(overrides: Partial<PlatformIssue> = {}): PlatformIssue {
     jiraId: '10100',
     title: 'Test Issue',
     status: 'in_progress',
+    statusName: 'In Progress',
     priority: 'P1',
     assignee: { id: 'user-1', name: 'Alice', avatarUrl: '' },
     storyPoints: 5,

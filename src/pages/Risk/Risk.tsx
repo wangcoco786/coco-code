@@ -506,7 +506,7 @@ function CollabView({ issues, isLoading }: CollabViewProps) {
                   {JIRA_BASE_URL ? <a href={`${JIRA_BASE_URL}/browse/${issue.id}`} target="_blank" rel="noopener noreferrer" className={styles.issueKey} style={{ textDecoration: 'none' }}>{issue.id}</a> : <span className={styles.issueKey}>{issue.id}</span>}
                   <span className={styles.issueTitle}>{issue.title}</span>
                   <span className={`${styles.statusBadge} ${issue.status === 'done' ? styles.statusDone : issue.status === 'in_progress' ? styles.statusInProgress : styles.statusTodo}`}>
-                    {issue.status === 'done' ? t('common.completed') : issue.status === 'in_progress' ? t('common.inProgress') : issue.status === 'in_review' ? t('common.inReview') : issue.status === 'in_testing' ? t('common.inTesting') : t('common.todo')}
+                    {issue.statusName || (issue.status === 'done' ? t('common.completed') : issue.status === 'in_progress' ? t('common.inProgress') : issue.status === 'in_review' ? t('common.inReview') : issue.status === 'in_testing' ? t('common.inTesting') : t('common.todo'))}
                   </span>
                 </div>
               ))}

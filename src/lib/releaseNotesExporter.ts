@@ -117,7 +117,7 @@ export function generateMarkdown(data: ReleaseNotesData): string {
     lines.push('## 🔲 未完成任务（供参考）')
     lines.push('')
     for (const issue of allIncomplete) {
-      lines.push(`- **${issue.id}** ${issue.title} — 状态: ${formatStatus(issue.status)}`)
+      lines.push(`- **${issue.id}** ${issue.title} — 状态: ${formatStatus(issue.statusName || issue.status)}`)
     }
     lines.push('')
   }
@@ -405,7 +405,7 @@ function formatIssueListMarkdown(issues: ClassifiedIssue[]): string[] {
     const assigneeName = issue.assignee?.name ?? '未分配'
     lines.push(
       `- ${statusIcon} **${issue.id}** ${issue.title}${unplannedBadge}${staleBadge}` +
-      `  \n  状态: ${formatStatus(issue.status)} | 优先级: ${issue.priority} | 负责人: ${assigneeName}`,
+      `  \n  状态: ${formatStatus(issue.statusName || issue.status)} | 优先级: ${issue.priority} | 负责人: ${assigneeName}`,
     )
   }
   return lines
@@ -454,7 +454,7 @@ function generateCategorySectionsHTML(categorizedIssues: CategorizedIssues): str
         return `    <div class="${itemClass}">
       <span class="issue-key">${escapeHTML(issue.id)}</span>
       <span class="issue-title">${escapeHTML(issue.title)}</span>
-      <span class="issue-status ${statusClass}">${formatStatus(issue.status)}</span>
+      <span class="issue-status ${statusClass}">${formatStatus(issue.statusName || issue.status)}</span>
       ${unplannedBadge}${staleBadge}
       <span style="font-size:12px;color:#999;">${escapeHTML(assigneeName)}</span>
     </div>`

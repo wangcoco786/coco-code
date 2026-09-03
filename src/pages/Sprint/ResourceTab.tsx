@@ -100,7 +100,7 @@ function TaskListPanel({ tasks, isExpanded, onToggleExpand }: TaskListPanelProps
             {task.title}
           </span>
           <span className={styles.taskStatusBadge}>
-            {STATUS_KEYS[task.status] ? t(STATUS_KEYS[task.status]) : task.status}
+            {task.statusName || (STATUS_KEYS[task.status] ? t(STATUS_KEYS[task.status]) : task.status)}
           </span>
           <span className={`${styles.taskPriorityBadge} ${styles[task.priority.toLowerCase()]}`}>
             {task.priority}
@@ -401,7 +401,7 @@ export default function ResourceTab({ issues }: ResourceTabProps) {
                   <span className={styles.taskId}>{task.id}</span>
                 )}
                 <span className={styles.taskTitle} title={task.title}>{task.title}</span>
-                <span className={styles.taskStatusBadge}>{STATUS_KEYS[task.status] ? t(STATUS_KEYS[task.status]) : task.status}</span>
+                <span className={styles.taskStatusBadge}>{task.statusName || (STATUS_KEYS[task.status] ? t(STATUS_KEYS[task.status]) : task.status)}</span>
                 <span className={`${styles.taskPriorityBadge} ${styles[task.priority.toLowerCase()]}`}>{task.priority}</span>
                 <span className={styles.detailAssignee}>{task.assignee?.name ?? t('resource.unassigned')}</span>
               </div>

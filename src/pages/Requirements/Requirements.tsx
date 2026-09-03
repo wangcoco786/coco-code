@@ -157,7 +157,7 @@ function ListView({ issues, allIssues }: { issues: PlatformIssue[]; allIssues: P
               <td>{issue.title}</td>
               <td>
                 <span className={`${styles.tag} ${STATUS_TAG_CLASS[issue.status]}`}>
-                  {t(STATUS_LABEL_KEYS[issue.status])}
+                  {issue.statusName || t(STATUS_LABEL_KEYS[issue.status])}
                 </span>
               </td>
               <td>

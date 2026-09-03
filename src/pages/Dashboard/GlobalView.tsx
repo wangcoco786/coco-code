@@ -206,7 +206,7 @@ function IssueDetail({ issues, showFilter = false }: { issues: PlatformIssue[]; 
               </td>
               <td>
                 <span className={`${styles.tag} ${issue.status === 'done' ? styles.tagSuccess : issue.status === 'in_progress' ? styles.tagInfo : styles.tagDefault}`}>
-                  {issue.status === 'done' ? t('common.completed') : issue.status === 'in_progress' ? t('common.inProgress') : issue.status === 'in_review' ? t('common.inReview') : issue.status === 'in_testing' ? t('common.inTesting') : t('common.todo')}
+                  {issue.statusName || (issue.status === 'done' ? t('common.completed') : issue.status === 'in_progress' ? t('common.inProgress') : issue.status === 'in_review' ? t('common.inReview') : issue.status === 'in_testing' ? t('common.inTesting') : t('common.todo'))}
                 </span>
               </td>
               <td style={{ fontSize: 12 }}>{issue.assignee?.name ?? <span style={{ color: 'var(--danger)' }}>{t('common.unassigned')}</span>}</td>

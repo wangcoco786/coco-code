@@ -187,6 +187,7 @@ export function transformToPerformanceIssue(issue: any): PerformanceIssue {
 
   // 基础 PlatformIssue 字段
   const status = mapJiraStatus(fields.status?.name ?? 'To Do')
+  const statusName = fields.status?.name ?? 'To Do'
   const priority = mapJiraPriority(fields.priority?.name ?? 'Medium')
   const storyPoints = fields.customfield_10016 ?? 0
   const estimatedHours = fields.timeoriginalestimate != null ? fields.timeoriginalestimate / 3600 : null
@@ -220,6 +221,7 @@ export function transformToPerformanceIssue(issue: any): PerformanceIssue {
     jiraId: issue.id ?? '',
     title: fields.summary ?? '',
     status,
+    statusName,
     priority,
     assignee,
     storyPoints,

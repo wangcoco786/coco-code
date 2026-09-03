@@ -18,7 +18,8 @@ export interface PlatformIssue {
   id: string // Jira key, e.g. "DTS-1234"
   jiraId: string // Jira internal id
   title: string
-  status: IssueStatus
+  status: IssueStatus // 归一化状态桶（用于计算/图表/筛选）
+  statusName: string // Jira 原始状态名（用于显示，如 "IN DEV" / "Ready for QA"）
   priority: IssuePriority
   assignee: {
     id: string

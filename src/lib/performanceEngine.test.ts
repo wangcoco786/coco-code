@@ -19,6 +19,7 @@ function makePerformanceIssue(overrides: Partial<PerformanceIssue> = {}): Perfor
     jiraId: '10001',
     title: 'Test Issue',
     status: 'done',
+    statusName: 'Done',
     priority: 'P2',
     assignee: { id: 'user-1', name: 'Alice', avatarUrl: '' },
     storyPoints: 3,

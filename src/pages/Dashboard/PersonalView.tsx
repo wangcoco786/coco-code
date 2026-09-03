@@ -78,7 +78,7 @@ export default function PersonalView({ issues, currentUser, isLoading }: Props) 
                     </td>
                     <td>
                       <span className={`${styles.tag} ${issue.status === 'done' ? styles.tagSuccess : issue.status === 'in_progress' ? styles.tagInfo : styles.tagDefault}`}>
-                        {issue.status === 'done' ? t('common.completed') : issue.status === 'in_progress' ? t('common.inProgress') : issue.status === 'in_review' ? t('common.inReview') : issue.status === 'in_testing' ? t('common.inTesting') : t('common.todo')}
+                        {issue.statusName || (issue.status === 'done' ? t('common.completed') : issue.status === 'in_progress' ? t('common.inProgress') : issue.status === 'in_review' ? t('common.inReview') : issue.status === 'in_testing' ? t('common.inTesting') : t('common.todo'))}
                       </span>
                     </td>
                   </tr>
@@ -152,7 +152,7 @@ export default function PersonalView({ issues, currentUser, isLoading }: Props) 
                   <span style={{ fontSize: 13 }}>{issue.title}</span>
                 </div>
                 <span className={`${styles.tag} ${issue.status === 'in_progress' ? styles.tagInfo : styles.tagDefault}`}>
-                  {issue.status === 'in_progress' ? t('common.inProgress') : issue.status === 'in_review' ? t('common.inReview') : issue.status === 'in_testing' ? t('common.inTesting') : t('common.todo')}
+                  {issue.statusName || (issue.status === 'in_progress' ? t('common.inProgress') : issue.status === 'in_review' ? t('common.inReview') : issue.status === 'in_testing' ? t('common.inTesting') : t('common.todo'))}
                 </span>
               </div>
             ))}

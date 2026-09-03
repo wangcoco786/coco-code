@@ -115,7 +115,7 @@ export default function GlobalSearch({ placeholder }: Props) {
     }).slice(0, 10)
 
     issueResults.forEach((i: PlatformIssue) => {
-      const statusLabel = i.status === 'todo' ? t('common.todo') : i.status === 'in_progress' ? t('common.inProgress') : i.status === 'in_review' ? t('common.inReview') : i.status === 'in_testing' ? t('common.inTesting') : t('common.completed')
+      const statusLabel = i.statusName || (i.status === 'todo' ? t('common.todo') : i.status === 'in_progress' ? t('common.inProgress') : i.status === 'in_review' ? t('common.inReview') : i.status === 'in_testing' ? t('common.inTesting') : t('common.completed'))
       out.push({
         type: 'issue',
         id: i.id,

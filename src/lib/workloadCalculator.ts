@@ -17,7 +17,7 @@ export const DEFAULT_CAPACITY = 10 // 每人每 Sprint 默认容量（任务数�
 // ─── Sort order maps ────────────────────────────────────────
 
 // 基于原始 Jira 状态名的精细排序（用于任务列表显示）
-// 工作流顺序：New → To Do → In Dev → Ready for PO Review → Ready to Test → Testing → Done/Closed
+// 工作流顺序：New → To Do → In Dev → Ready to Test → Testing → Ready for PO Review → Done/Closed
 const STATUS_NAME_SORT: Record<string, number> = {
   // 1. 新建阶段
   'New': 0,
@@ -34,15 +34,11 @@ const STATUS_NAME_SORT: Record<string, number> = {
   'Development': 10,
   'Active': 10,
   'Doing': 10,
-  // 4. 评审阶段
+  // 4. 代码评审阶段（开发完成后）
   'In Review': 20,
   'Code Review': 20,
   'Peer Review': 20,
   'Review': 20,
-  'Ready for PO Review': 21,
-  'Ready for Review': 21,
-  'PO Review': 22,
-  'Pending': 23,
   // 5. 待测试阶段
   'Ready to Test': 30,
   'Ready for QA': 30,
@@ -52,7 +48,12 @@ const STATUS_NAME_SORT: Record<string, number> = {
   'In Testing': 40,
   'QA': 40,
   'UAT': 41,
-  // 7. 完成阶段
+  // 7. PO验收阶段（测试完成后）
+  'Ready for PO Review': 50,
+  'Ready for Review': 50,
+  'PO Review': 51,
+  'Pending': 52,
+  // 8. 完成阶段
   'Done': 100,
   'Closed': 100,
   'Resolved': 100,
@@ -77,9 +78,10 @@ function getStatusSortOrder(statusName: string): number {
   if (lowerName.includes('new')) return 0
   if (lowerName.includes('to do') || lowerName.includes('todo') || lowerName.includes('backlog')) return 1
   if (lowerName.includes('dev') || lowerName.includes('progress')) return 10
-  if (lowerName.includes('review')) return 20
+  if (lowerName.includes('code review') || lowerName.includes('peer review')) return 20
   if (lowerName.includes('ready') && lowerName.includes('test')) return 30
   if (lowerName.includes('test') || lowerName.includes('qa')) return 40
+  if (lowerName.includes('po review') || lowerName.includes('ready for po') || lowerName.includes('ready for review')) return 50
   if (lowerName.includes('done') || lowerName.includes('close') || lowerName.includes('complete')) return 100
   return 50 // 未知状态
 }

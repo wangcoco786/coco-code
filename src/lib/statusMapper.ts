@@ -32,6 +32,7 @@ export const STATUS_MAP: Record<string, IssueStatus> = {
   'UAT': 'in_testing',
   'Ready for QA': 'in_testing',
   'Ready for Testing': 'in_testing',
+  'Ready to Test': 'in_testing',
   'Done': 'done',
   'Closed': 'done',
   'Resolved': 'done',

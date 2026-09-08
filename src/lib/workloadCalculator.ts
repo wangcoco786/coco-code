@@ -17,11 +17,11 @@ export const DEFAULT_CAPACITY = 10 // 每人每 Sprint 默认容量（任务数�
 // ─── Sort order maps ────────────────────────────────────────
 
 const TASK_STATUS_SORT: Record<IssueStatus, number> = {
-  in_progress: 0,
-  todo: 1,
-  in_review: 2,
-  in_testing: 3,
-  done: 4,
+  todo: 0,         // New / To Do 排最前
+  in_progress: 1,  // In Dev / In Progress
+  in_review: 2,    // In Review
+  in_testing: 3,   // In Testing / QA
+  done: 4,         // Done / Closed 排最后
 }
 
 const TASK_PRIORITY_SORT: Record<IssuePriority, number> = {

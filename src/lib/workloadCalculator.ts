@@ -16,12 +16,81 @@ export const DEFAULT_CAPACITY = 10 // 每人每 Sprint 默认容量（任务数�
 
 // ─── Sort order maps ────────────────────────────────────────
 
+// 基于原始 Jira 状态名的精细排序（用于任务列表显示）
+// 工作流顺序：New → To Do → In Dev → Ready for PO Review → Ready to Test → Testing → Done/Closed
+const STATUS_NAME_SORT: Record<string, number> = {
+  // 1. 新建阶段
+  'New': 0,
+  // 2. 待办阶段
+  'To Do': 1,
+  'Backlog': 1,
+  'Open': 1,
+  'Reopened': 2,
+  'Selected for Development': 3,
+  // 3. 开发阶段
+  'In Dev': 10,
+  'In Development': 10,
+  'In Progress': 10,
+  'Development': 10,
+  'Active': 10,
+  'Doing': 10,
+  // 4. 评审阶段
+  'In Review': 20,
+  'Code Review': 20,
+  'Peer Review': 20,
+  'Review': 20,
+  'Ready for PO Review': 21,
+  'Ready for Review': 21,
+  'PO Review': 22,
+  'Pending': 23,
+  // 5. 待测试阶段
+  'Ready to Test': 30,
+  'Ready for QA': 30,
+  'Ready for Testing': 30,
+  // 6. 测试阶段
+  'Testing': 40,
+  'In Testing': 40,
+  'QA': 40,
+  'UAT': 41,
+  // 7. 完成阶段
+  'Done': 100,
+  'Closed': 100,
+  'Resolved': 100,
+  'Released': 100,
+  'Completed': 100,
+  'Cancelled': 100,
+  'Canceled': 100,
+}
+
+// 获取状态排序值（未知状态返回 50，排在测试之后、完成之前）
+function getStatusSortOrder(statusName: string): number {
+  // 精确匹配
+  if (STATUS_NAME_SORT[statusName] !== undefined) {
+    return STATUS_NAME_SORT[statusName]
+  }
+  // 不区分大小写匹配
+  const lowerName = statusName.toLowerCase()
+  for (const [key, value] of Object.entries(STATUS_NAME_SORT)) {
+    if (key.toLowerCase() === lowerName) return value
+  }
+  // 模糊匹配
+  if (lowerName.includes('new')) return 0
+  if (lowerName.includes('to do') || lowerName.includes('todo') || lowerName.includes('backlog')) return 1
+  if (lowerName.includes('dev') || lowerName.includes('progress')) return 10
+  if (lowerName.includes('review')) return 20
+  if (lowerName.includes('ready') && lowerName.includes('test')) return 30
+  if (lowerName.includes('test') || lowerName.includes('qa')) return 40
+  if (lowerName.includes('done') || lowerName.includes('close') || lowerName.includes('complete')) return 100
+  return 50 // 未知状态
+}
+
+// 归一化状态桶的排序（用于计算和图表）
 const TASK_STATUS_SORT: Record<IssueStatus, number> = {
-  todo: 0,         // New / To Do 排最前
-  in_progress: 1,  // In Dev / In Progress
-  in_review: 2,    // In Review
-  in_testing: 3,   // In Testing / QA
-  done: 4,         // Done / Closed 排最后
+  todo: 0,
+  in_progress: 1,
+  in_review: 2,
+  in_testing: 3,
+  done: 4,
 }
 
 const TASK_PRIORITY_SORT: Record<IssuePriority, number> = {
@@ -51,11 +120,13 @@ export function getLoadStatus(
 
 /**
  * Sort issues by status order then by priority within each status group.
+ * Uses statusName (original Jira status) for fine-grained sorting.
  * Returns a new array (does not mutate input).
  */
 export function sortTasks(tasks: PlatformIssue[]): PlatformIssue[] {
   return [...tasks].sort((a, b) => {
-    const statusDiff = TASK_STATUS_SORT[a.status] - TASK_STATUS_SORT[b.status]
+    // 使用原始状态名进行精细排序
+    const statusDiff = getStatusSortOrder(a.statusName) - getStatusSortOrder(b.statusName)
     if (statusDiff !== 0) return statusDiff
     return TASK_PRIORITY_SORT[a.priority] - TASK_PRIORITY_SORT[b.priority]
   })

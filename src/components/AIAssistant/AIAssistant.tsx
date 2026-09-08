@@ -123,6 +123,27 @@ const WS_URL = 'wss://agentforce.item.pub/ws/open/chat'
 const API_KEY = 'laf_8416833a931a7fc7a7078fad36aec10e'
 const AGENT_ID = 'e4a00a96-b3e2-4b29-84b2-c62e5f9f4169'
 
+// ─── Jira 工具结果缓存（5分钟 TTL）───
+const toolCache = new Map<string, { data: string; time: number }>()
+const TOOL_CACHE_TTL = 5 * 60 * 1000
+
+function getCachedToolResult(cacheKey: string): string | null {
+  const cached = toolCache.get(cacheKey)
+  if (cached && Date.now() - cached.time < TOOL_CACHE_TTL) {
+    return cached.data
+  }
+  return null
+}
+
+function setCachedToolResult(cacheKey: string, data: string): void {
+  toolCache.set(cacheKey, { data, time: Date.now() })
+  // 限制缓存大小，超过 100 个则清理最旧的
+  if (toolCache.size > 100) {
+    const oldestKey = toolCache.keys().next().value
+    if (oldestKey) toolCache.delete(oldestKey)
+  }
+}
+
 const JIRA_TOOLS = [
   {
     name: 'search_jira_issues',
@@ -154,19 +175,33 @@ const JIRA_TOOLS = [
 ]
 
 async function executeJiraTool(toolName: string, toolInput: Record<string, unknown>): Promise<string> {
+  // 生成缓存 key
+  const cacheKey = `${toolName}:${JSON.stringify(toolInput)}`
+  
+  // 检查缓存
+  const cached = getCachedToolResult(cacheKey)
+  if (cached) {
+    console.log(`[AI Tool] Cache HIT: ${toolName}`)
+    return cached
+  }
+  
+  console.log(`[AI Tool] Executing: ${toolName}`)
+  
   try {
+    let result: string
     switch (toolName) {
       case 'search_jira_issues': {
         const jql = (toolInput.jql as string) || 'project is not EMPTY ORDER BY updated DESC'
         const maxResults = (toolInput.maxResults as number) || 20
-        const result = await jiraClient.searchIssues(
+        const apiResult = await jiraClient.searchIssues(
           jql, ['summary', 'status', 'priority', 'assignee', 'created', 'updated'], 0, maxResults
         )
-        const issues = result.issues.map(i => ({
+        const issues = apiResult.issues.map(i => ({
           key: i.key, summary: i.fields.summary, status: i.fields.status.name,
           priority: i.fields.priority.name, assignee: i.fields.assignee?.displayName ?? '未分配',
         }))
-        return JSON.stringify({ total: result.total, issues })
+        result = JSON.stringify({ total: apiResult.total, issues })
+        break
       }
       case 'get_sprint_status': {
         const projectKey = toolInput.projectKey as string
@@ -183,23 +218,30 @@ async function executeJiraTool(toolName: string, toolInput: Record<string, unkno
               completionRate: total > 0 ? `${Math.round((done / total) * 100)}%` : '0%' }
           })
         )
-        return JSON.stringify({ activeSprints: sprintInfo })
+        result = JSON.stringify({ activeSprints: sprintInfo })
+        break
       }
       case 'get_project_list': {
         const projects = await jiraClient.getProjects()
-        return JSON.stringify({ total: projects.length, projects: projects.slice(0, 30).map(p => ({ key: p.key, name: p.name })) })
+        result = JSON.stringify({ total: projects.length, projects: projects.slice(0, 30).map(p => ({ key: p.key, name: p.name })) })
+        break
       }
       case 'get_issue_detail': {
         const issueKey = toolInput.issueKey as string
         if (!issueKey) return JSON.stringify({ error: '需要提供 issueKey' })
         const issue = await jiraClient.getIssue(issueKey)
-        return JSON.stringify({ key: issue.key, summary: issue.fields.summary, status: issue.fields.status.name,
+        result = JSON.stringify({ key: issue.key, summary: issue.fields.summary, status: issue.fields.status.name,
           priority: issue.fields.priority.name, assignee: issue.fields.assignee?.displayName ?? '未分配',
           created: issue.fields.created, updated: issue.fields.updated })
+        break
       }
       default:
         return JSON.stringify({ error: `未知工具: ${toolName}` })
     }
+    
+    // 缓存结果
+    setCachedToolResult(cacheKey, result)
+    return result
   } catch (err) {
     return JSON.stringify({ error: err instanceof Error ? err.message : '工具执行失败' })
   }
@@ -249,6 +291,7 @@ export default function AIAssistant() {
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const currentMsgIdRef = useRef<string | null>(null)
   const pingIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const preconnectAttemptedRef = useRef(false)
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -354,6 +397,14 @@ export default function AIAssistant() {
     return () => { if (!open && wsRef.current) { wsRef.current.close(); wsRef.current = null } }
   }, [open, connect])
 
+  // ─── 预连接：鼠标悬停在 FAB 按钮上时提前建立连接 ───
+  const handleFabMouseEnter = useCallback(() => {
+    if (!preconnectAttemptedRef.current && !wsRef.current) {
+      preconnectAttemptedRef.current = true
+      connect()
+    }
+  }, [connect])
+
   function sendMessage() {
     const text = input.trim()
     if (!text || isLoading) return
@@ -381,9 +432,14 @@ export default function AIAssistant() {
       {/* 遮罩层 - 点击关闭 */}
       {open && <div className={`${styles.overlay} ${closing ? styles.overlayOut : ''}`} onClick={handleClose} />}
 
-      {/* FAB 按钮 */}
+      {/* FAB 按钮 - 悬停时预连接 */}
       {!open && (
-        <button className={styles.fab} onClick={() => setOpen(true)} title="AI 小助手 (Esc 关闭)">
+        <button 
+          className={styles.fab} 
+          onClick={() => setOpen(true)} 
+          onMouseEnter={handleFabMouseEnter}
+          title="AI 小助手 (Esc 关闭)"
+        >
           <span className={styles.fabIcon}>🤖</span>
           {isConnected && <span className={styles.onlineDot} />}
           <span className={styles.fabPulse} />

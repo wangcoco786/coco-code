@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>Starmerx 星商 — Project Report 项目报告</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "Segoe UI","Microsoft YaHei","PingFang SC",sans-serif;
+    background: #eef1f5; color: #1f2430; line-height: 1.6; padding: 32px 16px; }
+  .page { max-width: 940px; margin: 0 auto; background: #fff;
+    box-shadow: 0 4px 24px rgba(0,0,0,.1); border-radius: 14px; padding: 46px 54px 38px; }
+  .header { text-align: center; padding-bottom: 22px; margin-bottom: 22px; border-bottom: 3px solid #1098ad; }
+  .header h1 { font-size: 25px; font-weight: 800; color: #0b7285; }
+  .header .sub { margin-top: 6px; font-size: 14px; color: #6b7280; }
+  .header .meta { margin-top: 4px; font-size: 12px; color: #9aa1ac; }
+
+  h2 { font-size: 18px; font-weight: 800; color: #fff; background: #1098ad;
+    padding: 8px 16px; border-radius: 8px; margin: 26px 0 12px; }
+
+  p.lead { font-size: 13.5px; margin: 4px 0; }
+  p.lead .en { display:block; color:#6b7280; font-size:12.3px; margin-top:1px; }
+  p.note { font-size:11.5px; color:#9aa1ac; margin-top:2px; }
+
+  .metrics { display: flex; gap: 14px; flex-wrap: wrap; margin: 12px 0 4px; }
+  .metric { flex: 1; min-width: 120px; background: #e3fafc; border: 1px solid #c5f6fa;
+    border-radius: 10px; padding: 12px 14px; text-align: center; }
+  .metric .v { font-size: 22px; font-weight: 800; color: #0c8599; }
+  .metric .l { font-size: 11.5px; color: #6b7280; margin-top: 2px; }
+
+  table { width: 100%; border-collapse: collapse; margin: 8px 0; font-size: 12.8px; }
+  th, td { border: 1px solid #d0ebf0; padding: 7px 10px; text-align: left; vertical-align: top; }
+  th { background: #e3fafc; font-weight: 700; color: #0b7285; }
+  tr:nth-child(even) td { background: #f7fdfe; }
+  td .en { display:block; color:#7a8190; font-size:11.5px; }
+  .phase { font-weight: 700; color: #0c8599; white-space: nowrap; }
+
+  .module h3 { font-size:14.5px; font-weight:700; color:#0b7285; margin:14px 0 4px; padding-left:10px; border-left:4px solid #1098ad; }
+  ul { margin: 4px 0 8px 26px; } li { font-size: 13px; margin: 5px 0; }
+  li .en { display:block; color:#6b7280; font-size:11.8px; }
+
+  .risk { background:#fff5f5; border-left:4px solid #e03131; padding:8px 14px; border-radius:6px; margin:6px 0; font-size:12.8px; }
+  .risk .en { display:block; color:#a1454a; font-size:11.6px; margin-top:1px; }
+  .footer { margin-top: 26px; padding-top: 14px; border-top: 1px solid #e5e7eb; font-size: 11px; color: #9aa1ac; text-align: center; }
+
+  @media print { body{background:#fff;padding:0;} .page{box-shadow:none;border-radius:0;max-width:100%;padding:20px 26px;}
+    h2,th,.metric{-webkit-print-color-adjust:exact;print-color-adjust:exact;} @page{size:A4;margin:12mm;} }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header">
+    <h1>Starmerx 星商 — 客户项目报告</h1>
+    <div class="sub">Customer Project Report · Project Management View</div>
+    <div class="meta">Project span 项目周期：Jun 2025 – Sep 2026　|　Source 数据来源：Jira</div>
+  </div>
+
+  <!-- Overview -->
+  <h2>1. 项目概述 Overview</h2>
+  <p class="lead">Starmerx（星商）是一个以 <b>Item WMS 3.0</b> 为核心的跨境电商小包裹（Small Parcel）履约项目，覆盖收货上架、拣货（Wave Pick）、Parcel Pack &amp; Load 交运、面单/箱唛/ASIN/FNSKU 多标签打印，以及 FBA 调拨出库等电商特有流程。项目已从单仓扩展到<b>多国多站点</b>（美国 TX / NJ、加拿大 Ontario、波兰 Poland 等）。
+    <span class="en">Starmerx is a cross-border e-commerce Small-Parcel fulfillment project built on Item WMS 3.0, covering receiving/putaway, wave picking, Parcel Pack &amp; Load handover, multi-label printing (shipping label / carton label / ASIN / FNSKU), and FBA transfer outbound. It has expanded from a single site to multiple countries/sites (US TX/NJ, Canada Ontario, Poland).</span></p>
+
+  <div class="metrics">
+    <div class="metric"><div class="v">242</div><div class="l">相关任务总数 Total = 196 + 34 + 12</div></div>
+    <div class="metric"><div class="v">196</div><div class="l">WMS (WISE2018)</div></div>
+    <div class="metric"><div class="v">34</div><div class="l">运维支持 L2S Support</div></div>
+    <div class="metric"><div class="v">12</div><div class="l">其他配套 Supporting*</div></div>
+    <div class="metric"><div class="v">~15mo</div><div class="l">周期 Duration</div></div>
+  </div>
+  <p class="note">* 其他配套 Supporting：TRF 3 · CRMC 2 · BP 2 · PLATFORM 2 · DTS 1 · DOPS 1 · RP 1（合计 12）。当前状态：已上线并多站点持续扩展 Live &amp; scaling across sites.</p>
+
+  <!-- Milestones -->
+  <h2>2. 项目里程碑 Milestones</h2>
+  <table>
+    <thead><tr><th>阶段 Phase</th><th>时间 Period</th><th>内容 Summary</th></tr></thead>
+    <tbody>
+      <tr>
+        <td class="phase">立项 / 租户搭建<br>Kickoff</td>
+        <td>2025-06 – 08</td>
+        <td>新客户企业账号（Enterprise Account 3.0）与独立租户 Starmerx 搭建；CRM/账单配置；多租户鉴权与 Wise URL 调整。
+          <span class="en">Enterprise Account 3.0 &amp; dedicated tenant setup; CRM/billing config; multi-tenant auth and Wise URL adjustments.</span></td>
+      </tr>
+      <tr>
+        <td class="phase">核心功能建设<br>Core Build</td>
+        <td>2025-09 – 12</td>
+        <td>确立"Starmerx 项目功能汇总"Epic；交付小包裹核心流程：扫 Tracking 收退货、Parcel Pack &amp; Load、箱唛/ASIN 标签、订单行级箱唛上传、按 Item group 分组拣货、库存流水 API。
+          <span class="en">Established the master Epic; delivered core small-parcel flows: scan-tracking returns, Parcel Pack &amp; Load, carton/ASIN labels, line-level carton-label upload, item-group picking, inventory-transaction APIs.</span></td>
+      </tr>
+      <tr>
+        <td class="phase">上线 &amp; UAT<br>Go-Live / UAT</td>
+        <td>2026-01 – 03</td>
+        <td>TX 仓正式上线；密集 UAT 修复（Dashboard、Pick Detail Report、Public API 校验放宽、Multi-Qty Package）；多平台商品条码作业；收货/上架体验优化（推荐库位、差异高亮）。
+          <span class="en">TX site go-live; intensive UAT fixes (Dashboard, Pick Detail Report, relaxed Public-API validation, multi-qty package); multi-platform barcode operations; receiving/putaway UX (suggested locations, discrepancy highlight).</span></td>
+      </tr>
+      <tr>
+        <td class="phase">多站点扩展<br>Multi-Site</td>
+        <td>2026-02 – 07</td>
+        <td>开启 <b>Poland 波兰仓</b>（2026-02）与 <b>US 美仓</b>（2026-04）Epic；FBA 调拨出库、面单/箱唛多打印机分流、FNSKU 打印、Wave Sorting、账号角色权限优化；性能问题（每日高峰卡顿）专项处理。
+          <span class="en">Launched Poland (Feb) and US (Apr) Epics; FBA transfer outbound, multi-printer split for labels, FNSKU printing, Wave Sorting, account-role permissions; targeted performance work (daily peak slowness).</span></td>
+      </tr>
+      <tr>
+        <td class="phase">稳定运营<br>Stabilize</td>
+        <td>2026-08 – 09</td>
+        <td>NJ / Ontario / Savannah 等新站点接入；出库履约看板、拣货任务分配看板、Parcel Load Dashboard；预打印面单顺序、补拣、强制关闭权限分离等精细化；持续生产运维（L2S 34 项）。
+          <span class="en">Onboarded NJ/Ontario/Savannah; added fulfillment / pick-assignment / parcel-load dashboards; refined preprint label sequence, quick re-pick, force-close permission split; ongoing production support (L2S, 34 items).</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- By system -->
+  <h2>3. 各系统交付 Delivery by System</h2>
+
+  <div class="module">
+    <h3>WMS (Item WMS 3.0 / WISE2018) — 196 tickets</h3>
+    <ul>
+      <li><b>小包裹核心 Small Parcel：</b>Parcel Pack &amp; Load 全流程、扫 CLP 批量 Load、Small Parcel Station 打印、面单箱唛分打印机、ASIN/FNSKU 换标、Return Label 控制。
+        <span class="en">Full Parcel Pack &amp; Load, batch CLP load, SP-Station printing, separate printers for shipping/carton labels, ASIN/FNSKU relabeling, return-label control.</span></li>
+      <li><b>收发货 Inbound/Outbound：</b>扫 Tracking 收退货、推荐上架库位与 VLG 标识、差异高亮、按 Item group 分 Task、Wave Pick / Wave Sorting、FBA 调拨出库、Partial &amp; Short ship。
+        <span class="en">Scan-tracking returns, suggested putaway with VLG, discrepancy highlight, item-group tasks, Wave Pick/Sorting, FBA transfer outbound, partial &amp; short ship.</span></li>
+      <li><b>看板与报表 Dashboards：</b>出库履约看板、拣货任务分配看板、Parcel Load Dashboard、DS Status Order Dashboard、Material Report。
+        <span class="en">Outbound fulfillment, pick-assignment, parcel-load, DS-status dashboards, and material reports.</span></li>
+      <li><b>集成与 API：</b>库存流水 Public API、Receipt/DN 相关 Public API、shipping label 接口传入与 ZPL 转码、多平台商品条码、与 CRM 同步。
+        <span class="en">Inventory-transaction Public API, Receipt/DN Public APIs, inbound shipping-label &amp; ZPL conversion, multi-platform barcodes, CRM sync.</span></li>
+      <li><b>多站点 &amp; 性能：</b>Poland/US/TX/NJ/Ontario 站点配置、多租户隔离修复、每日高峰性能优化、分布式锁批量导入库位。
+        <span class="en">Poland/US/TX/NJ/Ontario site config, multi-tenant isolation fixes, daily-peak performance tuning, distributed-lock batch location import.</span></li>
+    </ul>
+  </div>
+
+  <div class="module">
+    <h3>运维支持 Production Support (L2S) — 34 tickets</h3>
+    <ul>
+      <li>生产数据修复与调整（库存/库位状态、订单 Customer/SKU、Rollback 订单状态、tracking 清理）。
+        <span class="en">Production data fixes (inventory/location status, order customer/SKU, order rollback, tracking cleanup).</span></li>
+      <li>流程卡点排查（Parcel Load 无法关闭、Pick Task "No new Suggestions"、workflow 未配置、auto scheduler 未执行）。
+        <span class="en">Flow-blocker triage (parcel-load close failures, pick-task "no suggestions", missing workflow config, auto-scheduler not running).</span></li>
+    </ul>
+  </div>
+
+  <div class="module">
+    <h3>配套系统 Supporting Systems — 12 tickets</h3>
+    <ul>
+      <li><b>YMS (TRF)：</b>Location 批量更新、Window Check-in 客户未找到修复。<span class="en">Location batch update; window check-in "customer not found" fix.</span></li>
+      <li><b>计费/账单 (CRMC / BP)：</b>CRM 租户配置、customer 数据消失排查、Company Setup 增强、WMS 3.0 记账计费。<span class="en">CRM tenant setup, missing-customer investigation, Company Setup enhancement, WMS 3.0 bookkeeping billing.</span></li>
+      <li><b>Platform / IAM / DOPS：</b>清理测试用户、账号-租户关系解除、面单上传 issue、租户权限收敛（不应含 WMS）。<span class="en">Remove test users, account-tenant unlinking, label-upload issue, tenant permission cleanup.</span></li>
+    </ul>
+  </div>
+
+  <!-- Status -->
+  <h2>4. 当前状态 Current Status</h2>
+  <p class="lead">项目<b>已上线并处于多站点扩展 + 稳定运营阶段</b>：WMS 侧约 148 项已关闭/发布/Hotfix 完成，核心小包裹履约链路稳定运行于 TX 等站点，Poland、US、NJ、Ontario 等站点陆续接入。当前工作集中在多站点一致性、性能优化、看板与报表完善，以及大量生产运维支持。
+    <span class="en">The project is live and in a multi-site expansion + stable-operations phase: ~148 WMS items closed/released/hotfix-done, core small-parcel fulfillment running stably at TX and other sites, with Poland/US/NJ/Ontario onboarding progressively. Focus is on cross-site consistency, performance, dashboards/reports, and heavy production support.</span></p>
+
+  <!-- Risks -->
+  <h2>5. 关注点与风险 Watch-points &amp; Risks</h2>
+  <div class="risk">性能压力：曾出现每日 20:00–21:00 系统卡顿、波兰仓中午卡顿、Socket hang up 等问题；随站点与订单量增长需持续容量与性能监控。
+    <span class="en">Performance pressure: daily 20:00–21:00 slowness, Poland midday slowness, socket hang-ups observed; needs continuous capacity/performance monitoring as sites &amp; volume grow.</span></div>
+  <div class="risk">预打印面单 / Parcel Load 复杂度高：面单顺序、WAVE_PICK_BY_ITEM 拆包、批量中断补打等仍有活跃缺陷，直接影响发货，需优先保障。
+    <span class="en">Preprint label / Parcel Load complexity: label sequencing, WAVE_PICK_BY_ITEM splitting, batch-interruption reprint still have active defects that directly impact shipping — high priority.</span></div>
+  <div class="risk">多站点 / 多租户一致性：facility 未配置、多租户串租户、租户权限等问题反复出现，随扩张需固化站点上线 checklist 与隔离校验。
+    <span class="en">Multi-site/tenant consistency: unconfigured facilities, cross-tenant leakage, tenant permissions recur — standardize a site-onboarding checklist and isolation checks as it scales.</span></div>
+
+  <div class="footer">Starmerx Customer Project Report · Generated from Jira, Sep 2026 · Project management view · 中英文对照</div>
+
+</div>
+</body>
+</html>

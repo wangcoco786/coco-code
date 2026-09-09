@@ -86,11 +86,10 @@ const CHAT_HISTORY_KEY = 'ai-pm-chat-history'
 const MAX_HISTORY_MESSAGES = 50
 
 // ============================================================
-// 多级缓存系统
+// 缓存系统
 // ============================================================
 interface CacheEntry<T> { data: T; time: number }
 const toolCache = new Map<string, CacheEntry<string>>()
-const dataCache = new Map<string, CacheEntry<unknown>>()
 const TOOL_CACHE_TTL = 5 * 60 * 1000
 const DATA_CACHE_TTL = 3 * 60 * 1000
 

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>Glory Wisdom — Project Report 项目报告</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "Segoe UI","Microsoft YaHei","PingFang SC",sans-serif;
+    background: #eef1f5; color: #1f2430; line-height: 1.6; padding: 32px 16px; }
+  .page { max-width: 940px; margin: 0 auto; background: #fff;
+    box-shadow: 0 4px 24px rgba(0,0,0,.1); border-radius: 14px; padding: 46px 54px 38px; }
+  .header { text-align: center; padding-bottom: 22px; margin-bottom: 22px; border-bottom: 3px solid #7048e8; }
+  .header h1 { font-size: 25px; font-weight: 800; color: #4c2889; }
+  .header .sub { margin-top: 6px; font-size: 14px; color: #6b7280; }
+  .header .meta { margin-top: 4px; font-size: 12px; color: #9aa1ac; }
+
+  h2 { font-size: 18px; font-weight: 800; color: #fff; background: #7048e8;
+    padding: 8px 16px; border-radius: 8px; margin: 26px 0 12px; }
+
+  p.lead { font-size: 13.5px; margin: 4px 0; }
+  p.lead .en { display:block; color:#6b7280; font-size:12.3px; margin-top:1px; }
+
+  .metrics { display: flex; gap: 14px; flex-wrap: wrap; margin: 12px 0 4px; }
+  .metric { flex: 1; min-width: 130px; background: #f5f3ff; border: 1px solid #e5dbff;
+    border-radius: 10px; padding: 12px 14px; text-align: center; }
+  .metric .v { font-size: 22px; font-weight: 800; color: #5f3dc4; }
+  .metric .l { font-size: 11.5px; color: #6b7280; margin-top: 2px; }
+
+  table { width: 100%; border-collapse: collapse; margin: 8px 0; font-size: 12.8px; }
+  th, td { border: 1px solid #e2e0ee; padding: 7px 10px; text-align: left; vertical-align: top; }
+  th { background: #f3f0ff; font-weight: 700; color: #4c2889; }
+  tr:nth-child(even) td { background: #faf9ff; }
+  td .en { display:block; color:#7a8190; font-size:11.5px; }
+  .phase { font-weight: 700; color: #5f3dc4; white-space: nowrap; }
+  .badge { display:inline-block; font-size:10.5px; font-weight:700; padding:1px 7px; border-radius:4px; color:#fff; }
+  .b-live { background:#2b8a3e; } .b-prog { background:#e8590c; } .b-plan { background:#6741d9; }
+
+  .module h3 { font-size:14.5px; font-weight:700; color:#4c2889; margin:14px 0 4px; padding-left:10px; border-left:4px solid #7048e8; }
+  ul { margin: 4px 0 8px 26px; } li { font-size: 13px; margin: 5px 0; }
+  li .en { display:block; color:#6b7280; font-size:11.8px; }
+
+  .risk { background:#fff5f5; border-left:4px solid #e03131; padding:8px 14px; border-radius:6px; margin:6px 0; font-size:12.8px; }
+  .risk .en { display:block; color:#a1454a; font-size:11.6px; margin-top:1px; }
+  .footer { margin-top: 26px; padding-top: 14px; border-top: 1px solid #e5e7eb; font-size: 11px; color: #9aa1ac; text-align: center; }
+
+  @media print { body{background:#fff;padding:0;} .page{box-shadow:none;border-radius:0;max-width:100%;padding:20px 26px;}
+    h2,.badge,th,.metric{-webkit-print-color-adjust:exact;print-color-adjust:exact;} @page{size:A4;margin:12mm;} }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header">
+    <h1>Glory Wisdom — 客户项目报告</h1>
+    <div class="sub">Customer Project Report · Project Management View</div>
+    <div class="meta">Project span 项目周期：Apr 2025 – Sep 2026　|　Source 数据来源：Jira</div>
+  </div>
+
+  <!-- Overview -->
+  <h2>1. 项目概述 Overview</h2>
+  <p class="lead">Glory Wisdom 是一个跨系统的新客户上线项目，核心是通过 <b>Vendor Portal + OMS + WMS + EDI</b> 打通"零售商下单 → 工厂/供应商发货 → 仓库履约 → 回传"的端到端直发链路，覆盖直发零售商（Direct ship to retailer）与直发美仓（Direct ship to facility）两大业务场景。
+    <span class="en">Glory Wisdom is a cross-system new-customer onboarding. It connects an end-to-end drop-ship chain — Retailer order → Vendor/factory shipment → Warehouse fulfillment → confirmation — through Vendor Portal + OMS + WMS + EDI, covering both "Direct ship to retailer" and "Direct ship to facility" scenarios.</span></p>
+
+  <div class="metrics">
+    <div class="metric"><div class="v">175</div><div class="l">相关任务总数 Total = 95 + 59 + 21</div></div>
+    <div class="metric"><div class="v">95</div><div class="l">WMS (WISE2018)</div></div>
+    <div class="metric"><div class="v">59</div><div class="l">OMS/DI (Linker)</div></div>
+    <div class="metric"><div class="v">21</div><div class="l">其他配套 Supporting*</div></div>
+    <div class="metric"><div class="v">~17mo</div><div class="l">周期 Duration</div></div>
+  </div>
+  <p class="lead" style="font-size:11.5px;color:#9aa1ac;margin-top:2px;">* 其他配套系统 Supporting systems：Platform 3 · TRF 4 · L2S 5 · CRMC 2 · FMS 2 · CP 1 · BP 1 · IMPLE 1 · DOPS 1 · RP 1（合计 21）。项目当前状态：已上线并稳定迭代 Live &amp; iterating.</p>
+
+  <!-- Timeline -->
+  <h2>2. 项目里程碑 Milestones</h2>
+  <table>
+    <thead><tr><th>阶段 Phase</th><th>时间 Period</th><th>内容 Summary</th></tr></thead>
+    <tbody>
+      <tr>
+        <td class="phase">立项 / 需求<br>Kickoff</td>
+        <td>2025-04 – 06</td>
+        <td>确立 Vendor Portal 直发 Epic 与"Item WMS 新客户 Glory Wisdom"Epic；OMS 接口需求（DC/DN/RN）定义；IAM 鉴权与租户申请启动。
+          <span class="en">Established the Vendor Portal drop-ship Epic and the "Item WMS New Customer – Glory Wisdom" Epic; defined OMS interfaces (DC/DN/RN); started IAM auth and tenant setup.</span></td>
+      </tr>
+      <tr>
+        <td class="phase">集成联调<br>Integration</td>
+        <td>2025-07 – 08</td>
+        <td>OMS↔WMS 接口联调（DC/DN/RN、双单位、Item Master mapping）；生产环境创建 Glory Wisdom 租户；配置 Item AKA；<b>首次现场 Demo</b> 并处理 P1/P2/P3 现场反馈。
+          <span class="en">OMS↔WMS integration (DC/DN/RN, dual-unit, Item Master mapping); created the production tenant; configured Item AKA; first on-site Demo with P1/P2/P3 feedback handled.</span></td>
+      </tr>
+      <tr>
+        <td class="phase">二期建设<br>Phase 2</td>
+        <td>2025-10 – 12</td>
+        <td>Vendor Portal 工厂直发美仓流程；SN 双单位全流程改造（Receive/Putaway/Movement/Pick/Pack 等）；动态表单；上线前联调。
+          <span class="en">Vendor Portal factory-to-US-warehouse flow; full SN dual-unit rework across the fulfillment lifecycle; dynamic forms; pre-go-live integration.</span></td>
+      </tr>
+      <tr>
+        <td class="phase">正式上线<br>Go-Live</td>
+        <td>2026-01 – 03</td>
+        <td>OMS↔WMS PO 对接、字段 mapping 收敛；消费 OMS 的 Pallet/Carton 层级信息；直发海外仓流程变更；Item Master 批量创建/导入导出；UAT 预览环境搭建；<b>go-live 配置 Item AKA</b>。
+          <span class="en">OMS↔WMS PO integration and field-mapping convergence; consuming Pallet/Carton hierarchy from OMS; overseas-warehouse flow change; Item Master batch create/import-export; UAT preview env; go-live AKA config.</span></td>
+      </tr>
+      <tr>
+        <td class="phase">上线后迭代<br>Post-Live</td>
+        <td>2026-04 – 09</td>
+        <td>Vendor Portal 出货流程与标签体系持续打磨（UCC / Commercial Invoice / Packing List / BOL）；承运商定制（Costco / Quince / FedEx）；订单推送失败自动重推；增量 DC、多仓、Partial shipped 等场景扩展；生产运维支持（L2S）。
+          <span class="en">Ongoing polish of Vendor Portal shipping flow and label system (UCC / Commercial Invoice / Packing List / BOL); carrier customization (Costco/Quince/FedEx); auto-retry on push failure; incremental DC, multi-warehouse, partial-shipped scenarios; production support (L2S).</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- By system -->
+  <h2>3. 各系统交付 Delivery by System</h2>
+
+  <div class="module">
+    <h3>WMS (Item WMS 3.0 / WISE2018) — 95 tickets</h3>
+    <ul>
+      <li><b>Vendor Portal 直发能力：</b>工厂直发美仓流程、多次发运海外仓、出货流程物料行与承运商选择、审批开放时机、托盘/纸箱信息采集与标签打印页面。
+        <span class="en">Vendor Portal drop-ship: factory-to-US-warehouse flow, multi-shipment overseas, shipping-step material lines &amp; carrier selection, approval timing, pallet/carton collection &amp; label printing pages.</span></li>
+      <li><b>SN 双单位 &amp; 收发货：</b>SN 双单位全流程改造，RN 承接工厂 ASN、收退货流程增强，Pallet/Carton 层级消费。
+        <span class="en">SN dual-unit rework across the full flow, RN taking factory ASN with enhanced receive/return, Pallet/Carton hierarchy consumption.</span></li>
+      <li><b>Item Master &amp; 配置：</b>批量建 item、AKA 导入调整、模板导出导入、自定义区域内容查询/编辑、用户权限检查。
+        <span class="en">Item Master batch create, AKA import, template export/import, custom-area query/edit, user permission checks.</span></li>
+      <li><b>单证与标签：</b>UCC Label（Costco）、Commercial Invoice、定制 Packing List、Load Packing List、Parcel ASN、FedEx label 翻转打印、BOL 定制。
+        <span class="en">Documents &amp; labels: UCC (Costco), Commercial Invoice, custom Packing List, Load Packing List, Parcel ASN, FedEx label flip-print, custom BOL.</span></li>
+      <li><b>运维与修复：</b>库存/序列、Pick 后库存流转、增量 DC、单位换算（POUND→LBS）、Small Parcel 场景等持续 Hotfix 与支持。
+        <span class="en">Ops &amp; fixes: inventory/sequence, post-pick inventory transition, incremental DC, unit conversion, small-parcel scenarios — ongoing hotfixes and support.</span></li>
+    </ul>
+  </div>
+
+  <div class="module">
+    <h3>OMS V3 / DI (Linker / DTS) — 59 tickets</h3>
+    <ul>
+      <li><b>接口与集成：</b>为 Glory 提供 DC/DN/RN 接口，OMS 经 EDI webhook 回传 DC/RC，Item Master mapping 集成，临时 mapping 由 UNIS 切到 WMS 3.0 接口。
+        <span class="en">Interfaces &amp; integration: DC/DN/RN interfaces for Glory, OMS→EDI webhook returning DC/RC, Item Master mapping integration, mapping switched from UNIS to WMS 3.0.</span></li>
+      <li><b>履约模型：</b>PO/SO 履约模型扩展与状态流转优化、双单位 DNRN/DCRC、客户自定义 orderType、工厂直发业务流变更、取消 SO/PO 联动。
+        <span class="en">Fulfillment model: PO/SO model extension &amp; status-flow optimization, dual-unit DNRN/DCRC, customer-defined orderType, factory drop-ship flow change, cancel SO/PO linkage.</span></li>
+      <li><b>稳定性 &amp; 数据：</b>推单失败自动重试/重推机制、库存同步设置与 SKU 范围、AKA 有效性校验、retailer mapping、切换租户。
+        <span class="en">Stability &amp; data: auto-retry/re-push on failure, inventory-sync settings &amp; SKU scope, AKA validity check, retailer mapping, tenant switching.</span></li>
+    </ul>
+  </div>
+
+  <div class="module">
+    <h3>配套系统 Supporting Systems</h3>
+    <ul>
+      <li><b>Platform / IAM：</b>生产租户创建、OMS 接口鉴权、preview 环境 UAT 支持。<span class="en">Production tenant creation, OMS API auth, preview-env UAT support.</span></li>
+      <li><b>YMS (TRF)：</b>Glory Wisdom H5 库存初始化工具（Dev + Deploy，多次迭代）。<span class="en">Glory Wisdom H5 inventory-init tool (dev + deploy, several iterations).</span></li>
+      <li><b>计费/账单 (CRMC / BP / FMS)：</b>customer code 环境差异、Account Code 配置、Company Setup 增强、Location Service 国家码放开。<span class="en">Customer-code env differences, Account Code config, Company Setup enhancement, Location Service country-code relaxation.</span></li>
+      <li><b>运维支持 (L2S)：</b>生产数据修复（DC 未发 / Packing List 汇总 / ship-from 等）。<span class="en">Production support: data fixes (missing DC / packing-list totals / ship-from, etc.).</span></li>
+    </ul>
+  </div>
+
+  <!-- Status -->
+  <h2>4. 当前状态 Current Status</h2>
+  <p class="lead">项目已<b>正式上线并进入稳定迭代期</b>：WMS 侧 <span class="badge b-live">已上线为主</span>（约 67 项已关闭/发布/Hotfix 完成），OMS 侧核心履约链路已交付。当前工作集中在 Vendor Portal 体验优化、标签/单证定制、以及新零售商（Costco / Quince 等）与新场景（增量 DC、多仓、Partial shipped）的扩展。
+    <span class="en">The project is live and in a stable iteration phase: WMS is mostly delivered (~67 closed/released/hotfix-done), and OMS core fulfillment is delivered. Current focus is Vendor Portal UX polish, label/document customization, and expansion to new retailers (Costco/Quince) and scenarios (incremental DC, multi-warehouse, partial-shipped).</span></p>
+
+  <!-- Risks -->
+  <h2>5. 关注点与风险 Watch-points &amp; Risks</h2>
+  <div class="risk">增量 DC / Partial shipped 等新场景仍在开发/待测（如生产 DN-1995 未发增量 DC），需在客户实际发货前完成验证。
+    <span class="en">New scenarios like incremental DC / partial-shipped are still in dev/testing (e.g. prod DN-1995 missing incremental DC); need validation before live shipments.</span></div>
+  <div class="risk">标签与单证高度定制化（UCC / Commercial Invoice / 各零售商差异），需求碎片化、变更频繁，建议固化模板配置化以降低长期维护成本。
+    <span class="en">Labels/documents are highly customized (UCC / Commercial Invoice / per-retailer variants) with frequent fragmented changes; recommend template-configuration to reduce long-term maintenance.</span></div>
+  <div class="risk">跨系统链路长（Vendor Portal→OMS→EDI→WMS），存在推单失败/回传中断风险；已建自动重推机制，建议持续监控 DI flow 的 cron 与告警。
+    <span class="en">Long cross-system chain (Vendor Portal→OMS→EDI→WMS) carries push-failure/return-interruption risk; auto-retry is in place — recommend continuous monitoring of DI-flow crons and alerts.</span></div>
+
+  <div class="footer">Glory Wisdom Customer Project Report · Generated from Jira, Sep 2026 · Project management view · 中英文对照</div>
+
+</div>
+</body>
+</html>

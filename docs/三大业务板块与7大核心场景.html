@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>三大业务板块与7大核心场景</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: "Microsoft YaHei", "SimSun", sans-serif;
+            font-size: 11px;
+            line-height: 1.4;
+            padding: 15px 20px;
+            background: #fff;
+        }
+        h1 {
+            text-align: center;
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 12px;
+            border-bottom: 2px solid #333;
+            padding-bottom: 5px;
+        }
+        .container {
+            display: flex;
+            gap: 15px;
+        }
+        .column {
+            flex: 1;
+        }
+        .module {
+            margin-bottom: 10px;
+        }
+        .module-title {
+            font-weight: bold;
+            font-size: 12px;
+            background: #e0e0e0;
+            padding: 3px 6px;
+            margin-bottom: 5px;
+        }
+        .scene {
+            margin-bottom: 8px;
+            padding-left: 8px;
+        }
+        .scene-title {
+            font-weight: bold;
+            font-size: 11px;
+            color: #333;
+        }
+        .scene-content {
+            padding-left: 12px;
+            font-size: 10px;
+        }
+        .scene-content p {
+            margin: 2px 0;
+        }
+        .label {
+            font-weight: bold;
+        }
+        .highlight {
+            color: #c00;
+            font-weight: bold;
+        }
+        .note {
+            color: #666;
+            font-style: italic;
+        }
+        @media print {
+            body {
+                padding: 10px;
+            }
+            @page {
+                size: A4 landscape;
+                margin: 10mm;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Glory Wisdom 三大业务板块与 7 大核心场景</h1>
+    
+    <div class="container">
+        <!-- 左栏 -->
+        <div class="column">
+            <div class="module">
+                <div class="module-title">模块一：美国海外仓标准出入库（GW-RC 仓，纯 WMS 作业）</div>
+                
+                <div class="scene">
+                    <div class="scene-title">· 场景 1：标准采购入库 (PO Inbound)</div>
+                    <div class="scene-content">
+                        <p><span class="label">指令下达：</span>AX → EDI (解析 850) → OMS → WMS (生成 RN 入库预报单)。</p>
+                        <p><span class="label">物理操作：</span>美国仓收货，录入双单位（面积/重量），扫描序列号。</p>
+                        <p><span class="label">回传闭环：</span>WMS (回传 RC) → OMS → EDI (汇聚数据) → AX。</p>
+                        <p class="note">（注：如果是库存增加，后续会体现在 EDI 846 的盘点对账中）</p>
+                    </div>
+                </div>
+                
+                <div class="scene">
+                    <div class="scene-title">· 场景 2：标准销售出库 (SO Outbound - Retailer)</div>
+                    <div class="scene-content">
+                        <p><span class="label">指令下达：</span>AX → EDI (解析 850) → OMS → WMS (生成 DN 出库单)。</p>
+                        <p><span class="label">物理操作：</span>拣配、打包、打印专属标签（如 Costco 的 UCC 标签）、绑定快递跟踪号（Tracking No）。</p>
+                        <p><span class="label">回传闭环 <span class="highlight">(高危点)</span>：</span>WMS (回传 DC 发货明细) → OMS → EDI (生成极为严格的 856 ASN) → AX。</p>
+                        <p class="highlight">只要 WMS 漏掉重量或包裹号，856 就会在 EDI 这一层被拦截，发不到 AX。</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="module">
+                <div class="module-title">模块二：工厂直发业务（两段式履约与中转）</div>
+                
+                <div class="scene">
+                    <div class="scene-title">· 场景 3：工厂直发零售商 (Direct to Retailer)</div>
+                    <div class="scene-content">
+                        <p><span class="label">指令下达：</span>AX → EDI (解析 850) → OMS → Vendor Portal。</p>
+                        <p><span class="label">物理操作：</span>工厂打包，在 Vendor Portal 登记物流并发货。</p>
+                        <p><span class="label">回传闭环：</span>Vendor Portal → OMS → EDI (生成 856 ASN) → AX 及其终端零售商。</p>
+                    </div>
+                </div>
+                
+                <div class="scene">
+                    <div class="scene-title">· 场景 4：工厂直发美国仓 (Direct to Facility —— 最复杂的两段接力)</div>
+                    <div class="scene-content">
+                        <p><span class="label">指令下达：</span>AX → EDI (解析 850) → OMS → Vendor Portal。</p>
+                        <p><span class="label">段落一 <span class="highlight">(第一层拦截)</span>：</span>工厂在 Vendor Portal 点发货。发货信息传给 OMS，OMS 在这里执行硬拦截，绝对不允许把状态推给 EDI 生成 856，因为货还在海上。</p>
+                        <p><span class="label">段落二 (内部转换与最终回传)：</span>OMS 自动生成内部指令下发给 WMS (RN)。一个月后，货到美国，WMS 收货完毕 (回传 RC) → OMS 解除拦截 → EDI (发送入库确认/对应报文) → AX。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 右栏 -->
+        <div class="column">
+            <div class="module">
+                <div class="module-title" style="background: transparent; border: none;">&nbsp;</div>
+                
+                <div class="scene">
+                    <div class="scene-title">· 场景 5：纯工厂间调拨 (Tariff Evasion)</div>
+                    <div class="scene-content">
+                        <p><span class="label">流转：</span>此流程多为内部指令流转，AX 下达内部调拨令 → EDI (解析 850 或其他对应报文) → OMS → 两个 Vendor Portal 之间进行库存转移登记。</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="module">
+                <div class="module-title">模块三：异常与逆向流程（系统断层区）</div>
+                
+                <div class="scene">
+                    <div class="scene-title">· 场景 6：分批发运与短装 (Partial & Short Shipment)</div>
+                    <div class="scene-content">
+                        <p><span class="label">断点分析：</span>不管是 WMS 还是 Vendor Portal 发生短装，实际执行信息推给 OMS 后，OMS 需要通过 EDI 856 向 AX 汇报。但如果发货数量与 AX 下达的 EDI 850 不一致，且没有提前协商好容差范围，856 极易产生财务争议或被系统拒收。</p>
+                    </div>
+                </div>
+                
+                <div class="scene">
+                    <div class="scene-title">· 场景 7：订单变更与取消 (Cancellation/Alteration) —— <span class="highlight">核心痛点</span></div>
+                    <div class="scene-content">
+                        <p><span class="label">正规链路（目前缺失）：</span>AX 发起变更 → EDI (发送 860 变更报文) → OMS → 阻止/修改 WMS 作业。</p>
+                        <p><span class="label">实际惨状：</span>因为 EDI 860 没通，AX 无法通过系统下达"取消"指令。</p>
+                        <p style="padding-left: 10px;">变成人工发邮件 → 仓库在 WMS 手动点"Cancel"物理阻断 → WMS 把状态抛给 OMS → (由于缺乏顺畅的 EDI 逆向通知报文) OMS 无法通过系统闭环告诉 AX，只能再次依靠人工对账，或者靠定期的 EDI 846 (库存报表) 让 AX 发现库存没扣减。</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="margin-top: 15px; padding: 8px; border: 1px solid #999; background: #f9f9f9;">
+                <div style="font-weight: bold; font-size: 11px; margin-bottom: 5px;">EDI 报文类型速查：</div>
+                <table style="font-size: 10px; width: 100%;">
+                    <tr><td><b>850</b> - 采购订单</td><td><b>856</b> - ASN发货通知</td></tr>
+                    <tr><td><b>846</b> - 库存报表</td><td><b>860</b> - 订单变更</td></tr>
+                </table>
+            </div>
+            
+            <div style="margin-top: 10px; padding: 8px; border: 1px solid #c00; background: #fff5f5;">
+                <div style="font-weight: bold; font-size: 11px; color: #c00; margin-bottom: 3px;">关键风险点汇总：</div>
+                <ul style="font-size: 10px; padding-left: 15px;">
+                    <li>场景2：WMS数据缺失导致856被拦截</li>
+                    <li>场景4：两段式履约需严格管控拦截时点</li>
+                    <li>场景6：短装容差未协商导致财务争议</li>
+                    <li>场景7：EDI 860未打通，变更依赖人工</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>Glory Wisdom 业务流程</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: "Microsoft YaHei", "PingFang SC", sans-serif; background: #ddd; }
+.page { width: 1100px; margin: 32px auto; background: #fff; box-shadow: 0 4px 20px rgba(0,0,0,0.2); page-break-after: always; }
+.page:last-child { page-break-after: auto; }
+svg text { font-family: "Microsoft YaHei", "PingFang SC", sans-serif; }
+@media print {
+  body { background: #fff; }
+  .page { margin: 0; box-shadow: none; page-break-after: always; }
+  @page { size: A4 landscape; margin: 8mm; }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════
+  页面 1：Direct ship to retailer (AX下单)
+  泳道：Retailer / AX / EDI / OMS / Vendor Portal
+════════════════════════════════════════════════ -->
+<div class="page">
+<svg width="1100" height="900" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <marker id="arr" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L8,3 z" fill="#333"/>
+    </marker>
+    <marker id="arr2" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L8,3 z" fill="#333"/>
+    </marker>
+  </defs>
+
+  <!-- 大标题 -->
+  <text x="550" y="38" text-anchor="middle" font-size="20" font-weight="bold" fill="#111">Direct ship to retailer：retailer联系Glory销售在AX下单给Vendor</text>
+
+  <!-- 泳道框 -->
+  <!-- 左侧泳道标签宽40，内容区从x=40开始 -->
+  <!-- 泳道高度: Retailer 130, AX 170, EDI 130, OMS 170, VendorPortal 290 -->
+  <!-- y起始: 60 -->
+  <!-- 泳道分隔线 y: 190, 360, 490, 660, 950 -->
+  <rect x="0" y="60" width="1100" height="840" fill="none" stroke="#333" stroke-width="1.5"/>
+  <!-- 泳道标签列 -->
+  <rect x="0" y="60" width="38" height="840" fill="#f7f7f7" stroke="#333" stroke-width="1"/>
+  <!-- Retailer -->
+  <line x1="0" y1="190" x2="38" y2="190" stroke="#333" stroke-width="1"/>
+  <text transform="translate(19,125) rotate(-90)" text-anchor="middle" font-size="12" font-weight="600" fill="#333">Retailer</text>
+  <!-- AX -->
+  <line x1="0" y1="365" x2="38" y2="365" stroke="#333" stroke-width="1"/>
+  <text transform="translate(19,278) rotate(-90)" text-anchor="middle" font-size="12" font-weight="600" fill="#333">AX</text>
+  <!-- EDI -->
+  <line x1="0" y1="490" x2="38" y2="490" stroke="#333" stroke-width="1"/>
+  <text transform="translate(19,428) rotate(-90)" text-anchor="middle" font-size="12" font-weight="600" fill="#333">EDI</text>
+  <!-- OMS -->
+  <line x1="0" y1="660" x2="38" y2="660" stroke="#333" stroke-width="1"/>
+  <text transform="translate(19,575) rotate(-90)" text-anchor="middle" font-size="12" font-weight="600" fill="#333">OMS</text>
+  <!-- Vendor Portal -->
+  <text transform="translate(19,790) rotate(-90)" text-anchor="middle" font-size="11" font-weight="600" fill="#333">Vendor Portal</text>
+
+  <!-- 泳道水平分隔线（内容区）-->
+  <line x1="38" y1="190" x2="1100" y2="190" stroke="#ccc" stroke-width="1"/>
+  <line x1="38" y1="365" x2="1100" y2="365" stroke="#ccc" stroke-width="1"/>
+  <line x1="38" y1="490" x2="1100" y2="490" stroke="#ccc" stroke-width="1"/>
+  <line x1="38" y1="660" x2="1100" y2="660" stroke="#ccc" stroke-width="1"/>
+
+  <!-- 竖向虚线分隔（列） x=330, x=630 -->
+  <line x1="330" y1="60" x2="330" y2="900" stroke="#aaa" stroke-width="1" stroke-dasharray="5,4"/>
+  <line x1="700" y1="60" x2="700" y2="900" stroke="#aaa" stroke-width="1" stroke-dasharray="5,4"/>
+
+  <!-- ── 列1（左）：x=60~330 ── -->
+  <!-- Retailer行: 开始圆 y=75, 节点 y=110 -->
+  <circle cx="120" cy="80" r="14" fill="white" stroke="#333" stroke-width="1.5"/>
+  <line x1="120" y1="94" x2="120" y2="115" stroke="#333" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="60" y="115" width="120" height="55" fill="white" stroke="#333" stroke-width="1.5"/>
+  <text x="120" y="133" text-anchor="middle" font-size="12">打电话/邮件</text>
+  <text x="120" y="150" text-anchor="middle" font-size="12">通知Glory销售</text>
+
+  <!-- AX行 -->
+  <line x1="120" y1="190" x2="120" y2="210" stroke="#333" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="135" y="208" font-size="11" fill="#555">下单</text>
+  <rect x="55" y="210" width="135" height="65" fill="white" stroke="#333" stroke-width="1.5"/>
+  <text x="122" y="229" text-anchor="middle" font-size="12">销售创建SO单，录</text>
+  <text x="122" y="245" text-anchor="middle" font-size="12">入requistion并生成</text>
+  <text x="122" y="261" text-anchor="middle" font-size="12">关联PO单</text>
+  <text x="60" y="345" font-size="11" fill="#555">推送SO和PO给指定Vendor仓库</text>
+
+  <!-- EDI行 -->
+  <line x1="120" y1="365" x2="120" y2="385" stroke="#333" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="50" y="383" font-size="11" fill="#555">下发SO和PO</text>
+  <rect x="60" y="390" width="120" height="50" fill="white" stroke="#333" stroke-width="1.5"/>
+  <text x="120" y="420" text-anchor="middle" font-size="13">接收PO和SO</text>
+
+  <!-- OMS行 -->
+  <line x1="120" y1="490" x2="120" y2="510" stroke="#333" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="55" y="510" width="135" height="55" fill="white" stroke="#333" stroke-width="1.5"/>
+  <text x="122" y="533" text-anchor="middle" font-size="13">指定Vendor仓库</text>
+  <text x="122" y="551" text-anchor="middle" font-size="13">接收PO和SO</text>
+
+  <!-- Vendor Portal行 -->
+  <line x1="120" y1="660" x2="120" y2="676" stroke="#333" stroke-width="1.5"/>
+  <text x="135" y="676" font-size="11" fill="#555">推送Kafka</text>
+  <line x1="120" y1="676" x2="120" y2="695" stroke="#333" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="48" y="695" width="148" height="70" fill="white" stroke="#333" stroke-width="1.5"/>
+  <text x="122" y="716" text-anchor="middle" font-size="12">指定Vendor仓库消费消息</text>
+  <text x="122" y="733" text-anchor="middle" font-size="12">创建Vendor Order</text>
+  <text x="122" y="749" text-anchor="middle" font-size="11" fill="#555">(RN和DN都对组成)</text>
+  <!-- 结束箭头 -->
+  <line x1="120" y1="765" x2="120" y2="860" stroke="#333" stroke-width="1.5" marker-end="url(#arr)"/>
+  <circle cx="120" cy="872" r="14" fill="white" stroke="#333" stroke-width="1.5"/>
+
+  <!-- ── 列2（中）：x=330~700 ── -->
+  <!-- AX行中列: 接收RC -->
+  <line x1="515" y1="280" x2="515" y2="255" stroke="#333" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="520" y="272" font-size="11" fill="#555">推送RC</text>
+  <rect x="455" y="220" width="120" height="45" fill="white" stroke="#333" stroke-width="1.5"/>
+  <text x="515" y="248" text-anchor="middle" font-size="13">接收RC</text>
+
+  <!-- EDI行中列: 接收RC -->
+  <line x1="515" y1="365" x2="515" y2="385" stroke="#333" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="520" y="382" font-size="11" fill="#555">推送RC</text>
+  <rect x="455" y="390" width="120" height="45" fill="white" stroke="#333" stroke-width="1.5"/>
+  <text x="515" y="418" text-anchor="middle" font-size="13">接收RC</text>
+
+  <!-- OMS行中列: 接收RC和DC + 菱形 -->
+  <line x1="515" y1="490" x2="515" y2="510" stroke="#333" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="520" y="508" font-size="11" fill="#555">发送RC和DC</text>
+  <rect x="450" y="510" width="130" height="45" fill="white" stroke="#333" stroke-width="1.5"/>
+  <text x="515" y="538" text-anchor="middle" font-size="13">接收RC和DC</text>
+  <line x1="515" y1="555" x2="515" y2="570" stroke="#333" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="520" y="576" font-size="11" fill="#555">发送RC和DC</text>
+  <polygon points="515,580 560,615 515,650 470,615" fill="white" stroke="#333" stroke-width="1.5"/>
+  <text x="515" y="618" text-anchor="middle" font-size="12">RC接收成功</text>
+
+  <!-- Vendor Portal中列: Shipment Confirmation → 录入/操作 → 创建 -->
+  <line x1="515" y1="660" x2="515" y2="678" stroke="#333" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="440" y="678" width="150" height="48" fill="white" stroke="#333" stroke-width="1.5"/>
+  <text x="515" y="697" text-anchor="middle" font-size="13">Shipment</text>
+  <text x="515" y="715" text-anchor="middle" font-size="13">Confirmation</text>
+  <!-- 分叉箭头到左 -->
+  <line x1="515" y1="726" x2="515" y2="736" stroke="#333" stroke-width="1.5"/>
+  <line x1="515" y1="736" x2="415" y2="736" stroke="#333" stroke-width="1.5"/>
+  <line x1="415" y1="736" x2="415" y2="752" stroke="#333" stroke-width="1.5" marker-end="url(#arr)"/>
+  <!-- 分叉箭头到右 -->
+  <line x1="515" y1="736" x2="610" y2="736" stroke="#333" stroke-width="1.5"/>
+  <line x1="610" y1="736" x2="610" y2="752" stroke="#333" stroke-width="1.5" marker-end="url(#arr)"/>
+  <!-- 录入Vessel Info -->
+  <rect x="355" y="752" width="120" height="48" fill="white" stroke="#333" stroke-width="1.5"/>
+  <text x="415" y="776" text-anchor="middle" font-size="13">录入Vessel Info</text>
+  <!-- 操作Shipment Pocess -->
+  <rect x="550" y="752" width="120" height="48" fill="white" stroke="#333" stroke-width="1.5"/>
+  <text x="610" y="771" text-anchor="middle" font-size="13">操作</text>
+  <text x="610" y="789" text-anchor="middle" font-size="13">Shipment Pocess</text>
+  <!-- 虚线 -->
+  <line x1="670" y1="776" x2="720" y2="776" stroke="#666" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arr)"/>
+  <!-- 汇聚 -->
+  <line x1="415" y1="800" x2="415" y2="820" stroke="#333" stroke-width="1.5"/>
+  <line x1="610" y1="800" x2="610" y2="820" stroke="#333" stroke-width="1.5"/>
+  <line x1="415" y1="820" x2="515" y2="820" stroke="#333" stroke-width="1.5"/>
+  <line x1="610" y1="820" x2="515" y2="820" stroke="#333" stroke-width="1.5"/>
+  <line x1="515" y1="820" x2="515" y2="833" stroke="#333" stroke-width="1.5" marker-end="url(#arr)"/>
+  <!-- 创建Vendor Shiment -->
+  <rect x="440" y="833" width="150" height="48" fill="white" stroke="#333" stroke-width="1.5"/>
+  <text x="515" y="852" text-anchor="middle" font-size="13">创建Vendor Shiment</text>
+  <text x="515" y="869" text-anchor="middle" font-size="11" fill="#555">(可搭配多个Vendor Order创建)</text>
+  <line x1="515" y1="881" x2="515" y2="892" stroke="#333" stroke-width="1.5" marker-end="url(#arr)"/>
+  <circle cx="515" cy="872" r="0"/><!-- placeholder -->
+
+  <!-- ── 列3（右）：x=700~1100 ── -->
+  <!-- AX行右: 接收DC + 开始圆 -->
+  <circle cx="890" cy="80" r="14" fill="white" stroke="#333" stroke-width="1.5"/>
+  <line x1="890" y1="94" x2="890" y2="115" stroke="#333" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="895" y="116" font-size="11" fill="#555">推DC</text>
+  <rect x="830" y="215" width="120" height="45" fill="white" stroke="#333" stroke-width="1.5"/>
+  <text x="890" y="243" text-anchor="middle" font-size="13">接收DC</text>
+  <line x1="890" y1="260" x2="890" y2="275" stroke="#333" stroke-width="1.5"/>
+  <text x="895" y="273" font-size="11" fill="#555">推送DC</text>
+
+  <!-- EDI行右: 接收DC -->
+  <line x1="890" y1="365" x2="890" y2="385" stroke="#333" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="895" y="382" font-size="11" fill="#555">推送DC</text>
+  <rect x="830" y="390" width="120" height="45" fill="white" stroke="#333" stroke-width="1.5"/>
+  <text x="890" y="418" text-anchor="middle" font-size="13">接收DC</text>
+
+  <!-- OMS行右: 返回ACK（从菱形出） -->
+  <line x1="560" y1="615" x2="700" y2="615" stroke="#333" stroke-width="1.5"/>
+  <text x="620" y="608" font-size="11" fill="#555">返回ACK</text>
+  <line x1="700" y1="615" x2="730" y2="615" stroke="#333" stroke-width="1.5" marker-end="url(#arr)"/>
+  <!-- EDI层返回ACK -->
+  <line x1="700" y1="412" x2="730" y2="412" stroke="#333" stroke-width="1.5"/>
+  <text x="710" y="408" font-size="11" fill="#555">返回ACK</text>
+
+  <!-- Info Box -->
+  <rect x="720" y="752" width="140" height="80" fill="white" stroke="#333" stroke-width="1.5"/>
+  <text x="790" y="770" text-anchor="middle" font-size="12">List</text>
+  <text x="790" y="789" text-anchor="middle" font-size="12">Document Info</text>
+  <text x="790" y="806" text-anchor="middle" font-size="12">Pallet/Carton Info</text>
+  <text x="790" y="823" text-anchor="middle" font-size="12">Label Info</text>
+
+  <!-- 结束圆（中列Vendor Portal） -->
+  <circle cx="515" cy="895" r="14" fill="white" stroke="#333" stroke-width="1.5"/>
+
+</svg>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+  页面 2：Direct ship to facility (美仓)
+  泳道：AX / EDI / OMS / Vendor Portal / WMS
+════════════════════════════════════════════════ -->
+<div class="page">
+<svg width="1100" height="960" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <marker id="arr3" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L8,3 z" fill="#333"/>
+    </marker>
+  </defs>
+
+  <!-- 大标题 -->
+  <text x="550" y="32" text-anchor="middle" font-size="20" font-weight="bold" fill="#111">Direct ship to facility：美仓采购在AX系统下单给Vendor</text>
+
+  <!-- 外框 -->
+  <rect x="0" y="50" width="1100" height="900" fill="none" stroke="#333" stroke-width="1.5"/>
+  <!-- 标签列 -->
+  <rect x="0" y="50" width="38" height="900" fill="#f7f7f7" stroke="#333" stroke-width="1"/>
+  <!-- 泳道分隔 y: 200(AX), 310(EDI), 470(OMS), 710(VP), 870(WMS) -->
+  <line x1="0" y1="200" x2="38" y2="200" stroke="#333" stroke-width="1"/>
+  <line x1="0" y1="310" x2="38" y2="310" stroke="#333" stroke-width="1"/>
+  <line x1="0" y1="470" x2="38" y2="470" stroke="#333" stroke-width="1"/>
+  <line x1="0" y1="710" x2="38" y2="710" stroke="#333" stroke-width="1"/>
+  <text transform="translate(19,125) rotate(-90)" text-anchor="middle" font-size="12" font-weight="600">AX</text>
+  <text transform="translate(19,255) rotate(-90)" text-anchor="middle" font-size="12" font-weight="600">EDI</text>
+  <text transform="translate(19,390) rotate(-90)" text-anchor="middle" font-size="12" font-weight="600">OMS</text>
+  <text transform="translate(19,590) rotate(-90)" text-anchor="middle" font-size="11" font-weight="600">Vendor Portal</text>
+  <text transform="translate(19,790) rotate(-90)" text-anchor="middle" font-size="12" font-weight="600">WMS</text>
+
+  <line x1="38" y1="200" x2="1100" y2="200" stroke="#ccc" stroke-width="1"/>
+  <line x1="38" y1="310" x2="1100" y2="310" stroke="#ccc" stroke-width="1"/>
+  <line x1="38" y1="470" x2="1100" y2="470" stroke="#ccc" stroke-width="1"/>
+  <line x1="38" y1="710" x2="1100" y2="710" stroke="#ccc" stroke-width="1"/>
+
+  <!-- 竖向虚线 x=330, x=700 -->
+  <line x1="330" y1="50" x2="330" y2="950" stroke="#aaa" stroke-width="1" stroke-dasharray="5,4"/>
+  <line x1="700" y1="50" x2="700" y2="950" stroke="#aaa" stroke-width="1" stroke-dasharray="5,4"/>
+
+  <!-- 列1 AX: 开始圆 → 美仓采购创建PO单 → 推送PO -->
+  <circle cx="120" cy="68" r="14" fill="white" stroke="#333" stroke-width="1.5"/>
+  <line x1="120" y1="82" x2="120" y2="100" stroke="#333" stroke-width="1.5" marker-end="url(#arr3)"/>
+  <rect x="58" y="100" width="125" height="50" fill="white" stroke="#333" stroke-width="1.5"/>
+  <text x="120" y="122" text-anchor="middle" font-size="13">美仓采购创建PO单</text>
+  <text x="120" y="165" text-anchor="middle" font-size="11" fill="#555">推送PO</text>
+
+  <!-- 列1 EDI: 接收PO → 下发PO -->
+  <line x1="120" y1="200" x2="120" y2="220" stroke="#333" stroke-width="1.5" marker-end="url(#arr3)"/>
+  <text x="55" y="218" font-size="11" fill="#555">下发PO</text>
+  <rect x="60" y="225" width="120" height="45" fill="white" stroke="#333" stroke-width="1.5"/>
+  <text x="120" y="253" text-anchor="middle" font-size="13">接收PO</text>
+
+  <!-- 列1 OMS: 美仓接收PO → 指定Vendor生产发货 -->
+  <line x1="120" y1="310" x2="120" y2="330" stroke="#333" stroke-width="1.5" marker-end="url(#arr3)"/>
+  <rect x="60" y="330" width="100" height="50" fill="white" stroke="#333" stroke-width="1.5"/>
+  <text x="110" y="352" text-anchor="middle" font-size="13">美仓</text>
+  <text x="110" y="368" text-anchor="middle" font-size="13">接收PO</text>
+  <line x1="160" y1="355" x2="185" y2="355" stroke="#333" stroke-width="1.5" marker-end="url(#arr3)"/>
+  <rect x="185" y="330" width="115" height="50" fill="white" stroke="#333" stroke-width="1.5"/>
+  <text x="242" y="352" text-anchor="middle" font-size="12">指定Vendor</text>
+  <text x="242" y="368" text-anchor="middle" font-size="12">生产发货</text>
+  <text x="185" y="398" font-size="11" fill="#555">推送kafka</text>
+
+  <!-- 列1 VP: 推送Kafka → 创建Vendor Order → 结束圆 -->
+  <text x="50" y="490" font-size="11" fill="#555">推送Kafka</text>
+  <line x1="120" y1="470" x2="120" y2="492" stroke="#333" stroke-width="1.5" marker-end="url(#arr3)"/>
+  <rect x="48" y="492" width="148" height="72" fill="white" stroke="#333" stroke-width="1.5"/>
+  <text x="122" y="512" text-anchor="middle" font-size="12">指定Vendor仓库消费消息</text>
+  <text x="122" y="529" text-anchor="middle" font-size="12">创建Vendor Order</text>
+  <text x="122" y="546" text-anchor="middle" font-size="11" fill="#555">(RN和DN都对组成)</text>
+  <line x1="120" y1="564" x2="120" y2="690" stroke="#333" stroke-width="1.5" marker-end="url(#arr3)"/>
+  <circle cx="120" cy="702" r="14" fill="white" stroke="#333" stroke-width="1.5"/>
+
+  <!-- 列1 WMS: 美仓创建Receipt → 结束圆 -->
+  <rect x="60" y="730" width="120" height="50" fill="white" stroke="#333" stroke-width="1.5"/>
+  <text x="120" y="750" text-anchor="middle" font-size="13">美仓</text>
+  <text x="120" y="768" text-anchor="middle" font-size="13">创建Receipt</text>
+  <line x1="120" y1="780" x2="120" y2="870" stroke="#333" stroke-width="1.5" marker-end="url(#arr3)"/>
+  <circle cx="120" cy="882" r="14" fill="white" stroke="#333" stroke-width="1.5"/>
+
+  <!-- 列2 OMS: 开始圆 → 接收RC和DC -->
+  <circle cx="515" cy="335" r="14" fill="white" stroke="#333" stroke-width="1.5"/>
+  <line x1="515" y1="349" x2="515" y2="366" stroke="#333" stroke-width="1.5" marker-end="url(#arr3)"/>
+  <text x="520" y="376" font-size="11" fill="#555">发送RC和DC</text>
+  <rect x="450" y="380" width="130" height="45" fill="white" stroke="#333" stroke-width="1.5"/>
+  <text x="515" y="408" text-anchor="middle" font-size="13">接收RC和DC</text>
+  <line x1="515" y1="425" x2="515" y2="468" stroke="#333" stroke-width="1.5" marker-end="url(#arr3)"/>
+
+  <!-- 列2 VP: 发送ASN → Shipment Confirmation → 分叉 → 录入 + 操作 → 创建 → 结束圆 -->
+  <text x="360" y="490" font-size="11" fill="#555">发送ASN信息</text>
+  <line x1="515" y1="470" x2="515" y2="490" stroke="#333" stroke-width="1.5" marker-end="url(#arr3)"/>
+  <rect x="440" y="490" width="150" height="48" fill="white" stroke="#333" stroke-width="1.5"/>
+  <text x="515" y="509" text-anchor="middle" font-size="13">Shipment</text>
+  <text x="515" y="527" text-anchor="middle" font-size="13">Confirmation</text>
+  <line x1="515" y1="538" x2="515" y2="550" stroke="#333" stroke-width="1.5"/>
+  <line x1="515" y1="550" x2="415" y2="550" stroke="#333" stroke-width="1.5"/>
+  <line x1="415" y1="550" x2="415" y2="565" stroke="#333" stroke-width="1.5" marker-end="url(#arr3)"/>
+  <line x1="515" y1="550" x2="615" y2="550" stroke="#333" stroke-width="1.5"/>
+  <line x1="615" y1="550" x2="615" y2="565" stroke="#333" stroke-width="1.5" marker-end="url(#arr3)"/>
+  <rect x="355" y="565" width="120" height="48" fill="white" stroke="#333" stroke-width="1.5"/>
+  <text x="415" y="594" text-anchor="middle" font-size="13">录入Vessel Info</text>
+  <rect x="555" y="565" width="120" height="48" fill="white" stroke="#333" stroke-width="1.5"/>
+  <text x="615" y="584" text-anchor="middle" font-size="13">操作</text>
+  <text x="615" y="602" text-anchor="middle" font-size="13">Shipment Pocess</text>
+  <!-- 虚线 -->
+  <line x1="675" y1="589" x2="720" y2="589" stroke="#666" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arr3)"/>
+  <!-- 汇聚 -->
+  <line x1="415" y1="613" x2="415" y2="630" stroke="#333" stroke-width="1.5"/>
+  <line x1="615" y1="613" x2="615" y2="630" stroke="#333" stroke-width="1.5"/>
+  <line x1="415" y1="630" x2="515" y2="630" stroke="#333" stroke-width="1.5"/>
+  <line x1="615" y1="630" x2="515" y2="630" stroke="#333" stroke-width="1.5"/>
+  <line x1="515" y1="630" x2="515" y2="643" stroke="#333" stroke-width="1.5" marker-end="url(#arr3)"/>
+  <rect x="440" y="643" width="150" height="48" fill="white" stroke="#333" stroke-width="1.5"/>
+  <text x="515" y="662" text-anchor="middle" font-size="13">创建Vendor Shiment</text>
+  <text x="515" y="678" text-anchor="middle" font-size="11" fill="#555">(可搭配多个Vendor Order创建)</text>
+  <line x1="515" y1="691" x2="515" y2="704" stroke="#333" stroke-width="1.5" marker-end="url(#arr3)"/>
+  <circle cx="515" cy="716" r="14" fill="white" stroke="#333" stroke-width="1.5"/>
+
+  <!-- 列2 WMS: 更新美仓Receipt的Shipment Detail → 结束圆 -->
+  <rect x="415" y="730" width="200" height="50" fill="white" stroke="#333" stroke-width="1.5"/>
+  <text x="515" y="750" text-anchor="middle" font-size="13">更新美仓Receipt的</text>
+  <text x="515" y="768" text-anchor="middle" font-size="13">Shipment Detail</text>
+  <line x1="515" y1="780" x2="515" y2="870" stroke="#333" stroke-width="1.5" marker-end="url(#arr3)"/>
+  <circle cx="515" cy="882" r="14" fill="white" stroke="#333" stroke-width="1.5"/>
+
+  <!-- Info Box -->
+  <rect x="720" y="565" width="145" height="80" fill="white" stroke="#333" stroke-width="1.5"/>
+  <text x="792" y="585" text-anchor="middle" font-size="12">List</text>
+  <text x="792" y="602" text-anchor="middle" font-size="12">Document Info</text>
+  <text x="792" y="619" text-anchor="middle" font-size="12">Pallet/Carton Info</text>
+  <text x="792" y="636" text-anchor="middle" font-size="12">Label Info</text>
+
+  <!-- 列3 AX: 开始圆 → 接收RC -->
+  <circle cx="890" cy="68" r="14" fill="white" stroke="#333" stroke-width="1.5"/>
+  <line x1="890" y1="82" x2="890" y2="100" stroke="#333" stroke-width="1.5" marker-end="url(#arr3)"/>
+  <rect x="830" y="100" width="120" height="45" fill="white" stroke="#333" stroke-width="1.5"/>
+  <text x="890" y="128" text-anchor="middle" font-size="13">接收RC</text>
+  <text x="895" y="166" font-size="11" fill="#555">推送RC</text>
+
+  <!-- 列3 EDI: 接收RC -->
+  <line x1="890" y1="200" x2="890" y2="218" stroke="#333" stroke-width="1.5" marker-end="url(#arr3)"/>
+  <text x="895" y="217" font-size="11" fill="#555">推送RC</text>
+  <rect x="830" y="220" width="120" height="45" fill="white" stroke="#333" stroke-width="1.5"/>
+  <text x="890" y="248" text-anchor="middle" font-size="13">接收RC</text>
+
+  <!-- 列3 OMS: 接收RC -->
+  <line x1="890" y1="310" x2="890" y2="330" stroke="#333" stroke-width="1.5" marker-end="url(#arr3)"/>
+  <rect x="830" y="330" width="120" height="45" fill="white" stroke="#333" stroke-width="1.5"/>
+  <text x="890" y="358" text-anchor="middle" font-size="13">接收RC</text>
+
+  <!-- 列3 VP: 发送RC -->
+  <text x="895" y="730" font-size="11" fill="#555">发送RC</text>
+
+</svg>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+  页面 3：Direct ship to retailer (EDI直连)
+  泳道：Retailer / AX / EDI / OMS / Vendor Portal
+════════════════════════════════════════════════ -->
+<div class="page">
+<svg width="1100" height="900" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <marker id="arr4" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L8,3 z" fill="#333"/>
+    </marker>
+  </defs>
+
+  <!-- 大标题 -->
+  <text x="550" y="28" text-anchor="middle" font-size="18" font-weight="bold" fill="#111">Direct ship to retailer：Retailer直接通过EDI下单给Vendor（COSTCO、QUINCE、Wayfair等）</text>
+
+  <!-- 外框 -->
+  <rect x="0" y="45" width="1100" height="845" fill="none" stroke="#333" stroke-width="1.5"/>
+  <!-- 标签列 -->
+  <rect x="0" y="45" width="38" height="845" fill="#f7f7f7" stroke="#333" stroke-width="1"/>
+  <!-- 泳道分隔 -->
+  <line x1="0" y1="170" x2="38" y2="170" stroke="#333" stroke-width="1"/>
+  <line x1="0" y1="340" x2="38" y2="340" stroke="#333" stroke-width="1"/>
+  <line x1="0" y1="460" x2="38" y2="460" stroke="#333" stroke-width="1"/>
+  <line x1="0" y1="640" x2="38" y2="640" stroke="#333" stroke-width="1"/>
+  <text transform="translate(19,108) rotate(-90)" text-anchor="middle" font-size="12" font-weight="600">Retailer</text>
+  <text transform="translate(19,255) rotate(-90)" text-anchor="middle" font-size="12" font-weight="600">AX</text>
+  <text transform="translate(19,400) rotate(-90)" text-anchor="middle" font-size="12" font-weight="600">EDI</text>
+  <text transform="translate(19,550) rotate(-90)" text-anchor="middle" font-size="12" font-weight="600">OMS</text>
+  <text transform="translate(19,745) rotate(-90)" text-anchor="middle" font-size="11" font-weight="600">Vendor Portal</text>
+
+  <line x1="38" y1="170" x2="1100" y2="170" stroke="#ccc" stroke-width="1"/>
+  <line x1="38" y1="340" x2="1100" y2="340" stroke="#ccc" stroke-width="1"/>
+  <line x1="38" y1="460" x2="1100" y2="460" stroke="#ccc" stroke-width="1"/>
+  <line x1="38" y1="640" x2="1100" y2="640" stroke="#ccc" stroke-width="1"/>
+
+  <!-- 竖向虚线 x=330, x=700 -->
+  <line x1="330" y1="45" x2="330" y2="890" stroke="#aaa" stroke-width="1" stroke-dasharray="5,4"/>
+  <line x1="700" y1="45" x2="700" y2="890" stroke="#aaa" stroke-width="1" stroke-dasharray="5,4"/>
+
+  <!-- Retailer行: 创建PO → 推送 -->
+  <circle cx="90" cy="63" r="14" fill="white" stroke="#333" stroke-width="1.5"/>
+  <line x1="90" y1="77" x2="90" y2="95" stroke="#333" stroke-width="1.5" marker-end="url(#arr4)"/>
+  <rect x="40" y="95" width="100" height="45" fill="white" stroke="#333" stroke-width="1.5"/>
+  <text x="90" y="123" text-anchor="middle" font-size="13">创建PO</text>
+  <line x1="140" y1="118" x2="200" y2="118" stroke="#333" stroke-width="1.5" marker-end="url(#arr4)"/>
+  <text x="158" y="113" font-size="11" fill="#555">推送</text>
+  <!-- Retailer右: 接收DC + 结束圆 -->
+  <circle cx="890" cy="63" r="14" fill="white" stroke="#333" stroke-width="1.5"/>
+  <line x1="890" y1="77" x2="890" y2="95" stroke="#333" stroke-width="1.5" marker-end="url(#arr4)"/>
+  <rect x="830" y="95" width="120" height="45" fill="white" stroke="#333" stroke-width="1.5"/>
+  <text x="890" y="123" text-anchor="middle" font-size="13">接收DC</text>
+
+  <!-- AX行左: 接收PO -->
+  <text x="168" y="185" font-size="11" fill="#555">推递</text>
+  <line x1="200" y1="118" x2="200" y2="180" stroke="#333" stroke-width="1.5" marker-end="url(#arr4)"/>
+  <rect x="150" y="180" width="100" height="45" fill="white" stroke="#333" stroke-width="1.5"/>
+  <text x="200" y="208" text-anchor="middle" font-size="13">接收PO</text>
+  <line x1="200" y1="225" x2="200" y2="340" stroke="#333" stroke-width="1.5" marker-end="url(#arr4)"/>
+
+  <!-- AX行中: 接收RC -->
+  <text x="520" y="185" font-size="11" fill="#555">推送RC</text>
+  <line x1="515" y1="260" x2="515" y2="238" stroke="#333" stroke-width="1.5" marker-end="url(#arr4)"/>
+  <rect x="455" y="195" width="120" height="45" fill="white" stroke="#333" stroke-width="1.5"/>
+  <text x="515" y="223" text-anchor="middle" font-size="13">接收RC</text>
+  <text x="540" y="255" font-size="11" fill="#555">返回ACK</text>
+
+  <!-- AX行右: 接收DC -->
+  <text x="895" y="185" font-size="11" fill="#555">推送DC</text>
+  <rect x="830" y="195" width="120" height="45" fill="white" stroke="#333" stroke-width="1.5"/>
+  <text x="890" y="223" text-anchor="middle" font-size="13">接收DC</text>
+  <line x1="890" y1="240" x2="890" y2="260" stroke="#333" stroke-width="1.5"/>
+  <text x="895" y="275" font-size="11" fill="#555">推送DC</text>
+
+  <!-- EDI行左: 接收PO组建SO指定Vendor仓库 → 下发 -->
+  <line x1="200" y1="340" x2="200" y2="360" stroke="#333" stroke-width="1.5" marker-end="url(#arr4)"/>
+  <rect x="140" y="360" width="130" height="55" fill="white" stroke="#333" stroke-width="1.5"/>
+  <text x="205" y="381" text-anchor="middle" font-size="12">接收PO组建SO</text>
+  <text x="205" y="397" text-anchor="middle" font-size="12">指定Vendor仓库</text>
+  <text x="145" y="430" font-size="11" fill="#555">下发</text>
+  <line x1="200" y1="415" x2="200" y2="460" stroke="#333" stroke-width="1.5" marker-end="url(#arr4)"/>
+
+  <!-- EDI行中: 接收RC -->
+  <text x="520" y="356" font-size="11" fill="#555">推送RC</text>
+  <line x1="515" y1="380" x2="515" y2="358" stroke="#333" stroke-width="1.5" marker-end="url(#arr4)"/>
+  <rect x="455" y="363" width="120" height="45" fill="white" stroke="#333" stroke-width="1.5"/>
+  <text x="515" y="391" text-anchor="middle" font-size="13">接收RC</text>
+  <text x="540" y="420" font-size="11" fill="#555">返回ACK</text>
+
+  <!-- EDI行右: 接收DC -->
+  <text x="895" y="356" font-size="11" fill="#555">推送DC</text>
+  <rect x="830" y="363" width="120" height="45" fill="white" stroke="#333" stroke-width="1.5"/>
+  <text x="890" y="391" text-anchor="middle" font-size="13">接收DC</text>
+  <line x1="890" y1="408" x2="890" y2="445" stroke="#333" stroke-width="1.5"/>
+  <text x="895" y="445" font-size="11" fill="#555">推送DC</text>
+
+  <!-- OMS行左: 指定Vendor仓库接收PO和SO -->
+  <line x1="200" y1="460" x2="200" y2="480" stroke="#333" stroke-width="1.5" marker-end="url(#arr4)"/>
+  <rect x="130" y="480" width="145" height="55" fill="white" stroke="#333" stroke-width="1.5"/>
+  <text x="202" y="502" text-anchor="middle" font-size="13">指定Vendor仓库</text>
+  <text x="202" y="520" text-anchor="middle" font-size="13">接收PO和SO</text>
+  <line x1="202" y1="535" x2="202" y2="640" stroke="#333" stroke-width="1.5" marker-end="url(#arr4)"/>
+
+  <!-- OMS行中: 接收RC和DC + 菱形 -->
+  <line x1="515" y1="460" x2="515" y2="480" stroke="#333" stroke-width="1.5" marker-end="url(#arr4)"/>
+  <text x="520" y="478" font-size="11" fill="#555">发送RC和DC</text>
+  <rect x="450" y="480" width="130" height="45" fill="white" stroke="#333" stroke-width="1.5"/>
+  <text x="515" y="508" text-anchor="middle" font-size="13">接收RC和DC</text>
+  <line x1="515" y1="525" x2="515" y2="540" stroke="#333" stroke-width="1.5" marker-end="url(#arr4)"/>
+  <text x="520" y="542" font-size="11" fill="#555">发送RC和DC</text>
+  <polygon points="515,548 560,583 515,618 470,583" fill="white" stroke="#333" stroke-width="1.5"/>
+  <text x="515" y="586" text-anchor="middle" font-size="12">RC接收成功</text>
+  <!-- 返回ACK右 -->
+  <line x1="560" y1="583" x2="700" y2="583" stroke="#333" stroke-width="1.5"/>
+  <text x="615" y="576" font-size="11" fill="#555">返回ACK</text>
+  <line x1="700" y1="583" x2="730" y2="583" stroke="#333" stroke-width="1.5" marker-end="url(#arr4)"/>
+  <!-- 推送DC -->
+  <line x1="560" y1="618" x2="630" y2="618" stroke="#333" stroke-width="1.5"/>
+  <text x="638" y="614" font-size="11" fill="#555">推送DC</text>
+
+  <!-- OMS行右: 推送DC (连线到EDI) -->
+  <text x="895" y="475" font-size="11" fill="#555">推送DC</text>
+
+  <!-- VP行: 推送Kafka → 创建Vendor Order → 结束圆 -->
+  <text x="50" y="658" font-size="11" fill="#555">推送Kafka</text>
+  <line x1="202" y1="640" x2="202" y2="660" stroke="#333" stroke-width="1.5" marker-end="url(#arr4)"/>
+  <rect x="125" y="660" width="155" height="72" fill="white" stroke="#333" stroke-width="1.5"/>
+  <text x="202" y="680" text-anchor="middle" font-size="12">指定Vendor仓库消费消息</text>
+  <text x="202" y="697" text-anchor="middle" font-size="12">创建Vendor Order</text>
+  <text x="202" y="714" text-anchor="middle" font-size="11" fill="#555">(RN和DN都对组成)</text>
+  <line x1="202" y1="732" x2="202" y2="840" stroke="#333" stroke-width="1.5" marker-end="url(#arr4)"/>
+  <circle cx="202" cy="852" r="14" fill="white" stroke="#333" stroke-width="1.5"/>
+
+  <!-- VP中列: Shipment Confirmation → 录入+操作 → 创建 → 结束圆 -->
+  <line x1="515" y1="640" x2="515" y2="660" stroke="#333" stroke-width="1.5" marker-end="url(#arr4)"/>
+  <rect x="440" y="660" width="150" height="48" fill="white" stroke="#333" stroke-width="1.5"/>
+  <text x="515" y="679" text-anchor="middle" font-size="13">Shipment</text>
+  <text x="515" y="697" text-anchor="middle" font-size="13">Confirmation</text>
+  <line x1="515" y1="708" x2="515" y2="720" stroke="#333" stroke-width="1.5"/>
+  <line x1="515" y1="720" x2="415" y2="720" stroke="#333" stroke-width="1.5"/>
+  <line x1="415" y1="720" x2="415" y2="735" stroke="#333" stroke-width="1.5" marker-end="url(#arr4)"/>
+  <line x1="515" y1="720" x2="615" y2="720" stroke="#333" stroke-width="1.5"/>
+  <line x1="615" y1="720" x2="615" y2="735" stroke="#333" stroke-width="1.5" marker-end="url(#arr4)"/>
+  <rect x="355" y="735" width="120" height="48" fill="white" stroke="#333" stroke-width="1.5"/>
+  <text x="415" y="764" text-anchor="middle" font-size="13">录入Vessel Info</text>
+  <rect x="555" y="735" width="120" height="48" fill="white" stroke="#333" stroke-width="1.5"/>
+  <text x="615" y="754" text-anchor="middle" font-size="13">操作</text>
+  <text x="615" y="772" text-anchor="middle" font-size="13">Shipment Pocess</text>
+  <line x1="675" y1="759" x2="720" y2="759" stroke="#666" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arr4)"/>
+  <line x1="415" y1="783" x2="415" y2="800" stroke="#333" stroke-width="1.5"/>
+  <line x1="615" y1="783" x2="615" y2="800" stroke="#333" stroke-width="1.5"/>
+  <line x1="415" y1="800" x2="515" y2="800" stroke="#333" stroke-width="1.5"/>
+  <line x1="615" y1="800" x2="515" y2="800" stroke="#333" stroke-width="1.5"/>
+  <line x1="515" y1="800" x2="515" y2="813" stroke="#333" stroke-width="1.5" marker-end="url(#arr4)"/>
+  <rect x="440" y="813" width="150" height="48" fill="white" stroke="#333" stroke-width="1.5"/>
+  <text x="515" y="832" text-anchor="middle" font-size="13">创建Vendor Shiment</text>
+  <text x="515" y="849" text-anchor="middle" font-size="11" fill="#555">(可搭配多个Vendor Order创建)</text>
+  <line x1="515" y1="861" x2="515" y2="872" stroke="#333" stroke-width="1.5" marker-end="url(#arr4)"/>
+  <circle cx="515" cy="884" r="14" fill="white" stroke="#333" stroke-width="1.5"/>
+
+  <!-- Info Box -->
+  <rect x="720" y="735" width="145" height="80" fill="white" stroke="#333" stroke-width="1.5"/>
+  <text x="792" y="755" text-anchor="middle" font-size="12">List</text>
+  <text x="792" y="772" text-anchor="middle" font-size="12">Document Info</text>
+  <text x="792" y="789" text-anchor="middle" font-size="12">Pallet/Carton Info</text>
+  <text x="792" y="806" text-anchor="middle" font-size="12">Label Info</text>
+
+</svg>
+</div>
+
+</body>
+</html>

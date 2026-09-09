@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>三个业务场景流程梳理</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
+    color: #2c3e50;
+    background: #f0f0f0;
+  }
+
+  /* 每一页 A4 横向 */
+  .page {
+    width: 1123px;
+    min-height: 794px;
+    margin: 20px auto;
+    background: #fff;
+    padding: 48px 56px;
+    position: relative;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+    page-break-after: always;
+  }
+  .page:last-child { page-break-after: auto; }
+
+  /* ─── 页面标题：顶部正中间 ─── */
+  .page-title {
+    text-align: center;
+    font-size: 28px;
+    font-weight: 700;
+    color: #1a5c8a;
+    padding-bottom: 16px;
+    margin-bottom: 36px;
+    border-bottom: 3px solid #2b8cc4;
+    letter-spacing: 1px;
+  }
+  .page-subtitle {
+    text-align: center;
+    font-size: 15px;
+    color: #7f8c9a;
+    margin-top: -28px;
+    margin-bottom: 40px;
+  }
+
+  /* ─── 封面 ─── */
+  .cover-title {
+    text-align: center;
+    font-size: 40px;
+    font-weight: 800;
+    color: #1a5c8a;
+    margin-top: 200px;
+  }
+  .cover-list {
+    text-align: center;
+    font-size: 20px;
+    color: #5a6c7a;
+    margin-top: 40px;
+    line-height: 2.2;
+  }
+
+  /* ─── 流程行 ─── */
+  .section-label {
+    font-size: 16px;
+    font-weight: 700;
+    color: #2b8cc4;
+    margin: 28px 0 12px;
+    padding-left: 4px;
+  }
+  .flow-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin: 18px 0;
+  }
+  .node {
+    padding: 12px 20px;
+    background: #eaf4fb;
+    border: 1.5px solid #2b8cc4;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    color: #1a5c8a;
+    white-space: nowrap;
+  }
+  .arrow {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 120px;
+    position: relative;
+  }
+  .arrow .label {
+    font-size: 12px;
+    color: #7f8c9a;
+    margin-bottom: 2px;
+    white-space: nowrap;
+  }
+  .arrow .line {
+    width: 100%;
+    height: 0;
+    border-top: 2px solid #2b8cc4;
+    position: relative;
+  }
+  .arrow .line::after {
+    content: "";
+    position: absolute;
+    right: 0;
+    top: -5px;
+    border-left: 8px solid #2b8cc4;
+    border-top: 5px solid transparent;
+    border-bottom: 5px solid transparent;
+  }
+
+  /* 竖向分支箭头 */
+  .branch {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 8px 0;
+  }
+  .branch .label {
+    font-size: 12px;
+    color: #7f8c9a;
+    margin-bottom: 2px;
+    text-align: center;
+  }
+  .branch .vline {
+    width: 0;
+    height: 36px;
+    border-left: 2px solid #2b8cc4;
+    position: relative;
+  }
+  .branch .vline::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: -5px;
+    border-top: 8px solid #2b8cc4;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+  }
+
+  .divider-dashed {
+    border: none;
+    border-top: 1.5px dashed #b8cdd9;
+    margin: 40px 0;
+  }
+
+  /* ─── 说明区 ─── */
+  .notes {
+    background: #f2f8fc;
+    border-radius: 10px;
+    padding: 24px 28px;
+    margin-top: 40px;
+  }
+  .notes .row { margin: 10px 0; font-size: 14px; line-height: 1.7; }
+  .notes .row b { color: #1a5c8a; }
+
+  /* 页脚 */
+  .footer {
+    position: absolute;
+    bottom: 24px;
+    left: 56px;
+    right: 56px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: #aab5be;
+    border-top: 1px solid #e5e5e5;
+    padding-top: 8px;
+  }
+
+  @media print {
+    body { background: #fff; }
+    .page { margin: 0; box-shadow: none; width: 100%; min-height: 100vh; }
+    @page { size: A4 landscape; margin: 0; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══════════════ 封面 ══════════════ -->
+<div class="page">
+  <div class="cover-title">三个业务场景流程梳理</div>
+  <div class="cover-list">
+    场景一 · Costco 业务流<br>
+    场景二 · AX 业务流<br>
+    场景三 · AX 业务流（工厂发美仓）
+  </div>
+  <div class="footer"><span>三个业务场景流程梳理</span><span>1 / 4</span></div>
+</div>
+
+<!-- ══════════════ 场景一 ══════════════ -->
+<div class="page">
+  <div class="page-title">场景一 ｜ Costco 业务流</div>
+
+  <div class="section-label">接单</div>
+  <div class="flow-row">
+    <div class="node">Costco</div>
+    <div class="arrow"><span class="label">SO</span><span class="line"></span></div>
+    <div class="node">EDI</div>
+    <div class="arrow"><span class="label">DN &amp; RN</span><span class="line"></span></div>
+    <div class="node">OMS</div>
+    <div class="arrow"><span class="label">DN &amp; RN</span><span class="line"></span></div>
+    <div class="node">WMS（Vendor Portal）</div>
+  </div>
+
+  <hr class="divider-dashed">
+
+  <div class="section-label">发运</div>
+  <div class="flow-row">
+    <div class="node">WMS（Vendor Portal）</div>
+    <div class="arrow"><span class="label">RC &amp; DC</span><span class="line"></span></div>
+    <div class="node">OMS</div>
+    <div class="arrow"><span class="label">RC &amp; DC</span><span class="line"></span></div>
+    <div class="node">EDI</div>
+    <div class="arrow"><span class="label">DC</span><span class="line"></span></div>
+    <div class="node">Costco</div>
+  </div>
+
+  <div class="notes">
+    <div class="row"><b>业务说明：</b>Costco 订单通过 EDI 接入 OMS；OMS 将履约信息同步至 Vendor Portal。完成发运后，结果经 OMS 和 EDI 回传 Costco。</div>
+    <div class="row"><b>系统职责：</b>EDI 负责外部单据接入与回传；OMS 负责订单及履约编排；Vendor Portal 负责供应商侧履约协同和结果反馈。</div>
+  </div>
+
+  <div class="footer"><span>三个业务场景流程梳理</span><span>2 / 4</span></div>
+</div>
+
+<!-- ══════════════ 场景二 ══════════════ -->
+<div class="page">
+  <div class="page-title">场景二 ｜ AX 业务流</div>
+
+  <div class="section-label">接单（河南、泰国 direct to retailer）</div>
+  <div class="flow-row">
+    <div class="node">AX</div>
+    <div class="arrow"><span class="label">direct to retailer</span><span class="line"></span></div>
+    <div class="node">EDI</div>
+    <div class="arrow"><span class="label">RN</span><span class="line"></span></div>
+    <div class="node">OMS</div>
+    <div class="arrow"><span class="label">direct ship to retailer · RN</span><span class="line"></span></div>
+    <div class="node">WMS（Vendor Portal）</div>
+  </div>
+
+  <hr class="divider-dashed">
+
+  <div class="section-label">发运</div>
+  <div class="flow-row">
+    <div class="node">WMS（Vendor Portal）</div>
+    <div class="arrow"><span class="label">RC &amp; DC</span><span class="line"></span></div>
+    <div class="node">OMS</div>
+    <div class="arrow"><span class="label">RC &amp; DC</span><span class="line"></span></div>
+    <div class="node">EDI</div>
+    <div class="arrow"><span class="label">RC &amp; DC</span><span class="line"></span></div>
+    <div class="node">AX</div>
+  </div>
+
+  <div class="notes">
+    <div class="row"><b>业务说明：</b>AX 业务包含河南、泰国 direct to retailer 路径。业务信息经 EDI 进入 OMS，再由 OMS 下发至 Vendor Portal；发运结果沿原链路回传 AX。</div>
+    <div class="row"><b>系统职责：</b>EDI 负责 AX 与 OMS 之间的信息转换和传输；OMS 负责任务编排与状态管理；Vendor Portal 负责供应商直发作业及发运信息反馈。</div>
+  </div>
+
+  <div class="footer"><span>三个业务场景流程梳理</span><span>3 / 4</span></div>
+</div>
+
+<!-- ══════════════ 场景三 ══════════════ -->
+<div class="page">
+  <div class="page-title">场景三 ｜ AX 业务流（工厂发美仓）</div>
+
+  <div class="section-label">接单</div>
+  <div class="flow-row">
+    <div class="node">AX</div>
+    <div class="arrow"><span class="label">PO</span><span class="line"></span></div>
+    <div class="node">EDI</div>
+    <div class="arrow"><span class="label">PO</span><span class="line"></span></div>
+    <div class="node">OMS</div>
+    <div class="arrow"><span class="label">RN（regular）</span><span class="line"></span></div>
+    <div class="node">WMS（美仓）</div>
+  </div>
+  <div class="branch">
+    <span class="label">dispatch vendor（RN/DN） · direct ship to facility</span>
+    <span class="vline"></span>
+  </div>
+  <div class="flow-row">
+    <div class="node">WMS（Vendor Portal）</div>
+  </div>
+
+  <hr class="divider-dashed">
+
+  <div class="section-label">发运</div>
+  <div class="flow-row">
+    <div class="node">WMS（Vendor Portal）</div>
+    <div class="arrow"><span class="label">RC &amp; DC</span><span class="line"></span></div>
+    <div class="node">OMS</div>
+  </div>
+  <div class="branch">
+    <span class="label">ASN</span>
+    <span class="vline"></span>
+  </div>
+  <div class="flow-row">
+    <div class="node">WMS（美仓）</div>
+    <div class="arrow"><span class="label">update shipment detail</span><span class="line"></span></div>
+    <div class="node">OMS</div>
+  </div>
+
+  <div class="notes">
+    <div class="row"><b>业务说明：</b>接单业务线：AX 的 PO 经 EDI 进入 OMS；OMS 分别向美仓下发 RN（regular），并向 Vendor Portal 派发 RN/DN。发运业务线：Vendor Portal 向 OMS 回传 RC、DC，同时发送 ASN 至美仓；美仓向 OMS 更新 shipment detail。</div>
+    <div class="row"><b>系统职责：</b>EDI 负责 AX 与 OMS 间信息传输；OMS 负责任务分发、履约编排和状态汇总；Vendor Portal 负责供应商发运及 ASN 通知；美仓负责收货及 shipment detail 更新。</div>
+  </div>
+
+  <div class="footer"><span>三个业务场景流程梳理</span><span>4 / 4</span></div>
+</div>
+
+</body>
+</html>

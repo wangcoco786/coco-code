@@ -86,15 +86,6 @@ function getStatusSortOrder(statusName: string): number {
   return 50 // 未知状态
 }
 
-// 归一化状态桶的排序（用于计算和图表）
-const TASK_STATUS_SORT: Record<IssueStatus, number> = {
-  todo: 0,
-  in_progress: 1,
-  in_review: 2,
-  in_testing: 3,
-  done: 4,
-}
-
 const TASK_PRIORITY_SORT: Record<IssuePriority, number> = {
   P0: 0,
   P1: 1,

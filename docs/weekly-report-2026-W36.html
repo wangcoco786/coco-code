@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>Weekly Report 周报 — IDC & DTS</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: "Segoe UI", "Microsoft YaHei", "PingFang SC", sans-serif;
+    background: #eef1f5; color: #1f2430; line-height: 1.6;
+    padding: 32px 16px;
+  }
+  .page {
+    max-width: 920px; margin: 0 auto; background: #fff;
+    box-shadow: 0 4px 24px rgba(0,0,0,.1); border-radius: 14px;
+    padding: 44px 52px 36px;
+  }
+  .header {
+    text-align: center; padding-bottom: 22px; margin-bottom: 24px;
+    border-bottom: 3px solid #3b5bdb;
+  }
+  .header h1 { font-size: 25px; font-weight: 800; color: #1a2b6b; letter-spacing: .5px; }
+  .header .meta { margin-top: 8px; font-size: 13px; color: #6b7280; }
+
+  h2 {
+    font-size: 18px; font-weight: 800; color: #fff; background: #3b5bdb;
+    padding: 8px 16px; border-radius: 8px; margin: 28px 0 14px;
+  }
+  h2.dts { background: #0c8599; }
+
+  .module { margin-bottom: 20px; }
+  .module h3 {
+    font-size: 15px; font-weight: 700; color: #1a2b6b;
+    padding: 6px 0 6px 12px; border-left: 4px solid #3b5bdb; margin-bottom: 6px;
+  }
+  h2.dts ~ .module h3 { color: #0b7285; border-left-color: #0c8599; }
+
+  .sub {
+    font-size: 12.5px; font-weight: 700; margin: 11px 0 5px;
+    display: inline-block; border-radius: 4px; padding: 2px 10px; color: #fff;
+  }
+  .sub.done { background: #2b8a3e; }
+  .sub.test { background: #1971c2; }
+  .sub.dev  { background: #e8590c; }
+  .sub.plan { background: #6741d9; }
+  .sub.risk { background: #c92a2a; }
+
+  ul { margin: 4px 0 4px 28px; }
+  li { font-size: 13.5px; margin: 6px 0; }
+  li .code { color: #3b5bdb; font-weight: 700; font-size: 12.5px; }
+  li .en { display: block; color: #6b7280; font-size: 12.3px; margin-top: 1px; }
+  li ul { margin: 3px 0 4px 22px; }
+  li ul li { font-size: 12.8px; color: #555c6b; list-style: circle; margin: 3px 0; }
+  li ul li .en { font-size: 11.8px; }
+  .milestone { background: #fff3bf; color: #a1690a; font-size: 11px; font-weight: 700;
+               padding: 0 6px; border-radius: 4px; margin-left: 4px; }
+
+  .footer { margin-top: 26px; padding-top: 14px; border-top: 1px solid #e5e7eb;
+            font-size: 11px; color: #9aa1ac; text-align: center; }
+
+  @media print {
+    body { background: #fff; padding: 0; }
+    .page { box-shadow: none; border-radius: 0; max-width: 100%; padding: 20px 26px; }
+    h2, .sub, .milestone { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    @page { size: A4; margin: 12mm; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header">
+    <h1>Weekly Report 周报 — IDC &amp; DTS</h1>
+    <div class="meta">Aug 31 – Sep 06, 2026</div>
+  </div>
+
+  <!-- ===================== IDC ===================== -->
+  <h2>IDC</h2>
+
+  <!-- YMS -->
+  <div class="module">
+    <h3>YMS (TrfMS)</h3>
+
+    <div class="sub done">已上线 Released</div>
+    <ul>
+      <li><b>预约与提醒：</b>新增 Load 在 Pickup/Dropoff 时间前 2 小时的自动提醒，当 Load 未 Confirm 或未分配司机时向 Broker 发送邮件，提醒窗口支持配置（<span class="code">TRF-6120</span>）；修复预约时间高亮显示错误的问题（<span class="code">TRF-6126</span>）。
+        <span class="en"><b>Appointment &amp; reminders:</b> auto-reminder 2h before a Load's pickup/dropoff, emailing the Broker when the Load is unconfirmed or has no driver assigned; reminder window is configurable (TRF-6120). Fixed appointment-time highlight error (TRF-6126).</span></li>
+      <li><b>Shuttle 任务流转：</b>补齐两端异常处理——Dispatcher 可在 Web 端取消正在执行的任务，司机收到通知后将设备运回并拍照确认（<span class="code">TRF-6127</span>）；司机接单后无法执行时可将任务退回 NEW 状态重新调度（<span class="code">TRF-6115</span>）。
+        <span class="en"><b>Shuttle task flow:</b> completed exception handling on both ends — Dispatcher can cancel an in-progress task on Web, driver is notified to return equipment and confirm with a photo (TRF-6127); a driver who cannot execute can send the task back to NEW for re-dispatch (TRF-6115).</span></li>
+      <li><b>Check-Out 效率：</b>Check-Out Trip Info 区域直接展示 Task Status，操作员无需跳转页面即可判断任务完成情况（<span class="code">TRF-6104</span>）。
+        <span class="en"><b>Check-Out efficiency:</b> Task Status shown inline in the Check-Out Trip Info area, so operators can judge completion without switching pages (TRF-6104).</span></li>
+      <li><b>Workspace 与权限：</b>修复无 Entry List 权限用户进入 Workspace 仍显示 Entry List 的问题（<span class="code">TRF-6226</span>）；Entry List 的 Trailer/Container 搜索新增支持匹配 ET Pickup Equipment（<span class="code">TRF-6116</span>）。
+        <span class="en"><b>Workspace &amp; permission:</b> fixed Entry List still showing for users without permission (TRF-6226); Entry List Trailer/Container search now matches ET Pickup Equipment (TRF-6116).</span></li>
+      <li><b>其他：</b>Driver Whitelist 有效期逻辑优化，防止白名单无限膨胀（<span class="code">TRF-6027</span>）；园区级 QR Code 支持失效窗口内多次扫码配置（<span class="code">TRF-6118</span>）；Tag Management 新增 MULTI_TEXT 自定义字段，支持在 Load 上录入多个批次号（<span class="code">TRF-6103</span>）。
+        <span class="en"><b>Others:</b> Driver Whitelist expiry logic to prevent unbounded growth (TRF-6027); yard-level QR Code multi-scan configuration within validity window (TRF-6118); Tag Management MULTI_TEXT custom field for multiple batch numbers on a Load (TRF-6103).</span></li>
+    </ul>
+
+    <div class="sub test">已提测 &amp; 测试中 In Testing</div>
+    <ul>
+      <li>支持为 Load 添加自定义字段并支持自定义字段搜索（<span class="code">TRF-6235</span>）
+        <span class="en">Add custom fields to Load and support searching by them (TRF-6235).</span></li>
+      <li>Driver Whitelist AI/OCR 批量导入（<span class="code">TRF-6234</span>）
+        <span class="en">Driver Whitelist AI/OCR bulk import (TRF-6234).</span></li>
+      <li>鼠标悬停即可快速了解位置上的设备编号、入场信息、Load/Receipt 关联及照片，无需逐一点击弹窗（<span class="code">TRF-6124</span>）
+        <span class="en">Hover to quickly see a spot's equipment number, entry info, Load/Receipt links and photos — no need to open each popup (TRF-6124).</span></li>
+      <li>为客户提供超时计费明细报表，支持按条件筛选、导出，便于与 Carrier 对账和内部成本分析（<span class="code">TRF-5576</span>）
+        <span class="en">Dwell/overtime billing report with filtering and export, for carrier reconciliation and cost analysis (TRF-5576).</span></li>
+      <li>提升 Location Suggest Dock 推荐准确率，支持按物理布局与业务偏好为每个 Link 关系配置优先级，减少手动调整（<span class="code">TRF-5551</span>）
+        <span class="en">Improve Location Suggest Dock accuracy — configurable priority per Link based on layout &amp; business preference, reducing manual dock adjustments (TRF-5551).</span></li>
+      <li>App 端回显入参所有照片，方便审计（<span class="code">TRF-6117</span>）
+        <span class="en">App echoes all input photos for auditing (TRF-6117).</span></li>
+      <li><b>其他：</b>IOT 接口接入；agent factory YMS appointment &amp; equipment + location 管理 agent 构建；Uber EDI 接口封装。
+        <span class="en"><b>Others:</b> IoT interface integration; agent-factory build for YMS appointment &amp; equipment + location management agents; Uber EDI interface wrapper.</span></li>
+    </ul>
+
+    <div class="sub dev">开发中 In Dev</div>
+    <ul>
+      <li>Co-driver 多司机同预约校验流程（待前端对接联调）
+        <span class="en">Co-driver multi-driver same-appointment verification flow (pending front-end integration).</span></li>
+      <li>Chefman prefill &amp; appointment 云端 check-in 流程（待前端对接联调）
+        <span class="en">Chefman prefill &amp; appointment cloud check-in flow (pending front-end integration).</span></li>
+    </ul>
+
+    <div class="sub plan">下周计划 Next Week</div>
+    <ul>
+      <li>推进 IOT 园区管理<span class="en">Advance IoT yard management.</span></li>
+      <li>Co-driver &amp; Chefman prefill appointment 提测<span class="en">Submit Co-driver &amp; Chefman prefill appointment for testing.</span></li>
+      <li>Uber EDI 接口联调测试<span class="en">Uber EDI interface integration testing.</span></li>
+      <li>三星下周需求优先级确认并继续迭代<span class="en">Confirm Samsung's next-week priorities and continue iterating.</span></li>
+    </ul>
+  </div>
+
+  <!-- HRM -->
+  <div class="module">
+    <h3>HRM</h3>
+    <div class="sub done">本周 This Week</div>
+    <ul>
+      <li>打卡需求开发完毕，测试中（<span class="code">RP-1058</span>）<span class="en">Clock-in feature developed, now in testing (RP-1058).</span></li>
+      <li>LMS Employee Management agent 构建完毕（<span class="code">RP-1195</span>）<span class="en">LMS Employee Management agent built (RP-1195).</span></li>
+      <li>请假 &amp; 加班需求进入开发，预计下个迭代完成（<span class="code">RP-1161</span>）<span class="en">Leave &amp; overtime features in development, expected next iteration (RP-1161).</span></li>
+    </ul>
+    <div class="sub plan">下周计划 Next Week</div>
+    <ul><li>HRM 请假 &amp; 加班开发<span class="en">HRM leave &amp; overtime development.</span></li></ul>
+  </div>
+
+  <!-- Recruit -->
+  <div class="module">
+    <h3>Recruit</h3>
+    <div class="sub done">本周 This Week</div>
+    <ul><li>Recruit 改造整体进度 15%（<span class="code">RP-1130</span>）<span class="en">Recruit rebuild overall progress 15% (RP-1130).</span></li></ul>
+    <div class="sub plan">下周计划 Next Week</div>
+    <ul><li>Recruit 改造继续进行<span class="en">Continue the Recruit rebuild.</span></li></ul>
+  </div>
+
+  <!-- YMS-Box -->
+  <div class="module">
+    <h3>YMS-Box</h3>
+    <div class="sub done">本周 This Week</div>
+    <ul>
+      <li>Check-In 流程开发完毕，明天串联流程（<span class="code">RP-1206</span>）<span class="en">Check-In flow developed; end-to-end run scheduled tomorrow (RP-1206).</span></li>
+      <li>BOX 上跑车牌识别与 USDOT 识别小模型，本地用 22 个车辆入场有效视频流验证，USDOT 识别率可达 90%（<span class="code">RP-1160</span>）<span class="en">Ran plate &amp; USDOT recognition models on the BOX; validated with 22 valid vehicle-entry video streams locally, USDOT recognition rate up to 90% (RP-1160).</span></li>
+    </ul>
+    <div class="sub plan">下周计划 Next Week</div>
+    <ul><li>BOX 新方案软件部分改造点梳理<span class="en">Scope software changes for the new BOX solution.</span></li></ul>
+  </div>
+
+  <!-- IAM -->
+  <div class="module">
+    <h3>IAM</h3>
+    <div class="sub done">本周 This Week</div>
+    <ul>
+      <li>Agent 搭建：Permission 已搭建完毕，整体进度 50%，明天完成 Client Agent 构建（<span class="code">RP-1200</span>）<span class="en">Agent build: Permission agent done, overall 50%; Client agent to be finished tomorrow (RP-1200).</span></li>
+    </ul>
+  </div>
+
+  <!-- APS -->
+  <div class="module">
+    <h3>APS</h3>
+
+    <div class="sub dev">进行中 In Progress</div>
+    <ul>
+      <li>人员借调功能 Borrow Staff Feature — 联调测试中（<span class="code">APS-1561</span>）<span class="en">Borrow Staff Feature — in integration testing (APS-1561).</span>
+        <ul>
+          <li>支持跨团队人员借调管理<span class="en">Cross-team staff borrowing management.</span></li>
+          <li>包含借调申请、Team Manager 审批流程<span class="en">Borrow request &amp; Team Manager approval flow.</span></li>
+          <li>借调状态追踪<span class="en">Borrow status tracking.</span></li>
+        </ul>
+      </li>
+      <li>消息中心功能 Message Center Feature — 联调测试中（<span class="code">APS-1562</span>）<span class="en">Message Center Feature — in integration testing (APS-1562).</span>
+        <ul>
+          <li>统一消息通知中心<span class="en">Unified message/notification center.</span></li>
+          <li>消息分类管理<span class="en">Message category management.</span></li>
+        </ul>
+      </li>
+    </ul>
+
+    <div class="sub done">已交付上线 Released</div>
+    <ul>
+      <li>APS 仓库权限同步 WMS（<span class="code">APS-1574</span>）——打通 APS 与 WMS 仓库数据权限，实现权限自动同步，减少人工维护成本<span class="en">APS warehouse permission sync to WMS (APS-1574) — connects APS and WMS warehouse data permissions with automatic sync, reducing manual maintenance.</span></li>
+      <li>APS AI chatbox agent - 权限 <span class="milestone">里程碑 MILESTONE</span>（<span class="code">APS-1584</span>）——本次上线 AI Agent 涵盖 6 大能力模块，基于用户菜单权限精细化控制：<span class="en">APS AI chatbox agent - permissions (APS-1584) — this release covers 6 capability modules, finely controlled by user menu permissions:</span>
+        <ul>
+          <li>搜索员工、按工号查询员工详情<span class="en">Search employees, look up details by employee ID.</span></li>
+          <li>搜索 Team、按 Facility 查询 Team、查询 Shift<span class="en">Search Team, query Team by Facility, query Shift.</span></li>
+          <li>查看/编辑 Matrix、Efficiency、SLA、CutOffTime 配置<span class="en">View/edit Matrix, Efficiency, SLA, CutOffTime configs.</span></li>
+          <li>发送 Labor Planning Report<span class="en">Send Labor Planning Report.</span></li>
+          <li>查看/编辑 Facility 及 Facility 配置<span class="en">View/edit Facility and Facility configs.</span></li>
+          <li>查询订单状态、Team 分配情况<span class="en">Query order status and Team allocation.</span></li>
+        </ul>
+      </li>
+    </ul>
+
+    <div class="sub plan">下周计划 Next Week</div>
+    <ul>
+      <li>推动人员借调、消息中心功能落地测试完成<span class="en">Drive Borrow Staff &amp; Message Center to complete testing.</span></li>
+      <li>Import Schedule - Batch Import Personnel Assignment<span class="en">Import Schedule - Batch Import Personnel Assignment.</span></li>
+      <li>AI Chatbox 实现 Team Setting 增删改查流程、工序及工序过滤器查询<span class="en">AI Chatbox: Team Setting CRUD flow, process &amp; process-filter queries.</span></li>
+    </ul>
+  </div>
+
+  <!-- IOT -->
+  <div class="module">
+    <h3>IOT &amp; EE</h3>
+    <div class="sub done">本周 This Week</div>
+    <ul>
+      <li>四足机器人对接及推动工作 → <b>20%</b><span class="en">Quadruped-robot integration &amp; coordination → 20%.</span></li>
+      <li>Yard Location 主数据管理解决方案 → <b>已完成</b><span class="en">Yard Location master-data management solution → Done.</span></li>
+      <li>Yard Location Spot 数据确认推动 → <b>50%</b>（仓储设计人员文静正在更新 Valley View spot location 数据，已完成 70%；同时与 Mo 沟通确认算法与 YMS 的 spot 位置）<span class="en">Yard Location Spot data confirmation → 50% (warehouse designer Wenjing updating Valley View spot location data, 70% done; aligning with Mo on the algorithm and YMS spot positions).</span></li>
+      <li>产品 Roadmap 规划 → <b>5%</b>（delay 状态，优先完成主数据管理方案）<span class="en">Product roadmap planning → 5% (delayed, prioritizing the master-data solution).</span></li>
+      <li>YMS-GATE 对接需求梳理及功能设计 → <b>已完成</b><span class="en">YMS-GATE integration requirements &amp; design → Done.</span></li>
+      <li>GIS-APS 作业里程分析，需求梳理及功能设计 → <b>60%</b><span class="en">GIS-APS work-mileage analysis, requirements &amp; design → 60%.</span></li>
+    </ul>
+    <div class="sub plan">下周计划 Next Week</div>
+    <ul>
+      <li>推动开发 Yard Location Spot 主数据管理功能<span class="en">Drive development of Yard Location Spot master-data management.</span></li>
+      <li>产品 Roadmap 规划完成<span class="en">Complete product roadmap planning.</span></li>
+      <li>GIS-APS 作业里程分析需求梳理及功能设计完成<span class="en">Finish GIS-APS work-mileage analysis requirements &amp; design.</span></li>
+      <li>推动开发 GIS-APS 作业里程分析功能<span class="en">Drive development of the GIS-APS work-mileage analysis feature.</span></li>
+      <li>推动四足机器人对接及巡检功能开发完成并上线<span class="en">Drive quadruped-robot integration &amp; inspection to completion and launch.</span></li>
+      <li>YMS-GATE 验收并上线<span class="en">YMS-GATE acceptance and launch.</span></li>
+    </ul>
+    <div class="sub risk">当前卡点 / 风险点 Risks</div>
+    <ul>
+      <li>Marco 的四足机器人对接进度过慢，该任务持续处于 pending 状态，需持续关注。<span class="en">Marco's quadruped-robot integration is progressing too slowly and has been stuck in pending; needs ongoing attention.</span></li>
+      <li>Yard Location Spot 数据确认需现场人员基于 GIS 地图复核 YMS 与 Marco 团队的 SPOT 点位关系，需与美国团队沟通确认（存在时效性和准确性挑战），需持续关注。<span class="en">Yard Location Spot confirmation needs on-site staff to cross-check the SPOT relationships between YMS and Marco's team on the GIS map, requiring alignment with the US team (timeliness &amp; accuracy challenges); needs ongoing attention.</span></li>
+    </ul>
+  </div>
+
+  <!-- ===================== DTS ===================== -->
+  <h2 class="dts">DTS</h2>
+
+  <div class="module">
+    <h3>Linker — OMS V3 / DI / Client Portal</h3>
+    <div class="sub done">本周 This Week</div>
+    <ul>
+      <li><b>OMS V3：</b>Glory 库存同步设置发布；PO / 零售商映射推进；可配置自动重试框架落地。<span class="en"><b>OMS V3:</b> Glory inventory-sync settings released; PO / retailer mapping advanced; configurable auto-retry framework landed.</span></li>
+      <li><b>DI：</b>多项 Small Parcel 承运商修复（FedEx/UPS/USPS、Amazon token、scan form）；NetSuite（Stron）集成工作流关闭。<span class="en"><b>DI:</b> multiple Small-Parcel carrier fixes (FedEx/UPS/USPS, Amazon token, scan form); NetSuite (Stron) integration workflows closed.</span></li>
+      <li><b>Client Portal 3.0：</b>索赔/争议库存数量字段与 BNP 同步发布；GA4 事件埋点上线。<span class="en"><b>Client Portal 3.0:</b> claim/dispute inventory-count field + BNP sync released; GA4 event tracking live.</span></li>
+    </ul>
+    <div class="sub plan">下周计划 Next Week</div>
+    <ul>
+      <li><b>OMS V3：</b>取消出库与 PO 优化、OMS AI 助手、Shopify 风险订单控制。<span class="en"><b>OMS V3:</b> cancel-outbound &amp; PO refinements, OMS AI Assistant, Shopify risk-order control.</span></li>
+      <li><b>DI：</b>Walmart DSV/B2B、Amazon FBM/FBA、在线支付（Stripe/PayPal/Axia）、EDI 180 出站。<span class="en"><b>DI:</b> Walmart DSV/B2B, Amazon FBM/FBA, online payments (Stripe/PayPal/Axia), EDI 180 outbound.</span></li>
+      <li><b>Client Portal 3.0：</b>按角色与租户的权限控制、导航重构、账户管理。<span class="en"><b>Client Portal 3.0:</b> role- &amp; tenant-based permission control, navigation redesign, account management.</span></li>
+    </ul>
+  </div>
+
+  <div class="footer">Aug 31 – Sep 06, 2026 · IDC &amp; DTS Weekly Report</div>
+
+</div>
+</body>
+</html>

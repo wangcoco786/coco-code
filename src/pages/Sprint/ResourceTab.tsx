@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, lazy, Suspense } from 'react'
 import type { PlatformIssue, DeveloperProfile, DeveloperSortKey, TimeRange } from '@/types/platform'
 import {
   computeDeveloperProfiles,
@@ -10,9 +10,11 @@ import {
 } from '@/lib/workloadCalculator'
 import { useI18n } from '@/context/I18nContext'
 import type { TranslationKey } from '@/i18n'
-import { HeatmapChart, TimeRangeSelector } from '@/components/Charts'
+import { TimeRangeSelector } from '@/components/Charts'
 import { computeHeatmap } from '@/lib/chartDataEngine'
 import styles from './ResourceTab.module.css'
+
+const HeatmapChart = lazy(() => import('@/components/Charts/HeatmapChart'))
 
 const JIRA_BASE_URL = import.meta.env.VITE_JIRA_BASE_URL || ''
 
@@ -425,7 +427,9 @@ export default function ResourceTab({ issues }: ResourceTabProps) {
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', marginBottom: 8 }}>
             <TimeRangeSelector value={heatmapTimeRange} onChange={setHeatmapTimeRange} />
           </div>
-          <HeatmapChart data={heatmapData} title={t('resource.teamPerformanceHeatmap')} />
+          <Suspense fallback={<div style={{ height: 300, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#999' }}>Loading chart...</div>}>
+            <HeatmapChart data={heatmapData} title={t('resource.teamPerformanceHeatmap')} />
+          </Suspense>
         </div>
       )}
 

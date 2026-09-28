@@ -1,4 +1,4 @@
-﻿import { useState, useMemo, useEffect, useRef } from 'react'
+﻿import { useState, useMemo, useEffect, useRef, lazy, Suspense } from 'react'
 import { useApp } from '@/context/AppContext'
 import {
   useActiveSprintIssuesByProject,
@@ -12,8 +12,10 @@ import type { IssueStatus, IssuePriority, PlatformIssue, TimeRange, VelocityReco
 import ResourceTab from './ResourceTab'
 import ChangeTab from './ChangeTab'
 import AIInsight from '@/components/AIInsight/AIInsight'
-import { CFDChart, TimeRangeSelector } from '@/components/Charts'
+import { TimeRangeSelector } from '@/components/Charts'
 import { computeCFD } from '@/lib/chartDataEngine'
+
+const CFDChart = lazy(() => import('@/components/Charts/CFDChart'))
 import { predictSprintCompletion, shouldTriggerAlert } from '@/lib/predictionEngine'
 import styles from './Sprint.module.css'
 
@@ -659,7 +661,9 @@ function CFDSection({ issues, sprint }: CFDSectionProps) {
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', marginBottom: 8 }}>
         <TimeRangeSelector value={timeRange} onChange={setTimeRange} />
       </div>
-      <CFDChart data={cfdData} title={t('chart.cumulativeFlowDiagram')} />
+      <Suspense fallback={<div style={{ height: 300, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#999' }}>Loading chart...</div>}>
+        <CFDChart data={cfdData} title={t('chart.cumulativeFlowDiagram')} />
+      </Suspense>
     </div>
   )
 }

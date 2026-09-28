@@ -1,0 +1,932 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PMO Resource Dashboard – 2026-09-28</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif; background: #f4f6f9; color: #1a1a2e; font-size: 14px; }
+
+  .page-header { background: #fff; border-bottom: 3px solid #3b5bdb; padding: 20px 32px; display: flex; align-items: center; justify-content: space-between; }
+  .page-header h1 { font-size: 22px; font-weight: 700; color: #1a1a2e; }
+  .page-header .subtitle { font-size: 13px; color: #666; margin-top: 3px; }
+  .page-header .date-badge { background: #eef2ff; color: #3b5bdb; font-size: 12px; font-weight: 600; padding: 4px 12px; border-radius: 20px; }
+
+  .container { max-width: 1400px; margin: 0 auto; padding: 24px 32px; }
+
+  /* ── Summary Cards ── */
+  .summary-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; margin-bottom: 32px; }
+  .summary-card { background: #fff; border-radius: 10px; padding: 20px; border: 1px solid #e8ecf0; text-align: center; }
+  .summary-card .num { font-size: 36px; font-weight: 800; line-height: 1; }
+  .summary-card .lbl { font-size: 12px; color: #666; margin-top: 6px; line-height: 1.4; }
+  .summary-card.total .num { color: #1a1a2e; }
+  .summary-card.bj .num { color: #3b5bdb; }
+  .summary-card.xmn .num { color: #0ca678; }
+  .summary-card.dup .num { color: #f76707; }
+  .summary-card.unique .num { color: #7048e8; }
+
+  /* ── Section Headers ── */
+  .section-header { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; margin-top: 8px; }
+  .section-header h2 { font-size: 17px; font-weight: 700; }
+  .section-header .tag { font-size: 11px; font-weight: 600; padding: 2px 10px; border-radius: 12px; }
+  .tag-bj { background: #dbe4ff; color: #3b5bdb; }
+  .tag-xmn { background: #d3f9d8; color: #0ca678; }
+  .tag-dup { background: #ffe8cc; color: #f76707; }
+
+  /* ── Duplicate Section ── */
+  .dup-box { background: #fff; border-radius: 10px; border: 1px solid #ffe0b2; padding: 20px; margin-bottom: 32px; }
+  .dup-box .dup-intro { font-size: 13px; color: #888; margin-bottom: 14px; }
+  .dup-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+  .dup-tag { background: #fff3e0; border: 1px solid #ffcc80; color: #e65100; font-size: 12px; padding: 4px 12px; border-radius: 20px; }
+
+  /* ── City layout ── */
+  .city-section { margin-bottom: 40px; }
+  .city-label { display: inline-flex; align-items: center; gap: 8px; font-size: 16px; font-weight: 700; margin-bottom: 16px; }
+  .city-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .dot-bj { background: #3b5bdb; }
+  .dot-xmn { background: #0ca678; }
+
+  /* ── Dept Cards ── */
+  .dept-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; }
+  .dept-card { background: #fff; border-radius: 10px; border: 1px solid #e8ecf0; cursor: pointer; transition: box-shadow .15s, transform .15s; overflow: hidden; }
+  .dept-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,.12); transform: translateY(-2px); }
+  .dept-card .dc-head { padding: 14px 16px 10px; border-bottom: 1px solid #f0f0f0; }
+  .dept-card .dc-name { font-size: 13px; font-weight: 700; color: #1a1a2e; line-height: 1.3; }
+  .dept-card .dc-count { font-size: 28px; font-weight: 800; color: #3b5bdb; margin-top: 4px; line-height: 1; }
+  .dept-card.xmn-card .dc-count { color: #0ca678; }
+  .dept-card .dc-foot { padding: 8px 16px; font-size: 11px; color: #aaa; }
+  .dept-card .dc-roles { display: flex; flex-wrap: wrap; gap: 4px; padding: 8px 16px 12px; }
+  .role-pill { background: #f0f4ff; color: #3b5bdb; font-size: 10px; padding: 2px 8px; border-radius: 10px; }
+  .dept-card.xmn-card .role-pill { background: #f0fdf4; color: #0ca678; }
+
+  /* ── Modal ── */
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 1000; align-items: center; justify-content: center; }
+  .modal-overlay.open { display: flex; }
+  .modal { background: #fff; border-radius: 14px; width: 680px; max-width: 95vw; max-height: 85vh; overflow: hidden; display: flex; flex-direction: column; }
+  .modal-header { padding: 20px 24px 16px; border-bottom: 1px solid #eee; display: flex; align-items: center; justify-content: space-between; }
+  .modal-header h3 { font-size: 17px; font-weight: 700; }
+  .modal-close { background: none; border: none; font-size: 22px; cursor: pointer; color: #888; line-height: 1; padding: 0 4px; }
+  .modal-close:hover { color: #333; }
+  .modal-body { overflow-y: auto; padding: 20px 24px; }
+  .modal-stat { display: flex; gap: 20px; margin-bottom: 16px; flex-wrap: wrap; }
+  .modal-stat-item { text-align: center; }
+  .modal-stat-item .msn { font-size: 24px; font-weight: 800; color: #3b5bdb; }
+  .modal-stat-item .msl { font-size: 11px; color: #888; }
+  .modal-subgroup { margin-bottom: 16px; }
+  .modal-subgroup h4 { font-size: 12px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 8px; border-bottom: 1px solid #f0f0f0; padding-bottom: 4px; }
+  .people-list { display: flex; flex-wrap: wrap; gap: 6px; }
+  .person-chip { background: #f5f5f5; border: 1px solid #e0e0e0; color: #333; font-size: 12px; padding: 4px 12px; border-radius: 20px; }
+  .person-chip .ptitle { font-size: 10px; color: #999; display: block; }
+
+  /* ── Footer ── */
+  .page-footer { text-align: center; padding: 20px; color: #bbb; font-size: 12px; }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <div>
+    <h1>PMO Resource Dashboard</h1>
+    <div class="subtitle">北京 · 厦门人员分布总览 | Beijing & Xiamen Headcount</div>
+  </div>
+  <div class="date-badge">2026-09-28</div>
+</div>
+
+<div class="container">
+
+  <!-- ── Summary ── -->
+  <div class="summary-grid">
+    <div class="summary-card total">
+      <div class="num">291</div>
+      <div class="lbl">总记录数<br>Total Records</div>
+    </div>
+    <div class="summary-card bj">
+      <div class="num">139</div>
+      <div class="lbl">北京人员<br>Beijing Headcount</div>
+    </div>
+    <div class="summary-card xmn">
+      <div class="num">152</div>
+      <div class="lbl">厦门人员<br>Xiamen Headcount</div>
+    </div>
+    <div class="summary-card dup">
+      <div class="num">22</div>
+      <div class="lbl">跨城市重复<br>Cross-city Duplicates</div>
+    </div>
+    <div class="summary-card unique">
+      <div class="num">269</div>
+      <div class="lbl">去重总人数<br>Total Unique People</div>
+    </div>
+  </div>
+
+  <!-- ── Duplicates ── -->
+  <div class="section-header">
+    <h2>跨城市重复人员 Cross-city Duplicates</h2>
+    <span class="tag tag-dup">同时出现在北京和厦门名单中</span>
+  </div>
+  <div class="dup-box">
+    <div class="dup-intro">以下 22 人同时出现在北京和厦门通讯录中（双城成员 / dual-location members）</div>
+    <div class="dup-tags">
+      <span class="dup-tag">Hanson Wang (王海生)</span>
+      <span class="dup-tag">Junjun Su (苏军军)</span>
+      <span class="dup-tag">Nancy Wu (吴琼)</span>
+      <span class="dup-tag">Pengxiang Ning (宁鹏翔)</span>
+      <span class="dup-tag">Torin (Torin Lu)</span>
+      <span class="dup-tag">Yuehua Wu (武月华)</span>
+      <span class="dup-tag">Yuxin Guo (郭育鑫)</span>
+      <span class="dup-tag">Anne Liu (刘翠雪)</span>
+      <span class="dup-tag">Dimon (Dimon Su)</span>
+      <span class="dup-tag">Eileen (Eileen Chen)</span>
+      <span class="dup-tag">Xion Li (李雄飞)</span>
+      <span class="dup-tag">Chi Wei (魏迟)</span>
+      <span class="dup-tag">Deshuai Zhu (朱德帅)</span>
+      <span class="dup-tag">Sam (Sam Huang)</span>
+      <span class="dup-tag">Rainy (Rainy Wang)</span>
+      <span class="dup-tag">Yuna (Yuna Wu)</span>
+      <span class="dup-tag">Esther (Esther Chen)</span>
+      <span class="dup-tag">Matt (Matt Wang)</span>
+      <span class="dup-tag">Soren (Soren Su)</span>
+      <span class="dup-tag">Wade (Wade Zhang)</span>
+      <span class="dup-tag">Charles (Charles Zeng)</span>
+      <span class="dup-tag">Nathan (Nathan Chen)</span>
+    </div>
+  </div>
+
+  <!-- ── Beijing ── -->
+  <div class="city-section">
+    <div class="city-label">
+      <span class="city-dot dot-bj"></span>
+      北京 Beijing &nbsp;·&nbsp; <span style="color:#3b5bdb;font-weight:800;">139人</span>
+    </div>
+    <div class="dept-grid" id="bj-grid"></div>
+  </div>
+
+  <!-- ── Xiamen ── -->
+  <div class="city-section">
+    <div class="city-label">
+      <span class="city-dot dot-xmn"></span>
+      厦门 Xiamen &nbsp;·&nbsp; <span style="color:#0ca678;font-weight:800;">152人</span>
+    </div>
+    <div class="dept-grid" id="xmn-grid"></div>
+  </div>
+
+</div>
+
+<div class="page-footer">PMO Resource Dashboard · Data as of 2026-09-28 · 总计 269 unique people</div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modal" onclick="closeModal(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modal-title"></h3>
+      <button class="modal-close" onclick="document.getElementById('modal').classList.remove('open')">×</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+
+<script>
+// ─────────────────────────────────────────────
+//  DATA
+// ─────────────────────────────────────────────
+
+const bjData = {
+  "Linker": {
+    count: 34,
+    city: "bj",
+    subgroups: {
+      "OMS & DI": [
+        {name:"Hao Yan(闫浩)", title:"Team Leader"},
+        {name:"Bin Wang(王斌)", title:"Software Engineer"},
+        {name:"Fangjie Deng(邓芳杰)", title:"Software Engineer"},
+        {name:"Fuzheng Wang(王傅正)", title:"Software Engineer"},
+        {name:"Hongming Dou(豆红明)", title:"Software Engineer"},
+        {name:"Naiveson Li(李建钊)", title:"Software Engineer"},
+        {name:"Shuaishuai Zhang(张帅帅)", title:"Software Engineer"},
+      ],
+      "Implementation (EDI)": [
+        {name:"Shelia Sun(孙榕)", title:"EDI高级经理"},
+        {name:"Eaden Wu(伍志强)", title:"EDI高级工程师"},
+        {name:"Mia Chen(陈朝美)", title:"EDI高级工程师"},
+        {name:"Jingxuan Liu（刘竞轩）", title:"EDI工程师"},
+        {name:"Linggang Wu（吴令刚）", title:"EDI工程师"},
+        {name:"Livia Dai(戴涓)", title:"EDI工程师"},
+        {name:"Wendy Sun（孙盼）", title:"EDI Engineer"},
+        {name:"Yuwei Zhang（张育玮）", title:"EDI工程师"},
+      ],
+      "BA": [
+        {name:"Spencer Zhang(张雨竹)", title:"BA"},
+        {name:"Yujuan Wang（王玉娟）", title:"BA"},
+        {name:"Zhenyan Guo(郭振雁)", title:"BA"},
+      ],
+      "Client Portal": [
+        {name:"Tianhao Cui(崔天昊)", title:"Team Leader"},
+        {name:"Deshuai Shi（师德帅）", title:"Software Engineer"},
+        {name:"Yongqiang Zheng(郑永强)", title:"Software Engineer"},
+      ],
+      "Intern": [
+        {name:"Fulin Song（宋福霖）", title:"Intern"},
+        {name:"Huiqiang Wu（武惠强）", title:"Intern"},
+        {name:"Jialuo Cai（蔡佳洛）", title:"Intern"},
+        {name:"Qinwei Cui（崔秦玮）", title:"Intern"},
+        {name:"Weihao Luo（罗炜昊）", title:"Intern"},
+      ],
+      "QA": [
+        {name:"Eddie Yang(杨梦天)", title:"QA"},
+        {name:"Limin Cao（曹利民）", title:"QA"},
+      ],
+      "Others": [
+        {name:"Coco Wang(汪随厉)", title:"PM Supervisor"},
+        {name:"Victor Cui（崔翔）", title:"Senior BSD"},
+        {name:"Xiankun Zhang(张宪坤)", title:"Software Engineer"},
+        {name:"Emma Hua(华宇)", title:"Marketplace Operations Manager"},
+        {name:"Long Shan(单龙)", title:"Team Leader (Marketing CMS)"},
+        {name:"Shiqing Cao（曹世青）", title:"Software Engineer (Payment)"},
+        {name:"Manman Ge(葛曼曼)", title:"Software Engineer (Ship)"},
+      ],
+    }
+  },
+  "Enterprise Applications Group (EAG)": {
+    count: 19,
+    city: "bj",
+    subgroups: {
+      "Calculation Engine": [
+        {name:"Guiqian Zhang(张贵谦)", title:"Application Engineer"},
+        {name:"Jinjin Guo(郭金金)", title:"QA"},
+        {name:"Yifan Liu（刘一凡）", title:"Application Engineer"},
+        {name:"Zhenyan Wang(王振炎)", title:"Application Engineer"},
+      ],
+      "Fulfillment & Foundation": [
+        {name:"Meng Liang(梁萌)", title:"Team Leader"},
+        {name:"Lee LI(李鑫)", title:"Application Engineer"},
+      ],
+      "CRM & VRM": [
+        {name:"Kai Li(李恺)", title:"Team Leader"},
+        {name:"May Wu(武玥)", title:"BA"},
+      ],
+      "RMS & CYC": [
+        {name:"Sam(Sam Huang)", title:"Team Leader"},
+        {name:"Aimee Cao(曹浩然)", title:"Software Engineer"},
+      ],
+      "Financial": [
+        {name:"Jiqing Yang(杨吉清)", title:"Team Leader"},
+        {name:"Fangli Ma（马方利）", title:"Financial Assistant"},
+        {name:"Yiming Zhang（张一明）", title:"Financial Assistant"},
+      ],
+      "WFE & Apihub": [
+        {name:"Lei Zhang(张蕾)", title:"Team Leader"},
+      ],
+      "Management": [
+        {name:"Alan Li(李威)", title:"Senior BSD"},
+        {name:"Cunliang Gao（高存良）", title:"DBA Engineer"},
+        {name:"Listen Li(李森)", title:"QA"},
+        {name:"Peng Li(李鹏)", title:"Software Engineer"},
+        {name:"Tierui Liu(刘铁锐)", title:"PM"},
+        {name:"Xiao Fan(范阳景)", title:"PM"},
+      ],
+    }
+  },
+  "IDC Intelligent Dispatch Center": {
+    count: 18,
+    city: "bj",
+    subgroups: {
+      "YMS": [
+        {name:"Matt(Matt Wang)", title:"Team Leader"},
+        {name:"Esther(Esther Chen)", title:"QA"},
+        {name:"Soren(Soren Su)", title:"Software Engineer"},
+        {name:"Wade(Wade Zhang)", title:"Software Engineer"},
+        {name:"Zhanpeng Li(李占鹏)", title:"Software Engineer"},
+      ],
+      "HRM & Recruit": [
+        {name:"Yihuan Yang（杨易寰）", title:"Team Leader"},
+        {name:"Hua Liu(刘华)", title:"Software Engineer"},
+        {name:"Jack Wang(王炳午)", title:"Software Engineer"},
+        {name:"Xuan Zhao（赵煊）", title:"Software Engineer"},
+      ],
+      "APS": [
+        {name:"Rainy(Rainy Wang)", title:"Team Leader"},
+        {name:"Yuna(Yuna Wu)", title:"QA"},
+      ],
+      "IoT": [
+        {name:"Shihe Li（李世河）", title:"Software Engineer"},
+        {name:"Zhende Gu（顾振德）", title:"Software Engineer"},
+      ],
+      "General": [
+        {name:"Arthur Liu（刘亚斌）", title:"BSD"},
+        {name:"Hao Dong（董浩）", title:"Software Engineer"},
+        {name:"Heng Zhang（张恒）", title:"QA"},
+        {name:"Mingqiang Zhu（朱明强）", title:"Software Engineer"},
+        {name:"Yong Wei（魏永）", title:"Software Engineer"},
+        {name:"Humeng Zuo（左胡萌）", title:"Intern"},
+      ],
+    }
+  },
+  "AI Marketplace": {
+    count: 8,
+    city: "bj",
+    subgroups: {
+      "AI Delivery": [
+        {name:"Torin(Torin Lu)", title:"Team Leader"},
+        {name:"Hanson Wang(王海生)", title:"高级产品经理"},
+        {name:"Junjun Su（苏军军）", title:"AI Software Engineer"},
+        {name:"Nancy Wu（吴琼）", title:"FDE"},
+        {name:"Pengxiang Ning（宁鹏翔）", title:"AI Software Engineer"},
+        {name:"Yuehua Wu（武月华）", title:"FDE"},
+        {name:"Yuxin Guo（郭育鑫）", title:"FDE"},
+      ],
+      "AI Products": [
+        {name:"Anne Liu（刘翠雪）", title:"Business Analyst"},
+      ],
+    }
+  },
+  "Semantic AI Layer": {
+    count: 8,
+    city: "bj",
+    subgroups: {
+      "Team": [
+        {name:"Lingge Zhang（张凌阁）", title:"AI研发经理"},
+        {name:"Lulu Zhao（赵路路）", title:"高级产品经理"},
+        {name:"Bingyi Chen（陈炳屹）", title:"BA"},
+        {name:"Guobin Sun（孙国彬）", title:"Software Engineer"},
+        {name:"Hang Zhong（钟航）", title:"FDE"},
+        {name:"Nix Li(李鹏飞)", title:"Software Engineer"},
+        {name:"Shitong Li（李仕通）", title:"Software Engineer"},
+        {name:"Yaowei Feng(冯耀威)", title:"FDE"},
+      ]
+    }
+  },
+  "AI-Agent": {
+    count: 7,
+    city: "bj",
+    subgroups: {
+      "Team": [
+        {name:"Zhan Ren(任展)", title:"高级研发经理"},
+        {name:"Mingzhe Cao(曹铭哲)", title:"Software Engineer"},
+        {name:"Wenjian Li（李文剑）", title:"Large Model Development Engineer"},
+        {name:"Xiaokui Cui(崔晓奎)", title:"AI Engineer"},
+        {name:"Xiuli Gao(高秀丽)", title:"Software Engineer"},
+        {name:"Kun Huang（黄昆）", title:"Intern"},
+        {name:"Zixuan Tang（唐子轩）", title:"Intern"},
+      ]
+    }
+  },
+  "BI": {
+    count: 6,
+    city: "bj",
+    subgroups: {
+      "Team": [
+        {name:"Eric Tan(谭幸)", title:"Team Lead"},
+        {name:"Cuiping He(何翠平)", title:"BI工程师"},
+        {name:"Dimon(Dimon Su)", title:"BI"},
+        {name:"Eileen(Eileen Chen)", title:"BI"},
+        {name:"Xinyu Xue(薛新宇)", title:"BI工程师"},
+        {name:"Xiong Qiao(乔雄)", title:"BI工程师"},
+      ]
+    }
+  },
+  "IT (Beijing)": {
+    count: 6,
+    city: "bj",
+    subgroups: {
+      "Team": [
+        {name:"Mike Wang（王之业）", title:"IT总监"},
+        {name:"Zhiwei Liu(刘志伟)", title:"高级系统工程师"},
+        {name:"Cliz Gao(高鹏)", title:"网络工程师"},
+        {name:"Qingmin Li(栗庆民)", title:"网络安全工程师"},
+        {name:"Xiaolei Sun（孙小雷）", title:"系统工程师"},
+        {name:"Yangyang Yang（杨洋洋）", title:"系统工程师"},
+      ]
+    }
+  },
+  "Supply BA Team": {
+    count: 6,
+    city: "bj",
+    subgroups: {
+      "Team": [
+        {name:"Wei Liu（刘威）", title:"高级产品经理"},
+        {name:"Charles(Charles Zeng)", title:"BA (APS)"},
+        {name:"Peijia Li（李沛珈）", title:"BA (HRM)"},
+        {name:"Jiaming Wang（王佳明）", title:"高级产品经理 (IOT)"},
+        {name:"Nathan(Nathan Chen)", title:"项目产品经理 (YMS)"},
+        {name:"Shuo Wang(王硕)", title:"BA (YMS)"},
+      ]
+    }
+  },
+  "Architecture & Platform": {
+    count: 5,
+    city: "bj",
+    subgroups: {
+      "Team": [
+        {name:"John Du(杜军红)", title:"高级架构工程师"},
+        {name:"Haiyu Song（宋海宇）", title:"Software Engineer"},
+        {name:"Yuntang Li（李运堂）", title:"DBA高级工程师"},
+        {name:"Hao Jiang（姜昊）", title:"Intern"},
+        {name:"Haoyu Xiong（熊浩宇）", title:"Intern"},
+      ]
+    }
+  },
+  "WCS": {
+    count: 5,
+    city: "bj",
+    subgroups: {
+      "Team": [
+        {name:"Brant Ji(纪如义)", title:"规划经理"},
+        {name:"Neil Zhou(周园)", title:"设备经理"},
+        {name:"Gavin Yang(杨中良)", title:"BA"},
+        {name:"Jian Li（李健）", title:"规划工程师"},
+        {name:"Wanlong Ji（季万龙）", title:"ROS Engineer"},
+      ]
+    }
+  },
+  "Administration & Management": {
+    count: 4,
+    city: "bj",
+    subgroups: {
+      "Team": [
+        {name:"Jun Liu(刘军)", title:"总经理"},
+        {name:"Emma Feng(冯海京)", title:"办公室经理"},
+        {name:"Eve Wei(魏玲玲)", title:"人事行政"},
+        {name:"Vincent Li(李炜辰)", title:"人力资源经理"},
+      ]
+    }
+  },
+  "AI (R&D)": {
+    count: 4,
+    city: "bj",
+    subgroups: {
+      "Team": [
+        {name:"Foster Li(李欣宇)", title:"AI"},
+        {name:"Lola Gou(缑李敏)", title:"Backend"},
+        {name:"Qian Chen(陈茜)", title:"AI工程师"},
+        {name:"Will Liu(刘彦勇)", title:"运维开发工程师"},
+      ]
+    }
+  },
+  "BSD": {
+    count: 3,
+    city: "bj",
+    subgroups: {
+      "Team": [
+        {name:"Alan Li(李威)", title:"Senior BSD"},
+        {name:"Arthur Liu（刘亚斌）", title:"BSD"},
+        {name:"Victor Cui（崔翔）", title:"Senior BSD"},
+      ]
+    }
+  },
+  "PM": {
+    count: 3,
+    city: "bj",
+    subgroups: {
+      "Team": [
+        {name:"Coco Wang(汪随厉)", title:"PM Supervisor"},
+        {name:"Tierui Liu(刘铁锐)", title:"PM"},
+        {name:"Xiao Fan(范阳景)", title:"PM"},
+      ]
+    }
+  },
+  "Others (BJ)": {
+    count: 6,
+    city: "bj",
+    subgroups: {
+      "Delivery": [
+        {name:"Chi Wei(魏迟)", title:"Manager"},
+        {name:"Deshuai Zhu（朱德帅）", title:"Software Engineer"},
+      ],
+      "Misc": [
+        {name:"Weinan Wang（王伟楠）", title:"高级产品经理"},
+        {name:"Xion Li(李雄飞)", title:"Software Engineer (Backend)"},
+        {name:"Wenjing Fan(范文静)", title:"仓储设计师 (Support)"},
+        {name:"Weichao Li(李伟超)", title:"Sales Director"},
+      ]
+    }
+  },
+};
+
+const xmnData = {
+  "WMS": {
+    count: 19,
+    city: "xmn",
+    subgroups: {
+      "Management": [
+        {name:"Quinn(Quinn Chen)", title:"Manager"},
+        {name:"Tommy(Tommy Xie)", title:"PM"},
+      ],
+      "Inbound & Outbound": [
+        {name:"Shaw(Shaw Xiao)", title:"Team Leader"},
+        {name:"Cassie(Cassie Luo)", title:"QA"},
+        {name:"Jepson(Jepson Lin)", title:"Software Engineer"},
+        {name:"Wesley(Wesley Lin)", title:"Business Analyst"},
+      ],
+      "Inventory": [
+        {name:"Kiya(Kiya Lin)", title:"Team Leader"},
+        {name:"Abby(Abby Wu)", title:"Software Engineer"},
+        {name:"Levent(Levent Li)", title:"Business Analyst"},
+        {name:"Neo(Neo Liao)", title:"Software Engineer"},
+      ],
+      "WES & Automation": [
+        {name:"Yuri(Yuri Lin)", title:"Team Leader"},
+        {name:"Andrew(Andrew Qiu)", title:"Software Engineer"},
+        {name:"Beica(Beica Wang)", title:"QA"},
+        {name:"Jim(Jim Jian)", title:"Software Engineer"},
+      ],
+      "OMS & Master Data / Report & Billing / Special": [
+        {name:"Alan(Alan Gao)", title:"Software Engineer"},
+        {name:"Paul(Paul Yang)", title:"Software Engineer"},
+        {name:"William(William Chen)", title:"Software Engineer"},
+      ],
+      "L2 Support": [
+        {name:"John(John Chen)", title:"Software Engineer"},
+        {name:"Xion Li(李雄飞)", title:"Software Engineer"},
+      ],
+    }
+  },
+  "Al Marketplace": {
+    count: 25,
+    city: "xmn",
+    subgroups: {
+      "AI Delivery Team": [
+        {name:"Torin(Torin Lu)", title:"Team Leader"},
+        {name:"Hanson Wang(王海生)", title:"高级产品经理"},
+        {name:"Junjun Su（苏军军）", title:"AI Software Engineer"},
+        {name:"Nancy Wu（吴琼）", title:"FDE"},
+        {name:"Pengxiang Ning（宁鹏翔）", title:"AI Software Engineer"},
+        {name:"Yuehua Wu（武月华）", title:"FDE"},
+        {name:"Yuxin Guo（郭育鑫）", title:"FDE"},
+        {name:"David(David Gao)", title:"FDE"},
+        {name:"Jason(Jason Wang)", title:"FDE"},
+        {name:"Taylor(Taylor Zhang)", title:"Business Analyst"},
+        {name:"Vicky(Vicky Chen)", title:"PM"},
+      ],
+      "Agent Factory / Al Products": [
+        {name:"Carly(Carly Wang)", title:"产品运营"},
+        {name:"Eben(Eben Xu)", title:"AI Engineer"},
+        {name:"Hugh(Hugh Tang)", title:"AI Specialist"},
+        {name:"Nico(Nico Yuan)", title:"AI Engineer"},
+        {name:"Orin(Orin Qian)", title:"AI Engineer"},
+        {name:"Ye(Ye Chen)", title:"AI Engineer"},
+        {name:"Zen(Zen Chen)", title:"AI Engineer"},
+      ],
+      "Al-Native Marketplace": [
+        {name:"Jeff(Jeff Lin)", title:"Team Leader"},
+        {name:"Anne Liu（刘翠雪）", title:"Business Analyst"},
+        {name:"Jenna(Jenna Fu)", title:"Business Analyst"},
+        {name:"Joel(Joel Cai)", title:"Software Engineer"},
+        {name:"Victor(Victor Wei)", title:"Software Engineer"},
+      ],
+      "General": [
+        {name:"Cloud(Cloud Li)", title:"视频剪辑"},
+        {name:"Tay(Tay Wu)", title:"Manager"},
+      ],
+    }
+  },
+  "Delivery": {
+    count: 14,
+    city: "xmn",
+    subgroups: {
+      "Management": [
+        {name:"Chi Wei(魏迟)", title:"Manager"},
+      ],
+      "TMS": [
+        {name:"Carl(Carl Wu)", title:"Team Leader"},
+        {name:"Elvis(Elvis Yan)", title:"Software Engineer"},
+        {name:"Lucas(Lucas Chen)", title:"Software Engineer"},
+        {name:"Mia(Mia Yang)", title:"Software Engineer"},
+        {name:"Shayne(Shayne Huang)", title:"Software Engineer"},
+        {name:"Will(Will Zheng)", title:"Software Engineer"},
+        {name:"Willie(Willie Su)", title:"Software Engineer"},
+      ],
+      "Drayage": [
+        {name:"Andy(Andy Zhang)", title:"Team Leader"},
+        {name:"Deshuai Zhu（朱德帅）", title:"Software Engineer"},
+        {name:"Elio(Elio Lin)", title:"Software Engineer"},
+        {name:"Seven(Seven Xiao)", title:"QA"},
+      ],
+      "WFM": [
+        {name:"Ace(Ace Miao)", title:"Software Engineer"},
+        {name:"Carl(Carl Wu)", title:"Team Leader"},
+        {name:"Evelyn(Evelyn Zheng)", title:"QA"},
+      ],
+    }
+  },
+  "Finance": {
+    count: 29,
+    city: "xmn",
+    subgroups: {
+      "DA (Data Analytics/Billing)": [
+        {name:"Phoebe(Phoebe Zheng)", title:"DA Manager"},
+        {name:"Nicole(Nicole Yu)", title:"Billing Supervisor"},
+        {name:"Sylvia(Sylvia Bao)", title:"DA Supervisor"},
+        {name:"Iris(Iris Huang)", title:"DA Senior"},
+        {name:"Monica(Monica Miao)", title:"DA Senior"},
+        {name:"Jessie(Jessie Liu)", title:"DA Professional"},
+        {name:"Niki(Niki Zeng)", title:"Billing Professional"},
+        {name:"Christine(Christine Zhang)", title:"Billing Claim"},
+        {name:"Fayra(Fayra Shi)", title:"Billing Junior"},
+        {name:"Johanna(Johanna Chen)", title:"Billing Junior"},
+        {name:"Ruby(Ruby Huang)", title:"DA Junior"},
+      ],
+      "Accounting": [
+        {name:"Sherry(Sherry Bai)", title:"Senior Accounting Manager"},
+        {name:"Eliza(Eliza LV)", title:"GL Supervisor (Corp&IA)"},
+        {name:"Catherine(Catherine Hong)", title:"GL Supervisor (UF)"},
+        {name:"Grace(Grace Guo)", title:"GL Supervisor (UT)"},
+        {name:"Lucy(Lucy Chen)", title:"Senior Accountant"},
+        {name:"Felix(Felix Liu)", title:"Senior Accountant"},
+        {name:"Crystal(Crystal Liu)", title:"IA Junior"},
+        {name:"Yi(Yi Fan)", title:"Junior Accountant"},
+        {name:"Carrie(Carrie Zhang)", title:"Junior Accountant"},
+        {name:"Zoey(Zoey Zheng)", title:"Junior Accountant"},
+        {name:"Elena(Elena Zhang)", title:"Junior Accountant"},
+        {name:"Rachel(Rachel Cong)", title:"Junior Accountant"},
+      ],
+      "Business Analyst": [
+        {name:"Connie(Connie Gu)", title:"Finance Director"},
+        {name:"Corffin(Corffin Lyu)", title:"BA Manager"},
+        {name:"Geovani(Geovani Zhang)", title:"Business Analyst"},
+        {name:"Kaylin(Kaylin Wu)", title:"Business Analyst"},
+        {name:"Liam(Liam Zhang)", title:"BA Professionalist"},
+      ],
+      "Purchasing": [
+        {name:"Winnie(Winnie Wang)", title:"Purchasing Specialist"},
+      ],
+    }
+  },
+  "R&D": {
+    count: 12,
+    city: "xmn",
+    subgroups: {
+      "R&D": [
+        {name:"Leyo(Leyo Guan)", title:"Manager"},
+        {name:"Amy(Amy Fang)", title:"QA"},
+        {name:"Cheney(Cheney Xie)", title:"Software Engineer"},
+        {name:"Gary(Gary Liu)", title:"GIS"},
+        {name:"Link(Link Huang)", title:"Software Engineer"},
+        {name:"Neil(Neil Chen)", title:"Software Engineer"},
+        {name:"Stella(Stella Zheng)", title:"QA"},
+        {name:"Doria(Doria Li)", title:"项目支持"},
+      ],
+      "WCS": [
+        {name:"Fanson(Fanson Tang)", title:"Team Leader"},
+        {name:"Asher(Asher Lin)", title:"Software Engineer"},
+        {name:"Brian(Brian Li)", title:"Software Engineer"},
+        {name:"Marion(Marion Zhao)", title:"Software Engineer"},
+      ],
+    }
+  },
+  "Support": {
+    count: 11,
+    city: "xmn",
+    subgroups: {
+      "General": [
+        {name:"Bruce(Bruce Hu)", title:"XMN General Manager"},
+        {name:"Devin(Devin Chen)", title:"Team Leader"},
+        {name:"Tracy(Tracy Huang)", title:"Team Leader"},
+        {name:"Chuan(Chuan Tang)", title:"Software Engineer"},
+      ],
+      "L1S": [
+        {name:"Anna(Anna Rao)", title:"Support Specialist"},
+        {name:"Didi(Didi Deng)", title:"Senior Support Specialist"},
+        {name:"Helen(Helen Jiang)", title:"Support Specialist"},
+        {name:"Maria(Maria Cai)", title:"Senior Support Specialist"},
+        {name:"Mona(Mona Wang)", title:"Support Specialist"},
+      ],
+      "Apple Project / Auto QA": [
+        {name:"Allen(Allen Gao)", title:"Application"},
+        {name:"Sliver(Sliver Zhang)", title:"Team Leader (Auto QA)"},
+      ],
+    }
+  },
+  "Cubework": {
+    count: 19,
+    city: "xmn",
+    subgroups: {
+      "Development": [
+        {name:"Aaron(Aaron Lee)", title:"Team Leader"},
+        {name:"Shawn(Shawn Fang)", title:"Team Leader"},
+        {name:"Anson(Anson Lin)", title:"AI Agent Engineer"},
+        {name:"Arvin(Arvin Li)", title:"React Engineer"},
+        {name:"Hank(Hank Wu)", title:"Software Engineer"},
+        {name:"Joseph(Joseph Lin)", title:"Software Engineer"},
+        {name:"Kaden(Kaden Wu)", title:"Software Engineer"},
+        {name:"Zeta(Zeta Huang)", title:"Software Engineer"},
+        {name:"Lynn(Lynn Huang)", title:"UX"},
+        {name:"Eight(Eight Wu)", title:"Software Engineer (Cubeship)"},
+      ],
+      "Marketing": [
+        {name:"Jack(Jack Tu)", title:"Social and Paid Ads Lead"},
+        {name:"Angee(Angee Yang)", title:"广告投放与社群运营"},
+        {name:"Ella(Ella Chen)", title:"Marketing Operation Specialist"},
+        {name:"Finn(Finn Chen)", title:"Social Media Operator"},
+        {name:"Mila(Mila Xie)", title:"社群内容运营"},
+        {name:"Ravine(Ravine Zheng)", title:"市场营销策划"},
+        {name:"Teresa(Teresa Zheng)", title:"社群内容运营"},
+        {name:"Tina(Tina Liu)", title:"Video Producer"},
+        {name:"Yeasy(Yeasy Ye)", title:"Brand Visual Designer"},
+      ],
+    }
+  },
+  "YMS": {
+    count: 5,
+    city: "xmn",
+    subgroups: {
+      "Team": [
+        {name:"Matt(Matt Wang)", title:"Team Leader"},
+        {name:"Esther(Esther Chen)", title:"QA"},
+        {name:"Nathan(Nathan Chen)", title:"项目产品经理"},
+        {name:"Soren(Soren Su)", title:"Software Engineer"},
+        {name:"Wade(Wade Zhang)", title:"Software Engineer"},
+      ]
+    }
+  },
+  "APS": {
+    count: 3,
+    city: "xmn",
+    subgroups: {
+      "Team": [
+        {name:"Rainy(Rainy Wang)", title:"Team Leader"},
+        {name:"Charles(Charles Zeng)", title:"Business Analyst"},
+        {name:"Yuna(Yuna Wu)", title:"QA"},
+      ]
+    }
+  },
+  "CSR": {
+    count: 3,
+    city: "xmn",
+    subgroups: {
+      "Team": [
+        {name:"Robin(Robin Zhu)", title:"Team Leader"},
+        {name:"Ethan(Ethan Huang)", title:"Application"},
+        {name:"Luke(Luke Huang)", title:"Software Engineer"},
+      ]
+    }
+  },
+  "BI": {
+    count: 2,
+    city: "xmn",
+    subgroups: {
+      "Team": [
+        {name:"Dimon(Dimon Su)", title:"BI"},
+        {name:"Eileen(Eileen Chen)", title:"BI"},
+      ]
+    }
+  },
+  "IT&DevOps": {
+    count: 3,
+    city: "xmn",
+    subgroups: {
+      "Team": [
+        {name:"Eason(Eason Chen)", title:"Manager"},
+        {name:"Patton(Patton Huang)", title:"DevOps"},
+        {name:"Yousri(Yousri)", title:"DevOps"},
+      ]
+    }
+  },
+  "Human Resource": {
+    count: 2,
+    city: "xmn",
+    subgroups: {
+      "Team": [
+        {name:"Fannie(Fannie Zhang)", title:"HRM"},
+        {name:"Jean(Jean Yuan)", title:"HR"},
+      ]
+    }
+  },
+  "AIA": {
+    count: 1,
+    city: "xmn",
+    subgroups: {
+      "Team": [
+        {name:"Magic(Magic Wang)", title:"AI Engineer"},
+      ]
+    }
+  },
+  "RMS": {
+    count: 1,
+    city: "xmn",
+    subgroups: {
+      "Team": [
+        {name:"Sam(Sam Huang)", title:"Team Leader"},
+      ]
+    }
+  },
+  "Admin (XMN)": {
+    count: 1,
+    city: "xmn",
+    subgroups: {
+      "Team": [
+        {name:"Alina(Alina Lin)", title:"Admin"},
+      ]
+    }
+  },
+  "Customer Experience / Client Portal": {
+    count: 1,
+    city: "xmn",
+    subgroups: {
+      "Team": [
+        {name:"Kevin(Kevin Wang)", title:"Software Engineer"},
+      ]
+    }
+  },
+  "Purchasing (XMN)": {
+    count: 1,
+    city: "xmn",
+    subgroups: {
+      "Team": [
+        {name:"Ben Liao(廖焕彬)", title:"采购"},
+      ]
+    }
+  },
+};
+
+// ─────────────────────────────────────────────
+//  RENDER
+// ─────────────────────────────────────────────
+
+function renderGrid(containerId, data) {
+  const container = document.getElementById(containerId);
+  const isXmn = containerId === 'xmn-grid';
+  Object.entries(data).forEach(([deptName, info]) => {
+    const totalRoles = Object.values(info.subgroups).flat().length;
+    // collect role titles summary
+    const allTitles = Object.values(info.subgroups).flat().map(p => p.title);
+    const roleCounts = {};
+    for (const t of allTitles) {
+      const simplified = simplifyTitle(t);
+      roleCounts[simplified] = (roleCounts[simplified] || 0) + 1;
+    }
+    const topRoles = Object.entries(roleCounts).sort((a,b)=>b[1]-a[1]).slice(0,4);
+
+    const card = document.createElement('div');
+    card.className = `dept-card ${isXmn ? 'xmn-card' : ''}`;
+    card.onclick = () => openModal(deptName, info);
+
+    const rolesHtml = topRoles.map(([r,c]) =>
+      `<span class="role-pill">${r}${c>1?' ×'+c:''}</span>`
+    ).join('');
+
+    card.innerHTML = `
+      <div class="dc-head">
+        <div class="dc-name">${deptName}</div>
+        <div class="dc-count">${info.count}</div>
+      </div>
+      <div class="dc-roles">${rolesHtml}</div>
+      <div class="dc-foot">点击查看明细 →</div>
+    `;
+    container.appendChild(card);
+  });
+}
+
+function simplifyTitle(t) {
+  if (/team leader|leader/i.test(t)) return 'Team Leader';
+  if (/software engineer|engineer/i.test(t)) return 'Engineer';
+  if (/qa/i.test(t)) return 'QA';
+  if (/pm|product manager|产品/i.test(t)) return 'PM/BA';
+  if (/ba|business analyst/i.test(t)) return 'PM/BA';
+  if (/intern/i.test(t)) return 'Intern';
+  if (/manager|经理/i.test(t)) return 'Manager';
+  if (/director|总监/i.test(t)) return 'Director';
+  if (/accountant|accounting/i.test(t)) return 'Accountant';
+  if (/billing|da /i.test(t)) return 'DA/Billing';
+  if (/devops/i.test(t)) return 'DevOps';
+  if (/ai engineer|ai agent/i.test(t)) return 'AI Engineer';
+  if (/fde/i.test(t)) return 'FDE';
+  return t.split(' ').slice(0,2).join(' ');
+}
+
+function openModal(deptName, info) {
+  document.getElementById('modal-title').textContent = deptName;
+  const body = document.getElementById('modal-body');
+
+  const total = Object.values(info.subgroups).flat().length;
+  const subCount = Object.keys(info.subgroups).length;
+
+  let html = `<div class="modal-stat">
+    <div class="modal-stat-item"><div class="msn">${info.count}</div><div class="msl">人员总数</div></div>
+    <div class="modal-stat-item"><div class="msn">${subCount}</div><div class="msl">子组数量</div></div>
+  </div>`;
+
+  for (const [groupName, people] of Object.entries(info.subgroups)) {
+    if (people.length === 0) continue;
+    html += `<div class="modal-subgroup">
+      <h4>${groupName} (${people.length})</h4>
+      <div class="people-list">
+        ${people.map(p => `<div class="person-chip">${p.name}<span class="ptitle">${p.title}</span></div>`).join('')}
+      </div>
+    </div>`;
+  }
+
+  body.innerHTML = html;
+  document.getElementById('modal').classList.add('open');
+}
+
+function closeModal(e) {
+  if (e.target === document.getElementById('modal')) {
+    document.getElementById('modal').classList.remove('open');
+  }
+}
+
+renderGrid('bj-grid', bjData);
+renderGrid('xmn-grid', xmnData);
+</script>
+</body>
+</html>

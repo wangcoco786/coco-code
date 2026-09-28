@@ -15,6 +15,7 @@ const Settings = lazy(() => import('@/pages/Settings/Settings'))
 const NotificationCenter = lazy(() => import('@/pages/NotificationCenter/NotificationCenter'))
 const AutomationRules = lazy(() => import('@/pages/AutomationRules/AutomationRules'))
 const AuditLog = lazy(() => import('@/pages/AuditLog/AuditLog'))
+const ResourceDashboard = lazy(() => import('@/pages/ResourceDashboard/ResourceDashboard'))
 
 function isAuthenticated() {
   return sessionStorage.getItem('ai-pm-auth') === 'true'
@@ -62,6 +63,7 @@ export default function App() {
           <Route path="notifications" element={<Suspense fallback={null}><NotificationCenter /></Suspense>} />
           <Route path="automation" element={<Suspense fallback={null}><AutomationRules /></Suspense>} />
           <Route path="audit" element={<RoleGuard allowedRoles={['PM']}><Suspense fallback={null}><AuditLog /></Suspense></RoleGuard>} />
+          <Route path="resource-dashboard" element={<Suspense fallback={null}><ResourceDashboard /></Suspense>} />
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Route>
       </Routes>

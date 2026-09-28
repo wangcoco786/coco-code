@@ -239,6 +239,8 @@ export type TranslationKey =
   | 'settings.themeDesc'
   // Resource tab heatmap
   | 'resource.teamPerformanceHeatmap'
+  // Resource Dashboard
+  | 'nav.resourceDashboard'
   // Audit Log
   | 'nav.audit'
   | 'audit.title' | 'audit.subtitle' | 'audit.exportCsv'
@@ -579,6 +581,8 @@ const zh: Translations = {
   'settings.themeDesc': '选择"跟随系统"将自动匹配操作系统的深色/浅色偏好设置',
   // Resource tab heatmap
   'resource.teamPerformanceHeatmap': '团队绩效热力图',
+  // Resource Dashboard
+  'nav.resourceDashboard': '人员看板',
   // Audit Log
   'nav.audit': '审计日志',
   'audit.title': '审计日志',
@@ -930,6 +934,8 @@ const en: Translations = {
   'settings.themeDesc': 'Selecting "System" will automatically match your OS light/dark preference',
   // Resource tab heatmap
   'resource.teamPerformanceHeatmap': 'Team Performance Heatmap',
+  // Resource Dashboard
+  'nav.resourceDashboard': 'People Dashboard',
   // Audit Log
   'nav.audit': 'Audit Log',
   'audit.title': 'Audit Log',
@@ -1281,6 +1287,8 @@ const ja: Translations = {
   'settings.themeDesc': '「システム」を選択するとOSのライト/ダーク設定に自動的に合わせます',
   // Resource tab heatmap
   'resource.teamPerformanceHeatmap': 'チームパフォーマンスヒートマップ',
+  // Resource Dashboard
+  'nav.resourceDashboard': '人員ダッシュボード',
   // Audit Log
   'nav.audit': '監査ログ',
   'audit.title': '監査ログ',
@@ -1632,6 +1640,8 @@ const es: Translations = {
   'settings.themeDesc': 'Seleccionar "Sistema" se ajustará automáticamente a la preferencia de claro/oscuro de su SO',
   // Resource tab heatmap
   'resource.teamPerformanceHeatmap': 'Mapa de Calor del Rendimiento del Equipo',
+  // Resource Dashboard
+  'nav.resourceDashboard': 'Panel de Personal',
   // Audit Log
   'nav.audit': 'Registro de Auditoría',
   'audit.title': 'Registro de Auditoría',

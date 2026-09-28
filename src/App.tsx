@@ -10,11 +10,9 @@ const Requirements = lazy(() => import('@/pages/Requirements/Requirements'))
 const Sprint = lazy(() => import('@/pages/Sprint/Sprint'))
 const Risk = lazy(() => import('@/pages/Risk/Risk'))
 const Reports = lazy(() => import('@/pages/Reports/Reports'))
-const Roadmap = lazy(() => import('@/pages/Roadmap/Roadmap'))
 const Settings = lazy(() => import('@/pages/Settings/Settings'))
 const NotificationCenter = lazy(() => import('@/pages/NotificationCenter/NotificationCenter'))
 const AutomationRules = lazy(() => import('@/pages/AutomationRules/AutomationRules'))
-const AuditLog = lazy(() => import('@/pages/AuditLog/AuditLog'))
 const ResourceDashboard = lazy(() => import('@/pages/ResourceDashboard/ResourceDashboard'))
 
 function isAuthenticated() {
@@ -58,11 +56,9 @@ export default function App() {
           <Route path="sprint" element={<Suspense fallback={null}><Sprint /></Suspense>} />
           <Route path="risk" element={<RoleGuard allowedRoles={['PM']}><Suspense fallback={null}><Risk /></Suspense></RoleGuard>} />
           <Route path="reports" element={<Suspense fallback={null}><Reports /></Suspense>} />
-          <Route path="roadmap" element={<Suspense fallback={null}><Roadmap /></Suspense>} />
           <Route path="settings" element={<Suspense fallback={null}><Settings /></Suspense>} />
           <Route path="notifications" element={<Suspense fallback={null}><NotificationCenter /></Suspense>} />
           <Route path="automation" element={<Suspense fallback={null}><AutomationRules /></Suspense>} />
-          <Route path="audit" element={<RoleGuard allowedRoles={['PM']}><Suspense fallback={null}><AuditLog /></Suspense></RoleGuard>} />
           <Route path="resource-dashboard" element={<Suspense fallback={null}><ResourceDashboard /></Suspense>} />
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Route>

@@ -1,6 +1,5 @@
 import type {
   PlatformIssue,
-  IssueStatus,
   IssuePriority,
   DeveloperProfile,
   WorkloadInfo,

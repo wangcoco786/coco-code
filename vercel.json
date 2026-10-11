@@ -34,6 +34,6 @@
   },
   "rewrites": [
     { "source": "/api/jira/:match*", "destination": "/api/jira" },
-    { "source": "/:path((?!api/).*)", "destination": "/index.html" }
+    { "source": "/:path((?!api/|docs/).*)", "destination": "/index.html" }
   ]
 }

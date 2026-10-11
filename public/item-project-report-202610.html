@@ -4,1287 +4,508 @@
 <meta charset="utf-8">
 <title>Item Project Report 202610</title>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    font-family: "Segoe UI", "Microsoft YaHei", "PingFang SC", sans-serif;
-    background: #eef1f5; color: #1f2430; line-height: 1.6;
-    padding: 28px 16px;
-  }
-  .page {
-    max-width: 1100px; margin: 0 auto; background: #fff;
-    box-shadow: 0 4px 24px rgba(0,0,0,.1); border-radius: 14px;
-    padding: 44px 52px 40px;
-  }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: "Segoe UI", "Microsoft YaHei", "PingFang SC", sans-serif;
+  background: #eef1f5; color: #1f2430; line-height: 1.6;
+  padding: 28px 16px;
+}
+.page {
+  max-width: 1120px; margin: 0 auto; background: #fff;
+  box-shadow: 0 4px 24px rgba(0,0,0,.1); border-radius: 14px;
+  padding: 44px 52px 40px;
+}
 
-  /* ── Header ── */
-  .header {
-    text-align: center; padding-bottom: 22px; margin-bottom: 30px;
-    border-bottom: 3px solid #3b5bdb;
-  }
-  .header h1 { font-size: 26px; font-weight: 800; color: #1a2b6b; letter-spacing: .5px; }
-  .header .meta { margin-top: 10px; font-size: 13px; color: #6b7280; display: flex;
-    justify-content: center; gap: 32px; flex-wrap: wrap; }
+/* Header */
+.header { text-align: center; padding-bottom: 22px; margin-bottom: 30px; border-bottom: 3px solid #3b5bdb; }
+.header h1 { font-size: 26px; font-weight: 800; color: #1a2b6b; }
+.header .meta { margin-top: 10px; font-size: 13px; color: #6b7280; display: flex; justify-content: center; gap: 32px; flex-wrap: wrap; }
 
-  /* ── Section headings ── */
-  h2 {
-    font-size: 16px; font-weight: 800; color: #fff;
-    padding: 9px 18px; border-radius: 8px; margin: 34px 0 16px;
-    display: flex; align-items: center; gap: 8px;
-  }
-  h2.wms    { background: #3b5bdb; }
-  h2.cp     { background: #0c8599; }
-  h2.ai     { background: #6741d9; }
-  h2.bnp    { background: #e8590c; }
-  h2.ba     { background: #2b8a3e; }
-  h2.summary{ background: #1a2b6b; }
+/* Section headings */
+h2 { font-size: 16px; font-weight: 800; color: #fff; padding: 9px 18px; border-radius: 8px; margin: 34px 0 16px; display: flex; align-items: center; gap: 8px; }
+h2.wms    { background: #3b5bdb; }
+h2.cp     { background: #0c8599; }
+h2.ai     { background: #6741d9; }
+h2.eag    { background: #e8590c; }
+h2.sum    { background: #1a2b6b; }
 
-  h3 {
-    font-size: 14px; font-weight: 700; color: #1a2b6b;
-    padding: 5px 0 5px 12px; border-left: 4px solid #3b5bdb;
-    margin: 20px 0 10px;
-  }
-  h3.teal  { color: #0b7285; border-left-color: #0c8599; }
-  h3.purple{ color: #5f3dc4; border-left-color: #6741d9; }
-  h3.orange{ color: #c44b0a; border-left-color: #e8590c; }
-  h3.green { color: #1a7431; border-left-color: #2b8a3e; }
+h3 { font-size: 14px; font-weight: 700; padding: 5px 0 5px 12px; margin: 20px 0 10px; }
+h3.blue   { color: #1a2b6b; border-left: 4px solid #3b5bdb; }
+h3.teal   { color: #0b7285; border-left: 4px solid #0c8599; }
+h3.purple { color: #5f3dc4; border-left: 4px solid #6741d9; }
+h3.orange { color: #c44b0a; border-left: 4px solid #e8590c; }
+h3.green  { color: #1a7431; border-left: 4px solid #2b8a3e; }
 
-  /* ── Comparison table ── */
-  table { width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 6px; }
-  th {
-    background: #3b5bdb; color: #fff; padding: 8px 10px;
-    text-align: left; font-size: 12.5px; white-space: nowrap;
-  }
-  th.teal   { background: #0c8599; }
-  th.purple { background: #6741d9; }
-  th.orange { background: #e8590c; }
-  th.green  { background: #2b8a3e; }
-  td { padding: 7px 10px; border-bottom: 1px solid #e5e7eb; vertical-align: middle; }
-  tr:nth-child(even) td { background: #f5f6fb; }
-  tr:hover td { background: #eef1ff; }
+/* Tables */
+table { width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 8px; }
+th { background: #3b5bdb; color: #fff; padding: 8px 10px; text-align: left; font-size: 12.5px; white-space: nowrap; }
+th.teal   { background: #0c8599; }
+th.purple { background: #6741d9; }
+th.orange { background: #e8590c; }
+th.green  { background: #2b8a3e; }
+th.dark   { background: #1a2b6b; }
+td { padding: 7px 10px; border-bottom: 1px solid #e5e7eb; vertical-align: middle; }
+tr:nth-child(even) td { background: #f5f6fb; }
+tr:hover td { background: #eef1ff; }
 
-  /* ── Status badges ── */
-  .s { display: inline-block; font-size: 11px; font-weight: 700;
-       padding: 1px 8px; border-radius: 4px; white-space: nowrap; }
-  .prod { background: #d3f9d8; color: #1a7431; }
-  .enh  { background: #e8f4fd; color: #1971c2; }
-  .plan { background: #fff3e0; color: #a1690a; }
-  .new  { background: #f3f0ff; color: #5f3dc4; }
-  .na   { background: #f1f3f5; color: #868e96; }
+/* Badges */
+.s { display: inline-block; font-size: 11px; font-weight: 700; padding: 1px 8px; border-radius: 4px; white-space: nowrap; margin: 1px; }
+.prod { background: #d3f9d8; color: #1a7431; }
+.enh  { background: #e8f4fd; color: #1971c2; }
+.plan { background: #fff3e0; color: #a1690a; }
+.new  { background: #f3f0ff; color: #5f3dc4; }
+.na   { background: #f1f3f5; color: #868e96; }
 
-  /* ── Progress bar ── */
-  .prog-wrap { display: flex; align-items: center; gap: 8px; }
-  .prog-bar  { flex: 1; height: 8px; background: #e5e7eb; border-radius: 4px; overflow: hidden; }
-  .prog-fill { height: 100%; border-radius: 4px; }
-  .prog-label{ font-size: 12px; font-weight: 700; min-width: 36px; text-align: right; }
+/* Progress bar */
+.prog { display: flex; align-items: center; gap: 8px; }
+.prog-bar { flex: 1; height: 8px; background: #e5e7eb; border-radius: 4px; overflow: hidden; min-width: 60px; }
+.prog-fill { height: 100%; border-radius: 4px; }
+.prog-lbl { font-size: 12px; font-weight: 700; min-width: 38px; text-align: right; }
 
-  /* ── Arrow change indicator ── */
-  .up   { color: #2b8a3e; font-weight: 700; }
-  .same { color: #868e96; }
-  .new-item { color: #6741d9; font-weight: 700; }
+/* Summary boxes */
+.sum-row { display: flex; gap: 12px; flex-wrap: wrap; margin: 16px 0; }
+.sum-box { flex: 1; min-width: 120px; background: #f8f9fb; border: 1px solid #e5e7eb; border-radius: 10px; padding: 14px 16px; text-align: center; }
+.sum-box .num { font-size: 28px; font-weight: 800; }
+.sum-box .lbl { font-size: 12px; color: #6b7280; margin-top: 3px; }
+.sum-box .sub { font-size: 11px; color: #9aa1ac; margin-top: 2px; }
 
-  /* ── Card ── */
-  .card {
-    background: #f8f9fb; border: 1px solid #e5e7eb; border-radius: 10px;
-    padding: 14px 18px; margin-bottom: 14px;
-  }
-  .card.teal   { border-left: 4px solid #0c8599; }
-  .card.purple { border-left: 4px solid #6741d9; }
-  .card.orange { border-left: 4px solid #e8590c; }
-  .card.green  { border-left: 4px solid #2b8a3e; }
+/* Cards */
+.card { background: #f8f9fb; border: 1px solid #e5e7eb; border-radius: 10px; padding: 14px 18px; margin-bottom: 12px; }
+.card.orange { border-left: 4px solid #e8590c; }
+.card.teal   { border-left: 4px solid #0c8599; }
+.card.purple { border-left: 4px solid #6741d9; }
+.card.green  { border-left: 4px solid #2b8a3e; }
+.card.blue   { border-left: 4px solid #3b5bdb; }
 
-  /* ── BA card grid ── */
-  .ba-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; margin-top: 8px; }
-  .ba-card {
-    background: #f8f9fb; border: 1px solid #e5e7eb; border-radius: 10px;
-    padding: 14px 16px;
-  }
-  .ba-avatar {
-    width: 34px; height: 34px; border-radius: 50%;
-    display: inline-flex; align-items: center; justify-content: center;
-    font-size: 13px; font-weight: 800; color: #fff; margin-right: 8px;
-    vertical-align: middle;
-  }
-  .ba-name { font-size: 13.5px; font-weight: 700; color: #1a2b6b; }
-  .ba-scope { font-size: 12px; color: #6b7280; margin-top: 4px; }
-  .ba-stats { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
-  .ba-stat { font-size: 11.5px; padding: 1px 8px; border-radius: 12px; font-weight: 600; }
+/* Notice */
+.note { background: #fff3bf; border-left: 4px solid #f59f00; padding: 10px 16px; border-radius: 6px; font-size: 12.5px; margin: 10px 0; color: #7c5a00; }
+.info { background: #e8f4fd; border-left: 4px solid #1971c2; padding: 10px 16px; border-radius: 6px; font-size: 12.5px; margin: 10px 0; color: #1864ab; }
 
-  /* ── Summary row ── */
-  .sum-row { display: flex; gap: 14px; flex-wrap: wrap; margin: 16px 0; }
-  .sum-box {
-    flex: 1; min-width: 130px; background: #f8f9fb;
-    border: 1px solid #e5e7eb; border-radius: 10px;
-    padding: 14px 16px; text-align: center;
-  }
-  .sum-box .num { font-size: 28px; font-weight: 800; }
-  .sum-box .lbl { font-size: 12px; color: #6b7280; margin-top: 3px; }
-  .sum-box .sub { font-size: 11px; color: #9aa1ac; margin-top: 2px; }
+/* Arrow */
+.up   { color: #2b8a3e; font-weight: 700; }
+.same { color: #868e96; }
+.new-item { color: #6741d9; font-weight: 700; }
 
-  /* ── Note box ── */
-  .note {
-    background: #fff3bf; border-left: 4px solid #f59f00;
-    padding: 10px 16px; border-radius: 6px; font-size: 12.5px;
-    margin-top: 10px; color: #7c5a00;
-  }
-  .info {
-    background: #e8f4fd; border-left: 4px solid #1971c2;
-    padding: 10px 16px; border-radius: 6px; font-size: 12.5px;
-    margin-top: 10px; color: #1864ab;
-  }
+.footer { margin-top: 30px; padding-top: 14px; border-top: 1px solid #e5e7eb; font-size: 11px; color: #9aa1ac; text-align: center; }
 
-  .footer {
-    margin-top: 30px; padding-top: 14px; border-top: 1px solid #e5e7eb;
-    font-size: 11px; color: #9aa1ac; text-align: center;
-  }
-
-  @media print {
-    body { background: #fff; padding: 0; }
-    .page { box-shadow: none; border-radius: 0; max-width: 100%; padding: 16px 22px; }
-    h2, th, .ba-avatar, .prog-fill { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-    @page { size: A4; margin: 10mm; }
-  }
+@media print {
+  body { background: #fff; padding: 0; }
+  .page { box-shadow: none; border-radius: 0; max-width: 100%; padding: 16px 22px; }
+  h2, th, .prog-fill { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  @page { size: A4 landscape; margin: 10mm; }
+}
 </style>
 </head>
 <body>
 <div class="page">
 
-  <!-- ═══════════ HEADER ═══════════ -->
-  <div class="header">
-    <h1>Item Project Report 202610</h1>
-    <div class="meta">
-      <span>📅 报告日期：2026年10月8日</span>
-      <span>📊 数据来源：2026 Development Blueprint（Before vs Now）</span>
-      <span>👤 整理人：Suili Wang</span>
+<!-- ===== HEADER ===== -->
+<div class="header">
+  <h1>Item Project Report 202610</h1>
+  <div class="meta">
+    <span>📅 2026年10月8日</span>
+    <span>📊 数据来源：2026 Development Blueprint（Before vs Now）</span>
+    <span>👤 整理：Suili Wang</span>
+  </div>
+</div>
+
+<!-- ===== 整体汇总 ===== -->
+<h2 class="sum">📊 整体进展汇总</h2>
+<div class="sum-row">
+  <div class="sum-box"><div class="num" style="color:#3b5bdb">282</div><div class="lbl">WMS&Warehouse</div><div class="sub">总功能条目</div></div>
+  <div class="sum-box"><div class="num" style="color:#2b8a3e">122</div><div class="lbl">WMS Production</div><div class="sub">Before 42 → +80</div></div>
+  <div class="sum-box"><div class="num" style="color:#0c8599">15</div><div class="lbl">Client Portal</div><div class="sub">规划中 Q4推进</div></div>
+  <div class="sum-box"><div class="num" style="color:#6741d9">19</div><div class="lbl">AI Platform Prod</div><div class="sub">Before 0 → +19</div></div>
+  <div class="sum-box"><div class="num" style="color:#e8590c">EAG</div><div class="lbl">BNP/CVRM/WFE</div><div class="sub">仅现在数据</div></div>
+</div>
+
+<!-- ===================================================================
+     一、WMS & Warehouse  Before vs Now
+     =================================================================== -->
+<h2 class="wms">🏭 一、WMS &amp; Warehouse — Before vs Now 对比</h2>
+
+<table>
+  <tr>
+    <th>子系统</th><th>总条目</th><th>BA 负责人</th>
+    <th>Before Prod</th><th>Before Planned/New</th>
+    <th>Now Prod</th><th>Now Enh</th><th>Now Planned/New</th>
+    <th>完成率</th><th>变化</th>
+  </tr>
+  <tr>
+    <td><b>OMS</b></td><td>24</td><td>LiuWei / Wesley</td>
+    <td><span class="s prod">6</span></td><td><span class="s plan">18</span></td>
+    <td><span class="s prod">14</span></td><td><span class="s enh">6</span></td><td><span class="s plan">4</span></td>
+    <td><div class="prog"><div class="prog-bar"><div class="prog-fill" style="width:83%;background:#2b8a3e"></div></div><span class="prog-lbl" style="color:#2b8a3e">83%</span></div></td>
+    <td><span class="up">▲ 25%→83%</span></td>
+  </tr>
+  <tr>
+    <td><b>WMS Core</b></td><td>103</td><td>Yuyang / Liuwei / Jason / Gus + Wesley</td>
+    <td><span class="s prod">13</span></td><td><span class="s plan">90</span></td>
+    <td><span class="s prod">38</span></td><td><span class="s enh">10</span></td><td><span class="s plan">47 + <span class="s new">0</span></span></td>
+    <td><div class="prog"><div class="prog-bar"><div class="prog-fill" style="width:47%;background:#3b5bdb"></div></div><span class="prog-lbl" style="color:#3b5bdb">47%</span></div></td>
+    <td><span class="up">▲ 13%→47%</span></td>
+  </tr>
+  <tr>
+    <td><b>WES</b></td><td>43</td><td>Levent / ZhongLiang</td>
+    <td><span class="s prod">2</span></td><td><span class="s plan">41</span></td>
+    <td><span class="s prod">12</span></td><td><span class="s enh">3</span></td><td><span class="s plan">28</span></td>
+    <td><div class="prog"><div class="prog-bar"><div class="prog-fill" style="width:35%;background:#e8590c"></div></div><span class="prog-lbl" style="color:#e8590c">35%</span></div></td>
+    <td><span class="up">▲ 5%→35%</span></td>
+  </tr>
+  <tr>
+    <td><b>APS</b></td><td>24</td><td>Charles（原 Eddie）</td>
+    <td><span class="s na">0</span></td><td><span class="s plan">24</span></td>
+    <td><span class="s prod">8</span></td><td><span class="s enh">5</span></td><td><span class="s plan">11</span></td>
+    <td><div class="prog"><div class="prog-bar"><div class="prog-fill" style="width:54%;background:#3b5bdb"></div></div><span class="prog-lbl" style="color:#3b5bdb">54%</span></div></td>
+    <td><span class="up">▲ 0%→54%</span></td>
+  </tr>
+  <tr>
+    <td><b>LMS</b></td><td>12</td><td>Lipeijia</td>
+    <td><span class="s na">0</span></td><td><span class="s plan">12</span></td>
+    <td><span class="s prod">5</span></td><td><span class="s na">0</span></td><td><span class="s plan">4 + <span class="s new">3</span></span></td>
+    <td><div class="prog"><div class="prog-bar"><div class="prog-fill" style="width:42%;background:#3b5bdb"></div></div><span class="prog-lbl" style="color:#3b5bdb">42%</span></div></td>
+    <td><span class="up">▲ 0%→42%</span></td>
+  </tr>
+  <tr>
+    <td><b>YMS</b></td><td>40</td><td>Liuwei / Wangshuo</td>
+    <td><span class="s na">0</span></td><td><span class="s plan">40</span></td>
+    <td><span class="s prod">14</span></td><td><span class="s enh">3</span></td><td><span class="s plan">2 + <span class="s new">21</span></span></td>
+    <td><div class="prog"><div class="prog-bar"><div class="prog-fill" style="width:43%;background:#2b8a3e"></div></div><span class="prog-lbl" style="color:#2b8a3e">43%</span></div></td>
+    <td><span class="up">▲ 0%→43% 🎉</span></td>
+  </tr>
+  <tr>
+    <td><b>Integration</b></td><td>18</td><td>LiuWei / Wesley</td>
+    <td><span class="s na">0</span></td><td><span class="s plan">18</span></td>
+    <td><span class="s prod">15</span></td><td><span class="s enh">3</span></td><td><span class="s plan">0</span></td>
+    <td><div class="prog"><div class="prog-bar"><div class="prog-fill" style="width:100%;background:#2b8a3e"></div></div><span class="prog-lbl" style="color:#2b8a3e">100%</span></div></td>
+    <td><span class="up">▲ 0%→100% ✅</span></td>
+  </tr>
+  <tr>
+    <td><b>System</b></td><td>20</td><td>Lipeijia / Yuyang / Liu Wei</td>
+    <td><span class="s prod">1</span></td><td><span class="s plan">19</span></td>
+    <td><span class="s prod">7</span></td><td><span class="s enh">7</span></td><td><span class="s plan">6</span></td>
+    <td><div class="prog"><div class="prog-bar"><div class="prog-fill" style="width:70%;background:#3b5bdb"></div></div><span class="prog-lbl" style="color:#3b5bdb">70%</span></div></td>
+    <td><span class="up">▲ 5%→70%</span></td>
+  </tr>
+  <tr>
+    <td><b>Reporting</b></td><td>15</td><td>Weinan / Wesley</td>
+    <td><span class="s prod">7</span></td><td><span class="s plan">8</span></td>
+    <td><span class="s prod">7</span></td><td><span class="s na">0</span></td><td><span class="s plan">8</span></td>
+    <td><div class="prog"><div class="prog-bar"><div class="prog-fill" style="width:47%;background:#3b5bdb"></div></div><span class="prog-lbl" style="color:#3b5bdb">47%</span></div></td>
+    <td><span class="same">→ 持平（范围扩大）</span></td>
+  </tr>
+  <tr>
+    <td><b>RMS</b></td><td>10</td><td>Wesley</td>
+    <td><span class="s new">10 New</span></td><td>—</td>
+    <td><span class="s na">0</span></td><td><span class="s na">0</span></td><td><span class="s new">10 New</span></td>
+    <td><div class="prog"><div class="prog-bar"><div class="prog-fill" style="width:0%;background:#6741d9"></div></div><span class="prog-lbl" style="color:#6741d9">0%</span></div></td>
+    <td><span class="new-item">★ Q3新立项</span></td>
+  </tr>
+  <tr>
+    <td><b>Cyclelution</b></td><td>8</td><td>Wesley</td>
+    <td><span class="s new">8 New</span></td><td>—</td>
+    <td><span class="s na">0</span></td><td><span class="s na">0</span></td><td><span class="s new">8 New</span></td>
+    <td><div class="prog"><div class="prog-bar"><div class="prog-fill" style="width:0%;background:#6741d9"></div></div><span class="prog-lbl" style="color:#6741d9">0%</span></div></td>
+    <td><span class="new-item">★ Q4新立项</span></td>
+  </tr>
+  <tr>
+    <td><b>AI-WMS</b></td><td>14</td><td>Matthew</td>
+    <td><span class="s new">14 New</span></td><td>—</td>
+    <td><span class="s na">0</span></td><td><span class="s na">0</span></td><td><span class="s new">14 New</span></td>
+    <td><div class="prog"><div class="prog-bar"><div class="prog-fill" style="width:0%;background:#6741d9"></div></div><span class="prog-lbl" style="color:#6741d9">0%</span></div></td>
+    <td><span class="new-item">★ Q3/Q4 Very High</span></td>
+  </tr>
+</table>
+
+<div class="note" style="margin-top:10px">
+  ⚠️ <b>WES 35%</b>（28条仍Planned）、<b>WMS Advanced Picking 全Planned</b> 是最大风险点；<b>Integration 100%</b>、<b>OMS 83%</b> 是最大亮点。
+</div>
+
+<!-- WMS子模块 -->
+<h3 class="blue" style="margin-top:22px">WMS Core 子模块（Now 当前）</h3>
+<table>
+  <tr><th>子模块</th><th>BA</th><th>总计</th><th>Now Prod</th><th>Now Enh</th><th>Now Planned</th><th>完成率</th></tr>
+  <tr><td>Receiving Module</td><td>Yuyang / Wesley</td><td>23</td><td><span class="s prod">13</span></td><td><span class="s enh">3</span></td><td><span class="s plan">7</span></td>
+    <td><div class="prog"><div class="prog-bar"><div class="prog-fill" style="width:70%;background:#2b8a3e"></div></div><span class="prog-lbl" style="color:#2b8a3e">70%</span></div></td></tr>
+  <tr><td>QC Module</td><td>Yuyang / Wesley</td><td>6</td><td><span class="s na">0</span></td><td><span class="s enh">1</span></td><td><span class="s plan">5</span></td>
+    <td><div class="prog"><div class="prog-bar"><div class="prog-fill" style="width:17%;background:#c92a2a"></div></div><span class="prog-lbl" style="color:#c92a2a">17%</span></div></td></tr>
+  <tr><td>Inventory Management</td><td>Gus / Levent</td><td>12</td><td><span class="s prod">6</span></td><td><span class="s na">0</span></td><td><span class="s plan">6</span></td>
+    <td><div class="prog"><div class="prog-bar"><div class="prog-fill" style="width:50%;background:#3b5bdb"></div></div><span class="prog-lbl" style="color:#3b5bdb">50%</span></div></td></tr>
+  <tr><td>Kit Management</td><td>Gus / Levent</td><td>4</td><td><span class="s prod">2</span></td><td><span class="s na">0</span></td><td><span class="s plan">2</span></td>
+    <td><div class="prog"><div class="prog-bar"><div class="prog-fill" style="width:50%;background:#3b5bdb"></div></div><span class="prog-lbl" style="color:#3b5bdb">50%</span></div></td></tr>
+  <tr><td>Order Fulfillment</td><td>Liuwei / Wesley</td><td>22</td><td><span class="s prod">13</span></td><td><span class="s enh">5</span></td><td><span class="s plan">4</span></td>
+    <td><div class="prog"><div class="prog-bar"><div class="prog-fill" style="width:82%;background:#2b8a3e"></div></div><span class="prog-lbl" style="color:#2b8a3e">82%</span></div></td></tr>
+  <tr><td>⚠ Adv. Picking &amp; Shipping</td><td>Jason / Wesley</td><td>32</td><td><span class="s prod">4</span></td><td><span class="s na">0</span></td><td><span class="s plan">28</span></td>
+    <td><div class="prog"><div class="prog-bar"><div class="prog-fill" style="width:13%;background:#c92a2a"></div></div><span class="prog-lbl" style="color:#c92a2a">13%</span></div></td></tr>
+  <tr><td>Package Management</td><td>Jason / Wesley</td><td>4</td><td><span class="s na">0</span></td><td><span class="s na">0</span></td><td><span class="s plan">4</span></td>
+    <td><div class="prog"><div class="prog-bar"><div class="prog-fill" style="width:0%;background:#c92a2a"></div></div><span class="prog-lbl" style="color:#c92a2a">0%</span></div></td></tr>
+</table>
+
+<!-- ===================================================================
+     二、Client Portal & Supporting System  Before vs Now
+     =================================================================== -->
+<h2 class="cp">🖥️ 二、Client Portal &amp; Supporting System — Before vs Now 对比</h2>
+
+<table>
+  <tr>
+    <th class="teal">子系统</th><th class="teal">总条目</th><th class="teal">BA</th>
+    <th class="teal">Before</th><th class="teal">Now</th><th class="teal">完成率</th><th class="teal">变化说明</th>
+  </tr>
+  <tr>
+    <td><b>Client Portal</b><br><small style="color:#9aa1ac">Dashboard/OMS/Payment/Invoice/Control Tower 等15项</small></td>
+    <td>15</td><td>lex（崔翔 Linker 开发）</td>
+    <td><span class="s new">15 New</span></td>
+    <td><span class="s new">15 New</span></td>
+    <td><div class="prog"><div class="prog-bar"><div class="prog-fill" style="width:5%;background:#6741d9"></div></div><span class="prog-lbl" style="color:#6741d9">~5%</span></div></td>
+    <td>Portal Dashboard + OMS Integration 已启动；Q4 重点推进权限控制、导航重构、账户管理</td>
+  </tr>
+  <tr>
+    <td><b>Supporting Systems</b><br><small style="color:#9aa1ac">IAM/IT Infra/Impl/Design/PM/CSR（7项）</small></td>
+    <td>7</td><td>Marco 统筹</td>
+    <td><span class="s enh">Enhancement × 5<br>Production × 2</span></td>
+    <td><span class="s prod">Production × 2</span><br><span class="s enh">Enhancement × 5</span></td>
+    <td><div class="prog"><div class="prog-bar"><div class="prog-fill" style="width:70%;background:#0c8599"></div></div><span class="prog-lbl" style="color:#0c8599">持续</span></div></td>
+    <td>IAM / IT Infra 已 Production；其余 Enhancement 持续迭代</td>
+  </tr>
+</table>
+
+<div class="card teal" style="margin-top:12px">
+  <h3 class="teal" style="margin-top:0;margin-bottom:10px">Client Portal 15项功能（全部 New，Q4推进）</h3>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;font-size:12.5px;">
+    <div>• Portal Dashboard</div><div>• OMS Integration</div><div>• Channel Advisor Integration</div>
+    <div>• Product Management System</div><div>• Control Tower</div><div>• Payment Gateway</div>
+    <div>• Invoice Management</div><div>• Quote Management</div><div>• Inventory Visibility</div>
+    <div>• Document Center</div><div>• User Management</div><div>• API Access</div>
+    <div>• Notification Center</div><div>• SLA Monitoring</div><div>• Customer Analytics</div>
+  </div>
+</div>
+
+<!-- ===================================================================
+     三、AI Platform  Before vs Now
+     =================================================================== -->
+<h2 class="ai">🤖 三、AI Platform — Before vs Now 对比</h2>
+
+<table>
+  <tr>
+    <th class="purple">子模块</th><th class="purple">总条目</th><th class="purple">BA / Dev</th>
+    <th class="purple">Before</th>
+    <th class="purple">Now Prod</th><th class="purple">Now New/Planned</th>
+    <th class="purple">完成率</th><th class="purple">变化</th>
+  </tr>
+  <tr>
+    <td><b>Ontology Knowledge Base</b><br><small style="color:#9aa1ac">Modeling/Studio/Search/Graph/API/Versioning等8项</small></td>
+    <td>8</td><td>张凌阁 · Semantic AI</td>
+    <td><span class="s new">8 New</span></td>
+    <td><span class="s prod">8 Production</span></td>
+    <td><span class="s na">0</span></td>
+    <td><div class="prog"><div class="prog-bar"><div class="prog-fill" style="width:100%;background:#2b8a3e"></div></div><span class="prog-lbl" style="color:#2b8a3e">100%</span></div></td>
+    <td><span class="up">▲ 0%→100% ✅</span></td>
+  </tr>
+  <tr>
+    <td><b>Agent Factory</b><br><small style="color:#9aa1ac">Templates/Builder/Sandbox/Marketplace/Monitoring等9项</small></td>
+    <td>9</td><td>任展 · AI Agent</td>
+    <td><span class="s new">9 New</span></td>
+    <td><span class="s prod">8 Production</span></td>
+    <td><span class="s new">1 New</span></td>
+    <td><div class="prog"><div class="prog-bar"><div class="prog-fill" style="width:89%;background:#2b8a3e"></div></div><span class="prog-lbl" style="color:#2b8a3e">89%</span></div></td>
+    <td><span class="up">▲ 0%→89% 🎉</span></td>
+  </tr>
+  <tr>
+    <td><b>Core AI Infrastructure</b><br><small style="color:#9aa1ac">LLM Gateway/RAG/Vector DB/MLOps/AI Interviewer等11项</small></td>
+    <td>11</td><td>Eason · AIA / 任展</td>
+    <td><span class="s new">11 New</span></td>
+    <td><span class="s prod">3 Production</span></td>
+    <td><span class="s new">8 New</span></td>
+    <td><div class="prog"><div class="prog-bar"><div class="prog-fill" style="width:27%;background:#6741d9"></div></div><span class="prog-lbl" style="color:#6741d9">27%</span></div></td>
+    <td><span class="up">▲ LLM Gateway/AI Interviewer 已上线</span></td>
+  </tr>
+</table>
+
+<div class="card purple" style="margin-top:12px">
+  <h3 class="purple" style="margin-top:0;margin-bottom:10px">AI Platform 已上线功能明细（Now Production = 19条）</h3>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;font-size:12.5px;">
+    <div>
+      <b style="color:#5f3dc4">Ontology（8/8）</b>
+      <ul style="padding-left:16px;margin-top:6px;line-height:1.9;">
+        <li>Ontology Modeling</li><li>Ontology Studio</li><li>CQ Methodology</li>
+        <li>Semantic Search</li><li>Knowledge Graph</li><li>API Generation</li>
+        <li>Multi-tenant Isolation</li><li>Ontology Versioning</li>
+      </ul>
+    </div>
+    <div>
+      <b style="color:#5f3dc4">Agent Factory（8/9）</b>
+      <ul style="padding-left:16px;margin-top:6px;line-height:1.9;">
+        <li>Agent Templates</li><li>Visual Builder</li><li>Testing Sandbox</li>
+        <li>Agent Marketplace</li><li>Monitoring</li><li>Communication</li>
+        <li>Human Loop</li><li>Access Control</li>
+        <li style="color:#868e96">Analytics — New</li>
+      </ul>
+    </div>
+    <div>
+      <b style="color:#5f3dc4">Core AI Infra（3/11）</b>
+      <ul style="padding-left:16px;margin-top:6px;line-height:1.9;">
+        <li>LLM Gateway</li><li>AI Interviewer</li><li>Agent Analytics</li>
+      </ul>
+      <b style="color:#5f3dc4;margin-top:10px;display:block">待开发（New）</b>
+      <ul style="padding-left:16px;margin-top:4px;line-height:1.7;color:#6b7280;">
+        <li>RAG Pipeline</li><li>Vector Database</li><li>ML Model Registry</li>
+        <li>Feature Store</li><li>AI CSR Module</li><li>Atlas AI Platform</li>
+        <li>Chat BI</li><li>Universal Copilot</li>
+      </ul>
     </div>
   </div>
+</div>
 
-  <!-- ═══════════ 整体汇总 ═══════════ -->
-  <h2 class="summary">📊 整体进度汇总 Overall Summary</h2>
+<!-- ===================================================================
+     四、EAG — BNP / CVRM / WFE（仅现在）
+     =================================================================== -->
+<h2 class="eag">🏦 四、EAG — BNP / CVRM / WFE（仅现在，无年初基准）</h2>
+<div class="info">ℹ️ BNP、CVRM（CRM+VRM）、WFE 为 EAG 部门项目，无年初 Before 数据，以下仅展示当前完成功能情况与 BA 负责人。</div>
 
-  <div class="sum-row">
-    <div class="sum-box">
-      <div class="num" style="color:#3b5bdb">332</div>
-      <div class="lbl">WMS & Warehouse</div>
-      <div class="sub">功能条目总数</div>
-    </div>
-    <div class="sum-box">
-      <div class="num" style="color:#3b5bdb">122</div>
-      <div class="lbl">Production</div>
-      <div class="sub">Before: 42 → +80</div>
-    </div>
-    <div class="sum-box">
-      <div class="num" style="color:#1971c2">37</div>
-      <div class="lbl">Enhancement</div>
-      <div class="sub">新增状态分类</div>
-    </div>
-    <div class="sum-box">
-      <div class="num" style="color:#a1690a">48%</div>
-      <div class="lbl">WMS&Warehouse 完成率</div>
-      <div class="sub">Before: ~17%</div>
-    </div>
-    <div class="sum-box">
-      <div class="num" style="color:#0c8599">15</div>
-      <div class="lbl">Client Portal</div>
-      <div class="sub">规划中 · Q4推进</div>
-    </div>
-    <div class="sum-box">
-      <div class="num" style="color:#6741d9">19</div>
-      <div class="lbl">AI Platform Production</div>
-      <div class="sub">Before: 0 → +19</div>
-    </div>
-  </div>
+<!-- BNP -->
+<h3 class="orange" style="margin-top:18px">BNP — 业务结算平台（Billing &amp; Finance）</h3>
+<table>
+  <tr><th class="orange">模块</th><th class="orange">当前已完成 / 交付功能</th><th class="orange">BA</th><th class="orange">状态</th></tr>
+  <tr>
+    <td><b>Billing Engine 重构</b></td>
+    <td>BillingCore 领域建模强类型化；CalculateEngine 聚合计算与实时触发；InvoiceGenerate 迁移；BillingRule 迁移配置化；Pipeline Trace 可观测性；调度重构一/二/三期（Windows Service 完全下线）；新老系统并行验证</td>
+    <td>April Dong</td><td><span class="s prod">大量 Delivered</span></td>
+  </tr>
+  <tr>
+    <td><b>UF PreBilling Phase 1/2/3</b></td>
+    <td>Kafka 数据源接入；CalculateEngine 改造（实时触发/ManualChargeReport）；BillingRule 迁移；发票生成链路；FieldMapping 增强；BillTo 单独计费；跨期重算；3客户对比完成；存储策略优化</td>
+    <td>April / Donna</td><td><span class="s enh">In Progress Q4</span></td>
+  </tr>
+  <tr>
+    <td><b>Small Parcel 计费与对账</b></td>
+    <td>Billing Review / Carrier Invoice Rec / Tracking Comparison / Tracking Detail 页面体系；Kafka 集成改造；计费状态变更日志；Phase II 对账增强（载入 API、计费逻辑、追踪数据）</td>
+    <td>April Dong</td><td><span class="s prod">Phase I Delivered</span> <span class="s enh">Phase II 进行中</span></td>
+  </tr>
+  <tr>
+    <td><b>Billing Agent / ItemGPT</b></td>
+    <td>计费 Agent Phase 1 上线（自然语言查账单、定位异常）；ItemGPT Phase 1 上线（业务问答、数据查询）；BNP 业务本体 Ontology 建设；AI Native Billing 基础设施（进行中）</td>
+    <td>Amanda（已离职）/ Donna</td><td><span class="s prod">Delivered</span> <span class="s enh">持续迭代</span></td>
+  </tr>
+  <tr>
+    <td><b>AR 应收</b></td>
+    <td>Master Invoice 合并发票（TMS对接/PDF/Excel/Email输出/范围修复）；Remittance Auto-processing Phase1/2（状态机/Agent编排/批量重跑）；预付款计算逻辑重构；日常维护（14个子域）</td>
+    <td>Donna Xu</td><td><span class="s prod">大量 Delivered</span></td>
+  </tr>
+  <tr>
+    <td><b>AP 应付</b></td>
+    <td>AP-FMS 集成；Drayage AP Carrier Pay；Driver Pay 漏单修复；EDI AP；TMS 3.0 接口切换（Order/Customer/MasterInvoice 从 TMS 迁移 FMS/Kafka）；日常维护（11个子域）</td>
+    <td>Lina Gao / Donna</td><td><span class="s prod">大量 Delivered</span></td>
+  </tr>
+  <tr>
+    <td><b>RateEngine 计价引擎</b></td>
+    <td>LSO Rate Setup / Enhancement；UT Transit Day 配置；第三方费率集成；Drayage AP/AR 计算；折扣计算；双 ChargeLine 输出；LSO 计算性能优化</td>
+    <td>Debbie（已离职）</td><td><span class="s prod">主要 Delivered</span></td>
+  </tr>
+  <tr>
+    <td><b>Marketplace / Item Bookkeeping 集成</b></td>
+    <td>Marketplace-BNP Charge Integration 端到端；Reseller Company 业务能力字段；Item Bookkeeping Billing 上线；WMS 3.0 集成；Onboarding 自动化 Agent</td>
+    <td>Amanda / April</td><td><span class="s prod">大量 Delivered</span></td>
+  </tr>
+  <tr>
+    <td><b>平台与基础设施</b></td>
+    <td>AWS 云化迁移 Phase 1–6；CDC 数据迁移统一（bnp.worker.cdc）；4套环境标准化；数据库迁移/备份/灾备；安全加固（SQL注入/IAM鉴权/Fortify）；K8s + SeaTunnel 数据同步</td>
+    <td>Dev Team 主导</td><td><span class="s prod">大量 Delivered</span></td>
+  </tr>
+</table>
 
-  <!-- ═══════════ 1. WMS & WAREHOUSE ═══════════ -->
-  <h2 class="wms">🏭 一、WMS &amp; Warehouse — Before vs Now 对比</h2>
+<!-- CVRM -->
+<h3 class="teal" style="margin-top:18px">CVRM — CRM + VRM（客户与供应商关系管理）</h3>
+<table>
+  <tr><th class="teal">子系统</th><th class="teal">当前已完成 / 进行中功能</th><th class="teal">BA</th><th class="teal">状态</th></tr>
+  <tr>
+    <td><b>CRM 客户管理</b></td>
+    <td>客户旅程跟踪；客户健康评分与 AI 分析；文件管理（OCR自动分类）；Active Customer 跟进；Credit Safe 智能搜索增强</td>
+    <td>May Wu</td><td><span class="s new">New / Enhancement</span></td>
+  </tr>
+  <tr>
+    <td><b>CRM 销售管道</b></td>
+    <td>销售管道增强（系统默认/团队管道/克隆）；自定义视图与列表增强；批量上传线索；AI 智能线索创建（邮件/Teams解析）；Management Focus 管理看板；活动管理优化</td>
+    <td>May Wu</td><td><span class="s enh">Enhancement</span> <span class="s new">部分 New</span></td>
+  </tr>
+  <tr>
+    <td><b>CRM 合同管理</b></td>
+    <td>报价与合同生命周期管理；合同审批工作流（状态机）；合同模板库管理</td>
+    <td>May Wu</td><td><span class="s enh">Enhancement</span></td>
+  </tr>
+  <tr>
+    <td><b>CRM 集成</b></td>
+    <td>CRM-WFE 集成（字段映射/自动创建客户）；Ticket 系统集成 + AI Summary；LSO 集成；Email Webhook 实时同步；Call Recording &amp; AI Summary；Dashboard KPI 平台</td>
+    <td>May Wu</td><td><span class="s new">New</span> <span class="s enh">Enhancement</span></td>
+  </tr>
+  <tr>
+    <td><b>CRM 基础设施</b></td>
+    <td>CRM Ontology 建设；CRM Specialist Agent（ItemGPT）；IDM/IAM 权限对齐；Item.com 数据迁移；移动端 App</td>
+    <td>May Wu</td><td><span class="s new">New Q3/Q4</span></td>
+  </tr>
+  <tr>
+    <td><b>VRM 供应商管理</b></td>
+    <td>国际支付方式优化（Wire字段规则）；供应商服务类型同步；文件分类系统优化；安全合规加固（Fortify扫描修复）；外部API调用追踪；Drayage 系统集成（Vendor Category多选）</td>
+    <td>May Wu</td><td><span class="s enh">Enhancement</span> <span class="s new">部分 New</span></td>
+  </tr>
+</table>
 
-  <table>
-    <tr>
-      <th>子系统</th>
-      <th>总条目</th>
-      <th>BA 负责人</th>
-      <th colspan="2">Before（年初）</th>
-      <th colspan="3">Now（当前）</th>
-      <th>完成率</th>
-      <th>变化</th>
-    </tr>
-    <tr>
-      <th></th><th></th><th></th>
-      <th>Prod</th><th>Planned</th>
-      <th>Prod</th><th>Enh</th><th>Planned/New</th>
-      <th></th><th></th>
-    </tr>
+<!-- WFE -->
+<h3 class="purple" style="margin-top:18px">WFE — 工作流引擎（Workflow Engine）</h3>
+<table>
+  <tr><th class="purple">模块</th><th class="purple">当前已交付功能</th><th class="purple">BA</th><th class="purple">状态</th></tr>
+  <tr>
+    <td><b>流程配置与路由</b></td>
+    <td>多条件路由与分支（Condition Rule / Go to Stage / Skip Stage）；跨工作流触发编排（Workflow Trigger）；工作流生命周期治理（Inactive/Delete/Deactivate/Required Stage）；合同审批业务流程落地</td>
+    <td>Lina</td><td><span class="s prod">Production</span></td>
+  </tr>
+  <tr>
+    <td><b>Case 执行</b></td>
+    <td>Case 状态与数据一致性治理（并发写冲突控制）；Case/Stage 任务分配与重分配；Case 进度可视化与甘特图；Case 变更审计日志（Change Log + Kafka 同步 Ticketing）</td>
+    <td>Lina</td><td><span class="s prod">Production</span></td>
+  </tr>
+  <tr>
+    <td><b>问卷与表单</b></td>
+    <td>问卷能力扩展（Reopen / Repeatable Section）；问题类型标准化；问卷提交稳定性修复（文件上传/权限/图片过期）；Checklist 完成记录与组件治理；Dynamic Fields 管理</td>
+    <td>Lina</td><td><span class="s prod">Production</span></td>
+  </tr>
+  <tr>
+    <td><b>系统集成</b></td>
+    <td>WFE-CRM 字段映射与双向同步（含 AI 实体匹配）；WFE-CRM 附件共享同步；自动化 Action（自动创建 CRM Customer / IAM User）；WFE-Ticketing 集成（合同从 Ticketing 发起）；Price List 插件部署</td>
+    <td>Lina</td><td><span class="s prod">Production</span></td>
+  </tr>
+  <tr>
+    <td><b>权限与门户</b></td>
+    <td>Customer Portal 外部用户协作修复；Workflow/Case/Stage 权限模型重设计（Template vs Runtime 分离）；账号状态与多系统身份同步治理</td>
+    <td>Lina</td><td><span class="s prod">Production</span></td>
+  </tr>
+  <tr>
+    <td><b>通知与文档签署</b></td>
+    <td>Send Notification 增强（按 User/Team 发送）；Internal Notes &amp; 消息投递修复；用户签名档案与原生文档签署；Adobe Sign 第三方电子签名集成</td>
+    <td>Lina</td><td><span class="s prod">Production</span></td>
+  </tr>
+  <tr>
+    <td><b>平台架构</b></td>
+    <td>前端架构迁移（Vue → React 18 + TypeScript + Vite，50+组件库，IDM SSO）；后端治理（ILogger结构化日志/API目录化/Action链路修复）；AI Workflow 智能生成增强；用户引导（Tooltip Onboarding）；What's New 产品更新公告</td>
+    <td>Lina</td><td><span class="s prod">大量 Production</span></td>
+  </tr>
+</table>
 
-    <!-- OMS -->
-    <tr>
-      <td><b>OMS</b></td>
-      <td>24</td>
-      <td>LiuWei / Wesley</td>
-      <td><span class="s prod">6</span></td>
-      <td><span class="s plan">18</span></td>
-      <td><span class="s prod">14</span></td>
-      <td><span class="s enh">6</span></td>
-      <td><span class="s plan">3</span></td>
-      <td>
-        <div class="prog-wrap">
-          <div class="prog-bar"><div class="prog-fill" style="width:83%;background:#2b8a3e"></div></div>
-          <span class="prog-label" style="color:#2b8a3e">83%</span>
-        </div>
-      </td>
-      <td><span class="up">▲ +14 Prod</span></td>
-    </tr>
+<!-- EAG BA 汇总 -->
+<h3 class="orange" style="margin-top:18px">EAG 项目 BA 负责人汇总</h3>
+<table>
+  <tr><th class="orange">BA</th><th class="orange">项目</th><th class="orange">负责模块</th><th class="orange">备注</th></tr>
+  <tr><td><b>April Dong</b></td><td>BNP</td><td>Billing Engine、UF PreBilling、Small Parcel、Billing Agent、Bookkeeping、GL、ShipItem</td><td>核心 BA，交付量最大</td></tr>
+  <tr><td><b>Donna Xu</b></td><td>BNP</td><td>AR、AP、ItemGPT、Claim/Dispute、Purchase、Debt、Driver Pay、Fixed Asset</td><td>AR/AP 主力</td></tr>
+  <tr><td><b>Lina Gao</b></td><td>BNP + WFE</td><td>BNP: Claim、Marketplace、Support &amp; Integration；WFE: 全模块</td><td>跨项目 BA</td></tr>
+  <tr><td><b>Debbie</b></td><td>BNP</td><td>RateEngine 计价引擎</td><td>已离职</td></tr>
+  <tr><td><b>Amanda</b></td><td>BNP</td><td>Billing AI / ItemGPT / Marketplace / System</td><td>已离职</td></tr>
+  <tr><td><b>May Wu</b></td><td>CVRM</td><td>CRM 全部 + VRM 全部</td><td>在北京</td></tr>
+</table>
 
-    <!-- WMS Core -->
-    <tr>
-      <td><b>WMS Core</b></td>
-      <td>103</td>
-      <td>Yuyang/Liuwei/Jason/Gus + Wesley</td>
-      <td><span class="s prod">13</span></td>
-      <td><span class="s plan">90</span></td>
-      <td><span class="s prod">38</span></td>
-      <td><span class="s enh">10</span></td>
-      <td><span class="s plan">47</span> + <span class="s new">0</span></td>
-      <td>
-        <div class="prog-wrap">
-          <div class="prog-bar"><div class="prog-fill" style="width:47%;background:#3b5bdb"></div></div>
-          <span class="prog-label" style="color:#3b5bdb">47%</span>
-        </div>
-      </td>
-      <td><span class="up">▲ +25 Prod</span></td>
-    </tr>
-
-    <!-- WES -->
-    <tr>
-      <td><b>WES</b></td>
-      <td>43</td>
-      <td>Levent / ZhongLiang</td>
-      <td><span class="s prod">2</span></td>
-      <td><span class="s plan">41</span></td>
-      <td><span class="s prod">12</span></td>
-      <td><span class="s enh">3</span></td>
-      <td><span class="s plan">28</span></td>
-      <td>
-        <div class="prog-wrap">
-          <div class="prog-bar"><div class="prog-fill" style="width:35%;background:#e8590c"></div></div>
-          <span class="prog-label" style="color:#e8590c">35%</span>
-        </div>
-      </td>
-      <td><span class="up">▲ +10 Prod</span></td>
-    </tr>
-
-    <!-- APS -->
-    <tr>
-      <td><b>APS</b></td>
-      <td>24</td>
-      <td>Charles</td>
-      <td><span class="s na">0</span></td>
-      <td><span class="s plan">24</span></td>
-      <td><span class="s prod">8</span></td>
-      <td><span class="s enh">5</span></td>
-      <td><span class="s plan">11</span></td>
-      <td>
-        <div class="prog-wrap">
-          <div class="prog-bar"><div class="prog-fill" style="width:54%;background:#3b5bdb"></div></div>
-          <span class="prog-label" style="color:#3b5bdb">54%</span>
-        </div>
-      </td>
-      <td><span class="up">▲ 从0%到54%</span></td>
-    </tr>
-
-    <!-- LMS -->
-    <tr>
-      <td><b>LMS</b></td>
-      <td>12</td>
-      <td>Lipeijia</td>
-      <td><span class="s na">0</span></td>
-      <td><span class="s plan">12</span></td>
-      <td><span class="s prod">5</span></td>
-      <td><span class="s na">0</span></td>
-      <td><span class="s plan">4</span> + <span class="s new">3</span></td>
-      <td>
-        <div class="prog-wrap">
-          <div class="prog-bar"><div class="prog-fill" style="width:42%;background:#3b5bdb"></div></div>
-          <span class="prog-label" style="color:#3b5bdb">42%</span>
-        </div>
-      </td>
-      <td><span class="up">▲ 从0%到42%</span></td>
-    </tr>
-
-    <!-- YMS -->
-    <tr>
-      <td><b>YMS</b></td>
-      <td>40</td>
-      <td>Liuwei / Wangshuo</td>
-      <td><span class="s na">0</span></td>
-      <td><span class="s plan">40</span></td>
-      <td><span class="s prod">14</span></td>
-      <td><span class="s enh">3</span></td>
-      <td><span class="s plan">2</span> + <span class="s new">21</span></td>
-      <td>
-        <div class="prog-wrap">
-          <div class="prog-bar"><div class="prog-fill" style="width:43%;background:#2b8a3e"></div></div>
-          <span class="prog-label" style="color:#2b8a3e">43%</span>
-        </div>
-      </td>
-      <td><span class="up">▲ 从0%到43% 🎉</span></td>
-    </tr>
-
-    <!-- Integration -->
-    <tr>
-      <td><b>Integration</b></td>
-      <td>18</td>
-      <td>LiuWei / Wesley</td>
-      <td><span class="s na">0</span></td>
-      <td><span class="s plan">18</span></td>
-      <td><span class="s prod">15</span></td>
-      <td><span class="s enh">3</span></td>
-      <td><span class="s plan">0</span></td>
-      <td>
-        <div class="prog-wrap">
-          <div class="prog-bar"><div class="prog-fill" style="width:100%;background:#2b8a3e"></div></div>
-          <span class="prog-label" style="color:#2b8a3e">100%</span>
-        </div>
-      </td>
-      <td><span class="up">▲ 从0%到100% ✅</span></td>
-    </tr>
-
-    <!-- System -->
-    <tr>
-      <td><b>System</b></td>
-      <td>20</td>
-      <td>Lipeijia / Yuyang / Liu Wei</td>
-      <td><span class="s prod">1</span></td>
-      <td><span class="s plan">19</span></td>
-      <td><span class="s prod">7</span></td>
-      <td><span class="s enh">7</span></td>
-      <td><span class="s plan">6</span></td>
-      <td>
-        <div class="prog-wrap">
-          <div class="prog-bar"><div class="prog-fill" style="width:70%;background:#3b5bdb"></div></div>
-          <span class="prog-label" style="color:#3b5bdb">70%</span>
-        </div>
-      </td>
-      <td><span class="up">▲ +13 Prod+Enh</span></td>
-    </tr>
-
-    <!-- Reporting -->
-    <tr>
-      <td><b>Reporting</b></td>
-      <td>15</td>
-      <td>Weinan / Wesley</td>
-      <td><span class="s prod">7</span></td>
-      <td><span class="s plan">8</span></td>
-      <td><span class="s prod">7</span></td>
-      <td><span class="s na">0</span></td>
-      <td><span class="s plan">8</span></td>
-      <td>
-        <div class="prog-wrap">
-          <div class="prog-bar"><div class="prog-fill" style="width:47%;background:#3b5bdb"></div></div>
-          <span class="prog-label" style="color:#3b5bdb">47%</span>
-        </div>
-      </td>
-      <td><span class="same">→ 持平（范围扩大）</span></td>
-    </tr>
-
-    <!-- RMS -->
-    <tr>
-      <td><b>RMS</b></td>
-      <td>10</td>
-      <td>Wesley</td>
-      <td><span class="s new">10 New</span></td>
-      <td>—</td>
-      <td><span class="s na">0</span></td>
-      <td><span class="s na">0</span></td>
-      <td><span class="s new">10 New</span></td>
-      <td>
-        <div class="prog-wrap">
-          <div class="prog-bar"><div class="prog-fill" style="width:0%;background:#6741d9"></div></div>
-          <span class="prog-label" style="color:#6741d9">0%</span>
-        </div>
-      </td>
-      <td><span class="new-item">★ Q3新立项</span></td>
-    </tr>
-
-    <!-- Cyclelution -->
-    <tr>
-      <td><b>Cyclelution</b></td>
-      <td>8</td>
-      <td>Wesley</td>
-      <td><span class="s new">8 New</span></td>
-      <td>—</td>
-      <td><span class="s na">0</span></td>
-      <td><span class="s na">0</span></td>
-      <td><span class="s new">8 New</span></td>
-      <td>
-        <div class="prog-wrap">
-          <div class="prog-bar"><div class="prog-fill" style="width:0%;background:#6741d9"></div></div>
-          <span class="prog-label" style="color:#6741d9">0%</span>
-        </div>
-      </td>
-      <td><span class="new-item">★ Q4新立项</span></td>
-    </tr>
-
-    <!-- AI-WMS -->
-    <tr>
-      <td><b>AI-WMS</b></td>
-      <td>14</td>
-      <td>Matthew</td>
-      <td><span class="s new">14 New</span></td>
-      <td>—</td>
-      <td><span class="s na">0</span></td>
-      <td><span class="s na">0</span></td>
-      <td><span class="s new">14 New</span></td>
-      <td>
-        <div class="prog-wrap">
-          <div class="prog-bar"><div class="prog-fill" style="width:0%;background:#6741d9"></div></div>
-          <span class="prog-label" style="color:#6741d9">0%</span>
-        </div>
-      </td>
-      <td><span class="new-item">★ Q3/Q4 Very High</span></td>
-    </tr>
-  </table>
-
-  <!-- WMS 亮点说明 -->
-  <div class="card" style="margin-top:14px;">
-    <h3 style="border-left-color:#2b8a3e;color:#1a7431;margin-top:0">✅ WMS&Warehouse 关键亮点</h3>
-    <ul style="font-size:13px;padding-left:20px;margin-top:8px;line-height:1.9">
-      <li><b>Integration 100%</b> — EDI/API/Platform 全部 Production，基础连通性完全就绪</li>
-      <li><b>OMS 83%</b> — 崔翔 Linker 团队，订单全生命周期、多渠道对接、库存同步均已交付</li>
-      <li><b>YMS 从0%→43%</b> — Gate Management 5条全部 Production，Q3实质交付 DIEV/LinkW/Chefman</li>
-      <li><b>APS 从0%→54%</b> — Charles 新接管，Workforce Planning 4条全 Production，AI Chatbox agent已上线</li>
-      <li><b>System 70%</b> — SSO、用户权限、数据导入导出核心功能到位</li>
-    </ul>
-  </div>
-
-  <div class="note" style="margin-top:10px">
-    ⚠️ <b>WES 35%</b>（28条仍Planned）和 <b>WMS Advanced Picking 全Planned</b> 是当前最大风险点，Q4需专项推进计划。
-  </div>
-
-  <!-- WMS 子模块详情 -->
-  <h3 style="margin-top:24px">WMS Core 子模块拆分（Now 当前）</h3>
-  <table>
-    <tr>
-      <th>子模块</th><th>BA</th><th>总计</th>
-      <th>Production</th><th>Enhancement</th><th>Planned</th><th>完成率</th>
-    </tr>
-    <tr>
-      <td>Receiving Module</td><td>Yuyang / Wesley</td><td>23</td>
-      <td><span class="s prod">13</span></td><td><span class="s enh">3</span></td><td><span class="s plan">7</span></td>
-      <td><div class="prog-wrap"><div class="prog-bar"><div class="prog-fill" style="width:70%;background:#2b8a3e"></div></div><span class="prog-label" style="color:#2b8a3e">70%</span></div></td>
-    </tr>
-    <tr>
-      <td>QC Module</td><td>Yuyang / Wesley</td><td>6</td>
-      <td><span class="s na">0</span></td><td><span class="s enh">1</span></td><td><span class="s plan">5</span></td>
-      <td><div class="prog-wrap"><div class="prog-bar"><div class="prog-fill" style="width:17%;background:#e8590c"></div></div><span class="prog-label" style="color:#e8590c">17%</span></div></td>
-    </tr>
-    <tr>
-      <td>Inventory Management</td><td>Gus / Levent</td><td>12</td>
-      <td><span class="s prod">6</span></td><td><span class="s na">0</span></td><td><span class="s plan">6</span></td>
-      <td><div class="prog-wrap"><div class="prog-bar"><div class="prog-fill" style="width:50%;background:#3b5bdb"></div></div><span class="prog-label" style="color:#3b5bdb">50%</span></div></td>
-    </tr>
-    <tr>
-      <td>Kit Management</td><td>Gus / Levent</td><td>4</td>
-      <td><span class="s prod">2</span></td><td><span class="s na">0</span></td><td><span class="s plan">2</span></td>
-      <td><div class="prog-wrap"><div class="prog-bar"><div class="prog-fill" style="width:50%;background:#3b5bdb"></div></div><span class="prog-label" style="color:#3b5bdb">50%</span></div></td>
-    </tr>
-    <tr>
-      <td>Order Fulfillment</td><td>Liuwei / Wesley</td><td>22</td>
-      <td><span class="s prod">13</span></td><td><span class="s enh">5</span></td><td><span class="s plan">4</span></td>
-      <td><div class="prog-wrap"><div class="prog-bar"><div class="prog-fill" style="width:82%;background:#2b8a3e"></div></div><span class="prog-label" style="color:#2b8a3e">82%</span></div></td>
-    </tr>
-    <tr>
-      <td>⚠ Adv. Picking &amp; Shipping</td><td>Jason / Wesley</td><td>32</td>
-      <td><span class="s prod">4</span></td><td><span class="s na">0</span></td><td><span class="s plan">28</span></td>
-      <td><div class="prog-wrap"><div class="prog-bar"><div class="prog-fill" style="width:13%;background:#c92a2a"></div></div><span class="prog-label" style="color:#c92a2a">13%</span></div></td>
-    </tr>
-    <tr>
-      <td>Package Management</td><td>Jason / Wesley</td><td>4</td>
-      <td><span class="s na">0</span></td><td><span class="s na">0</span></td><td><span class="s plan">4</span></td>
-      <td><div class="prog-wrap"><div class="prog-bar"><div class="prog-fill" style="width:0%;background:#c92a2a"></div></div><span class="prog-label" style="color:#c92a2a">0%</span></div></td>
-    </tr>
-  </table>
-
-  <!-- ═══════════ 2. CLIENT PORTAL & SUPPORTING ═══════════ -->
-  <h2 class="cp">🖥️ 二、Client Portal &amp; Supporting System — Before vs Now 对比</h2>
-
-  <table>
-    <tr>
-      <th class="teal">子系统</th>
-      <th class="teal">总条目</th>
-      <th class="teal">BA 负责人</th>
-      <th class="teal">Before</th>
-      <th class="teal">Now</th>
-      <th class="teal">完成率</th>
-      <th class="teal">变化说明</th>
-    </tr>
-    <tr>
-      <td><b>Client Portal</b><br><small style="color:#9aa1ac">Dashboard/OMS/Payment/Invoice 等15项</small></td>
-      <td>15</td>
-      <td>lex（崔翔 Linker 开发）</td>
-      <td><span class="s new">15 New</span></td>
-      <td><span class="s new">15 New</span></td>
-      <td>
-        <div class="prog-wrap">
-          <div class="prog-bar"><div class="prog-fill" style="width:5%;background:#6741d9"></div></div>
-          <span class="prog-label" style="color:#6741d9">~5%</span>
-        </div>
-      </td>
-      <td>Portal Dashboard + OMS Integration 已启动，Q4重点推进</td>
-    </tr>
-    <tr>
-      <td><b>CVRM / BNP / Workflow Engine</b></td>
-      <td rowspan="2">7</td>
-      <td>Marco（李威开发）</td>
-      <td><span class="s na">仅现在</span></td>
-      <td><span class="s enh">Enhancement</span></td>
-      <td>
-        <div class="prog-wrap">
-          <div class="prog-bar"><div class="prog-fill" style="width:60%;background:#0c8599"></div></div>
-          <span class="prog-label" style="color:#0c8599">进行中</span>
-        </div>
-      </td>
-      <td>业务流程管理 &amp; 工作流自动化，Enhancement 状态</td>
-    </tr>
-    <tr>
-      <td><b>Recruit / HRM / IAM / IT Infra / Impl / Design / PM / CSR</b></td>
-      <td>Marco 统筹</td>
-      <td><span class="s na">仅现在</span></td>
-      <td><span class="s enh">Enhancement</span></td>
-      <td>
-        <div class="prog-wrap">
-          <div class="prog-bar"><div class="prog-fill" style="width:60%;background:#0c8599"></div></div>
-          <span class="prog-label" style="color:#0c8599">持续交付</span>
-        </div>
-      </td>
-      <td>IAM/IT Infra 已 Production；其余均 Enhancement 持续迭代</td>
-    </tr>
-  </table>
-
-  <div class="card teal" style="margin-top:14px">
-    <h3 class="teal" style="margin-top:0">Client Portal 功能规划（15项，Q4推进）</h3>
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:8px;font-size:12.5px">
-      <div>• Portal Dashboard</div>
-      <div>• OMS Integration</div>
-      <div>• Channel Advisor Integration</div>
-      <div>• Product Management System</div>
-      <div>• Control Tower</div>
-      <div>• Payment Gateway</div>
-      <div>• Invoice Management</div>
-      <div>• Quote Management</div>
-      <div>• Inventory Visibility</div>
-      <div>• Document Center</div>
-      <div>• User Management</div>
-      <div>• API Access</div>
-      <div>• Notification Center</div>
-      <div>• SLA Monitoring</div>
-      <div>• Customer Analytics</div>
-    </div>
-  </div>
-
-  <div class="card orange" style="margin-top:12px">
-    <h3 class="orange" style="margin-top:0">BNP / CVRM / WFE — 仅现在（无Before基准）</h3>
-    <table style="margin-top:8px">
-      <tr>
-        <th class="orange">项目</th><th class="orange">Dev</th><th class="orange">当前状态</th><th class="orange">说明</th>
-      </tr>
-      <tr>
-        <td>CVRM / BNP / Workflow Engine</td><td>李威</td>
-        <td><span class="s enh">Enhancement</span></td>
-        <td>业务流程自动化，Q2启动，持续迭代中</td>
-      </tr>
-      <tr>
-        <td>Recruit / HRM</td><td>刘亚斌 + Eddie</td>
-        <td><span class="s enh">Enhancement</span></td>
-        <td>招聘与人力资源管理，Q2启动</td>
-      </tr>
-      <tr>
-        <td>Architecture Platform / IAM</td><td>杜军红</td>
-        <td><span class="s prod">Production</span></td>
-        <td>Q1已上线，身份与访问管理平台</td>
-      </tr>
-      <tr>
-        <td>IT Infrastructure</td><td>Adam</td>
-        <td><span class="s prod">Production</span></td>
-        <td>Q1已上线，基础设施管理</td>
-      </tr>
-      <tr>
-        <td>Implementation Services</td><td>Shelia</td>
-        <td><span class="s enh">Enhancement</span></td>
-        <td>客户实施与交付，持续优化</td>
-      </tr>
-      <tr>
-        <td>Product Design</td><td>魏迟</td>
-        <td><span class="s enh">Enhancement</span></td>
-        <td>UI/UX 设计，持续迭代</td>
-      </tr>
-      <tr>
-        <td>Project Management / CSR</td><td>Coco / Robin</td>
-        <td><span class="s enh">Enhancement</span></td>
-        <td>项目管理与客户成功，持续运营</td>
-      </tr>
-    </table>
-  </div>
-
-  <!-- ═══════════ 3. AI PLATFORM ═══════════ -->
-  <h2 class="ai">🤖 三、AI Platform — Before vs Now 对比</h2>
-
-  <table>
-    <tr>
-      <th class="purple">子模块</th>
-      <th class="purple">总条目</th>
-      <th class="purple">BA / Dev</th>
-      <th class="purple">Before</th>
-      <th class="purple">Now（Prod）</th>
-      <th class="purple">Now（New/Plan）</th>
-      <th class="purple">完成率</th>
-      <th class="purple">变化</th>
-    </tr>
-    <tr>
-      <td><b>Ontology Knowledge Base</b><br><small style="color:#9aa1ac">Modeling/Studio/Search/Graph/API等8项</small></td>
-      <td>8</td>
-      <td>张凌阁 · Semantic AI</td>
-      <td><span class="s new">8 New</span></td>
-      <td><span class="s prod">8 Production</span></td>
-      <td><span class="s na">0</span></td>
-      <td>
-        <div class="prog-wrap">
-          <div class="prog-bar"><div class="prog-fill" style="width:100%;background:#2b8a3e"></div></div>
-          <span class="prog-label" style="color:#2b8a3e">100%</span>
-        </div>
-      </td>
-      <td><span class="up">▲ 从0%→100% ✅</span></td>
-    </tr>
-    <tr>
-      <td><b>Agent Factory</b><br><small style="color:#9aa1ac">Templates/Builder/Sandbox/Marketplace等9项</small></td>
-      <td>9</td>
-      <td>任展 · AI Agent</td>
-      <td><span class="s new">9 New</span></td>
-      <td><span class="s prod">8 Production</span></td>
-      <td><span class="s new">1 New</span></td>
-      <td>
-        <div class="prog-wrap">
-          <div class="prog-bar"><div class="prog-fill" style="width:89%;background:#2b8a3e"></div></div>
-          <span class="prog-label" style="color:#2b8a3e">89%</span>
-        </div>
-      </td>
-      <td><span class="up">▲ 从0%→89% 🎉</span></td>
-    </tr>
-    <tr>
-      <td><b>Core AI Infrastructure</b><br><small style="color:#9aa1ac">LLM Gateway/RAG/Vector DB/MLOps等11项</small></td>
-      <td>11</td>
-      <td>Eason · AIA / 任展</td>
-      <td><span class="s new">11 New</span></td>
-      <td><span class="s prod">3 Production</span></td>
-      <td><span class="s new">8 New</span></td>
-      <td>
-        <div class="prog-wrap">
-          <div class="prog-bar"><div class="prog-fill" style="width:27%;background:#6741d9"></div></div>
-          <span class="prog-label" style="color:#6741d9">27%</span>
-        </div>
-      </td>
-      <td><span class="up">▲ LLM Gateway/AI Interviewer/Agent Templates已上线</span></td>
-    </tr>
-  </table>
-
-  <div class="card purple" style="margin-top:14px">
-    <h3 class="purple" style="margin-top:0">AI Platform 已上线功能明细（Now Production）</h3>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;font-size:13px">
-      <div>
-        <b style="color:#5f3dc4">Ontology（8/8 Production）</b>
-        <ul style="padding-left:18px;margin-top:4px;line-height:1.8">
-          <li>Ontology Modeling — 业务本体建模</li>
-          <li>Ontology Studio — 可视化编辑器</li>
-          <li>CQ Methodology — 能力问题方法论引擎</li>
-          <li>Semantic Search — 跨系统语义搜索</li>
-          <li>Knowledge Graph — 知识图谱构建</li>
-          <li>API Generation — 本体驱动API生成</li>
-          <li>Multi-tenant Isolation — 多租户隔离</li>
-          <li>Ontology Versioning — 版本管理</li>
-        </ul>
-      </div>
-      <div>
-        <b style="color:#5f3dc4">Agent Factory（8/9 Production）</b>
-        <ul style="padding-left:18px;margin-top:4px;line-height:1.8">
-          <li>Agent Templates — 预构建模板库</li>
-          <li>Visual Builder — 拖拽式构建器</li>
-          <li>Testing Sandbox — 测试沙箱</li>
-          <li>Agent Marketplace — 跨租户分发</li>
-          <li>Monitoring — 可观测性平台</li>
-          <li>Communication — Agent间通信协议</li>
-          <li>Human Loop — 人工审核流</li>
-          <li>Access Control — 权限控制</li>
-          <li style="color:#868e96">Analytics — New（规划中）</li>
-        </ul>
-        <b style="color:#5f3dc4;margin-top:8px;display:block">Core AI Infra（3/11 Production）</b>
-        <ul style="padding-left:18px;margin-top:4px;line-height:1.8">
-          <li>LLM Gateway — 统一模型网关</li>
-          <li>AI Interviewer — 视频多语言面试</li>
-          <li>Agent Analytics — 用量成本追踪</li>
-        </ul>
-      </div>
-    </div>
-  </div>
-
-  <!-- ═══════════ 4. BA 负责人 ═══════════ -->
-  <h2 class="ba">👥 四、BA 负责人工作量汇总（Now 版）</h2>
-
-  <div class="ba-grid">
-
-    <div class="ba-card">
-      <div><span class="ba-avatar" style="background:#3b5bdb">LW</span>
-      <span class="ba-name">LiuWei / Wesley</span></div>
-      <div class="ba-scope">OMS · Integration · WMS Order Fulfillment · YMS联合</div>
-      <div class="ba-stats">
-        <span class="ba-stat" style="background:#d3f9d8;color:#1a7431">Prod ~44</span>
-        <span class="ba-stat" style="background:#e8f4fd;color:#1971c2">Enh ~15</span>
-        <span class="ba-stat" style="background:#fff3e0;color:#a1690a">~86条总计</span>
-        <span class="ba-stat" style="background:#fff0f3;color:#c92a2a">完成率~96%🏆</span>
-      </div>
-    </div>
-
-    <div class="ba-card">
-      <div><span class="ba-avatar" style="background:#2b8a3e">YY</span>
-      <span class="ba-name">Yuyang / Wesley</span></div>
-      <div class="ba-scope">WMS Receiving · QC · System Config · Portal</div>
-      <div class="ba-stats">
-        <span class="ba-stat" style="background:#d3f9d8;color:#1a7431">Prod ~16</span>
-        <span class="ba-stat" style="background:#e8f4fd;color:#1971c2">Enh ~7</span>
-        <span class="ba-stat" style="background:#fff3e0;color:#a1690a">~52条总计</span>
-        <span class="ba-stat" style="background:#e8f4fd;color:#1971c2">~62%</span>
-      </div>
-    </div>
-
-    <div class="ba-card">
-      <div><span class="ba-avatar" style="background:#e8590c">JW</span>
-      <span class="ba-name">Jason / Wesley</span></div>
-      <div class="ba-scope">WMS Adv. Picking · Package（新接管 Sep）</div>
-      <div class="ba-stats">
-        <span class="ba-stat" style="background:#d3f9d8;color:#1a7431">Prod 4</span>
-        <span class="ba-stat" style="background:#fff3e0;color:#a1690a">Plan 32</span>
-        <span class="ba-stat" style="background:#fff3e0;color:#a1690a">36条总计</span>
-        <span class="ba-stat" style="background:#fff0f3;color:#c92a2a">⚠ 13% Q4需提速</span>
-      </div>
-    </div>
-
-    <div class="ba-card">
-      <div><span class="ba-avatar" style="background:#0c8599">GL</span>
-      <span class="ba-name">Gus / Levent</span></div>
-      <div class="ba-scope">WMS Inventory · Kit Management</div>
-      <div class="ba-stats">
-        <span class="ba-stat" style="background:#d3f9d8;color:#1a7431">Prod 8</span>
-        <span class="ba-stat" style="background:#fff3e0;color:#a1690a">Plan 8</span>
-        <span class="ba-stat" style="background:#fff3e0;color:#a1690a">16条总计</span>
-        <span class="ba-stat" style="background:#e8f4fd;color:#1971c2">50% ✅</span>
-      </div>
-    </div>
-
-    <div class="ba-card">
-      <div><span class="ba-avatar" style="background:#c92a2a">LZ</span>
-      <span class="ba-name">Levent / ZhongLiang</span></div>
-      <div class="ba-scope">WES 仓库执行系统（全部43条）</div>
-      <div class="ba-stats">
-        <span class="ba-stat" style="background:#d3f9d8;color:#1a7431">Prod 12</span>
-        <span class="ba-stat" style="background:#e8f4fd;color:#1971c2">Enh 3</span>
-        <span class="ba-stat" style="background:#fff3e0;color:#a1690a">Plan 28</span>
-        <span class="ba-stat" style="background:#fff0f3;color:#c92a2a">35% 📈较年初+33%</span>
-      </div>
-    </div>
-
-    <div class="ba-card">
-      <div><span class="ba-avatar" style="background:#6741d9">CH</span>
-      <span class="ba-name">Charles</span></div>
-      <div class="ba-scope">APS 劳动绩效系统（新接管，原Eddie）</div>
-      <div class="ba-stats">
-        <span class="ba-stat" style="background:#d3f9d8;color:#1a7431">Prod 8</span>
-        <span class="ba-stat" style="background:#e8f4fd;color:#1971c2">Enh 5</span>
-        <span class="ba-stat" style="background:#fff3e0;color:#a1690a">Plan 11</span>
-        <span class="ba-stat" style="background:#e8f4fd;color:#1971c2">54% 新接管合理</span>
-      </div>
-    </div>
-
-    <div class="ba-card">
-      <div><span class="ba-avatar" style="background:#3b5bdb">LP</span>
-      <span class="ba-name">Lipeijia</span></div>
-      <div class="ba-scope">LMS · System User · Portal</div>
-      <div class="ba-stats">
-        <span class="ba-stat" style="background:#d3f9d8;color:#1a7431">Prod 10</span>
-        <span class="ba-stat" style="background:#fff3e0;color:#a1690a">Plan/New 7</span>
-        <span class="ba-stat" style="background:#fff3e0;color:#a1690a">~32条总计</span>
-        <span class="ba-stat" style="background:#e8f4fd;color:#1971c2">~59% ✅</span>
-      </div>
-    </div>
-
-    <div class="ba-card">
-      <div><span class="ba-avatar" style="background:#0c8599">LWS</span>
-      <span class="ba-name">Liuwei / Wangshuo</span></div>
-      <div class="ba-scope">YMS 院场管理系统（联合负责）</div>
-      <div class="ba-stats">
-        <span class="ba-stat" style="background:#d3f9d8;color:#1a7431">Prod 14</span>
-        <span class="ba-stat" style="background:#e8f4fd;color:#1971c2">Enh 3</span>
-        <span class="ba-stat" style="background:#f3f0ff;color:#5f3dc4">New 21</span>
-        <span class="ba-stat" style="background:#d3f9d8;color:#1a7431">43% 从0%大幅提升🎉</span>
-      </div>
-    </div>
-
-    <div class="ba-card">
-      <div><span class="ba-avatar" style="background:#2b8a3e">WN</span>
-      <span class="ba-name">Weinan / Wesley</span></div>
-      <div class="ba-scope">Reporting / BI 数据分析</div>
-      <div class="ba-stats">
-        <span class="ba-stat" style="background:#d3f9d8;color:#1a7431">Prod 7</span>
-        <span class="ba-stat" style="background:#fff3e0;color:#a1690a">Plan 8</span>
-        <span class="ba-stat" style="background:#fff3e0;color:#a1690a">15条总计</span>
-        <span class="ba-stat" style="background:#e8f4fd;color:#1971c2">47% 持平</span>
-      </div>
-    </div>
-
-    <div class="ba-card">
-      <div><span class="ba-avatar" style="background:#e8590c">WE</span>
-      <span class="ba-name">Wesley</span></div>
-      <div class="ba-scope">RMS 退换货 · Cyclelution eWaste（新立项）</div>
-      <div class="ba-stats">
-        <span class="ba-stat" style="background:#f3f0ff;color:#5f3dc4">New 18</span>
-        <span class="ba-stat" style="background:#f3f0ff;color:#5f3dc4">Q3/Q4 规划中 🚀</span>
-      </div>
-    </div>
-
-    <div class="ba-card">
-      <div><span class="ba-avatar" style="background:#6741d9">MA</span>
-      <span class="ba-name">Matthew</span></div>
-      <div class="ba-scope">AI-WMS 智能仓储（Very High复杂度）</div>
-      <div class="ba-stats">
-        <span class="ba-stat" style="background:#f3f0ff;color:#5f3dc4">New 14</span>
-        <span class="ba-stat" style="background:#f3f0ff;color:#5f3dc4">Q3立项 Q4开发 🤖</span>
-      </div>
-    </div>
-
-    <div class="ba-card">
-      <div><span class="ba-avatar" style="background:#0c8599">LX</span>
-      <span class="ba-name">lex</span></div>
-      <div class="ba-scope">Client Portal 3.0（15项全功能）</div>
-      <div class="ba-stats">
-        <span class="ba-stat" style="background:#f3f0ff;color:#5f3dc4">New 15</span>
-        <span class="ba-stat" style="background:#e8f4fd;color:#1971c2">Q4 重点推进</span>
-      </div>
-    </div>
-
-    <div class="ba-card">
-      <div><span class="ba-avatar" style="background:#6741d9">ZLG</span>
-      <span class="ba-name">张凌阁</span></div>
-      <div class="ba-scope">AI Platform · Ontology Knowledge Base</div>
-      <div class="ba-stats">
-        <span class="ba-stat" style="background:#d3f9d8;color:#1a7431">Prod 8/8</span>
-        <span class="ba-stat" style="background:#d3f9d8;color:#1a7431">100% ✅</span>
-      </div>
-    </div>
-
-    <div class="ba-card">
-      <div><span class="ba-avatar" style="background:#6741d9">RZ</span>
-      <span class="ba-name">任展</span></div>
-      <div class="ba-scope">AI Platform · Agent Factory · AI Interviewer</div>
-      <div class="ba-stats">
-        <span class="ba-stat" style="background:#d3f9d8;color:#1a7431">Prod 9</span>
-        <span class="ba-stat" style="background:#f3f0ff;color:#5f3dc4">New 1</span>
-        <span class="ba-stat" style="background:#d3f9d8;color:#1a7431">89% 🎉</span>
-      </div>
-    </div>
-
-    <div class="ba-card">
-      <div><span class="ba-avatar" style="background:#1971c2">ES</span>
-      <span class="ba-name">Eason</span></div>
-      <div class="ba-scope">AI Platform · Core AI Infrastructure · LLM Gateway</div>
-      <div class="ba-stats">
-        <span class="ba-stat" style="background:#d3f9d8;color:#1a7431">Prod 3</span>
-        <span class="ba-stat" style="background:#f3f0ff;color:#5f3dc4">New 8</span>
-        <span class="ba-stat" style="background:#e8f4fd;color:#1971c2">27% LLM Gateway已上线</span>
-      </div>
-    </div>
-
-    <div class="ba-card">
-      <div><span class="ba-avatar" style="background:#e8590c">MC</span>
-      <span class="ba-name">Marco</span></div>
-      <div class="ba-scope">Supporting Systems · BNP/CVRM/WFE/HRM/IAM/IT/PM/CSR</div>
-      <div class="ba-stats">
-        <span class="ba-stat" style="background:#d3f9d8;color:#1a7431">Prod 2</span>
-        <span class="ba-stat" style="background:#e8f4fd;color:#1971c2">Enh 5</span>
-        <span class="ba-stat" style="background:#e8f4fd;color:#1971c2">支撑全平台运营</span>
-      </div>
-    </div>
-
-  </div>
-
-  <!-- ═══════════ 5. BA 汇总表 ═══════════ -->
-  <h2 class="ba" style="margin-top:32px">📋 五、BA 工作量汇总表</h2>
-  <table>
-    <tr>
-      <th class="green">BA 负责人</th>
-      <th class="green">负责系统</th>
-      <th class="green">总条目</th>
-      <th class="green">Production</th>
-      <th class="green">Enhancement</th>
-      <th class="green">Planned/New</th>
-      <th class="green">完成率</th>
-      <th class="green">备注</th>
-    </tr>
-    <tr>
-      <td><b>LiuWei / Wesley</b></td>
-      <td>OMS + Integration + WMS Order Fulfillment + YMS联合</td>
-      <td>~86</td><td><span class="s prod">~44</span></td><td><span class="s enh">~15</span></td><td><span class="s plan">~5 + 7 New</span></td>
-      <td style="color:#2b8a3e;font-weight:700">~96% 🏆最优</td>
-      <td>全团队标杆</td>
-    </tr>
-    <tr>
-      <td><b>Yuyang / Wesley</b></td>
-      <td>WMS Receiving + QC + System Config + Portal</td>
-      <td>~52</td><td><span class="s prod">~16</span></td><td><span class="s enh">~7</span></td><td><span class="s plan">~17</span></td>
-      <td>~62%</td>
-      <td>YanJun → Yuyang</td>
-    </tr>
-    <tr>
-      <td><b>Jason / Wesley</b></td>
-      <td>WMS Adv.Picking + Package</td>
-      <td>36</td><td><span class="s prod">4</span></td><td><span class="s na">0</span></td><td><span class="s plan">32</span></td>
-      <td style="color:#c92a2a;font-weight:700">13% ⚠ 需提速</td>
-      <td>Sep新接管</td>
-    </tr>
-    <tr>
-      <td><b>Gus / Levent</b></td>
-      <td>WMS Inventory + Kit</td>
-      <td>16</td><td><span class="s prod">8</span></td><td><span class="s na">0</span></td><td><span class="s plan">8</span></td>
-      <td>50% ✅</td>
-      <td>进度稳定</td>
-    </tr>
-    <tr>
-      <td><b>Levent / ZhongLiang</b></td>
-      <td>WES（全部）</td>
-      <td>43</td><td><span class="s prod">12</span></td><td><span class="s enh">3</span></td><td><span class="s plan">28</span></td>
-      <td style="color:#e8590c;font-weight:700">35% 📈 年初+33%</td>
-      <td>方向正确，Q4继续</td>
-    </tr>
-    <tr>
-      <td><b>Charles</b></td>
-      <td>APS 劳动绩效</td>
-      <td>24</td><td><span class="s prod">8</span></td><td><span class="s enh">5</span></td><td><span class="s plan">11</span></td>
-      <td>54%</td>
-      <td>Eddie → Charles</td>
-    </tr>
-    <tr>
-      <td><b>Lipeijia</b></td>
-      <td>LMS + System User/Portal</td>
-      <td>~32</td><td><span class="s prod">10</span></td><td><span class="s na">0</span></td><td><span class="s plan">7 + 3 New</span></td>
-      <td>~59% ✅</td>
-      <td>进度合理</td>
-    </tr>
-    <tr>
-      <td><b>Liuwei / Wangshuo</b></td>
-      <td>YMS（联合）</td>
-      <td>40</td><td><span class="s prod">14</span></td><td><span class="s enh">3</span></td><td><span class="s plan">2 + 21 New</span></td>
-      <td style="color:#2b8a3e;font-weight:700">43% 🎉 从0%</td>
-      <td>Gate/Dock全部上线</td>
-    </tr>
-    <tr>
-      <td><b>Weinan / Wesley</b></td>
-      <td>Reporting / BI</td>
-      <td>15</td><td><span class="s prod">7</span></td><td><span class="s na">0</span></td><td><span class="s plan">8</span></td>
-      <td>47%</td>
-      <td>持平，范围扩大</td>
-    </tr>
-    <tr>
-      <td><b>Wesley（新模块）</b></td>
-      <td>RMS + Cyclelution</td>
-      <td>18</td><td><span class="s na">0</span></td><td><span class="s na">0</span></td><td><span class="s new">18 New</span></td>
-      <td style="color:#6741d9">Q3/Q4新立项</td>
-      <td>🚀 战略新方向</td>
-    </tr>
-    <tr>
-      <td><b>Matthew</b></td>
-      <td>AI-WMS</td>
-      <td>14</td><td><span class="s na">0</span></td><td><span class="s na">0</span></td><td><span class="s new">14 New</span></td>
-      <td style="color:#6741d9">Q3立项 Q4开发</td>
-      <td>🤖 Very High复杂度</td>
-    </tr>
-    <tr>
-      <td><b>lex</b></td>
-      <td>Client Portal</td>
-      <td>15</td><td><span class="s na">0</span></td><td><span class="s na">0</span></td><td><span class="s new">15 New</span></td>
-      <td style="color:#0c8599">Q4重点推进</td>
-      <td>Dashboard+OMS已启动</td>
-    </tr>
-    <tr>
-      <td><b>张凌阁</b></td>
-      <td>AI Ontology</td>
-      <td>8</td><td><span class="s prod">8</span></td><td><span class="s na">0</span></td><td><span class="s na">0</span></td>
-      <td style="color:#2b8a3e;font-weight:700">100% ✅</td>
-      <td>全部上线</td>
-    </tr>
-    <tr>
-      <td><b>任展</b></td>
-      <td>Agent Factory + AI Interviewer</td>
-      <td>9</td><td><span class="s prod">8</span></td><td><span class="s na">0</span></td><td><span class="s new">1 New</span></td>
-      <td style="color:#2b8a3e;font-weight:700">89% 🎉</td>
-      <td>Agent Factory基本就绪</td>
-    </tr>
-    <tr>
-      <td><b>Eason</b></td>
-      <td>Core AI Infra</td>
-      <td>11</td><td><span class="s prod">3</span></td><td><span class="s na">0</span></td><td><span class="s new">8 New</span></td>
-      <td>27%</td>
-      <td>LLM Gateway已上线</td>
-    </tr>
-    <tr>
-      <td><b>Marco</b></td>
-      <td>Supporting Systems</td>
-      <td>7</td><td><span class="s prod">2</span></td><td><span class="s enh">5</span></td><td><span class="s na">0</span></td>
-      <td>持续运营</td>
-      <td>IAM/IT已上线</td>
-    </tr>
-  </table>
-
-  <!-- ═══════════ Footer ═══════════ -->
-  <!-- ═══════════ 4. EAG — BNP / CVRM / WFE ═══════════ -->
-  <h2 class="bnp">🏦 四、EAG — BNP / CVRM / WFE（仅现在数据，无年初基准）</h2>
-
-  <div class="info">ℹ️ BNP、CVRM（CRM+VRM）、WFE 为 EAG 部门项目，Blueprint 中无年初（Before）基准，以下仅展示当前功能现状与完成情况。</div>
-
-  <!-- BNP -->
-  <h3 class="orange" style="margin-top:20px">BNP — 业务结算平台（Billing & Finance）</h3>
-  <div class="card orange">
-    <table>
-      <tr>
-        <th class="orange">模块</th>
-        <th class="orange">核心功能（当前已交付/进行中）</th>
-        <th class="orange">BA</th>
-        <th class="orange">状态</th>
-      </tr>
-      <tr>
-        <td><b>Billing Engine 计费引擎重构</b></td>
-        <td>BillingCore 领域建模强类型化；CalculateEngine 聚合计算与实时触发；InvoiceGenerate 表结构迁移；BillingRule 迁移与配置化；Pipeline Trace 可观测性；调度重构一/二/三期（Windows Service下线）；新老系统并行验证</td>
-        <td>April Dong</td>
-        <td><span class="s prod">大量 Delivered</span> <span class="s enh">部分 In Progress</span></td>
-      </tr>
-      <tr>
-        <td><b>UF PreBilling Phase 1/2/3</b></td>
-        <td>Kafka 数据源接入；CalculateEngine Pipeline 改造（实时触发、ManualChargeReport）；BillingRule 迁移；发票生成；FieldMapping 增强；跨期重算；BillTo 单独计费；新老对比（3客户完成）；存储策略优化</td>
-        <td>April / Donna</td>
-        <td><span class="s enh">In Progress</span> <span class="s plan">Phase3 Q4</span></td>
-      </tr>
-      <tr>
-        <td><b>Small Parcel 计费与对账</b></td>
-        <td>Billing Review / Carrier Invoice Reconciliation / Tracking Comparison 页面体系；Kafka 集成改造；WISE 数据推送治理；计费状态变更日志；Phase II 对账增强（Carrier Invoice 生命周期、计费逻辑、追踪数据）</td>
-        <td>April Dong</td>
-        <td><span class="s prod">Phase I Delivered</span> <span class="s enh">Phase II 进行中</span></td>
-      </tr>
-      <tr>
-        <td><b>Billing Agent</b></td>
-        <td>Phase 1 上线：自然语言查询账单构成、定位异常原因；Phase 2 增强：多轮追问、批量分析、与PreBill/BillingCore联动</td>
-        <td>April Dong</td>
-        <td><span class="s prod">Phase1 Delivered</span> <span class="s enh">Phase2 In Progress</span></td>
-      </tr>
-      <tr>
-        <td><b>AR 应收</b></td>
-        <td>Master Invoice 合并发票（TMS对接、PDF/Excel/Email输出、合并范围修复）；Remittance Auto-processing Phase1/2（状态机、Agent编排、批量重跑）；Prepayment 实时计算增强；日常维护（Sales Invoice、Cash Receipt、NetSuite同步等）</td>
-        <td>Donna Xu</td>
-        <td><span class="s prod">大量 Delivered</span></td>
-      </tr>
-      <tr>
-        <td><b>AP 应付</b></td>
-        <td>AP-FMS 集成；Drayage AP Carrier Pay；Driver Pay 漏单修复；EDI AP 接入；TMS 3.0 接口切换（Order/Customer/MasterInvoice从TMS迁移到FMS/Kafka）；日常维护（11个子域）</td>
-        <td>Lina Gao / Donna</td>
-        <td><span class="s prod">大量 Delivered</span> <span class="s enh">部分进行中</span></td>
-      </tr>
-      <tr>
-        <td><b>RateEngine 计价引擎</b></td>
-        <td>LSO Rate Setup/Enhancement；UT Transit Day 配置；第三方费率集成；Drayage AP 计算；折扣计算；双 ChargeLine 输出；LSO 计算性能优化；FSC 注册表（待定）</td>
-        <td>Debbie（已离职）</td>
-        <td><span class="s prod">主要 Delivered</span> <span class="s plan">FSC Pending</span></td>
-      </tr>
-      <tr>
-        <td><b>Billing AI / ItemGPT</b></td>
-        <td>BNP 业务本体 Ontology 建设；ItemGPT Phase 1 上线（业务问答、数据查询、知识库）；持续增强；AI Native Billing 基础设施；Billing Audit AI Agent</td>
-        <td>Amanda（已离职）/ Donna</td>
-        <td><span class="s prod">ItemGPT Delivered</span> <span class="s enh">Audit 进行中</span></td>
-      </tr>
-      <tr>
-        <td><b>Marketplace / WMS 集成</b></td>
-        <td>Marketplace-BNP Charge Integration（端到端）；Reseller Company 能力字段；Item Bookkeeping Billing 上线；WMS 3.0 集成；WISE 数据推送字段治理；Onboarding 自动化 Agent</td>
-        <td>Amanda / April</td>
-        <td><span class="s prod">大量 Delivered</span></td>
-      </tr>
-      <tr>
-        <td><b>平台与基础设施</b></td>
-        <td>AWS 云化迁移 Phase 1-6；CDC 数据迁移（bnp.worker.cdc 统一）；环境标准化（4套）；数据库迁移与备份；灾备方案；安全加固（SQL注入、IAM鉴权）；K8s+SeaTunnel 数据同步</td>
-        <td>Dev Team 主导</td>
-        <td><span class="s prod">大量 Delivered</span></td>
-      </tr>
-      <tr>
-        <td><b>GL / Fixed Asset / Banking</b></td>
-        <td>GL Impact 生成与同步；Journal Entry 治理；固定资产折旧与处置；银行交易导入与 Wells Fargo 证书续期；日常维护</td>
-        <td>April / Donna</td>
-        <td><span class="s prod">持续运营</span></td>
-      </tr>
-    </table>
-  </div>
-
-  <!-- CVRM -->
-  <h3 class="teal" style="margin-top:20px">CVRM — CRM + VRM（客户与供应商关系管理）</h3>
-  <div class="card teal">
-    <table>
-      <tr>
-        <th class="teal">子系统</th>
-        <th class="teal">核心功能（当前）</th>
-        <th class="teal">BA</th>
-        <th class="teal">状态</th>
-      </tr>
-      <tr>
-        <td><b>CRM — 客户管理</b></td>
-        <td>客户旅程跟踪；健康评分与 AI 分析；文件管理（OCR自动分类）；Active Customer 跟进管理；Credit Safe 智能搜索增强</td>
-        <td>May Wu</td>
-        <td><span class="s new">New/Enhancement</span></td>
-      </tr>
-      <tr>
-        <td><b>CRM — 销售管道</b></td>
-        <td>销售管道增强（系统默认管道、团队管道、克隆功能）；自定义视图与列表增强；批量上传线索；AI 智能线索创建（邮件/Teams解析）；Management Focus 管理看板；活动管理优化</td>
-        <td>May Wu</td>
-        <td><span class="s enh">Enhancement</span> <span class="s new">部分 New</span></td>
-      </tr>
-      <tr>
-        <td><b>CRM — Dashboard</b></td>
-        <td>销售管道可视化看板；Sales Dashboard & KPI 平台（BI数据源集成）；AI Insights 集成</td>
-        <td>May Wu</td>
-        <td><span class="s new">New（Q4推进）</span></td>
-      </tr>
-      <tr>
-        <td><b>CRM — 合同管理</b></td>
-        <td>报价与合同生命周期管理；合同审批工作流；合同模板库</td>
-        <td>May Wu</td>
-        <td><span class="s enh">Enhancement</span></td>
-      </tr>
-      <tr>
-        <td><b>CRM — 集成</b></td>
-        <td>CRM-WFE 集成（字段映射、自动创建客户）；Ticket 系统集成（360度客户视图）；Ticket AI Summary；LSO Integration；Email Webhook 实时同步；Call Recording & AI Summary</td>
-        <td>May Wu</td>
-        <td><span class="s new">New</span> <span class="s enh">Enhancement</span></td>
-      </tr>
-      <tr>
-        <td><b>CRM — 基础设施</b></td>
-        <td>CRM Ontology 建设；CRM Specialist Agent（ItemGPT）；IDM/IAM 权限对齐；Item.com 数据迁移；移动端 App</td>
-        <td>May Wu</td>
-        <td><span class="s new">New（Q3/Q4）</span></td>
-      </tr>
-      <tr>
-        <td><b>VRM — 供应商管理</b></td>
-        <td>国际支付方式优化（Wire字段规则）；供应商服务类型同步；文件分类系统优化；安全合规加固（Fortify扫描修复）；外部API调用追踪；Drayage 系统集成（Vendor Category多选）</td>
-        <td>May Wu</td>
-        <td><span class="s enh">Enhancement</span> <span class="s new">部分 New</span></td>
-      </tr>
-    </table>
-  </div>
-
-  <!-- WFE -->
-  <h3 class="purple" style="margin-top:20px">WFE — 工作流引擎（Workflow Engine）</h3>
-  <div class="card purple">
-    <table>
-      <tr>
-        <th class="purple">模块</th>
-        <th class="purple">核心功能（当前已交付）</th>
-        <th class="purple">BA</th>
-        <th class="purple">状态</th>
-      </tr>
-      <tr>
-        <td><b>流程配置与路由</b></td>
-        <td>多条件路由与分支（Condition Rule / Go to Stage / Skip Stage）；跨工作流触发编排（Workflow Trigger）；工作流生命周期治理（Inactive/Delete/Deactivate/Required Stage）；合同审批业务流程设计落地</td>
-        <td>Lina</td>
-        <td><span class="s prod">Production</span></td>
-      </tr>
-      <tr>
-        <td><b>Case 执行</b></td>
-        <td>Case 状态与数据一致性治理（并发写冲突控制）；Case/Stage 任务分配与重分配（Reassign/Co-assignee）；Case 进度可视化与甘特图；Case 变更审计日志（Change Log，含 Kafka 同步 Ticketing）</td>
-        <td>Lina</td>
-        <td><span class="s prod">Production</span></td>
-      </tr>
-      <tr>
-        <td><b>问卷与表单</b></td>
-        <td>问卷能力扩展（Reopen / Repeatable Section）；问题类型标准化与配置体验优化；问卷提交稳定性修复（文件上传、权限、图片过期）；Checklist 完成记录与组件治理；Dynamic Fields 管理</td>
-        <td>Lina</td>
-        <td><span class="s prod">Production</span></td>
-      </tr>
-      <tr>
-        <td><b>集成</b></td>
-        <td>WFE-CRM 字段映射与双向同步（含 AI 实体匹配）；WFE-CRM 附件共享同步；自动化 Action（自动创建 CRM Customer / IAM User）；WFE-Ticketing 系统集成（合同审批从 Ticketing 发起）；Price List 插件部署</td>
-        <td>Lina</td>
-        <td><span class="s prod">Production</span></td>
-      </tr>
-      <tr>
-        <td><b>客户门户与权限</b></td>
-        <td>Customer Portal 外部用户协作修复；Workflow/Case/Stage 权限模型重设计（Template vs Runtime 分离）；账号状态与多系统身份同步治理</td>
-        <td>Lina</td>
-        <td><span class="s prod">Production</span></td>
-      </tr>
-      <tr>
-        <td><b>通知与文档签署</b></td>
-        <td>Send Notification 增强（按 User/Team 发送、Body 字符限制扩大）；Internal Notes & 消息投递修复；用户签名档案与原生文档签署；Adobe Sign 第三方电子签名集成</td>
-        <td>Lina</td>
-        <td><span class="s prod">Production</span></td>
-      </tr>
-      <tr>
-        <td><b>平台架构</b></td>
-        <td>前端架构迁移（Vue → React 18 + TypeScript + Vite，50+组件库，IDM SSO）；后端工程治理（ILogger结构化日志、API目录化、Action链路修复）；AI Workflow 智能生成增强；用户引导（Tooltip Onboarding）；What's New 产品更新公告系统</td>
-        <td>Lina</td>
-        <td><span class="s prod">大量 Production</span></td>
-      </tr>
-    </table>
-  </div>
-
-  <!-- EAG BA 汇总 -->
-  <h3 class="orange" style="margin-top:20px">EAG 项目 BA 负责人汇总</h3>
-  <table>
-    <tr>
-      <th class="orange">BA</th>
-      <th class="orange">项目归属</th>
-      <th class="orange">负责模块</th>
-      <th class="orange">备注</th>
-    </tr>
-    <tr>
-      <td><b>April Dong</b></td>
-      <td>BNP</td>
-      <td>Billing Engine 重构、UF PreBilling、Small Parcel、Billing Agent、Bookkeeping、GL、ShipItem</td>
-      <td>核心 BA，交付量最大</td>
-    </tr>
-    <tr>
-      <td><b>Donna Xu</b></td>
-      <td>BNP</td>
-      <td>AR、AP、ItemGPT、Claim/Dispute、Purchase、Debt、Driver Pay、Fixed Asset</td>
-      <td>AR/AP 主力</td>
-    </tr>
-    <tr>
-      <td><b>Lina Gao</b></td>
-      <td>BNP + WFE</td>
-      <td>BNP: Claim、Marketplace、Support &amp; Integration；WFE: 全模块</td>
-      <td>跨项目 BA</td>
-    </tr>
-    <tr>
-      <td><b>Debbie</b></td>
-      <td>BNP</td>
-      <td>RateEngine 计价引擎</td>
-      <td>已离职</td>
-    </tr>
-    <tr>
-      <td><b>Amanda</b></td>
-      <td>BNP</td>
-      <td>Billing AI / ItemGPT / Marketplace / System</td>
-      <td>已离职</td>
-    </tr>
-    <tr>
-      <td><b>May Wu</b></td>
-      <td>CVRM</td>
-      <td>CRM 全部模块 + VRM 全部模块</td>
-      <td>在北京</td>
-    </tr>
-  </table>
-
-  <div class="footer">
-    Item Project Report 202610 &nbsp;·&nbsp; 数据来源：2026 Development Blueprint Before &amp; Now &nbsp;·&nbsp;
-    整理：Suili Wang &nbsp;·&nbsp; 2026-10-08 &nbsp;·&nbsp; 仅供内部参考
-  </div>
+<div class="footer">
+  Item Project Report 202610 &nbsp;·&nbsp; 数据来源：2026 Development Blueprint Before &amp; Now + BNP/CVRM/WFE Blueprint &nbsp;·&nbsp;
+  整理：Suili Wang &nbsp;·&nbsp; 2026-10-08 &nbsp;·&nbsp; 仅供内部参考
+</div>
 
 </div>
 </body>

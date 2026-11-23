@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>Weekly Report 周报 — IDC & Linker · W47</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: "Segoe UI", "Microsoft YaHei", "PingFang SC", sans-serif;
+    background: #f8f9fa; color: #1f2430; line-height: 1.7;
+    padding: 32px 16px;
+  }
+  .page {
+    max-width: 980px; margin: 0 auto; background: #fff;
+    box-shadow: 0 4px 24px rgba(0,0,0,.08); border-radius: 16px;
+    padding: 48px 56px 40px;
+  }
+  .header {
+    text-align: center; padding-bottom: 24px; margin-bottom: 28px;
+    border-bottom: 3px solid #c0392b;
+  }
+  .header h1 { font-size: 28px; font-weight: 800; color: #1a1a2e; letter-spacing: 1px; }
+  .header .meta { margin-top: 10px; font-size: 14px; color: #6b7280; }
+
+  .section-title {
+    font-size: 20px; font-weight: 800; color: #fff; 
+    padding: 10px 20px; border-radius: 8px; margin: 32px 0 18px;
+  }
+  .section-title.idc { background: linear-gradient(135deg, #c0392b, #e74c3c); }
+  .section-title.linker { background: linear-gradient(135deg, #2980b9, #3498db); }
+
+  .module { margin-bottom: 28px; padding-left: 4px; }
+  .module h3 {
+    font-size: 16px; font-weight: 700; color: #2c3e50;
+    padding: 8px 0 8px 14px; border-left: 4px solid #c0392b; margin-bottom: 12px;
+  }
+  .section-title.linker ~ .module h3 { border-left-color: #2980b9; }
+
+  .tag {
+    display: inline-block; font-size: 12px; font-weight: 700; 
+    padding: 4px 12px; border-radius: 4px; margin: 14px 0 8px; color: #fff;
+  }
+  .tag.released { background: #27ae60; }
+  .tag.testing { background: #2980b9; }
+  .tag.dev { background: #e67e22; }
+  .tag.done { background: #27ae60; }
+  .tag.other { background: #7f8c8d; }
+  .tag.plan { background: #8e44ad; }
+  .tag.risk { background: #c0392b; }
+
+  ul { margin: 6px 0 6px 24px; }
+  li { font-size: 14px; margin: 8px 0; }
+  li .code { color: #c0392b; font-weight: 700; font-size: 13px; }
+  .section-title.linker ~ .module li .code { color: #2980b9; }
+  li .en { display: block; color: #7f8c8d; font-size: 12.5px; margin-top: 2px; font-style: italic; }
+  li ul { margin: 4px 0 4px 20px; }
+  li ul li { font-size: 13px; color: #555; list-style: circle; margin: 4px 0; }
+  
+  .milestone { 
+    background: #fff3cd; color: #856404; font-size: 11px; font-weight: 700;
+    padding: 2px 8px; border-radius: 4px; margin-left: 6px; 
+  }
+  .count {
+    background: #e8f4fd; color: #2980b9; font-size: 12px; font-weight: 600;
+    padding: 2px 8px; border-radius: 4px; margin-left: 4px;
+  }
+
+  .footer { 
+    margin-top: 32px; padding-top: 16px; border-top: 1px solid #e5e7eb;
+    font-size: 12px; color: #9ca3af; text-align: center; 
+  }
+
+  @media print {
+    body { background: #fff; padding: 0; }
+    .page { box-shadow: none; border-radius: 0; max-width: 100%; padding: 20px 28px; }
+    .section-title, .tag, .milestone { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    @page { size: A4; margin: 12mm; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header">
+    <h1>Weekly Report 周报 — IDC & Linker · W47</h1>
+    <div class="meta">Nov 16 – Nov 20, 2026 （2026年11月16日 – 11月20日）</div>
+    <div class="meta">Reporter 汇报人：Coco Wang · PM Team</div>
+  </div>
+
+  <!-- ===================== IDC ===================== -->
+  <h2 class="section-title idc">IDC</h2>
+
+  <!-- APS -->
+  <div class="module">
+    <h3>APS — Labor Planning & Scheduling 人员调度系统</h3>
+
+    <div class="tag dev">开发中 In Development</div>
+    <ul>
+      <li><span class="code">APS-1657</span> Message Center — Overage Request 审批功能
+        <span class="en">Message Center — Overage Request approval feature</span></li>
+    </ul>
+
+    <div class="tag testing">已提测 / 测试中 In Testing</div>
+    <ul>
+      <li>无
+        <span class="en">None</span></li>
+    </ul>
+
+    <div class="tag done">测试完成 Test Passed</div>
+    <ul>
+      <li><span class="code">APS-1605</span> Manager Review 数据与 Labor Planning 保持一致
+        <span class="en">Manager Review data aligned with Labor Planning</span></li>
+      <li><span class="code">APS-1668</span> 优化 auto email 配置
+        <span class="en">Optimized auto email configuration</span></li>
+    </ul>
+
+    <div class="tag other">其他 Others</div>
+    <ul>
+      <li>APS 本体智能体 — 测试与功能完善
+        <span class="en">APS core agent — testing and feature refinement</span></li>
+      <li>版本发布 — release.aps.202611191330 上线
+        <span class="en">Version release — release.aps.202611191330 deployed</span></li>
+      <li>Manager Review 模块 — 自动化更新与功能完善
+        <span class="en">Manager Review module — automation updates and improvements</span></li>
+      <li>UI 自动化流程 — 引入 browser-use，提升自动化执行效率
+        <span class="en">UI automation — introduced browser-use to improve automation efficiency</span></li>
+    </ul>
+
+    <div class="tag plan">下周计划 Next Week</div>
+    <ul>
+      <li><span class="code">APS-1657</span> Message Center - Overage Request 审批功能
+        <span class="en">Message Center - Overage Request approval feature</span></li>
+      <li><span class="code">APS-1664</span> Staff Transfer - Share Flow (人员借出流程)
+        <span class="en">Staff Transfer - Share Flow</span></li>
+      <li>UI 自动化流程持续优化（browser-use 深度集成）
+        <span class="en">UI automation optimization (browser-use deep integration)</span></li>
+      <li><span class="code">APS-1667</span> Labor Share Tracking
+        <span class="en">Labor Share Tracking</span></li>
+    </ul>
+
+    <div class="tag risk">⚠ 当前卡点 / 风险点 Risks & Blockers</div>
+    <ul>
+      <li>无
+        <span class="en">None</span></li>
+    </ul>
+  </div>
+
+  <!-- YMS -->
+  <div class="module">
+    <h3>YMS — Yard Management System 院场管理系统</h3>
+
+    <div class="tag released">本周已交付 Released<span class="count">7 项</span></div>
+    <ul>
+      <li><span class="code">TRF-6344</span> 入场全流程展示服务类型，智能按需重录减少返工
+        <span class="en">Full check-in flow displays service type; smart re-recording reduces rework</span></li>
+      <li><span class="code">TRF-6648</span> 承运商门户支持认证人工裁决，无需切换后台即可审核
+        <span class="en">Carrier portal supports manual auth adjudication without backend switch</span></li>
+      <li><span class="code">TRF-6634</span> 设备扫码激活免登录、免选园区，自动填码简化安装
+        <span class="en">Device QR activation without login or facility selection; auto-fill simplifies setup</span></li>
+      <li><span class="code">TRF-6653</span> iOS 核验页补齐副司机身份与认证结果，双司机核验更完整
+        <span class="en">iOS verification page adds co-driver identity and auth result for complete dual-driver verification</span></li>
+      <li><span class="code">TRF-6437</span> AI 密钥迁至服务端按租户管控，无需发版即可安全轮换
+        <span class="en">AI keys moved to server-side with tenant-level control; safe rotation without deployment</span></li>
+      <li><span class="code">TRF-6673</span> 认证裁决权限按账户精准授权，前后端双重拦截越权操作
+        <span class="en">Auth adjudication permissions granted per account; dual front/backend interception for unauthorized access</span></li>
+      <li><span class="code">TRF-6680</span> 双端预约核验页展示高价值货物标识，助力门卫精准识别
+        <span class="en">Both-end appointment verification shows high-value cargo flag for precise gate identification</span></li>
+    </ul>
+
+    <div class="tag testing">已提测 / 测试中 In Testing</div>
+    <ul>
+      <li><span class="code">TRF-6233</span> Pre-fill Shipping Method 选择与 Trip Info 校验分流 — 测试中 进度 90%
+        <span class="en">Pre-fill Shipping Method selection and Trip Info validation — in testing, 90% complete</span></li>
+      <li><span class="code">TRF-6687</span> ET 的 carrier 记录，在 check in 和 check out 时不匹配问题排查 + 修复 — 开发完成待测试
+        <span class="en">ET carrier record mismatch at check-in/out — dev complete, pending test</span></li>
+      <li><span class="code">TRF-6625</span> Entry Ticket 司机信息 Mismatch 状态持久化 — 开发测试完成，待 Client Portal 联调上线
+        <span class="en">Entry Ticket driver info mismatch status persistence — dev/test done, pending CP integration</span></li>
+      <li><span class="code">TRF-6247</span> Check-Out Auto Barrier 选项恢复 + Equipment 强校验开关 + Task 完成校验对齐 — 开发完成待测试
+        <span class="en">Check-Out Auto Barrier option restore + Equipment strict validation + Task completion validation — dev complete</span></li>
+      <li><span class="code">TRF-6664</span> Kafka 推送月台变更至 APS，统一主数据减少重复维护
+        <span class="en">Kafka pushes dock changes to APS; unified master data reduces duplicate maintenance</span></li>
+      <li><span class="code">TRF-6646</span> 业务接口接入 IAM 权限管理，保障 AI 对话操作数据安全
+        <span class="en">Business API integrated with IAM permission management for AI dialogue data security</span></li>
+      <li><span class="code">TRF-6682</span> 限定 AI 操作范围并联动接口权限，防止越界执行业务
+        <span class="en">Restrict AI operation scope with API permission linkage to prevent boundary violations</span></li>
+      <li><span class="code">TRF-6692</span> 排查生产环境移动端访问故障，保障业务入口稳定可用
+        <span class="en">Investigate production mobile access failure to ensure stable business entry</span></li>
+      <li><span class="code">TRF-6643</span> 手机端司机认证流程 — 总体开发进度 70%，整体联调进度 50%
+        <span class="en">Mobile driver auth flow — 70% dev progress, 50% integration progress</span>
+        <ul>
+          <li>认证会话管理相关接口开发完成</li>
+          <li>活体检测相关接口开发完成</li>
+          <li>OCR 识别接口开发完成</li>
+          <li>人脸对比接口开发完成</li>
+          <li>IAM 身份注册流程接口开发完成</li>
+        </ul>
+      </li>
+    </ul>
+
+    <div class="tag dev">开发中 / 调研中 In Development</div>
+    <ul>
+      <li><span class="code">TRF-6442</span> 原生动态页面 GenUI 集成 — 80%
+        <span class="en">Native dynamic page GenUI integration — 80%</span></li>
+      <li><span class="code">TRF-6650</span> Load 在 Gate Check Out 之后再变为 Shipped 状态，WMS 校验失败需要语音播报 + box 屏幕展示 — 待开发
+        <span class="en">Load status to Shipped after Gate Check Out; WMS validation failure needs voice alert + box screen display — pending dev</span></li>
+      <li>DIEV 本体搭建初步完成，待 BA 调试
+        <span class="en">DIEV core build initial completion, pending BA debugging</span></li>
+      <li>AI 通用工作台 — 在 demo 项目中调通动态 UI 组件实时渲染，操控业务系统界面完成部分基本操作（路由跳转、详情点击、下拉框填充等），现在开始在 DIEV 前端项目中联调测试
+        <span class="en">AI general workbench — dynamic UI component real-time rendering in demo; now integrating in DIEV frontend</span></li>
+      <li>Lenovo YMS 3.0 接入 && location 数据初始化
+        <span class="en">Lenovo YMS 3.0 integration && location data initialization</span></li>
+    </ul>
+
+    <div class="tag plan">下周计划 Next Week</div>
+    <ul>
+      <li><span class="code">TRF-6233</span> && <span class="code">TRF-6247</span>：Pre-fill Shipping Method 选择 && Check-Out Auto Barrier 选项恢复 + Equipment 强校验开关 + Task 完成校验对齐 — 测试完成并上线
+        <span class="en">Pre-fill Shipping Method && Check-Out Auto Barrier — test complete and deploy</span></li>
+      <li><span class="code">TRF-6650</span>：Load 在 Gate Check Out 之后再变为 Shipped 状态，WMS 校验失败需要语音播报 + box 屏幕展示 — 开发完成
+        <span class="en">Load status change with voice alert — dev complete</span></li>
+      <li>YMS 原生 AI 工作台权限配置完毕 + 上线
+        <span class="en">YMS native AI workbench permission config complete + deploy</span></li>
+      <li><span class="code">TRF-6643</span> DIEV 2.0 手机端认证开发完成 + 联调完成
+        <span class="en">DIEV 2.0 mobile auth dev complete + integration complete</span></li>
+    </ul>
+  </div>
+
+  <!-- IOT -->
+  <div class="module">
+    <h3>IOT — 物联网平台</h3>
+
+    <div class="tag dev">开发中 In Development</div>
+    <ul>
+      <li>日本项目 spot 及箱号识别技术与实施方案编制中 — 90%
+        <span class="en">Japan project spot and container ID recognition tech & implementation plan — 90%</span></li>
+      <li><span class="code">IOT-1359</span> GEV 性能优化方案实施 - Cesium 集成优化 — 20%
+        <span class="en">GEV performance optimization - Cesium integration — 20%</span></li>
+      <li>调研日本车牌识别 — github 开源模型和 hugging face 上相关模型（PP-OCRv6, LPRNet, fast-plate-ocr, EasyOCR），基于真实日本车牌样本测试了 8 个识别模型，产出 OCR 对比验证报告、验证方案和测试脚本 — 80%
+        <span class="en">Japan license plate recognition research — tested 8 models on real samples, produced OCR comparison report — 80%</span></li>
+    </ul>
+
+    <div class="tag released">已完成 / 已上线 Released</div>
+    <ul>
+      <li><b>【IoT 平台】</b><span class="code">IOT-1292</span> 设施管理道闸摄像头信息与视频预览地址动态加载，已上线
+        <span class="en">Facility management gate camera info and video preview URL dynamic loading — deployed</span></li>
+      <li><b>【GEV】</b><span class="code">IOT-1359</span> [GEV] 集成，保留全部原有功能，已上线
+        <span class="en">[GEV] Integration preserving all original features — deployed</span></li>
+      <li><span class="code">IOT-1294</span> [GEV] SSE 事件订阅与连接管理，已上线
+        <span class="en">[GEV] SSE event subscription and connection management — deployed</span></li>
+      <li><span class="code">IOT-1295</span> [GEV] Gate 图标 6 阶段状态机实现，已上线
+        <span class="en">[GEV] Gate icon 6-stage state machine — deployed</span></li>
+      <li><span class="code">IOT-1296</span> [GEV] Gate 图标高亮与动画效果与导航路径，已上线
+        <span class="en">[GEV] Gate icon highlight, animation and navigation path — deployed</span></li>
+      <li><span class="code">IOT-1298</span> [GEV] 车辆视频与信息浮窗组件实现，已上线
+        <span class="en">[GEV] Vehicle video and info popup component — deployed</span></li>
+      <li><span class="code">IOT-1303</span> [GEV] 入厂/出厂流程差异化处理，已上线
+        <span class="en">[GEV] Differentiated check-in/out flow handling — deployed</span></li>
+      <li><b>【cubework】</b>设备图列将总开关和类型过滤解耦为独立状态，已完成
+        <span class="en">[cubework] Device chart decoupled visibility toggle and type filter — done</span></li>
+      <li><b>【视觉算法预研】</b>完成 Frigate 在 YMS-BOX 边缘盒子上的安装部署；接入现场视频流并配置检测模型实现对 truck 目标的识别；研究基于传统图像处理算法的车位占用识别方案；基于图像处理的车位占用识别编写测试 demo
+        <span class="en">[Vision R&D] Frigate deployed on YMS-BOX; truck detection from live video; parking occupancy recognition via traditional image processing; demo written</span></li>
+    </ul>
+
+    <div class="tag plan">下周计划 Next Week</div>
+    <ul>
+      <li>日本项目 spot 及箱号识别技术与实施方案编制完成
+        <span class="en">Japan project spot & container ID recognition plan complete</span></li>
+      <li>日本项目 spot 及箱号识别功能 PRD
+        <span class="en">Japan project spot & container ID recognition PRD</span></li>
+      <li>边端盒子及云边协同管理功能 PRD
+        <span class="en">Edge box and cloud-edge collaboration management PRD</span></li>
+      <li>GEV-IoT 平台集成优化测试
+        <span class="en">GEV-IoT platform integration optimization test</span></li>
+    </ul>
+  </div>
+
+  <!-- Box / Recruit / LMS / IAM -->
+  <div class="module">
+    <h3>LMS · Recruit · IAM/Central</h3>
+
+    <div class="tag dev">开发中 In Development</div>
+    <ul>
+      <li><b>【Box】</b>结合日本客户现场场景，调研端侧小模型车牌识别、车厢号识别方案，完成识别流程梳理与实测图集
+        <span class="en">[Box] Japan site scenario research on edge model for plate & container ID recognition; flow and test dataset complete</span></li>
+      <li><b>【LMS】</b><span class="code">RP-1449</span> US-3 创建和配置培训模块、<span class="code">RP-1450</span> US-4 管理已有培训、<span class="code">RP-1451</span> US-5 分析培训效果 — 开发完毕，待自测
+        <span class="en">[LMS] Training module US-3~US-5 — dev complete, pending self-test</span></li>
+      <li><b>【LMS】</b>用工方 requestions 创建时通过 agent 自动判断和分配符合条件的 agency；agency 分配用工单时 agent 能智能分配满足条件的人才池
+        <span class="en">[LMS] Agent auto-assigns qualified agency for requisitions; agent smart-assigns talent pool for work orders</span></li>
+      <li><b>【LMS】</b>LMS AI native 方向初步调研
+        <span class="en">[LMS] AI native direction initial research</span></li>
+      <li><b>【IAM】</b><span class="code">RP-1733</span> 支持手机号验证码登录、<span class="code">RP-1739</span> 手机号验证码自动注册登录 API — 开发与联调中
+        <span class="en">[IAM] Phone verification code login & auto-register API — dev and integration in progress</span></li>
+      <li><b>【IAM】</b>数据权限与 YMS 配合导入，处理导入过程中出现的问题
+        <span class="en">[IAM] Data permission import with YMS coordination, handling import issues</span></li>
+    </ul>
+
+    <div class="tag testing">已提测 / 测试中 In Testing</div>
+    <ul>
+      <li><b>【Recruit】</b>发布 preview 环境验证，先于生产上线暴露问题
+        <span class="en">[Recruit] Preview environment validation to expose issues before production</span></li>
+      <li><b>【LMS】</b><span class="code">RP-1582</span> 排班基础数据流转简化、<span class="code">RP-1734</span> 打卡排班真实排班接口已提测
+        <span class="en">[LMS] Scheduling data flow simplification and real scheduling API — submitted for testing</span></li>
+      <li><b>【IAM】</b>手机号验证码登录相关能力已提测，联调验证中（<span class="code">RP-1733</span>、<span class="code">RP-1739</span>）
+        <span class="en">[IAM] Phone verification login capabilities — submitted, in integration testing</span></li>
+      <li><b>【IAM】</b>2FA US-1～US-4（<span class="code">RP-1649</span>～<span class="code">RP-1652</span>）、租户自定义扩展属性（<span class="code">RP-1716</span>）、Central 权限统一化（<span class="code">RP-1541</span>）、后台用户管理菜单合并（<span class="code">RP-1007</span>）测试中
+        <span class="en">[IAM] 2FA US-1~4, tenant custom extension, Central permission unification, backend menu merge — in testing</span></li>
+    </ul>
+
+    <div class="tag released">已上线 / 已完成 Released</div>
+    <ul>
+      <li><b>【Recruit】</b>重构功能问题集中收尾：本周关闭缺陷与子任务 23 项，覆盖 Candidate Portal、listing 与投递、UI 重构与优化、推荐候选人性能与积分额度；剩余问题继续修复
+        <span class="en">[Recruit] Rebuild defect closure sprint: 23 defects/subtasks closed this week covering Candidate Portal, listing, UI refactor, recommendation performance, credits; remaining issues in progress</span></li>
+      <li><b>【Recruit】</b>开始构建 Recruit 本体
+        <span class="en">[Recruit] Started Recruit core build</span></li>
+      <li><b>【Box】</b>自动升级功能开发完毕：未激活设备按新机基线自动升级、屏幕升级进度展示、断网与续传异常处理、已发布版本禁止重建与同版本并行构建互斥、内网部署支持指定版本号
+        <span class="en">[Box] Auto-upgrade feature complete: inactive device baseline upgrade, progress display, offline handling, version rebuild prevention, internal deployment version support</span></li>
+      <li><b>【Box】</b>多语言功能开发完毕：默认英文，支持中文、日文，通过下发方式更新语言
+        <span class="en">[Box] Multi-language feature complete: default English, supports Chinese/Japanese via OTA update</span></li>
+      <li><b>【Box】</b>box 版本号已在 YMS 上展示，设备盘点上报应用版本（/opt/yms/version）
+        <span class="en">[Box] Box version displayed in YMS; device inventory reports app version</span></li>
+      <li><b>【Box】</b>出厂单包交付与一键安装入口完成，配套设备 /opt/yms 布局与配置分层文档、真机验证记录
+        <span class="en">[Box] Factory single-package delivery and one-click install entry complete with documentation</span></li>
+    </ul>
+
+    <div class="tag other">其他 Others</div>
+    <ul>
+      <li><b>【Recruit】</b>生产上线执行手册补齐 IAM 用户数据刷数与 Nacos 数据源域名切换章节，明确走 DBA 通道执行
+        <span class="en">[Recruit] Production deployment manual updated with IAM data refresh and Nacos datasource switch sections via DBA channel</span></li>
+      <li><b>【IAM】</b>staging 登录异常与网关请求链路排查，确认网关鉴权与 YMS 调用路径
+        <span class="en">[IAM] Staging login anomaly and gateway request chain investigation; confirmed gateway auth and YMS call path</span></li>
+    </ul>
+
+    <div class="tag plan">下周计划 Next Week</div>
+    <ul>
+      <li>Box 新版代码交付厂商提前预装好
+        <span class="en">Box new version code delivered to vendor for pre-installation</span></li>
+      <li>Recruit 重构上线 <span class="milestone">节点</span>
+        <span class="en">Recruit rebuild go-live</span></li>
+      <li>Recruit 本体构建启动
+        <span class="en">Recruit core build kickoff</span></li>
+      <li>LMS 完成 Training 需求自测并提测，继续 AI native 与 Agency 自动化流程调研
+        <span class="en">LMS Training self-test and submit; continue AI native & Agency automation research</span></li>
+      <li>IAM 手机号登录联调收尾并提测上线，完成数据权限与 YMS 导入问题闭环
+        <span class="en">IAM phone login integration wrap-up and deploy; close data permission import issues</span></li>
+    </ul>
+  </div>
+
+  <!-- ===================== Linker ===================== -->
+  <h2 class="section-title linker">Linker</h2>
+
+  <!-- OMS & DI -->
+  <div class="module">
+    <h3>OMS & DI — 履约稳定性 & 老系统维护 Fulfillment Stability & Legacy Maintenance</h3>
+
+    <div class="tag released">OMS 履约稳定性战线 本周完成<span class="count">14 项 + 49 项生产核心 PR</span></div>
+    <ul>
+      <li><b>PIM 商品中心主数据规范与多平台建品</b>
+        <ul>
+          <li>商品创建编辑与发布重构：移除组套与本体旧属性，全面关联包装耗材并改造发布包裹重量优先级，打通发货计费数据链
+            <span class="en">Product creation/edit/publish refactor: removed legacy attributes, linked consumables, refactored package weight priority for shipping billing</span></li>
+          <li>SKU 编码手动修改与校验：商品创建与编辑支持手动修改 SKU 编码，增加全局唯一性校验与下游影响分析
+            <span class="en">SKU code manual edit with global uniqueness validation and downstream impact analysis</span></li>
+          <li>Amazon Listing 插件侧建品：支持在插件侧直接创建 Amazon Listing 并全量回流到 OMS 商品列表
+            <span class="en">Amazon Listing plugin: create listing and sync back to OMS product list</span></li>
+          <li>全局类目治理与季节指数：完成全局类目治理与初始化，支持按商户配置月度季节指数
+            <span class="en">Global category governance and merchant monthly seasonal index</span></li>
+          <li>AI 图片建品与渠道发布容错：打通 AI 生成图片直接建品链路，修复聊天图片附件 CLI 上传；解决 Shopify 商品发布后 SKU 图片未关联到变体及图片就绪超时误报
+            <span class="en">AI image to product pipeline; fixed Shopify SKU image variant association and timeout false alarm</span></li>
+        </ul>
+      </li>
+      <li><b>CMS 海外内容营销与社交矩阵</b>
+        <ul>
+          <li>四个社交插件独立拆分：将统一 Social 插件拆分为 X (Twitter)、Instagram、LinkedIn、Facebook 四个独立插件，解耦平台依赖
+            <span class="en">Split unified Social plugin into X, Instagram, LinkedIn, Facebook independent plugins</span></li>
+          <li>Sprout 分析与托管发布收归 CMS：Sprout 数据分析与 LinkedIn 托管发布全面收归 CMS 主库承接
+            <span class="en">Sprout analytics and LinkedIn managed publishing consolidated to CMS</span></li>
+          <li>旧 Social 退役与商户聚合同步监控：彻底清理旧 Social 兼容链路，同步监控按商户聚合统一展示
+            <span class="en">Legacy Social retired; sync monitoring aggregated by merchant</span></li>
+          <li>CMS Agent 社交数据分析与工作台稳定性：CMS Agent 顺利接入社交媒体数据分析，修复工作台终态刷新测试时序竞态
+            <span class="en">CMS Agent social data analytics integration; fixed workbench refresh race condition</span></li>
+        </ul>
+      </li>
+      <li><b>OMS 履约调度架构与生产稳定性演进</b>
+        <ul>
+          <li>通用通知单演进与送达跟踪：装运通知单泛化为通用通知单，新增 WebMethod 装运通知送达跟踪，支持按 UTC 查询 EDI 送达回执并增加 12 小时对账
+            <span class="en">Generic notice evolution: shipment notice generalized; added WebMethod delivery tracking with 12hr reconciliation</span></li>
+          <li>整数分仓与组套组件履约：统一整数分仓算法并支持整套与货号分配；冻结组套销售快照并按组件履约
+            <span class="en">Integer split-warehouse and kit component fulfillment: unified algorithm, frozen kit snapshot for component-level fulfillment</span></li>
+          <li>零售商过滤与渠道改址收口：支持按订单来源过滤发货确认与 ASN 预先发货通知；已发货订单接收渠道改址并收口变更
+            <span class="en">Retailer filter and channel address change closure: filter by order source; shipped order address change with change closure</span></li>
+          <li>物流轨迹轮询限流与老化：轨迹轮询支持按账号限流与老化策略，支持运营手动即查与额度可配
+            <span class="en">Tracking poll rate limiting and aging: account-level throttling, manual query support with configurable quota</span></li>
+        </ul>
+      </li>
+    </ul>
+
+    <div class="tag released">DI 老系统维护战线 本周完成<span class="count">1 项 + Jira 攻坚闭环 24 项</span></div>
+    <ul>
+      <li><b>存量重点大客户履约保障与单据订正</b>
+        <ul>
+          <li>COME READY 积压推单排查修复：排查并解决 COME READY 订单同步卡在 Allocated 状态及 Item Master SKU 缺失问题
+            <span class="en">COME READY backlog fix: resolved order sync stuck at Allocated and missing Item Master SKU</span></li>
+          <li>eHub 标签与计费单位换算：修复 eHub shipping label 及 rate 单位转换，适配长宽高仅认 inch、重量仅认 oz 规范
+            <span class="en">eHub label and rate unit conversion: adapted to inch/oz only specification</span></li>
+          <li>Adoorn 生产单据手动分仓：解决生产环境 Adoorn 订单无法按 SKU 层级手动分仓且 UI 不一致问题
+            <span class="en">Adoorn manual split-warehouse: fixed SKU-level manual split and UI inconsistency</span></li>
+          <li>THE OUAI 跨仓拆单与路由订正：完成 THE OUAI 客户订单在两仓库间 Deallocate 及拆单处理
+            <span class="en">THE OUAI cross-warehouse split: completed Deallocate and split between two warehouses</span></li>
+          <li>TRIPLELITE 轨迹同步保障：排查并修复 TRIPLELITE 运单物流信息同步卡点
+            <span class="en">TRIPLELITE tracking sync: resolved tracking sync blocking issue</span></li>
+        </ul>
+      </li>
+      <li><b>OMS V3 采购与分仓状态机修复及增强</b>
+        <ul>
+          <li>采购单 Cancel 状态机修复与验证：修复并验证 Purchase Order 在 Exception 状态下 Cancel 报 not found this order 缺陷
+            <span class="en">PO Cancel state machine fix: resolved "not found this order" error when cancelling from Exception status</span></li>
+          <li>PO 状态精准化与超时回滚：优化 PO 业务状态及对应操作，解决长时间处于 Cancelling 问题；dispatch 层增加 cancel 动作支持
+            <span class="en">PO status precision and timeout rollback: resolved prolonged Cancelling status; added dispatch cancel support</span></li>
+          <li>分仓规则与订单搜索增强：修复 OUAI 设置仓库 zipcode 范围未生效仍按 rank 下发缺陷；修复 SKU/仓库切换后分仓数据未刷新
+            <span class="en">Split rules and search enhancement: fixed warehouse zipcode range not applied; fixed stale split data after SKU/warehouse switch</span></li>
+          <li>WMS 3.0 UNIS 授权对接：DI 完成创建 WMS 3.0 UNIS 版本的授权对接
+            <span class="en">WMS 3.0 UNIS authorization integration complete</span></li>
+        </ul>
+      </li>
+      <li><b>Automation Retailer 规则与库存同步集中治理（闭环 12 项）</b>
+        <ul>
+          <li>SKU 超限弹窗分组与联动校验：优化 SKU allocation exceeds 100% 弹窗交互，支持按 SKU 维度分组展示卡片并与其他 Retailer 比例联动调平
+            <span class="en">SKU over-allocation popup: grouped by SKU with cross-retailer ratio balancing</span></li>
+          <li>库存同步时区与非法规则阻断：开启百分比校验后非法规则增加前置拦截；修复 Schedule Push 默认时间对齐洛杉矶时区
+            <span class="en">Inventory sync timezone and invalid rule blocking: added upfront interception; fixed Schedule Push LA timezone alignment</span></li>
+          <li>配置数据防重置与搜索体验优化：修复批量设置弹窗打开后历史配置被重置缺陷；解决未选中 SKU 被误更新问题
+            <span class="en">Config data reset prevention and search UX: fixed history config reset on batch popup; fixed unselected SKU update issue</span></li>
+        </ul>
+      </li>
+    </ul>
+
+    <div class="tag plan">下周计划 Next Week（Nov 23–27）</div>
+    <ul>
+      <li><b>OMS 履约稳定性</b>
+        <ul>
+          <li>渠道扩展与多模式履约：持续推进 Amazon FBM 自履约与转 FBA 全链路打通；推进 Amazon Listing 插件创建与全量/增量回流追踪闭环；推进 Shein 向 OMS V4 迁移割接；推进 item MKP 对接与 Item Agents 平台联调</li>
+          <li>主数据治理与包裹配置收敛：推进包裹配置层级收敛至通用，重构序列号管理配置与前置影响分析</li>
+          <li>履约调度与运维工具链：运营端支持调试单据检索与逻辑删除工具；零售商发货通知与 ASN 配置增加订单来源控制项；深化分仓策略支持多档库存口径落地</li>
+          <li><b>11/27 (周五)</b>：Amazon Listing 插件双向同步与包裹配置收敛上线</li>
+          <li><b>11/27 (周五)</b>：运营端调试单据检索与订单来源控制工具上线</li>
+          <li><b>11/27 (周五)</b>：分仓多档库存口径与 Shein 迁移方案就绪</li>
+        </ul>
+      </li>
+      <li><b>DI 老系统维护</b>
+        <ul>
+          <li>大客户接口集成攻坚：推进 Amazon 1P PO 采购单详情获取接口联调与下发闭环；攻坚 Amazon FBA 全链路解决方案推进</li>
+          <li>Glory 客户规则与推单校验：推进给 WMS 3.0 推单前 Retailer 有效性校验闭环；推进 Glory 客户库存规则新增配置；推进 Glory 客户 PO 批量创建调拨单并同步 receiptSubType</li>
+          <li>老系统底层性能与单据加固：推进 OMS V3 基础服务库存查询性能优化；优化缺少 POLINE 告警机制与异常 DC 重推覆盖</li>
+          <li><b>11/27 (周五)</b>：Amazon 1P PO 采购单详情接口联调完成</li>
+          <li><b>11/27 (周五)</b>：Glory 客户推单校验与库存规则配置上线</li>
+          <li><b>11/27 (周五)</b>：OMS V3 基础服务库存查询性能优化上线</li>
+        </ul>
+      </li>
+    </ul>
+  </div>
+
+  <!-- Client Portal -->
+  <div class="module">
+    <h3>Client Portal — CP 3.0</h3>
+
+    <div class="tag dev">开发中 In Development</div>
+    <ul>
+      <li><span class="code">DTS-11238</span> Linker/CP/Inventory 查询问题核查与修复处理中
+        <span class="en">Linker/CP/Inventory query issue — under investigation</span></li>
+      <li><span class="code">DTS-11091</span> Shipper Portal 迁移优化（location 关联确认）研发中
+        <span class="en">Shipper Portal migration optimization (location binding confirmation) — in development</span></li>
+      <li><span class="code">DTS-11767</span> Inventory Activity lot# 显示问题排查中
+        <span class="en">Inventory Activity lot# display issue — under investigation</span></li>
+      <li><span class="code">CRM-8996</span> / <span class="code">DTS-11757</span> 账号批量导入：导入重写 + 直接返回结果文件已完成，CR 问题已修，待验证
+        <span class="en">Account batch import: import rewrite + direct result file complete, CR issues fixed, pending verification</span></li>
+    </ul>
+
+    <div class="tag testing">已提测 / 测试中 In Testing</div>
+    <ul>
+      <li><span class="code">CRM-9136</span> 表格自定义列配置 — 已提测验收中
+        <span class="en">Table custom column config — submitted, in acceptance</span></li>
+      <li><span class="code">DTS-11098</span> Shipper Portal shipment 迁移 CP3.0 — 测试中
+        <span class="en">Shipper Portal shipment migration to CP3.0 — in testing</span></li>
+      <li><span class="code">DTS-11773</span> Admin 权限可搜索选择 — 已提测，PO Pass
+        <span class="en">Admin permission searchable selection — submitted, PO Pass</span></li>
+      <li><span class="code">DTS-10538</span> Item Keyword — 改传 Item ID，已提测
+        <span class="en">Item Keyword — changed to Item ID, submitted</span></li>
+      <li><span class="code">DTS-10540</span> Search By/Item Keyword — OCU-011/012 已修，已提测
+        <span class="en">Search By/Item Keyword — OCU-011/012 fixed, submitted</span></li>
+      <li><span class="code">DTS-10541</span> Order Entry 下拉 — OE-015/016/017/019 已修，已提测
+        <span class="en">Order Entry dropdown — OE-015/016/017/019 fixed, submitted</span></li>
+      <li><span class="code">DTS-10624</span> Shipping Method 下拉 — 级联打通，已提测
+        <span class="en">Shipping Method dropdown — cascade enabled, submitted</span></li>
+      <li><span class="code">DTS-10627</span> Put Away Report Item 筛选 — 已修，已提测
+        <span class="en">Put Away Report Item filter — fixed, submitted</span></li>
+      <li><span class="code">DTS-10661</span> MTD Received 超时提示 — 已修，已提测
+        <span class="en">MTD Received timeout prompt — fixed, submitted</span></li>
+      <li><span class="code">DTS-10539</span> Shipped Summary 筛选下拉污染/数据缺失 — 下拉混入分页条数已修；Shipped Date/Qty 为空系 WMS 返回 null，待其修复
+        <span class="en">Shipped Summary filter pollution/data missing — dropdown pagination fixed; Shipped Date/Qty null from WMS, pending WMS fix</span></li>
+      <li><span class="code">DTS-10609</span> Inventory Status 测试 — INV-STS-003/004 已修；001 Lot No、002 Description 受 WMS 限制
+        <span class="en">Inventory Status test — INV-STS-003/004 fixed; 001/002 blocked by WMS limitation</span></li>
+      <li><span class="code">DTS-10607</span> Inventory Activity 测试 — INV-ACT-001/002/004 已修；003 Lot# 同受 WMS 限制
+        <span class="en">Inventory Activity test — INV-ACT-001/002/004 fixed; 003 blocked by WMS limitation</span></li>
+    </ul>
+
+    <div class="tag other">其他 Others</div>
+    <ul>
+      <li>待上线：<span class="code">CRM-7198</span>（参数传递修复，Ready to release）；<span class="code">DTS-11495</span>（CP2.0 横幅，PO Pass 待归档）
+        <span class="en">Pending release: CRM-7198 (param fix, Ready to release); DTS-11495 (CP2.0 banner, PO Pass pending archive)</span></li>
+      <li>PO 验收中：<span class="code">DTS-11494</span>（Claim 切 FMS）、<span class="code">DTS-11592</span>（Outbound 单据 WMS 不存在）
+        <span class="en">In PO review: DTS-11494 (Claim to FMS), DTS-11592 (Outbound not in WMS)</span></li>
+      <li>已闭环：<span class="code">DTS-11657</span>（API 核对）；Inventory 6 张 QA 缺陷单（11 个 P0/P1）；<span class="code">DTS-11763/11731/11730/11700</span>（线上缺陷）
+        <span class="en">Closed: DTS-11657 (API verification); 6 Inventory QA defect tickets (11 P0/P1); DTS-11763/11731/11730/11700 (production defects)</span></li>
+    </ul>
+
+    <div class="tag plan">下周计划 Next Week</div>
+    <ul>
+      <li>开发提测：<span class="code">DTS-11796</span>（横幅 User guide 入口）；<span class="code">DTS-11238</span>、<span class="code">DTS-11767</span> 自测提测；<span class="code">DTS-11091</span> 收尾提测；<span class="code">CRM-8996</span> 修复验证
+        <span class="en">Dev to test: DTS-11796 (banner User guide); DTS-11238/11767 self-test; DTS-11091 wrap-up; CRM-8996 fix verification</span></li>
+      <li>上线/验收：<span class="code">CRM-7198</span> 发版闭环；跟进 <span class="code">CRM-9136</span>、<span class="code">DTS-11494</span>、<span class="code">DTS-11592</span> 的 PO 验收；<span class="code">DTS-11098</span> 测试反馈
+        <span class="en">Release/acceptance: CRM-7198 release closure; follow up CRM-9136/DTS-11494/DTS-11592 PO review; DTS-11098 test feedback</span></li>
+      <li>跨团队：<span class="code">TMS-9454</span> 与 FMS 联调；推动 <span class="code">WISE2018-40315</span> 让 WMS 支持过滤参数
+        <span class="en">Cross-team: TMS-9454 FMS integration; push WISE2018-40315 WMS filter param support</span></li>
+    </ul>
+
+    <div class="tag risk">⚠ 当前卡点 / 风险点 Risks & Blockers</div>
+    <ul>
+      <li>WMS 不支持 Lot No/Lot#、Description、Shipped Date/Qty 过滤（<span class="code">WISE2018-40315</span>），阻塞多个查询缺陷，待升级联调
+        <span class="en">WMS does not support Lot No/Lot#, Description, Shipped Date/Qty filter (WISE2018-40315), blocking multiple query defects, pending upgrade</span></li>
+      <li><span class="code">CRM-8996</span> / <span class="code">DTS-11757</span> 待验证；on-behalf 越权、租户 fail-open 经裁定不处理，需确认网关兜底
+        <span class="en">CRM-8996/DTS-11757 pending verification; on-behalf bypass and tenant fail-open ruled not to fix, need gateway fallback confirmation</span></li>
+      <li><span class="code">TMS-9454</span> 跨团队联调进度不可控
+        <span class="en">TMS-9454 cross-team integration progress uncertain</span></li>
+    </ul>
+  </div>
+
+  <div class="footer">
+    Nov 16 – Nov 20, 2026 · IDC & Linker Weekly Report · Reporter: Coco Wang · PM Team · Internal Only
+  </div>
+
+</div>
+</body>
+</html>
